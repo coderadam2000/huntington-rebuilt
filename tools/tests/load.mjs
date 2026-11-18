@@ -14,13 +14,17 @@ async function until(fn, ms = 15000, every = 150) { const t0 = Date.now(); for (
 
 const browser = await chromium.launch({ args: ['--no-sandbox'] });
 // mode per mirror host: 'ok' | 'dead' (fails at once) | 'hang' (never answers) | a number (answers after that many ms)
-async function hub(mirrors, loaderFile) {
+async function hub(mirrors, loaderFile, { requireAccount, blockAccount = false, savedAccount = false } = {}) {
   const host = loaderFile === 'loader.html' ? 'https://coderadam2000.github.io/huntington-rebuilt/loader.html' : HOST;
   const ctx = await browser.newContext({ viewport: { width: 1280, height: 800 } });
-  await ctx.addInitScript(() => {
+  await ctx.addInitScript(saved => {
     localStorage.setItem('hg_release', '999');
     localStorage.setItem('hgv:tour', '2');
-  });
+    if (saved) {
+      localStorage.setItem('hgv:key', 'x'.repeat(43));
+      localStorage.setItem('hgv:name', 'Returning Player');
+    }
+  }, savedAccount);
   const page = await ctx.newPage(); page.reqs = []; page.errs = [];
   page.on('pageerror', e => page.errs.push(e.message));
   await page.route('**/*', async r => {
@@ -28,6 +32,7 @@ async function hub(mirrors, loaderFile) {
     if (u === host) {
       let body = fs.readFileSync(path.join(ROOT, loaderFile || 'index.html'), 'utf8');
       if (!loaderFile) body = body.replace(/<head[^>]*>/i, m => m + `<script>window.HG_VERSION='${REL}';</script>`);
+      if (requireAccount !== undefined) body = body.replace(/var HG_REQUIRE_GRAPEVINE = (?:true|false);/, `var HG_REQUIRE_GRAPEVINE = ${requireAccount};`);
       return r.fulfill({ contentType: 'text/html', body });
     }
     const m = /^https:\/\/([a-z]+)\.jsdelivr\.net\/gh\/([^@]+)@([^/]+)\/(.*)$/.exec(u);
@@ -36,6 +41,7 @@ async function hub(mirrors, loaderFile) {
       if (repo !== REPO || ref !== (loaderFile ? 'main' : REL)) return r.abort();
       const mode = mirrors[mirror] ?? 'ok', file = decodeURIComponent(filePath.split('?')[0]);
       page.reqs.push(mirror + ':' + file);
+      if (blockAccount && file === 'gv/account.js') return r.abort();
       if (mode === 'dead') return r.abort();
       if (mode === 'hang') return;                                   // never answered
       if (typeof mode === 'number') await sleep(mode);
@@ -54,6 +60,22 @@ const playing = p => until(() => p.evaluate(() => { try { return !!(current && c
 const play = (p, d = GAME) => p.evaluate(d => playNow(GAMES.find(g => g.dir === d)), d);
 
 try {
+  console.log('=== Grapevine sign-in setting ===');
+  let page = await hub({}, null, { requireAccount: false, blockAccount: true });
+  await page.locator('.game[data-dir="Tetris"]').click({ timeout: 5000 });
+  check('a new visitor can open Tetris with the account download blocked', !!(await playing(page)));
+  await page.context().close();
+
+  page = await hub({}, null, { requireAccount: false, savedAccount: true });
+  await page.waitForFunction(() => window.HGGrapevine?.me() && !window.HGGrapevine.online());
+  await page.locator('.game[data-dir="Tetris"]').click({ timeout: 5000 });
+  check('a returning player can open Tetris while Grapevine is offline', !!(await page.waitForFunction(() => !!current?.html, null, { timeout: 5000 })));
+  await page.context().close();
+
+  page = await hub({}, null, { requireAccount: true, blockAccount: true });
+  check('re-enabling the requirement shows the sign-in gate on startup', await page.locator('#gate').isVisible());
+  await page.context().close();
+
   console.log('=== Both loaders fetch index.html from the rebuilt repository ===');
   for (const loaderFile of ['loader.html', 'deliverables/loader-to-paste.txt']) {
     const page = await hub({ cdn: 'dead' }, loaderFile);

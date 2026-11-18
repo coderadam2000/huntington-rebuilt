@@ -496,7 +496,7 @@ function gvBeforePlay(g, go, fast) {
   if (typeof prefetchGame === 'function') prefetchGame(g);      // the download starts now, alongside the save check below (it used to wait for it)
   // multiplayer (an invite, a hub room): straight in. Saves still sync in the background, and anything newer from the
   // account waits until the game closes, the same as "Play without waiting".
-  if (fast) { L.sync.setGameOpen(true); if (L.online()) L.sync.run().catch(function () {}); return go(); }
+  if (fast || (!HG_REQUIRE_GRAPEVINE && !L.online())) { L.sync.setGameOpen(true); if (L.online()) L.sync.run().catch(function () {}); return go(); }
   var s0 = L.sync.status(), recent = L.online() && s0.synced && Date.now() - (s0.at || 0) < 60000;
   if (recent) { L.sync.setGameOpen(true); return go(); }
   var id = ++loadId, done = false;
@@ -516,6 +516,6 @@ function gvAfterPlay() { var L = window.HGGrapevine; if (L && L.me()) setTimeout
 document.addEventListener('visibilitychange', function () { var L = window.HGGrapevine; if (document.hidden && L && L.me() && L.online()) L.sync.run().catch(function () {}); });
 if (!BUNDLE) {
   if (hasSavedKey()) { paintChip(); loadGV().then(function (L) { L.resume(); }, function () {}); }   // signed in before: bring the account up quietly
-  else { closePlayer(); showGate(); }
+  else if (HG_REQUIRE_GRAPEVINE) { closePlayer(); showGate(); }
 }
 if (start === 'chat') showTab('chat'); else if (start === 'account') showTab('acct');

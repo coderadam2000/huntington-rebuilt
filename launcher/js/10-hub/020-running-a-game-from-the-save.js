@@ -304,6 +304,8 @@ function fetchGV(file) {
     });
   });
 }
+// Set to true to require Grapevine sign-in at startup again.
+var HG_REQUIRE_GRAPEVINE = false;
 var guestMode = false, gvP = null, acctMounted = false, gateMounted = false, chatLoaded = false;
 function loadGV() {
   if (gvP) return gvP;
@@ -363,7 +365,7 @@ function onGvChange() {
   if (L && L.eco) { profMount(); feedMount(); }
   if (signedIn && !guestMode) maybeTour();
   if (signedIn && L.online() && !window.__cacheKicked) { window.__cacheKicked = 1; startCacheLater(5000); }
-  document.getElementById('gate').hidden = signedIn || guestMode || BUNDLE;
+  document.getElementById('gate').hidden = !HG_REQUIRE_GRAPEVINE || signedIn || guestMode || BUNDLE;
   if (!signedIn && chatLoaded) { chatLoaded = false; document.getElementById('gvapp').removeAttribute('srcdoc'); showTab('games'); closePlayer(); }
   // The full app starts in the background once the account is connected (so it never competes with it for the network),
   // and messages arrive while you play. It is ~600 KB to parse and start: wait for a quiet moment so it does not land on
@@ -374,8 +376,7 @@ function onGvChange() {
     setTimeout(function () { ric(function () { if (chatLoaded === 'pending') startChat(); }, { timeout: 5000 }); }, 2500);
   }
 }
-// The gate: nothing in the launcher works without an account. A device that signed in before opens straight away
-// (offline too); the account reconnects quietly in the background.
+// When sign-in is required, this gate prompts new visitors. Returning accounts resume in the background.
 function showGate() {
   var gate = document.getElementById('gate'), box = document.getElementById('gate-box');
   gate.hidden = false;
@@ -423,6 +424,7 @@ window.addEventListener('blur', function () {
 });
 function showTab(which) {
   if (guestMode && which !== 'games' && which !== 'mp') { guestMode = false; onGvChange(); return; }   // those need an account: show the sign-in screen again
+  if (!HG_REQUIRE_GRAPEVINE && which === 'chat' && !(window.HGGrapevine && window.HGGrapevine.me())) which = 'acct';
   var chat = which === 'chat';
   document.getElementById('view-games').hidden = which !== 'games';
   document.getElementById('view-acct').hidden = which !== 'acct';
@@ -443,7 +445,7 @@ function showTab(which) {
   if (which === 'acct' && !acctMounted) {
     var box = document.getElementById('view-acct');
     box.innerHTML = '<div class="sub" style="text-align:center;padding:30px 0">Loading...</div>';
-    loadGV().then(function () { acctMounted = true; window.HGGrapevineUI.mount(box); });
+    loadGV().then(function () { acctMounted = true; window.HGGrapevineUI.mount(box); }, function (e) { box.textContent = e.message; });
   }
 }
 // What the full app is showing, carried to the launcher: unread chats and friend requests as a badge on its tab.
