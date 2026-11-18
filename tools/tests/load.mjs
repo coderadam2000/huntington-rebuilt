@@ -6,7 +6,7 @@ import fs from 'node:fs';
 import path from 'node:path';
 
 const ROOT = new URL('../../', import.meta.url).pathname;
-const HOST = 'https://fiddle.jshell.net/', REL = 'r99', GAME = 'Tetris';
+const HOST = 'https://fiddle.jshell.net/', REPO = 'coderadam2000/huntington-rebuilt', REL = 'r99', GAME = 'Tetris';
 let failures = 0;
 const check = (name, ok, extra = '') => { console.log(`${ok ? 'PASS' : 'FAIL'}  ${name}${extra ? '  — ' + extra : ''}`); if (!ok) failures++; };
 const sleep = ms => new Promise(r => setTimeout(r, ms));
@@ -14,20 +14,28 @@ async function until(fn, ms = 15000, every = 150) { const t0 = Date.now(); for (
 
 const browser = await chromium.launch({ args: ['--no-sandbox'] });
 // mode per mirror host: 'ok' | 'dead' (fails at once) | 'hang' (never answers) | a number (answers after that many ms)
-async function hub(mirrors) {
+async function hub(mirrors, loaderFile) {
+  const host = loaderFile === 'loader.html' ? 'https://coderadam2000.github.io/huntington-rebuilt/loader.html' : HOST;
   const ctx = await browser.newContext({ viewport: { width: 1280, height: 800 } });
-  // In a dev tree the hub and the games carry licence keys from different releases (only tools/build-release.py makes
-  // them agree, and tools/tests/gate*.js test that), so the games' own licence check is switched off here.
-  await ctx.addInitScript(() => { window.HG_DEV = 1; });
+  await ctx.addInitScript(() => {
+    localStorage.setItem('hg_release', '999');
+    localStorage.setItem('hgv:tour', '2');
+  });
   const page = await ctx.newPage(); page.reqs = []; page.errs = [];
   page.on('pageerror', e => page.errs.push(e.message));
   await page.route('**/*', async r => {
     const u = r.request().url();
-    if (u === HOST) return r.fulfill({ contentType: 'text/html', body: fs.readFileSync(ROOT + 'index.html', 'utf8').replace(/<head[^>]*>/i, m => m + `<script>window.HG_VERSION='${REL}';try{localStorage.setItem('hgv:tour','2')}catch(e){}</script>`) });
-    const m = /^https:\/\/([a-z]+)\.jsdelivr\.net\/gh\/[^/]+\/[^/@]+@([^/]+)\/(.*)$/.exec(u);
+    if (u === host) {
+      let body = fs.readFileSync(path.join(ROOT, loaderFile || 'index.html'), 'utf8');
+      if (!loaderFile) body = body.replace(/<head[^>]*>/i, m => m + `<script>window.HG_VERSION='${REL}';</script>`);
+      return r.fulfill({ contentType: 'text/html', body });
+    }
+    const m = /^https:\/\/([a-z]+)\.jsdelivr\.net\/gh\/([^@]+)@([^/]+)\/(.*)$/.exec(u);
     if (m) {
-      const mode = mirrors[m[1]] ?? 'ok', file = decodeURIComponent(m[3].split('?')[0]);
-      page.reqs.push(m[1] + ':' + file);
+      const [, mirror, repo, ref, filePath] = m;
+      if (repo !== REPO || ref !== (loaderFile ? 'main' : REL)) return r.abort();
+      const mode = mirrors[mirror] ?? 'ok', file = decodeURIComponent(filePath.split('?')[0]);
+      page.reqs.push(mirror + ':' + file);
       if (mode === 'dead') return r.abort();
       if (mode === 'hang') return;                                   // never answered
       if (typeof mode === 'number') await sleep(mode);
@@ -37,7 +45,7 @@ async function hub(mirrors) {
     }
     return r.abort();                                                // nothing else exists in this test
   });
-  await page.goto(HOST);
+  await page.goto(host);
   await until(() => page.evaluate(() => typeof playNow === 'function' && document.querySelectorAll('.game').length > 5));
   return page;
 }
@@ -46,6 +54,15 @@ const playing = p => until(() => p.evaluate(() => { try { return !!(current && c
 const play = (p, d = GAME) => p.evaluate(d => playNow(GAMES.find(g => g.dir === d)), d);
 
 try {
+  console.log('=== Both loaders fetch index.html from the rebuilt repository ===');
+  for (const loaderFile of ['loader.html', 'deliverables/loader-to-paste.txt']) {
+    const page = await hub({ cdn: 'dead' }, loaderFile);
+    check(`${loaderFile} boots from the next mirror on main`, !!(await game(page)) && page.reqs.includes('fastly:index.html'), page.errs.slice(0, 2).join(' | '));
+    await play(page);
+    check('Tetris opens with a valid launcher token', !!(await until(() => page.evaluate(() => document.getElementById('frame').contentWindow.HG_OK === 1))) && page.reqs.includes('fastly:Tetris/index.html'));
+    await page.context().close();
+  }
+
   console.log('=== 1. a healthy network: load, then the saved copy ===');
   let P = await hub({});
   check('the hub runs on the fake jsfiddle host', !!(await game(P)), P.errs.slice(0, 2).join(' | '));

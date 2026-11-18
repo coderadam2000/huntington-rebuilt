@@ -55,32 +55,14 @@ html,body{margin:0;height:100%;background:#060912}
 <div id="boot"><div class="bt-neb"><i></i><i></i><i></i></div><div class="bt-stars"></div><div class="bt-in"><div class="bt-emb"><svg viewBox="0 0 120 120" aria-hidden="true"><defs><linearGradient id="bt-grad" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#a78bfa"/><stop offset=".55" stop-color="#f97316"/><stop offset="1" stop-color="#2dd4bf"/></linearGradient></defs><polygon class="bt-hex" points="60,6 107,33 107,87 60,114 13,87 13,33"/></svg><b>HG</b><span class="bt-orb"><i></i><i></i><i></i><i></i><i></i></span></div><div class="bt-title">HUNTINGTON GAMES</div><div class="bt-bar"><span></span></div><div class="bt-stage" id="msg">Starting</div><div class="bt-tip"></div><div class="bt-welcome">Welcome! Pick a game, make your profile and earn goons.</div></div></div>
 <!--@/boot.html-->
 <script>
-// Huntington Games Launcher. Paste this into the HTML panel at jsfiddle.net or jsbin.com. Official copy: the Launcher tab of the Huntington Games doc.
-// It downloads the newest launcher from GitHub (or the jsDelivr CDN) every time, so this code never needs updating,
-// and it works even where github.io is blocked.
-function findLatest(repo, floor, cb) {
-  // Releases are git tags r1, r2, r3... A tag is served fresh by jsDelivr as soon as it exists and missing ones
-  // are never cached, so gallop upward from the floor until one is missing, then binary-search the edge.
-  function exists(n) {
-    return fetch('https://cdn.jsdelivr.net/gh/' + repo + '@r' + n + '/latest.json').then(function (r) { return r.ok; }).catch(function () { return false; });
-  }
-  var lo = floor, step = 1;
-  function bisect(a, b) {
-    if (b - a <= 1) return cb(a);
-    var m = (a + b) >> 1;
-    exists(m).then(function (ok) { if (ok) bisect(m, b); else bisect(a, m); });
-  }
-  function gallop() {
-    exists(lo + step).then(function (ok) { if (ok) { lo += step; step *= 2; gallop(); } else bisect(lo, lo + step); });
-  }
-  gallop();
-}
-function cachedHub(cb) {
+// Huntington Games Launcher. Paste this into the HTML panel at jsfiddle.net or jsbin.com.
+// The launcher loads index.html from the rebuilt repository's main branch through jsDelivr.
+function cachedHub(repo, cb) {
   // the launcher saves a copy of itself in IndexedDB the first time it runs, for when jsDelivr cannot be reached
   try {
-    var rq = indexedDB.open('hg-offline', 1);
+    var rq = indexedDB.open('hg-offline:' + repo, 1);
     rq.onupgradeneeded = function () { try { rq.result.createObjectStore('files'); } catch (e) {} };
-    rq.onerror = function () { cb(null); };
+    rq.onerror = rq.onblocked = function () { cb(null); };
     rq.onsuccess = function () {
       try {
         var g = rq.result.transaction('files').objectStore('files').get('hub');
@@ -105,8 +87,8 @@ function hgP(p, stage, tip) {
   window.HG_TIP_T = setInterval(function () { if (t.dataset.err) return; t.className = 'bt-tip dim'; setTimeout(function () { i = (i + 1) % HG_TIPS.length; t.textContent = HG_TIPS[i]; t.className = 'bt-tip'; }, 400); }, 3800);
 })();
 (function () {
-  var repo = 'hunterefstration/huntington-games';
-  var hosts = ['cdn', 'fastly', 'gcore', 'testingcf'], i = 0, version = null, booted = false, saved = null, savedDone = false, timer = null;
+  var repo = 'coderadam2000/huntington-rebuilt', version = 'main';
+  var hosts = ['cdn', 'fastly', 'gcore', 'testingcf'], i = 0, booted = false, failed = false, saved = null, timer = null;
   function boot(html, ver) {
     if (booted) return; booted = true; clearTimeout(timer);
     clearInterval(window.HG_TIP_T); hgP(.72, 'Starting');
@@ -118,10 +100,11 @@ function hgP(p, stage, tip) {
     if (saved) { hgP(.6, 'Offline: loading the saved copy'); boot(saved.text, saved.rel); return true; }
     return false;
   }
-  cachedHub(function (r) { saved = r; savedDone = true; });
+  cachedHub(repo, function (r) { saved = r; if (failed && !booted) useSaved(); });
   function next() {
     if (booted) return;
     if (i >= hosts.length) {
+      failed = true;
       if (useSaved()) return;
       var tp = document.querySelector('#boot .bt-tip'); if (tp) tp.dataset.err = '1';
       hgP(1, 'Could not download the launcher', 'cdn.jsdelivr.net may be blocked on this network. Wait a minute and reload, or try another network.');
@@ -130,22 +113,15 @@ function hgP(p, stage, tip) {
     var url = 'https://' + hosts[i++] + '.jsdelivr.net/gh/' + repo + '@' + version + '/index.html';
     hgP(.3 + i * .08, i > 1 ? 'Trying another mirror' : 'Downloading the launcher');
     var ctl = window.AbortController ? new AbortController() : null, t = setTimeout(function () { if (ctl) ctl.abort(); }, 10000);
-    fetch(url, ctl ? { signal: ctl.signal } : {}).then(function (r) {
+    fetch(url, { cache: 'no-cache', signal: ctl ? ctl.signal : undefined }).then(function (r) {
       clearTimeout(t);
       if (!r.ok) throw new Error('HTTP ' + r.status);
       return r.text();
-    }).then(function (html) { boot(html, version); }).catch(next);
+    }).then(function (html) { boot(html, version); }).catch(function () { clearTimeout(t); next(); });
   }
-  var floor = 1;
-  try { floor = Math.max(1, parseInt(localStorage.getItem('hg_release'), 10) || 1); } catch (e) {}
   // a slow or blocked network should not leave kids waiting when a saved copy exists
   timer = setTimeout(function () { if (!booted) useSaved(); }, 8000);
-  hgP(.12, 'Finding the newest version');
-  findLatest(repo, floor, function (n) {
-    if (booted) return;
-    try { localStorage.setItem('hg_release', n); } catch (e) {}
-    version = 'r' + n; next();
-  });
+  next();
 })();
 </script>
 </body>

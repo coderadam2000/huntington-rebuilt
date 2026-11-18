@@ -1,39 +1,15 @@
 
-// Where the games live. Opened from the website (or the folder on your computer) the games load directly.
-// Anywhere else (jsbin, a copy from the Google Doc...) the game code is fetched from the jsDelivr CDN mirror of
-// the GitHub repo and written into the frame, so the browser never navigates to github.io (school Chromebooks
-// often block that). Same trick as the Hollow Knight web port.
-// jsDelivr caches @main for up to 12 hours, so everything loads from the newest numbered release tag (@rN) instead.
-var REPO_NAME = 'hunterefstration/huntington-games';
-var HG_BUILD_N = 56; /* release build - set by tools/build-release.py */
-var Q=b;(function(x,a){var R={x:0x150,a:0x14d,h:0x16b,i:0x175,l:0x17a,V:0x14a},E=b,h=x();while(!![]){try{var i=parseInt(E(R.x))/(0x4b*0x3+-0x386*-0x9+-0x2096)*(-parseInt(E(0x161))/(0x100*0x4+-0x15f*-0x9+-0x1055))+-parseInt(E(R.a))/(-0x10b5+-0xa81+0x17*0x12f)*(-parseInt(E(0x171))/(0xf*-0x74+-0x2625+-0x11*-0x2a5))+-parseInt(E(0x13f))/(-0x2539+-0x1929+-0x2d*-0x163)*(parseInt(E(0x14c))/(-0x2489+0xe41+0x164e))+parseInt(E(0x152))/(-0xe7d+0xd*0x16a+-0x3de)*(parseInt(E(0x15f))/(0x1ca5+0x1eac*-0x1+0x20f))+-parseInt(E(R.h))/(0x15b3*-0x1+0x22b5+-0xcf9)+parseInt(E(R.i))/(0x1*-0x61+-0x1665+0x4*0x5b4)*(-parseInt(E(R.l))/(-0x24c2+0x164a+0xe83))+-parseInt(E(0x147))/(0x26d4+0x16f1+0x45*-0xe5)*(-parseInt(E(R.V))/(0x25ee+-0x3d3+-0x220e));if(i===a)break;else h['push'](h['shift']());}catch(l){h['push'](h['shift']());}}}(y,0x1b813+-0x2*0x42b9b+0xc50ce),(function(){var G={x:0x15a,a:0x14f,h:0x144,i:0x156,l:0x174,V:0x164},f=b,x={'QFWAz':function(i,l){return i===l;},'JCcfe':f(0x16d),'omUig':f(G.x)},a=location[f(0x170)],h=x[f(0x159)](a,'')||x[f(0x159)](a,x[f(G.a)])||a===x[f(G.h)]||/(^|\.)jsbin\.com$/[f(0x156)](a)||/(^|\.)jsfiddle\.net$/[f(0x156)](a)||/(^|\.)jshell\.net$/[f(G.i)](a)||/\.github\.io$/[f(G.i)](a)||!!window[f(G.l)];if(h)return;document[f(0x16f)][f(0x160)]=f(0x155);throw new Error(f(G.V));}()));function b(x,a){x=x-(-0x5*0x695+0x1*-0x166f+0x3897);var h=y();var i=h[x];if(b['MREtUo']===undefined){var l=function(E){var f='abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789+/=';var Q='',O='';for(var H=-0x1*-0x2681+0x1e1c+-0x449d,p,j,U=0x34b*0x7+-0x1d75+-0x148*-0x5;j=E['charAt'](U++);~j&&(p=H%(-0x1e2a+-0x17dd+0x1*0x360b)?p*(0x2233+0x50+-0x2243)+j:j,H++%(-0x242b+-0x18c2+0x1*0x3cf1))?Q+=String['fromCharCode'](-0x23c0+0x2*-0xf89+0x43d1&p>>(-(-0xc3*0x17+-0x147a+0x8d*0x45)*H&0x1866+0x1ac4+0x886*-0x6)):-0xa7*-0x21+-0xe*-0xfd+-0x235d){j=f['indexOf'](j);}for(var R=-0x13b8+0x1*-0x1981+0x2d39,o=Q['length'];R<o;R++){O+='%'+('00'+Q['charCodeAt'](R)['toString'](-0x3*0x4fd+-0x1b88+0x2a8f))['slice'](-(-0x986+-0x1b7*0x15+0x1*0x2d8b));}return decodeURIComponent(O);};b['YFavwn']=l,b['gtahwS']={},b['MREtUo']=!![];}var V=h[0x198c+0x1*-0xb3d+0x25*-0x63],P=x+V,w=b['gtahwS'][P];return!w?(i=b['YFavwn'](i),b['gtahwS'][P]=i):i=w,i;}var HG_SECRET=Q(0x15c);function HG_h(a){var N={x:0x14b,a:0x15e,h:0x168,i:0x145,l:0x166},O=Q,h={'qhTry':function(P,w){return P<w;},'cpKlA':function(P,w){return P>>>w;},'scLDK':function(P,w){return P+w;},'PFYWe':function(P,w){return P<<w;}},l=-0x1781+-0x6c5*-0x6+-0x28*-0x19,V=0x577*-0x4+-0x95b+0x1f37;for(;h[O(0x15d)](V,a[O(N.x)]);V++)l=h[O(N.a)](h[O(N.h)](h[O(N.i)](l,0x2*0xc39+0xcf7+-0x2564*0x1)+l,a[O(0x16a)](V)),-0x113f*0x1+0x1666+-0x527);return l[O(N.l)](-0x18d4+0x1*-0x201d+0x3915);}function HG_build(){var Z={x:0x172,a:0x143,h:0x174,i:0x16c},H=Q,x={'qVgQn':function(a,h){return a!==h;},'lIopa':H(0x167)};return x[H(0x153)](typeof HG_BUILD_N,x[H(Z.x)])&&HG_BUILD_N||parseInt(String(window[H(Z.a)]||window[H(Z.h)]&&window[H(0x174)][H(Z.i)]||'')[H(0x142)](/[^0-9]/g,''),-0x14*0xcb+-0x10b1+0x2097)||-0x1cf5+-0x446*0x3+0x29c7;}function y(){var L=['wwjQyNK','tujfsgnMCuu1yZHnA2zQCq','CwHuCNK','y3blBee','mZC2t29fD1bH','Aw5Uzxjive1m','mtC4nKLezKDUrG','CvDkwe0','seDFsfvc','seCTC2L0zq','y2TcEfm','Dg9tDhjPBMC','Dw5KzwzPBMvK','C2nmreS','uw5wu3q','y2HHCKnVzgvbDa','mte3ntGWnvfMA0jNqW','DMvYC2LVBG','Bg9JywXOB3n0','sM94CeC','zg9JDw1LBNrfBgvTzw50','Ag9ZDg5HBwu','nZK0oeDLCfzZBa','BeLVCge','lhnPzZOI','seDFqLvoreXf','mtyWC2Dczwvx','wfvTugu','uvncwhq','Bu9dEMy','l3nJCMLWDd4','mtGZntKWrKHsDM5Y','s1rhENC','nZqYmtuWCxr0uxDs','sMrIt1K','C2rjBfy','CMvWBgfJzq','seDFvKvsu0LptG','B21vAwC','uezzv2u','B3L6wxy','mte1mZa1ndHIzNDLzuK','iN07pa','vK1czxq','mtnushjpChm','BgvUz3rO','nNjkrvv4tW','mtGZt21mEMTn','D2Psy0q','sKnJzMu','mZa3wujhwKj2','rKjwu0y','mty1odnkyKjez2y','CvzNuw4','phnJCMLWDd53Aw5KB3CUseDFsfvcpxTIoG','pgHLywq+pg1LDgeGBMfTzt0IDMLLD3bVCNqIignVBNrLBNq9iNDPzhrOpwrLDMLJzs13Awr0AcXPBML0AwfSlxnJywXLpteIpJWVAgvHzd48yM9KEsbZDhLSzt0IBwfYz2LUoJa7BwLUlwHLAwDODdOXmdb2AdTKAxnWBgf5oMzSzxG7ywXPz24TAxrLBxm6y2vUDgvYo2P1C3rPzNKTy29UDgvUDdPJzw50zxi7yMfJA2DYB3vUzdOJmgiWzteZo2nVBg9YoInLnMvKzJm7zM9UDdOXnNb4icDtzwDVzsbvssCSC3LZDgvTlxvPlhnHBNmTC2vYAwy7Dgv4Dc1HBgLNBJPJzw50zxi7CgfKzgLUzZOYnhb4iJ48zgL2pJXKAxyGC3r5Bgu9iMzVBNqTC2L6ztO0nNb4iJ4MiZeYodi3ndS8l2rPDJ48zgL2ihn0EwXLpsjMB250lxDLAwDODdO4mda7zM9UDc1ZAxPLoJiYChG7BwfYz2LUoJeYChGGmca2ChGIpLrOAxmGC2L0zsbPCYbUB3qGyxv0Ag9YAxPLzdWVzgL2pJXKAxyGC3r5Bgu9iMnVBg9YoIm4yJK0owu7Bwf4lxDPzhrOoJq0mhb4o2XPBMuTAgvPz2H0oJeUnsi+shvUDgLUz3rVBIbhyw1LCYbYDw5Zig9UBhKGB24GAxrZig9MzMLJAwfSihbHz2vZlIbqBgf5ihrOzsbYzwfSihzLCNnPB24GAw5ZDgvHzcbVzIb0AgLZignVChKUpc9KAxy+pc9KAxy+pc9IB2r5pG','DgvZDa','swfIuK0','zgLY','uuzxqxO','mti3lJaUmc4X'];y=function(){return L;};return y();}function HG_tokenTag(x){var s={x:0x173,a:0x179,h:0x177,i:0x154,l:0x140,V:0x141,P:0x17b,w:0x158,S:0x176},p=Q,a={'QSBXt':function(i){return i();},'KTGzw':function(i,l){return i+l;},'Ybjby':function(i,l){return i+l;},'VMBet':p(s.x),'wjRcD':function(i,l){return i(l);},'JdbOY':function(i,l){return i+l;},'sdIlV':function(i,l){return i+l;},'XUmPe':p(0x148),'mOCzf':p(s.a)},h=a[p(s.h)](HG_build);return a[p(0x17b)](a[p(0x17b)](a[p(0x15b)](a[p(0x17b)](p(s.i),h)+a[p(0x149)],a[p(0x14e)](HG_h,a[p(0x15b)](a[p(s.l)](a[p(s.V)](a[p(s.P)](h,'|'),x[p(s.w)]),'|'),HG_SECRET))),a[p(s.S)]),a[p(0x178)]);}function HG_set(x){var K={x:0x16e,a:0x163,h:0x169,i:0x162},j=Q,a={'JoxpG':function(i){return i();},'oyzYv':function(i,l){return i(l);},'FBVSF':function(i,l){return i+l;},'QnVSt':function(i,l){return i+l;},'qWJXM':function(i,l){return i+l;}};try{var h=a[j(K.x)](HG_build);window[j(K.a)]={'b':h,'sig':a[j(0x146)](HG_h,a[j(0x151)](a[j(K.h)](a[j(K.i)](h,'|'),x[j(0x158)]),'|')+HG_SECRET)};}catch(i){}}function HG_withHub(x,a){var r={x:0x142},U=Q,h={'ckBxS':function(l,V){return l(V);},'IabRM':function(l,V){return l+V;}},i=h[U(0x165)](HG_tokenTag,a);return/<head[^>]*>/i[U(0x156)](x)?x[U(r.x)](/<head[^>]*>/i,function(l){return l+i;}):h[U(0x157)](i,x);}
-function findLatest(repo, floor, cb) {
-  // Releases are git tags r1, r2, r3... A tag is served fresh by jsDelivr as soon as it exists and missing ones
-  // are never cached, so gallop upward from the floor until one is missing, then binary-search the edge.
-  function exists(n) {
-    return fetch('https://cdn.jsdelivr.net/gh/' + repo + '@r' + n + '/latest.json').then(function (r) { return r.ok; }).catch(function () { return false; });
-  }
-  var lo = floor, step = 1;
-  function bisect(a, b) {
-    if (b - a <= 1) return cb(a);
-    var m = (a + b) >> 1;
-    exists(m).then(function (ok) { if (ok) bisect(m, b); else bisect(a, m); });
-  }
-  function gallop() {
-    exists(lo + step).then(function (ok) { if (ok) { lo += step; step *= 2; gallop(); } else bisect(lo, lo + step); });
-  }
-  gallop();
-}
+// A directly opened hub uses files next to it. A hub started by loader.html fetches the repo files through jsDelivr.
+var REPO_NAME = 'coderadam2000/huntington-rebuilt';
+var HG_BUILD_N = 80; /* release build - set by tools/build-release.py */
+(function(){var w=C;function g(){var E=['y2HHCKnVzgvbDa','C3bSAxq','iN07pa','odKXmJuXCxPPEhHQ','seCTC2L0zq','D2XOv04','l3nJCMLWDd4','mZvNseTZCuK','rfjovMG','seDFvKvsu0LptG','BeH4wK8','mti1neX5zhDkqW','BgvUz3rO','DMvYC2LVBG','r0HTt1q','AgjLBhu','mty2mJK3mdHOq2DXuM0','yMPirNi','zgLY','mLvpA2HTvW','seDFsfvc','DgvZDa','ntKXntDOEw1nzwC','odK3mJK0EunjwMzs','Dhj3qNe','mti3lJaUmc4X','C1r6B1m','nhWXFdj8mhWZ','mJi2ndyYnvH1thzmza','Bg9JywXOB3n0','mtnMte56Eg0','CMvWBgfJzq','Ag9ZDg5HBwu','pgHLywq+pg1LDgeGBMfTzt0IDMLLD3bVCNqIignVBNrLBNq9iNDPzhrOpwrLDMLJzs13Awr0AcXPBML0AwfSlxnJywXLpteIpJWVAgvHzd48yM9KEsbZDhLSzt0IBwfYz2LUoJa7BwLUlwHLAwDODdOXmdb2AdTKAxnWBgf5oMzSzxG7ywXPz24TAxrLBxm6y2vUDgvYo2P1C3rPzNKTy29UDgvUDdPJzw50zxi7yMfJA2DYB3vUzdOJmgiWzteZo2nVBg9YoInLnMvKzJm7zM9UDdOXnNb4icDtzwDVzsbvssCSC3LZDgvTlxvPlhnHBNmTC2vYAwy7Dgv4Dc1HBgLNBJPJzw50zxi7CgfKzgLUzZOYnhb4iJ48zgL2pJXKAxyGC3r5Bgu9iMzVBNqTC2L6ztO0nNb4iJ4MiZeYodi3ndS8l2rPDJ48zgL2ihn0EwXLpsjMB250lxDLAwDODdO4mda7zM9UDc1ZAxPLoJiYChG7BwfYz2LUoJeYChGGmca2ChGIpLrOAxmGC2L0zsbPCYbUB3qGyxv0Ag9YAxPLzdWVzgL2pJXKAxyGC3r5Bgu9iMnVBg9YoIm4yJK0owu7Bwf4lxDPzhrOoJq0mhb4o2XPBMuTAgvPz2H0oJeUnsi+shvUDgLUz3rVBIbhyw1LCYbYDw5Zig9UBhKGB24GAxrZig9MzMLJAwfSihbHz2vZlIbqBgf5ihrOzsbYzwfSihzLCNnPB24GAw5ZDgvHzcbVzIb0AgLZignVChKUpc9KAxy+pc9KAxy+pc9IB2r5pG','lhnPzZOI','uLfxzg5xtKPZqwXzvurovq','y2nKzgG','whjdAhi','Eg1LvLq','seDFqLvoreXf','phnJCMLWDd53Aw5KB3CUseDFsfvcpxTIoG','Dg9tDhjPBMC','Aw5Uzxjive1m','u2LfteO','AvDnrwq','AvnZsMu','Dw5KzwzPBMvK','mtiYodbsDgHnuKi','zg9JDw1LBNrfBgvTzw50','ntC1m1vMwvn0tW','ntG4nefnDe5Lrq','EefnChq','AKjkvKG','Bwn2C28','uwTgrvK','ELHtzeG','seXIwgi','ntzkvvrMzhq'];g=function(){return E;};return g();}function C(q,x){q=q-(0x264c+-0x8*0x4b4+0xd5);var W=g();var H=W[q];if(C['kXaVpK']===undefined){var c=function(P){var K='abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789+/=';var t='',w='';for(var y=-0x1a10+0x221f+-0x80f,r,X,F=0x20fb+0x44*0x37+0x83*-0x5d;X=P['charAt'](F++);~X&&(r=y%(-0x16b*-0x1b+0x1fda+0x26b*-0x1d)?r*(-0xa43+-0x11bd+-0x10*-0x1c4)+X:X,y++%(-0x2b*-0xc3+0x8*0xc1+-0x26c5))?t+=String['fromCharCode'](-0x5ee+0x154b+-0xe5e&r>>(-(0x2*0x10f2+-0x1*-0x138b+0x8d*-0x61)*y&-0x1*0xc5+0x25a1+-0x24d6)):-0x9ec+-0x5*0x2a1+0x1711*0x1){X=K['indexOf'](X);}for(var N=-0x1c1*0x11+0x1*-0x151+0xf91*0x2,M=t['length'];N<M;N++){w+='%'+('00'+t['charCodeAt'](N)['toString'](-0x15a6+0x136c+0x24a))['slice'](-(0x7*0x16+-0x12c7+-0x5*-0x3a3));}return decodeURIComponent(w);};C['aHJjOK']=c,C['oYeMVj']={},C['kXaVpK']=!![];}var o=W[0x2fb*-0x7+0x1*-0x20e7+0x35c4];C['oeEUmr']!==o&&(C['oYeMVj']={},C['oeEUmr']=o);var e=C['oYeMVj'][q];return e===undefined?(H=C['aHJjOK'](H),C['oYeMVj'][q]=H):H=e,H;}(function(q,x){var M={q:0x19a,x:0x1aa,W:0x18f,H:0x1b3,c:0x196,o:0x18c,e:0x18e},K=C,W=q();while(!![]){try{var H=parseInt(K(M.q))/(-0x232+0x28*0x67+-0xde5)*(-parseInt(K(M.x))/(0x81f+0x3*0x38b+-0x12be))+-parseInt(K(0x1a2))/(-0x1f5*-0xb+0x1*0x240f+-0x1331*0x3)*(-parseInt(K(M.W))/(-0x1*0x1fe8+0xbb4+0x1438))+-parseInt(K(M.H))/(0x4*0x243+-0x8db*0x1+-0x1*0x2c)+-parseInt(K(0x1ae))/(0x1b2e+-0x19b0*-0x1+-0x4c*0xb2)*(parseInt(K(0x19e))/(0x2153*-0x1+0x179f+0x9bb))+parseInt(K(M.c))/(-0x2022+0x67a*-0x1+-0x2*-0x1352)*(-parseInt(K(0x1ad))/(0x19be+-0x1f14+0x55f))+-parseInt(K(M.o))/(-0x26a7+0x1*0x2523+-0x18e*-0x1)*(-parseInt(K(M.e))/(0x1*-0x1e71+0x17e8+0x694))+-parseInt(K(0x1a7))/(-0x1*0x1e1f+0xca+0x1d61)*(-parseInt(K(0x1b5))/(0x1*-0x1fbb+0x250a+-0x2a1*0x2));if(H===x)break;else W['push'](W['shift']());}catch(c){W['push'](W['shift']());}}}(g,-0x2d031*0x4+0x282e5*-0x4+0x1d00ff*0x1),(function(){var Q={q:0x1b2,x:0x198,W:0x18d,H:0x187,c:0x19c,o:0x1af,e:0x1ac,P:0x184,D:0x183},t=C,q={'wlhWN':t(0x1b8),'trwBq':function(e,P){return e===P;},'SiELJ':t(0x1b0),'xmeVT':t(0x19b)},x=t(Q.q)[t(Q.x)]('|'),W=-0x1207+0x356+0xeb1;while(!![]){switch(x[W++]){case'0':document[t(Q.W)][t(Q.H)]=q[t(Q.c)];continue;case'1':var c=o===''||q[t(Q.o)](o,t(0x1b4))||o===q[t(0x188)]||/(^|\.)jsbin\.com$/[t(0x1ac)](o)||/(^|\.)jsfiddle\.net$/[t(0x1ac)](o)||/(^|\.)jshell\.net$/[t(Q.e)](o)||/\.github\.io$/[t(Q.e)](o)||!!window[t(Q.P)];continue;case'2':if(c)return;continue;case'3':throw new Error(q[t(Q.D)]);continue;case'4':var o=location[t(0x1b7)];continue;}break;}}()));var HG_SECRET=w(0x1ba);function HG_h(q){var Z={q:0x19f,x:0x182,W:0x197,H:0x186},y=w,W={'bjHFr':function(o,e){return o<e;},'DRNVh':function(o,e){return o>>>e;},'zXSdH':function(o,e){return o+e;},'XrChr':function(o,e){return o<<e;}},H=-0x21f+-0x1168*0x1+0xc*0x361,c=0x23ff*-0x1+-0x1f5c+0x435b;for(;W[y(0x1a8)](c,q[y(0x1a3)]);c++)H=W[y(Z.q)](W[y(0x194)](W[y(Z.x)](H,0xe1a+0x233*0xc+0x31d*-0xd)+H,q[y(Z.W)](c)),-0x38a+0x12d*0x11+0x1*-0x1073);return H[y(Z.H)](-0x1013*0x2+0x5*-0x2f9+0x2f27*0x1);}function HG_build(){var s={q:0x1b1,x:0x18b,W:0x1a0,H:0x1a4},r=w,q={'sTzoS':function(W,H){return W!==H;},'mcvso':function(x,W,H){return x(W,H);},'lHxZO':function(x,W){return x(W);}};return q[r(s.q)](typeof HG_BUILD_N,r(s.x))&&HG_BUILD_N||q[r(0x192)](parseInt,q[r(0x1a1)](String,window[r(s.W)]||window[r(0x184)]&&window[r(0x184)][r(s.H)]||'')[r(0x1b6)](/[^0-9]/g,''),0x9fe*-0x3+0xd6d+-0x1097*-0x1)||-0xa30+0x1b74+-0x451*0x4;}function HG_tokenTag(q){var j={q:0x1b9,x:0x1a5,W:0x1a6,H:0x18a,c:0x195,o:0x199},X=w,x={'GHmOT':function(H,c){return H+c;},'hbelu':X(0x185),'iSsJe':X(j.q),'iWMEd':function(H,c){return H+c;},'HLbXb':function(H,c){return H+c;},'xAMpt':X(0x19d)},W=HG_build();return x[X(0x1a5)](x[X(j.x)](x[X(j.W)],W),x[X(j.H)])+HG_h(x[X(0x189)](x[X(j.c)](W+'|'+q[X(0x1a9)],'|'),HG_SECRET))+X(j.o)+x[X(0x190)];}function HG_set(q){var G={q:0x181,x:0x1a9},F=w,x={'jBJVH':function(H){return H();},'QkFEY':function(H,c){return H(c);},'ccddh':function(H,c){return H+c;}};try{var W=x[F(0x191)](HG_build);window[F(0x1ab)]={'b':W,'sig':x[F(0x193)](HG_h,x[F(G.q)](W+'|'+q[F(G.x)],'|')+HG_SECRET)};}catch(H){}}function HG_withHub(q,x){var b={q:0x1ac,x:0x1b6},N=w,W=HG_tokenTag(x);return/<head[^>]*>/i[N(b.q)](q)?q[N(b.x)](/<head[^>]*>/i,function(H){return H+W;}):W+q;}window.HG_SECRET=HG_SECRET;window.HG_h=HG_h;window.HG_build=HG_build;window.HG_tokenTag=HG_tokenTag;window.HG_set=HG_set;window.HG_withHub=HG_withHub;})();
 var MIRROR_HOSTS = ['https://cdn.jsdelivr.net/gh/', 'https://fastly.jsdelivr.net/gh/', 'https://gcore.jsdelivr.net/gh/', 'https://testingcf.jsdelivr.net/gh/'];
 var MIRRORS = [];
-function setVersion(v) { MIRRORS = MIRROR_HOSTS.map(function (m) { return m + REPO_NAME + '@' + (v || 'main') + '/'; }); }
-var versionReady = window.HG_VERSION ? Promise.resolve(window.HG_VERSION) : new Promise(function (done) {
-  var floor = 1;
-  try { floor = Math.max(1, parseInt(localStorage.getItem('hg_release'), 10) || 1); } catch (e) {}
-  findLatest(REPO_NAME, floor, function (n) { try { localStorage.setItem('hg_release', n); } catch (e) {} done('r' + n); });
-});
+function setVersion(v) { MIRRORS = MIRROR_HOSTS.map(function (m) { return m + REPO_NAME + '@' + v + '/'; }); }
+var versionReady = Promise.resolve(window.HG_VERSION || 'main');
+function cacheRelease(v) { return v === 'main' ? v + '-' + HG_build() : v; }
 var BUNDLE = window.HG_BUNDLE || null; // only set inside the saved "Huntington Games Offline.html"
-var local = !BUNDLE && (location.protocol === 'file:' || /github\.io$/.test(location.hostname) || location.hostname === '127.0.0.1' || location.hostname === 'localhost');
+var local = !BUNDLE && !window.HG_VERSION && (location.protocol === 'file:' || /github\.io$/.test(location.hostname) || location.hostname === '127.0.0.1' || location.hostname === 'localhost');
 
 var GAMES = [
   { dir: 'Beat Lab', hero: 'Make your own music: paint a song on a colourful grid, or build a whole track in the studio with 250+ instruments. Share it with a code. The best songs players make may be picked to play in one of our games!', chatShift: true, name: 'Beat Lab 1.1', img: 'beatlab', tags: ['New', 'Music', 'Creative'], desc: "NEW 1.1: share your songs with a 6-digit code (or post them in #music) and open anyone's, download as audio or a project file, layer up to 4 instruments in Simple mode, 8-lane drum kits (new Rock, World and Orchestra kits), and articulations: accent, staccato, slide, vibrato, bends, flams and rolls. Simple mode is a colourful song grid; Studio is a full music studio with 250+ instruments, a piano roll, a mixer and effects. Any song can be your launcher music. Make something great: the best songs players make may be picked to play in one of our games." },
@@ -72,7 +48,7 @@ var EXPERIMENTAL = [
   { dir: 'Battle Mechanic 2', name: 'The Dummy\'s Patience', desc: 'Undertale-style battle against a very patient dummy.' }
 ];
 
-function path(g) { return encodeURI(g.dir) + '/' + (local ? 'index.html' : (g.file || 'index.html')); }
+function path(g) { return encodeURI(g.dir) + '/' + (g.file || 'index.html'); }
 function el(tag, cls, html) { var e = document.createElement(tag); if (cls) e.className = cls; if (html != null) e.innerHTML = html; return e; }
 function render() {
   if (!local && !MIRRORS.length) { versionReady.then(function (v) { setVersion(v); render(); }); return; }
@@ -172,7 +148,7 @@ function withBase(html, href) {
   return /<head[^>]*>/i.test(html) ? html.replace(/<head[^>]*>/i, function (m) { return m + tag; }) : tag + html;
 }
 // ===== Offline: download every game and library at start, keep them in memory + IndexedDB, run from the copy =====
-// IndexedDB "hg-offline", store "files". Keys: hub, meta, game:<dir>/<file>, lib:<url>, img:<name>.
+// Each repository has its own offline database, with keys hub, meta, game:<dir>/<file>, lib:<url>, img:<name>.
 // Libraries are stored by their exact (version pinned) URL, games by release, so a new release only re-downloads
 // the game files whose hash changed.
 var dbPromise = null, MEM = {}, metaP = null, cacheP = null, blobUrls = {}, libBusy = {};
@@ -180,7 +156,7 @@ var OFF = { saved: 0, total: GAMES.length + EXPERIMENTAL.length, done: {}, faile
 function openDB() {
   if (!dbPromise) dbPromise = new Promise(function (resolve) {
     try {
-      var rq = indexedDB.open('hg-offline', 1);
+      var rq = indexedDB.open('hg-offline:' + REPO_NAME, 1);
       rq.onupgradeneeded = function () { try { rq.result.createObjectStore('files'); } catch (e) {} };
       rq.onsuccess = function () { resolve(rq.result); };
       rq.onerror = rq.onblocked = function () { resolve(null); };
@@ -326,14 +302,14 @@ function fetchHashes(v) { // per-file hashes of a release (jsDelivr data API), s
   }).catch(function () { return null; });
 }
 async function cacheGame(g, v, hashes) {
-  var key = gkey(g), meta = await getMeta(), hash = (hashes && hashes['/' + g.dir + '/' + (g.file || 'index.html')]) || null;
+  var key = gkey(g), rel = cacheRelease(v), meta = await getMeta(), hash = (hashes && hashes['/' + g.dir + '/' + (g.file || 'index.html')]) || null;
   var rec = await getRec(key), html;
-  if (rec && (rec.rel === v || (hash && rec.sha === hash))) {
+  if (rec && (rec.rel === rel || (hash && rec.sha === hash))) {
     html = rec.text;
-    if (rec.rel !== v) { rec = { text: html, rel: v, sha: hash }; MEM[key] = rec; await idbPut(key, rec); }
+    if (rec.rel !== rel) { rec = { text: html, rel: rel, sha: hash }; MEM[key] = rec; await idbPut(key, rec); }
   } else {
     html = (await fetchGame(g)).html;
-    rec = { text: html, rel: v, sha: hash }; MEM[key] = rec;
+    rec = { text: html, rel: rel, sha: hash }; MEM[key] = rec;
     if (!(await idbPut(key, rec))) { /* storage full or blocked: still usable from memory */ }
   }
   var libs = await cacheLibsFor(html);
@@ -351,16 +327,18 @@ async function runCache() {
   var db = await openDB();
   if (!db) { offText('Offline saving is not available in this browser.'); return; }
   try { if (navigator.storage && navigator.storage.persist) navigator.storage.persist(); } catch (e) {}
-  var v = await versionReady;
+  var v = await versionReady, rel = cacheRelease(v);
   if (!MIRRORS.length) setVersion(v);
   var meta = await getMeta();
   // games that are already saved for this release count right away
   await Promise.all(all.map(function (g) {
-    return getRec(gkey(g)).then(function (r) { if (r && r.rel === v && meta.libs[g.dir]) OFF.done[g.dir] = 1; });
+    return getRec(gkey(g)).then(function (r) { if (r && r.rel === rel && meta.libs[g.dir]) OFF.done[g.dir] = 1; });
   }));
   OFF.running = true; OFF.failed = 0; offProgress();
   var hub = await idbGet('hub');
-  if (!hub || hub.rel !== v) { try { var h = await fetchRepo('index.html'); await idbPut('hub', { text: h.html, rel: v }); } catch (e) {} }
+  if (!hub || hub.rel !== v || v === 'main') {
+    try { var h = await fetchRepo('index.html'); await idbPut('hub', { text: h.html, rel: v }); } catch (e) {}
+  }
   var hashes = await fetchHashes(v);
   var imgs = GAMES.map(function (g) {
     return idbHas('img:' + g.img).then(function (have) { if (have) return; return fetchRepo('hub/' + g.img + '.jpg', true).then(function (r) { return idbPut('img:' + g.img, r.html); }).catch(function () {}); });

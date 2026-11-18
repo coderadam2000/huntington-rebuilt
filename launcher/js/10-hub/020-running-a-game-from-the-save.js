@@ -46,10 +46,11 @@ function loadGameHtml(g, alive) {
   if (BUNDLE) return getRec(key).then(function (r) { if (!r) throw new Error('missing'); return { html: r.text, base: '' }; });
   return versionReady.then(function (v) {
     if (!MIRRORS.length) setVersion(v);
+    var rel = cacheRelease(v);
     return (PRE[g.dir] || Promise.resolve()).then(function () { return getRec(key); }).then(function (rec) {
-      if (rec && rec.rel === v) return { html: rec.text, base: MIRRORS[0], cached: true };
+      if (rec && rec.rel === rel) return { html: rec.text, base: MIRRORS[0], cached: true };
       return fetchRepoRetry(path(g), false, alive).then(function (r) {
-        var nr = { text: r.html, rel: v, sha: null }; MEM[key] = nr; idbPut(key, nr);
+        var nr = { text: r.html, rel: rel, sha: null }; MEM[key] = nr; idbPut(key, nr);
         return r;
       });
     });
@@ -295,9 +296,10 @@ function fetchGV(file) {
   if (BUNDLE) return Promise.reject(new Error('Grapevine needs the internet, so it is not in the offline copy.'));
   if (local) return fetch(file, { cache: 'no-cache' }).then(function (r) { if (!r.ok) throw new Error('HTTP ' + r.status); return r.text(); });
   return versionReady.then(function (v) {
+    var rel = cacheRelease(v);
     return idbGet('gv:' + file).then(function (rec) {
-      if (rec && rec.rel === v && typeof rec.text === 'string') return rec.text;
-      return fetchRepo(file).then(function (r) { idbPut('gv:' + file, { text: r.html, rel: v }); return r.html; },
+      if (rec && rec.rel === rel && typeof rec.text === 'string') return rec.text;
+      return fetchRepo(file).then(function (r) { idbPut('gv:' + file, { text: r.html, rel: rel }); return r.html; },
         function (e) { if (rec && typeof rec.text === 'string') return rec.text; throw e; });   // offline: last copy
     });
   });

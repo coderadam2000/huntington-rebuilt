@@ -1,7 +1,7 @@
 # Huntington Games
 
 Single-file browser games (each `<Game>/index.html`, inline JS/CSS) played on school Chromebooks through the
-Launcher (`loader.html` pasted into jsfiddle/jsbin, which loads the hub `index.html` from jsDelivr tag `rN`).
+Launcher (`loader.html` pasted into jsfiddle/jsbin, which loads the hub `index.html` from `coderadam2000/huntington-rebuilt@main` through jsDelivr).
 
 ## Usage limits are tight: work efficiently
 - Never read a whole game file (they are 5k-20k lines). Grep with line numbers, then Read only the ranges you need.
