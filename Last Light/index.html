@@ -261,13 +261,6 @@ kbd { display: inline-block; min-width: 26px; padding: 1px 7px; margin: 0 2px; b
 #s-title .menu .btn.big { grid-column: 1 / -1; justify-self: center; }
 #s-title .menu .btn { margin: 5px; }
 @media (max-width: 480px) { #s-title .menu { grid-template-columns: auto; } }
-#s-title { justify-content: safe center; overflow-y: auto; padding: 16px; pointer-events: auto; }
-#s-title .menu { grid-template-columns: repeat(2, minmax(0, 1fr)); max-width: 430px; width: 100%; margin-top: 12px; }
-#s-title .menu .btn { margin: 3px; min-width: 0; }
-#s-title .menu .btn.big { width: calc(100% - 6px); }
-#s-title .title-tools { grid-template-columns: repeat(3, minmax(0, 1fr)); }
-#t-linear:disabled { opacity: .55; cursor: default; }
-#t-linear-info { margin: 8px 0 0; text-align: center; }
 
 /* ---- Training (88-tutor.js): Beat Lab's lesson look. Spotlight hole + click shields in menus, a compact banner + ring in battle */
 #hgt { position: fixed; inset: 0; pointer-events: none; font-family: system-ui, "Segoe UI", Roboto, Arial, sans-serif; }
@@ -351,23 +344,19 @@ kbd { display: inline-block; min-width: 26px; padding: 1px 7px; margin: 0 2px; b
   <div class="tag">The dark took everything. Take it back.</div>
   <div class="menu">
     <button class="btn big" id="t-play">Play</button>
-    <button class="btn" id="t-train">Training</button>
-    <button class="btn" id="t-trials">Time trials</button>
-    <button class="btn" id="t-linear" aria-describedby="t-linear-info">LINEAR Run</button>
+    <button class="btn" id="t-settings">Settings</button>
+    <button class="btn" id="t-trials">Trials <span class="newtag">new</span></button>
     <button class="btn" id="t-onelife">One Life run</button>
     <button class="btn" id="t-mp">Play together</button>
-  </div>
-  <p class="foot" id="t-linear-info"></p>
-  <div class="menu title-tools">
-    <button class="btn small" id="t-settings">Settings</button>
-    <button class="btn small" id="t-saves">Save files</button>
-    <button class="btn small" id="t-stats-btn">Stats</button>
-    <button class="btn small" id="t-lore-btn">People</button>
-    <button class="btn small" id="t-look">Your light</button>
-    <button class="btn small" id="t-how">How to play</button>
+    <button class="btn" id="t-saves">Save files</button>
+    <button class="btn" id="t-stats-btn">Stats</button>
+    <button class="btn" id="t-lore-btn">People</button>
+    <button class="btn" id="t-look">Your light</button>
+    <button class="btn" id="t-how">How to play</button>
+    <button class="btn" id="t-train">Training <span class="newtag" id="t-train-new">new</span></button>
   </div>
   <div class="foot" id="t-stats"></div>
-  <button class="ver" id="t-ver">Version 1.7 · <u>What's new</u></button>
+  <button class="ver" id="t-ver" title="What's new in 1.6">Version 1.6 · Training: a practice room for every move you have learned · Frostveil · Trials with medals · <u>What's new</u></button>
 </div>
 
 <!-- world map -->
@@ -396,7 +385,6 @@ kbd { display: inline-block; min-width: 26px; padding: 1px 7px; margin: 0 2px; b
     <div id="d-unlock"></div>
     <div class="row">
       <button class="btn" id="d-retry">Play again</button>
-      <button class="btn hidden" id="d-prev">Previous level</button>
       <button class="btn big" id="d-next">Next level</button>
     </div>
     <button class="btn small" id="d-map">Level map</button>
@@ -472,9 +460,8 @@ kbd { display: inline-block; min-width: 26px; padding: 1px 7px; margin: 0 2px; b
 <!-- 1.5: what's new -->
 <div id="s-new" class="screen dim hidden">
   <div class="card wide">
-    <h2>What's new in 1.7</h2>
+    <h2>What's new in 1.6</h2>
     <div class="how newlist">
-      <p><b>LINEAR Run</b> opens after you clear the main story. Clear your current level before returning to the preceding one. Your progress and times are saved separately.</p>
       <p><b>Training</b> (1.6, on the title screen): three short hands-on lessons. A practice room for every move you have earned
       (run, jump, double jump, wall jump, dash, glide), Trials, medals and ghosts, and your light, the people you met and playing together.
       Practice never records times or stats.</p>
@@ -620,7 +607,6 @@ const SAVE = (() => {
     d.stats = d.stats || {}; d.lore = d.lore || {}; d.guards = d.guards || {}; d.talks = d.talks || {};
     // 1.5 (still save version 3: these only add): trial records { id: { t: best seconds, m: medal 0-4 } } and the light's look
     if (!d.trials || typeof d.trials !== 'object') d.trials = {};
-    if (!d.linear || typeof d.linear !== 'object' || Array.isArray(d.linear)) d.linear = {};
     if (!d.look || typeof d.look !== 'object') d.look = { pal: 0, shape: 0 };
     // The launcher's chat caches messages in this same storage, and a full storage used to make saves fail silently
     // (progress looked fine, then was gone the next time). If a save is refused: drop the biggest chat caches (only a
@@ -3276,7 +3262,6 @@ const G = {
         burst(this, this.outro.x, this.outro.y, '#fff2c4', 40, 260, true);
         if (this.mp) { this.p.vx = 0; mpFinished(this.time); return; }       // playing together: no records, the host collects the finish order
         if (this.trial) { trialFinish(this); return; }                       // 1.5: a trial keeps its own records
-        if (this.linear) { finishLinear(this); return; }
         const def = this.L.def, rec = SAVE.d.levels[def.id] || { best: null, moths: [false, false, false], sparks: 0, clears: 0 };
         const best = rec.best == null || this.time < rec.best, mothsBefore = rec.moths.filter(Boolean).length;
         rec.moths = rec.moths.map((m, i) => m || !!this.got.moths[i]);
@@ -3388,16 +3373,13 @@ const UI = {
     pause() {
         if (G.state !== 'play' || G.done) return;
         G.state = 'paused'; Input.clear();
-        const rec = G.linear ? { best: SAVE.d.linear[G.L.def.id] } : SAVE.d.levels[G.L.def.id];
-        $('#p-map').textContent = G.linear ? 'Main menu' : 'Level map';
+        const rec = SAVE.d.levels[G.L.def.id];
         $('#p-info').innerHTML = `<div class="drow"><span>${G.L.def.id} · ${G.L.def.name}</span><b>${fmtTime(G.time)}</b></div>` + (rec && rec.best != null ? `<div class="drow"><span>Best</span><b>${fmtTime(rec.best)}</b></div>` : '')
             + `<div class="drow"><span>Falls this run</span><b>${G.stats.deaths}</b></div><div class="drow"><span>Sparks</span><b>${G.got.sparks} / ${G.L.sparks}</b></div>`;
         this.show('pause');
     },
     resume() { if (G.state !== 'paused') return; G.state = 'play'; this.show(null); Input.clear(); },
     results(r) {
-        $('#d-prev').classList.add('hidden');
-        $('#d-map').textContent = 'Level map';
         const rows = [
             ['Time', fmtTime(r.time) + (r.best ? '<span class="new">NEW BEST</span>' : '')],
             ['Sparks', r.sparks + ' / ' + r.sparksOf],
@@ -3452,8 +3434,7 @@ const TIPS = ['Lanterns are checkpoints: light every one you pass.', 'Hold jump 
 UI.died = function () {
     G.state = 'dead'; Input.clear(); $('#banner').classList.remove('on'); $('#hud').classList.add('hidden'); $('#touch').classList.add('hidden');
     $('#dd-cause').textContent = (CAUSE[G.cause] || 'The light went out.') + (G.run ? '  One Life run over: ' + G.run.cleared + ' level' + (G.run.cleared === 1 ? '' : 's') + ' cleared (best ' + ((SAVE.d.runs || {}).onelife || 0) + ').' : '');
-    const rec = G.linear ? { best: SAVE.d.linear[G.L.def.id] } : SAVE.d.levels[G.L.def.id];
-    $('#dd-map').textContent = G.linear ? 'Main menu' : 'Level map';
+    const rec = SAVE.d.levels[G.L.def.id];
     $('#dd-rows').innerHTML = `<div><b>${G.stats.deaths}</b><span>this run</span></div><div><b>${SAVE.d.deaths}</b><span>all time</span></div><div><b>${fmtTime(G.time)}</b><span>time</span></div>` + (rec && rec.best != null ? `<div><b>${fmtTime(rec.best)}</b><span>best</span></div>` : '');
     $('#dd-tip').textContent = TIPS[Math.floor(Math.random() * TIPS.length)];
     SAVE.write(); this.show('dead');
@@ -3472,7 +3453,6 @@ UI.stats = function () {
         ['Stories heard', talkCount() + ' / ' + TALK_N], ['Guardians freed', Object.keys(SAVE.d.guards || {}).filter(k => GUARDS[k]).length + ' / ' + Object.keys(GUARDS).length], ['Lost lanterns found', Object.keys(SAVE.d.secrets || {}).length + ' / ' + LEVELS.filter(l => l.map.some(r => r.includes('z'))).length],
         ['Levels done flawless', flawlessCount() + ' / ' + LEVELS.length], ['Bosses beaten', n('bossKills')], ['All best times', total == null ? 'clear every level' : fmtTime(total)],
         ['Frozen lanterns', frozenFound() + ' / 11'], ['Trial medals', medalCount(1) + ' won · ' + medalCount(3) + ' gold · ' + medalPoints() + ' points'],
-        ['LINEAR levels', linearCount() + ' / ' + baseLevels().length],
         ['sec', 'Falls'], ['Total', SAVE.d.deaths], ['Into pits', n('death_pit')], ['On spikes', n('death_spike')], ['In lava', n('death_lava')], ['To enemies', enemy], ['Hits taken', n('hits')],
         ['sec', 'Moves'], ['Jumps', n('jumps')], ['Double jumps', n('djumps')], ['Wall jumps', n('walljumps')], ['Dashes', n('dashes')], ['Time gliding', Math.round(S.glide || 0) + ' s'], ['Enemies defeated', n('kills')], ['Lanterns lit', n('lanterns')],
         ['Distance', n('dist').toLocaleString() + ' tiles']];
@@ -6153,55 +6133,6 @@ const LEVELS = [
 }
 ];
 
-// ---- 85-linear.js ----
-// LINEAR uses the story levels with independent checkpoints and best times.
-const baseLevels = () => LEVELS.filter(level => level.world <= 4);
-const baseFinished = () => baseLevels().every(level => SAVE.d.levels[level.id]?.best != null);
-const linearFrontier = () => baseLevels().findIndex(level => SAVE.d.linear[level.id] == null);
-const linearCount = () => baseLevels().filter(level => SAVE.d.linear[level.id] != null).length;
-
-function startLinear() {
-    if (!baseFinished()) return;
-    const next = linearFrontier();
-    G.run = null;
-    G.trial = null;
-    G.linear = true;
-    fadeTo(() => G.start(next < 0 ? 0 : next));
-}
-
-function leaveLinear() {
-    G.linear = false;
-    G.state = 'title';
-    Input.clear();
-    $('#hud').classList.add('hidden');
-    UI.show('title');
-    titleStats();
-}
-
-function finishLinear(game) {
-    const level = game.L.def;
-    const best = SAVE.d.linear[level.id];
-    const time = Math.round(game.time * 100) / 100;
-    SAVE.d.linear[level.id] = best == null ? time : Math.min(time, best);
-    SAVE.write();
-    const runLevel = game.levelKey;
-    setTimeout(() => {
-        if (!game.linear || game.levelKey !== runLevel) return;
-        game.state = 'done';
-        const next = baseLevels()[game.idx + 1];
-        $('#d-title').textContent = next ? 'LINEAR level cleared' : 'LINEAR Run complete';
-        $('#d-rows').innerHTML = '<div class="drow"><span>Time</span><b>' + fmtTime(time) + '</b></div><div class="drow"><span>Falls</span><b>' + game.stats.deaths + '</b></div>';
-        $('#d-unlock').textContent = linearCount() + ' of ' + baseLevels().length + ' levels cleared';
-        $('#d-retry').textContent = 'Play again';
-        $('#d-prev').classList.toggle('hidden', game.idx <= 0);
-        $('#d-next').classList.toggle('hidden', !next);
-        $('#d-next').textContent = next ? 'Next level' : '';
-        $('#d-map').textContent = 'Main menu';
-        $('#hud').classList.add('hidden');
-        UI.show('done');
-    }, 1500);
-}
-
 // ---- 90-main.js ----
 // ==========================================
 // BOOT + MAIN LOOP
@@ -6214,7 +6145,6 @@ addEventListener('resize', () => R.resize());
 const on = (id, fn) => { const el = $(id); if (el) el.onclick = () => { Sound.init(); Sound.play('click'); fn(); }; };
 on('t-play', () => fadeTo(() => UI.map('story')));
 on('t-trials', () => fadeTo(() => UI.map('trial')));          // 1.5
-on('t-linear', startLinear);
 on('t-look', () => UI.looks());
 on('lk-done', () => UI.show('title'));
 on('t-ver', () => UI.show('new'));
@@ -6230,18 +6160,17 @@ on('st-done', () => UI.show('title'));
 on('dd-retry', () => UI.retry());
 on('t-onelife', () => { G.run = { cleared: 0 }; fadeTo(() => { G.start(0); UI.banner('One Life', 'Clear as many levels as you can', 'One fall and the run is over.'); }); });
 on('dd-restart', () => { G.run = null; fadeTo(() => G.start(G.idx)); });
-on('dd-map', () => { G.run = null; fadeTo(() => G.linear ? leaveLinear() : UI.map()); });
+on('dd-map', () => { G.run = null; fadeTo(() => UI.map()); });
 on('how-done', () => UI.show(G.state === 'paused' ? 'pause' : 'title'));
 on('m-back', () => { G.run = null; G.state = 'title'; UI.show('title'); titleStats(); });
 on('b-pause', () => UI.pause());
 on('p-resume', () => UI.resume());
 on('p-restart', () => { G.run = null; if (G.mp) mpReset(); fadeTo(() => G.start(G.idx)); });      // (ends a One Life run: no free retries)
 on('p-settings', () => UI.settings('pause'));
-on('p-map', () => { G.run = null; if (G.mp) mpReset(); fadeTo(() => G.linear ? leaveLinear() : UI.map()); });
+on('p-map', () => { G.run = null; if (G.mp) mpReset(); fadeTo(() => UI.map()); });
 on('d-retry', () => fadeTo(() => G.start(G.idx)));
 on('d-next', () => fadeTo(() => { if (G.trial) G.trial = trialOpen(G.idx + 1) ? { id: LEVELS[G.idx + 1].id } : null; G.start(G.idx + 1); }));
-on('d-prev', () => { if (G.linear && G.state === 'done' && G.idx > 0) fadeTo(() => G.start(G.idx - 1)); });
-on('d-map', () => fadeTo(() => G.linear ? leaveLinear() : UI.map()));
+on('d-map', () => fadeTo(() => UI.map()));
 on('set-done', () => UI.show(UI._back === 'pause' ? 'pause' : 'title'));
 addEventListener('pointerdown', () => Sound.init(), { once: true });
 addEventListener('keydown', () => Sound.init(), { once: true });
@@ -6259,10 +6188,6 @@ function titleStats() {
     const done = Object.keys(SAVE.d.levels).length, moths = Object.values(SAVE.d.levels).reduce((n, r) => n + (r.moths || []).filter(Boolean).length, 0);
     $('#t-stats').textContent = done ? `${done} of ${LEVELS.length} levels · ${moths} stars · ${SAVE.d.sparks} sparks` : 'The last light in a dark world';
     $('#t-play').textContent = done ? 'Continue' : 'Play';
-    const canLinear = baseFinished(), cleared = linearCount();
-    $('#t-linear').disabled = !canLinear;
-    $('#t-linear').textContent = cleared && linearFrontier() >= 0 ? 'Continue LINEAR Run' : 'LINEAR Run';
-    $('#t-linear-info').textContent = canLinear ? cleared + ' of ' + baseLevels().length + ' LINEAR levels cleared' : 'LINEAR Run unlocks after the main story.';
     try { const m = svMeta(); $('#t-saves').textContent = 'Save files · ' + m.names[m.active]; } catch (e) {}
 }
 titleStats();

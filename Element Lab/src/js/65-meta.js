@@ -24,13 +24,7 @@ const CHALLENGES = [
     { id: 'crystal', name: 'Grow crystals', hint: 'Dissolve copper sulfate in water, then boil the water away.', test: () => STAT.crystal >= 15 },
     { id: 'town', name: 'Populate a town', hint: 'Have 15 people living in your lab at once.', test: () => CNT[ID.human] >= 15 },
     { id: 'bake', name: 'Bake bread', hint: 'Mix flour and water into dough, then heat it.', test: () => MADE[ID.bread] },
-    { id: 'piston', name: 'Heavy lifting', hint: 'Power a piston so it pushes something.', test: () => STAT.pushed >= 3 },
-    { id: 'popcorn', name: 'Movie night', hint: 'Warm Corn Kernels with the heat tool until they pop.', test: () => STAT.popped >= 12 },
-    { id: 'cheese', name: 'Fondue', hint: 'Warm Cheese until it flows.', test: () => STAT.meltedCheese >= 15 },
-    { id: 'pump', name: 'Lift station', hint: 'Use a powered Pump to move 20 cells of liquid.', test: () => STAT.pumped >= 20 },
-    { id: 'moss', name: 'Moss garden', hint: 'Give Moss damp Stone to spread across.', test: () => STAT.moss >= 20 },
-    { id: 'notgate', name: 'Switch it around', hint: 'Place a NOT gate so it can turn an unpowered input into a powered output.', test: () => STAT.notOn > 0 },
-    { id: 'aquarium', name: 'School of fish', hint: 'Keep ten fish swimming in water at the same time.', test: () => CNT[ID.fish] >= 10 }
+    { id: 'piston', name: 'Heavy lifting', hint: 'Power a piston so it pushes something.', test: () => STAT.pushed >= 3 }
 ];
 const DONE = LS.get('elementlab_challenges', {}) || {};
 let onChallenge = null;

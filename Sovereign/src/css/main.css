@@ -32,17 +32,7 @@ input { font: inherit; color: var(--text); }
 #load-text { color: var(--dim); font-size: 13px; min-height: 1.4em; }
 
 /* title */
-#title .title-box { position: absolute; left: 6vw; top: 50%; transform: translateY(-50%); max-width: 88vw; max-height: calc(100% - 40px); overflow-y: auto; padding-right: 8px; }
-.title-box .menu { max-width: 100%; }
-.space-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(105px, 1fr)); gap: 6px; }
-.space-grid .btn { border-inline-start: 3px solid var(--planet); min-width: 0; padding-inline: 6px; }
-.space-grid .btn small { display: block; color: var(--dim); font-size: 10px; }
-#space-orders .actions { flex-wrap: wrap; }
-@media (max-height: 620px) {
-  #title .logo.big { font-size: clamp(30px, 7vh, 65px); }
-  #title .tagline { margin-bottom: 12px; }
-  #title .menu { gap: 4px; }
-}
+#title .title-box { position: absolute; left: 6vw; top: 50%; transform: translateY(-50%); }
 .tagline { color: var(--dim); font-size: 18px; letter-spacing: .08em; margin: 4px 0 30px 4px; }
 .menu { display: flex; flex-direction: column; gap: 10px; width: 260px; }
 .btn { background: var(--panel2); border: 1px solid var(--line); border-radius: 8px; padding: 11px 18px; text-align: left; font-size: 16px; transition: background .15s, border-color .15s, transform .1s; }

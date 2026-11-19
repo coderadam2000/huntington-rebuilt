@@ -163,12 +163,6 @@ const UI = {
     $('#title .menu').innerHTML = (has ? '<button class="btn gold" data-act="continue">Continue</button><button class="btn" data-act="new">New Game</button><button class="btn" data-act="load">Load Game</button>'
       : '<button class="btn gold" data-act="new">New Game</button>') +
       `<button class="btn" data-act="online">Play online with friends (2-6 leaders)</button><button class="btn" data-act="sim">Simulator: watch the AI, take over anyone</button><button class="btn" data-act="explore">Explore the World</button><button class="btn" data-act="hall">Hall of Leaders</button>${trainButton()}<button class="btn" data-act="whatsnew">What\'s new in ${VERSION}</button><button class="btn" data-act="settings">Settings</button><button class="btn" data-act="credits">Credits</button>`;
-    const space = document.createElement('button');
-    space.className = 'btn';
-    space.textContent = spaceUnlocked() ? 'Sovereign Interplanetary' : 'Interplanetary · Win a campaign to unlock';
-    space.disabled = !spaceUnlocked();
-    space.onclick = openInterplanetary;
-    $('#title .menu').insertBefore(space, $('#title .menu').children[has ? 3 : 1]);
     if (!Store.get('seen15', false)) { Store.set('seen15', true); if (has) setTimeout(() => { if (this.screen === 'title' && $('#modal').classList.contains('hidden') && !Tutor.active && !Tutor.offerOpen) this.whatsNew(); }, 900); }
     setTimeout(() => trainOffer(), 1200);      // 1.5: a new player (no saves yet) is offered Your first year once
   },

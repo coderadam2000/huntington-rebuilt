@@ -101,21 +101,17 @@ function reportAdminAct(op, id) {
   var note = null; if (op === 'note') { note = prompt('Note for the other admins:'); if (note == null) return; }
   window.HGGrapevine.eco.reports(op, id, note).then(reportInboxPaint, function () {});
 }
-function canReadReports() {
-  var L = window.HGGrapevine, e = L && L.eco && L.eco.state();
-  return !!(e && e.perms && e.perms.indexOf('reports') >= 0);
-}
 function reportBadge() {
-  var admin = canReadReports(), n = REPORT.open;
+  var L = window.HGGrapevine, e = L && L.eco && L.eco.state(), admin = !!(e && e.dev), n = REPORT.open;
   [document.getElementById('reportBtn'), document.getElementById('preport')].forEach(function (b, i) {
     if (!b) return; b.innerHTML = '&#128681; ' + (admin && !i ? 'Reports' + (n ? ' <span class="rp-n">' + n + '</span>' : '') : 'Report'); b.classList.toggle('hot', admin && n > 0 && !i);
   });
 }
-document.getElementById('reportBtn').onclick = function () { if (canReadReports()) reportInbox(); else reportOpen({}); };
+document.getElementById('reportBtn').onclick = function () { var L = window.HGGrapevine, e = L && L.eco && L.eco.state(); if (e && e.dev) reportInbox(); else reportOpen({}); };
 document.getElementById('preport').onclick = function () { reportOpen({}); };
 (function wait() {
   var L = window.HGGrapevine; if (!L || !L.on) return setTimeout(wait, 2500);
   var asked = false;
   L.on('reports', function (m) { REPORT.open = m.open || 0; reportBadge(); if (m.open && typeof window.HG_notify === 'function' && !REPORT.said) { REPORT.said = 1; setTimeout(function () { REPORT.said = 0; }, 60000); window.HG_notify({ kind: 'report', title: 'New report', text: 'Someone sent the admins a report. Press Reports to read it.' }); } });
-  L.on('eco', function () { reportBadge(); if (canReadReports() && !asked && L.online()) { asked = true; L.eco.reports('list').then(function (m) { REPORT.open = (m && m.open) || 0; reportBadge(); }, function () { asked = false; }); } });
+  L.on('eco', function () { var e = L.eco.state(); reportBadge(); if (e && e.dev && !asked && L.online()) { asked = true; L.eco.reports('list').then(function (m) { REPORT.open = (m && m.open) || 0; reportBadge(); }, function () { asked = false; }); } });
 })();

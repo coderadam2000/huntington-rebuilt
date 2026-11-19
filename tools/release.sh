@@ -26,7 +26,7 @@ ship)
   git -C "$R" worktree add -q --detach "$W" HEAD
   cd "$W"
   HG_ROOT="$W" HG_TOOLS="$T" python3 tools/build-release.py "$N"
-  node -e 'const fs = require("node:fs"); const meta = JSON.parse(fs.readFileSync("latest.json", "utf8")); meta.release = Number(process.argv[1]); fs.writeFileSync("latest.json", JSON.stringify(meta) + "\n");' "$N"
+  printf '{"release":%s}\n' "$N" > latest.json
   export HG_BUILD=$N HG_SECRET=$(cat "$T/hg_secret.txt") HG_ROOT="$W" HG_TOOLS="$T" NODE_PATH=/opt/node22/lib/node_modules
   node tools/tests/gate.js | tee /tmp/hg-gate.txt; node tools/tests/gate2.js | tee -a /tmp/hg-gate.txt
   if grep -q FAIL /tmp/hg-gate.txt || [ "$(grep -c '^PASS' /tmp/hg-gate.txt)" -lt 9 ]; then echo "GATE TESTS FAILED - not pushing (worktree left at $W)"; exit 1; fi

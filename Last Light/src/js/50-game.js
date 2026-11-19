@@ -89,7 +89,6 @@ const G = {
         burst(this, this.outro.x, this.outro.y, '#fff2c4', 40, 260, true);
         if (this.mp) { this.p.vx = 0; mpFinished(this.time); return; }       // playing together: no records, the host collects the finish order
         if (this.trial) { trialFinish(this); return; }                       // 1.5: a trial keeps its own records
-        if (this.linear) { finishLinear(this); return; }
         const def = this.L.def, rec = SAVE.d.levels[def.id] || { best: null, moths: [false, false, false], sparks: 0, clears: 0 };
         const best = rec.best == null || this.time < rec.best, mothsBefore = rec.moths.filter(Boolean).length;
         rec.moths = rec.moths.map((m, i) => m || !!this.got.moths[i]);

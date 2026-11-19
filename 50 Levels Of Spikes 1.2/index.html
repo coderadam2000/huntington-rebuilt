@@ -378,7 +378,7 @@
 
     <div id="startScreen" class="overlay">
         <h1>100 Levels of Spikes</h1>
-        <div class="version-badge">v2.3</div>
+        <div class="version-badge">v2.2 · Multiplayer</div>
         <p class="subtitle">A precision platformer that gets harder every level.</p>
 
         <div class="mode-selection">
@@ -390,7 +390,6 @@
                 <input type="checkbox" id="endlessToggle">
                 Endless Mode (No level limit)
             </label>
-            <label><input type="checkbox" id="autoRespawn"> Auto-respawn in normal play</label>
         </div>
 
 
@@ -444,7 +443,6 @@
 
     <div id="deathScreen" class="overlay hidden">
         <h1 id="deathHeader" style="color: var(--danger-color); text-shadow: 0 0 15px var(--danger-color);">You Died</h1>
-        <p id="deathTally"></p>
         <p id="deathMessage">You hit a spike or fell into the void!</p>
         <button id="retryBtn" onclick="retryLevel()" style="background-color: var(--danger-color); box-shadow: 0 5px 0 #be123c;">Try Again</button>
         <div class="menu-row">
@@ -508,8 +506,6 @@
     <div id="whatsNewScreen" class="overlay hidden">
         <h1 class="screen-title">What's New</h1>
         <div class="news-box">
-            <h3>v2.3</h3>
-            <p>Toggle auto-respawn for normal play, try the shuffled death roasts, or let the cube rest for a moment.</p>
             <h3>v2.2: Multiplayer</h3>
             <ul>
                 <li><b>Race</b> your friends to the goal (5, 3, 2 and 1 points), or play <b>Co-op</b> and get everyone through.</li>
@@ -594,11 +590,6 @@ const modeDisplay = document.getElementById('modeDisplay');
 const keyDisplay = document.getElementById('keyDisplay');
 const oneLifeToggle = document.getElementById('oneLifeToggle');
 const endlessToggle = document.getElementById('endlessToggle');
-const autoRespawn = document.getElementById('autoRespawn');
-try { autoRespawn.checked = localStorage.getItem('spikes100_autoRespawn') === '1'; } catch (_) {}
-autoRespawn.addEventListener('change', () => {
-    try { localStorage.setItem('spikes100_autoRespawn', autoRespawn.checked ? '1' : '0'); } catch (_) {}
-});
 const pauseScreen = document.getElementById('pauseScreen');
 const clearScreen = document.getElementById('clearScreen');
 const levelSelectScreen = document.getElementById('levelSelectScreen');
@@ -619,7 +610,7 @@ let MAX_SPEED = 6;          // only ever changed by the window.__spikes.setPhys 
 let JUMP_FORCE = -11.5;     // (same)
 const MAX_LEVELS = 100;
 const GENERATED_LEVELS = 50; // levels 1-50 get a fresh layout every try; 51-100 are hand-built (HAND_LEVELS)
-const GAME_VERSION = '2.3';
+const GAME_VERSION = '2.2';
 
 // Hand-built levels and the editor use a tile grid: 30px tiles, 18 rows (= the 540px screen height)
 const TILE = 30;
@@ -1708,7 +1699,6 @@ function buildBuckets() {
 }
 
 function resetPlayer(x, y) {
-    player.idleTicks = 0;
     player.x = x;
     player.y = y;
     player.vx = 0;
@@ -2199,14 +2189,7 @@ function checkZones() {
 
 
 // One fixed 60Hz step. Returns 0 = keep playing, 1 = died, 2 = reached the goal.
-function updatePhysics() {
-    const x = player.x, y = player.y;
-    worldStep();
-    const result = bodyStep();
-    player.idleTicks = player.grounded && !keys.left && !keys.right && !keys.jump &&
-        Math.abs(x - player.x) < 0.05 && Math.abs(y - player.y) < 0.05 ? (player.idleTicks || 0) + 1 : 0;
-    return result;
-}
+function updatePhysics() { worldStep(); return bodyStep(); }
 // the world moves once a frame; bodyStep moves whoever `player` is (in multiplayer the bots take turns being it)
 function worldStep() {
     levelTick++;
@@ -2342,7 +2325,6 @@ function startCampaign(level, oneLife, endless) {
     playMode = 'campaign';
     currentLevel = level;
     totalDeaths = 0;
-    insultLevelKey = '';
     isOneLife = oneLife;
     isEndless = endless;
     loadCampaignLevel(currentLevel);
@@ -2471,23 +2453,13 @@ const INSULTS = {
     ]
 };
 let insultLevelKey = '', insultDeaths = 0, lastInsult = '';
-const roastBags = {};
 function deathInsult() {
     const key = playMode + ':' + (playMode === 'campaign' ? currentLevel : (customLevel ? customLevel.name : ''));
     if (key !== insultLevelKey) { insultLevelKey = key; insultDeaths = 0; }
     insultDeaths++;
-    const tier = insultDeaths <= 1 ? 'first' : insultDeaths <= 6 ? 'again' : 'many';
-    let bag = roastBags[tier];
-    if (!bag || !bag.length) {
-        bag = roastBags[tier] = INSULTS[tier].slice();
-        for (let i = bag.length - 1; i > 0; i--) {
-            const j = Math.floor(Math.random() * (i + 1));
-            [bag[i], bag[j]] = [bag[j], bag[i]];
-        }
-        const last = bag.length - 1;
-        if (last > 0 && bag[last] === lastInsult) [bag[last], bag[0]] = [bag[0], bag[last]];
-    }
-    const line = bag.pop();
+    const pool = insultDeaths <= 1 ? INSULTS.first : insultDeaths <= 6 ? INSULTS.again : INSULTS.many;
+    let line = lastInsult;
+    for (let i = 0; i < 8 && line === lastInsult; i++) line = pool[Math.floor(Math.random() * pool.length)];
     lastInsult = line;
     return line.replace(/\{n\}/g, insultDeaths).replace(/\{lv\}/g, playMode === 'campaign' ? currentLevel : 'this');
 }
@@ -2495,30 +2467,24 @@ function deathInsult() {
 function triggerDeath() {
     gameState = 'DEAD';
     if (playMode === 'campaign') totalDeaths++; else customDeaths++;
-    const tally = `Deaths: ${playMode === 'campaign' ? totalDeaths : customDeaths}`;
-    deathDisplay.textContent = tally;
-    document.getElementById('deathTally').textContent = tally;
-    const roast = deathInsult();
+    deathDisplay.textContent = `Deaths: ${playMode === 'campaign' ? totalDeaths : customDeaths}`;
     createParticles(player.x + player.w/2, player.y + player.h/2, 30, '#38bdf8');
 
     if (playMode === 'campaign' && isOneLife) {
         if (currentLevel - 1 > progress.bestOneLife) { progress.bestOneLife = currentLevel - 1; saveProgress(); }
         currentLevel = 1;
         document.getElementById('deathHeader').textContent = "LIFE LOST";
-        document.getElementById('deathMessage').textContent = "One Life Mode: Progress reset to Level 1. " + roast;
+        document.getElementById('deathMessage').textContent = "One Life Mode: Progress reset to Level 1. " + deathInsult();
         document.getElementById('retryBtn').textContent = "Restart Journey";
     } else {
         document.getElementById('deathHeader').textContent = "You Died";
-        document.getElementById('deathMessage').textContent = roast;
+        document.getElementById('deathMessage').textContent = deathInsult();
         document.getElementById('retryBtn').textContent = "Try Again";
     }
     document.getElementById('deathBackBtn').textContent = backLabel();
 
     const token = ++deathToken;
     setTimeout(() => { if (gameState === 'DEAD' && token === deathToken) deathScreen.classList.remove('hidden'); }, 500);
-    if (autoRespawn.checked && playMode !== 'test' && !(playMode === 'campaign' && isOneLife)) {
-        setTimeout(() => { if (token === deathToken) retryLevel(); }, 1450);
-    }
 }
 
 
@@ -2549,7 +2515,7 @@ function levelComplete() {
         gameState = 'VICTORY';
         let modeType = isOneLife ? "One Life" : "Normal";
         progress.beaten = true;
-        if (isOneLife) progress.bestOneLife = Math.max(progress.bestOneLife, MAX_LEVELS);
+        if (isOneLife) progress.bestOneLife = MAX_LEVELS;
         saveProgress();
         document.getElementById('finalStats').textContent = `Total Deaths: ${totalDeaths} (${modeType})`;
         setTimeout(() => {
@@ -2836,14 +2802,14 @@ function drawGoalShape(g, x, y) {
     g.fillRect(x + 10, y + 10, goal.w - 20, goal.h - 20);
 }
 
-function drawPlayerShape(g, x, y, w, h, grav, vx, col, blink = false) {
+function drawPlayerShape(g, x, y, w, h, grav, vx, col) {
     g.fillStyle = col || '#38bdf8';
     g.fillRect(x, y, w, h);
     g.fillStyle = '#fff';
     const eyeOffsetX = vx > 0 ? 4 : (vx < 0 ? -4 : 0);
     const eyeY = grav > 0 ? y + 4 : y + h - 8;
-    g.fillRect(x + 4 + eyeOffsetX, eyeY, 4, blink ? 1 : 4);
-    g.fillRect(x + 16 + eyeOffsetX, eyeY, 4, blink ? 1 : 4);
+    g.fillRect(x + 4 + eyeOffsetX, eyeY, 4, 4);
+    g.fillRect(x + 16 + eyeOffsetX, eyeY, 4, 4);
 }
 
 function drawZoneRect(g, x, y, w, h, tick) {
@@ -2977,15 +2943,13 @@ function draw() {
         let stretchY = 1 + (player.vy * g * 0.02);
         let stretchX = 1 - (Math.abs(player.vy) * 0.01);
         if (player.grounded) { stretchX = 1; stretchY = 1; }
-        const idle = Math.max(0, (player.idleTicks || 0) - 180);
-        if (idle) { stretchY += Math.sin(idle / 17) * 0.08; stretchX -= Math.sin(idle / 17) * 0.06; }
         let drawW = player.w * stretchX;
         let drawH = player.h * stretchY;
         let drawX = player.x + (player.w - drawW) / 2;
         let drawY = g > 0 ? player.y + (player.h - drawH) : player.y;
         ctx.fillRect(drawX, drawY, drawW, drawH);
         ctx.shadowBlur = 0;
-        drawPlayerShape(ctx, drawX, drawY, drawW, drawH, g, player.vx, undefined, idle % 130 > 123);
+        drawPlayerShape(ctx, drawX, drawY, drawW, drawH, g, player.vx);
     }
 
 

@@ -314,15 +314,8 @@ function showHurtDir(fromPos) {
 
 // 5.2: screen flashes never stack, loop or strobe. One at a time, at least 0.3s apart (0.45s for the red hit flash), capped in strength,
 // softer when "Reduce flashes" is on, and never when nobody is looking at the game (menus, hidden tab). The flash always clears itself on a timer.
-let _flashAt = -Infinity, flashAnimation;
-function clearScreenFlash() {
-    if (flashAnimation) flashAnimation.cancel();
-    ui.flash.style.opacity = '0';
-    ui.flash.style.background = '';
-}
-document.addEventListener('visibilitychange', clearScreenFlash);
+let _flashAt = -9, _flashClr = 0;
 function screenFlash(color, hit) {
-    if (document.hidden || renderContextLost) return;
     if (currentGameState !== 'playing' && currentGameState !== 'dead' && currentGameState !== 'gameover') return;
     const now = performance.now();
     if (now - _flashAt < (hit ? 450 : 300)) return;
@@ -334,11 +327,12 @@ function screenFlash(color, hit) {
         a = Math.min(a, lum > 0.8 ? 0.18 : 0.4);                // near-white is capped hard: no flashbang look
         if (settings.reduceFlash !== false) a *= 0.55;
         color = `rgba(${r | 0},${g | 0},${b | 0},${a.toFixed(3)})`;
-    } else return;
+    }
     const el = ui.flash;
-    clearScreenFlash();
-    el.style.background = color;
-    flashAnimation = el.animate([{ opacity: 1 }, { opacity: 0 }], { duration: 350, easing: 'ease-out' });
+    clearTimeout(_flashClr);
+    el.style.transition = 'none'; el.style.background = color; el.style.opacity = '1';
+    requestAnimationFrame(() => { el.style.transition = 'opacity 0.35s'; el.style.opacity = '0'; });
+    _flashClr = setTimeout(() => { el.style.transition = 'none'; el.style.opacity = '0'; }, 500);
 }
 // 5.2: can the player actually see this spot? (in front of the camera or very close, and no wall in between)
 const _fxv = new V3();

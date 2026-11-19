@@ -373,7 +373,6 @@ function frame(ts) {
     instFlush();
     // the sun's shadow map only re-renders every other frame (half the shadow cost, invisible at 60fps)
     pfMark('misc');
-    if (renderContextLost) return;
     renderer.info.autoReset = false; renderer.info.reset();
     frameNo++;
     if (!window.__hgReady) { window.__hgReady = 1; try { if (parent !== window && parent.HG_gameReady) setTimeout(() => parent.HG_gameReady(), 80); } catch (e) {} }      // the launcher's loading screen can go
@@ -393,6 +392,5 @@ function frame(ts) {
         }
     }
     pfMark('render');
-    if (renderer.domElement.style.visibility === 'hidden') renderer.domElement.style.visibility = '';
     cpuAcc += performance.now() - cpu0;
 }

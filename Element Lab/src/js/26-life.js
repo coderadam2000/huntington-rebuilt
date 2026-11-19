@@ -153,7 +153,7 @@ function updMoss(i, x, y, e) {
     if (el[j] !== 0) return false;
     let stone = 0, wet = 0;
     for (let d = 0; d < 4; d++) { const q = el[j + OFF[d]]; if (q === ID.stone || q === ID.brick || q === ID.concrete || q === ID.wood) stone = 1; if (q === ID.water) wet = 1; }
-    if (stone && (wet || rnd() < 0.3)) { put(j, ID.moss, 0, true); STAT.grown++; STAT.moss++; wkI(j); }
+    if (stone && (wet || rnd() < 0.3)) { put(j, ID.moss, 0, true); STAT.grown++; wkI(j); }
     return false;
 }
 

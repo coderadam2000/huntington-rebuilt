@@ -76,7 +76,6 @@ try {
 try {
   const sh = path.join(ROOT, 'Minigames/_shared');
   for (const g of games.filter(g => g.startsWith('Minigames/'))) for (const [a, b] of [['mg.js', 'src/js/00-mg.js'], ['mg.css', 'src/css/00-mg.css']]) {
-    if (read(path.join(ROOT, g, 'src/shell.html')).includes('<!--@inline ../../_shared/' + a + '-->')) continue;
     const f = path.join(ROOT, g, b);
     if (fs.existsSync(f) && read(f) !== read(path.join(sh, a))) problems.push(`${g}: ${b} differs from Minigames/_shared/${a} (edit the shared file, then: bash Minigames/build.sh)`);
   }

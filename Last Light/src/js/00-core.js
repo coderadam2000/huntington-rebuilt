@@ -63,7 +63,6 @@ const SAVE = (() => {
     d.stats = d.stats || {}; d.lore = d.lore || {}; d.guards = d.guards || {}; d.talks = d.talks || {};
     // 1.5 (still save version 3: these only add): trial records { id: { t: best seconds, m: medal 0-4 } } and the light's look
     if (!d.trials || typeof d.trials !== 'object') d.trials = {};
-    if (!d.linear || typeof d.linear !== 'object' || Array.isArray(d.linear)) d.linear = {};
     if (!d.look || typeof d.look !== 'object') d.look = { pal: 0, shape: 0 };
     // The launcher's chat caches messages in this same storage, and a full storage used to make saves fail silently
     // (progress looked fine, then was gone the next time). If a save is refused: drop the biggest chat caches (only a

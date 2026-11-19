@@ -1,8 +1,7 @@
 // ============================================================
 // INPUT, CAMERA, THE MAIN LOOP, BOOT, and the debug hook window.__steelstorm
 // ============================================================
-const IN = { keys: {}, mb: [0, 0, 0], camYaw: 0, camPitch: .2, zoom: 1, view: 0 };
-const CAMERA_NAMES = ['Chase camera', 'First person', 'Wide chase camera'];
+const IN = { keys: {}, mb: [0, 0, 0], camYaw: 0, camPitch: .2, zoom: 1 };
 const Cam = {
     aimD: 0, aim: { x: 0, y: 0, z: 0 }, deadYaw: 0, specId: -1, solOk: true, mlock: null, mlId: -1, mlT: 0,
     reset() { if (!ME) return; IN.camYaw = ME.yaw; IN.camPitch = ME.def.ln === 'a' && !ME.def.heli ? 0.05 : 0.22; IN.zoom = 1; },
@@ -85,8 +84,6 @@ function updateCamera(dt) {
     if (!ME) return;
     const e = ME; let yaw = IN.camYaw, pit = IN.camPitch;
     const d = e.def;
-    const firstPerson = e.alive && IN.view === 1;
-    if (e.mdl) e.mdl.root.visible = e.alive && !firstPerson;
     if (!e.alive) {
         let t = EN.get(Cam.specId); if (UIS.spec >= 0 && Cam.specId !== UIS.spec && EN.get(UIS.spec) && EN.get(UIS.spec).alive && !t) { Cam.specId = UIS.spec; t = EN.get(UIS.spec); }
         if (!t || !t.alive) { if (simTime - (e.dieT || 0) > 2.5 || !e.dieT) { nextSpec(1); t = EN.get(Cam.specId); } }
@@ -97,16 +94,14 @@ function updateCamera(dt) {
         camera.lookAt(cx, cy, cz);
     } else {
         Cam.deadYaw = yaw; Cam.specId = -1;
-        const cp = Math.cos(pit), dist = firstPerson ? 0 : d.cd * IN.zoom * (IN.view === 2 ? 1.65 : 1) * (d.w1.arty ? 1.2 : 1), lift = d.infantry ? 1.55 : d.ln === 'a' ? 3 : d.ln === 'n' ? 6 : 3.2;
+        const cp = Math.cos(pit), dist = d.cd * IN.zoom * (d.w1.arty ? 1.2 : 1), lift = d.ln === 'a' ? 3 : d.ln === 'n' ? 6 : 3.2;
         const cx = e.x, cy = e.y + lift - (d.sub ? e.dive * 3 : 0), cz = e.z;
         camera.position.set(cx - Math.sin(yaw) * cp * dist, cy - Math.sin(pit) * dist, cz - Math.cos(yaw) * cp * dist);
         const gmin = Math.max(H(camera.position.x, camera.position.z), 0) + 2; if (camera.position.y < gmin) camera.position.y = gmin;
         camera.lookAt(cx + Math.sin(yaw) * cp * 30, cy + Math.sin(pit) * 30, cz + Math.cos(yaw) * cp * 30);
     }
     if (shakeAmt > .02) { camera.position.x += rnd(-1, 1) * shakeAmt * .15; camera.position.y += rnd(-1, 1) * shakeAmt * .15; shakeAmt *= Math.pow(.02, dt); } else shakeAmt = 0;
-    const normalFov = d.ln === 'a' && !d.heli && e.alive ? 70 + (e.speed - d.minSp) / (d.sp - d.minSp) * 8 : 68;
-    const fov = firstPerson ? clamp(normalFov * IN.zoom, 32, 95) : normalFov;
-    if (Math.abs(camera.fov - fov) > .1) { camera.fov = fov; camera.updateProjectionMatrix(); }
+    const fov = d.ln === 'a' && !d.heli && e.alive ? 70 + (e.speed - d.minSp) / (d.sp - d.minSp) * 8 : 68; if (Math.abs(camera.fov - fov) > .1) { camera.fov = fov; camera.updateProjectionMatrix(); }
     listenerPos = camera.position;
 }
 // ---------- one simulation step (also driven by HGNet.every while the host's tab is hidden) ----------
@@ -196,7 +191,6 @@ function bindInput() {
         if (M && !e.repeat) {
             if (e.code === 'Escape' && !Cam.locked() && ME && ME.alive && !M.over && $('#s-pause').classList.contains('hidden') && $('#s-settings').classList.contains('hidden')) $('#s-pause').classList.remove('hidden');
             if (e.code === 'KeyC' && ME && ME.alive && ME.def.sub) { ME.diveOn = !ME.diveOn; toast(ME.diveOn ? 'Diving: only torpedoes can hit you, guns are off' : 'Surfacing'); }
-            if (e.code === 'KeyV' && ME?.alive) { IN.view = (IN.view + 1) % CAMERA_NAMES.length; IN.zoom = 1; toast(CAMERA_NAMES[IN.view]); }
             if (e.code === 'KeyF' && ME && ME.alive) { if (!dropFlares(ME) && !ME.def.flares && ME.def.ln === 'a') toast('Research the Countermeasures module for flares'); }
             if (e.code === 'Enter' && PARTY.net) { e.preventDefault(); const i = $('#h-say'); i.classList.remove('hidden'); if (document.pointerLockElement) document.exitPointerLock(); setTimeout(() => i.focus(), 0); IN.keys = {}; }
         }

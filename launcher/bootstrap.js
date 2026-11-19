@@ -4,8 +4,14 @@
   var runtime = 'launcher/runtime.html';
   var version = /^[\w.-]+$/.test(window.HG_VERSION || '') ? window.HG_VERSION : 'main';
   var hosts = ['cdn', 'fastly', 'gcore', 'testingcf'];
-  var message = document.getElementById('launch-status');
+  var boot = document.getElementById('boot'), message = document.getElementById('msg'), tip = boot.querySelector('.bt-tip');
   var saved, offlineTimer, started = false, failed = false, mirror = 0;
+
+  function status(progress, text, detail) {
+    boot.style.setProperty('--p', progress);
+    message.textContent = text;
+    tip.textContent = detail || '';
+  }
 
   function isRuntime(html) {
     // Also recognizes full hub HTML cached or published before the entry file was split out.
@@ -16,7 +22,9 @@
     if (started) return;
     started = true;
     clearTimeout(offlineTimer);
+    status(.72, 'Starting');
     window.HG_VERSION = ref || undefined;
+    window.HG_LOAD_P = .72;
     window.HG_BOOT_RUNTIME = html;
     document.open();
     document.write(html);
@@ -69,7 +77,7 @@
 
     while (!started && mirror < hosts.length) {
       var base = 'https://' + hosts[mirror++] + '.jsdelivr.net/gh/' + repo + '@' + version + '/';
-      if (mirror > 1) message.textContent = 'Trying another launcher mirror…';
+      status(.3 + mirror * .08, mirror > 1 ? 'Trying another mirror' : 'Downloading the launcher');
       try {
         var result = await download(base + runtime, 10000);
         // A copied entry can also boot against a release that still ships the full hub at index.html.
@@ -79,7 +87,7 @@
     }
     if (started) return;
     failed = true;
-    if (!useSaved()) message.textContent = 'Could not download the launcher. Check your connection and reload.';
+    if (!useSaved()) status(1, 'Could not download the launcher', 'Check your connection and reload to try again.');
   }
 
   readSaved();

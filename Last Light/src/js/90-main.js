@@ -9,7 +9,6 @@ addEventListener('resize', () => R.resize());
 const on = (id, fn) => { const el = $(id); if (el) el.onclick = () => { Sound.init(); Sound.play('click'); fn(); }; };
 on('t-play', () => fadeTo(() => UI.map('story')));
 on('t-trials', () => fadeTo(() => UI.map('trial')));          // 1.5
-on('t-linear', startLinear);
 on('t-look', () => UI.looks());
 on('lk-done', () => UI.show('title'));
 on('t-ver', () => UI.show('new'));
@@ -25,18 +24,17 @@ on('st-done', () => UI.show('title'));
 on('dd-retry', () => UI.retry());
 on('t-onelife', () => { G.run = { cleared: 0 }; fadeTo(() => { G.start(0); UI.banner('One Life', 'Clear as many levels as you can', 'One fall and the run is over.'); }); });
 on('dd-restart', () => { G.run = null; fadeTo(() => G.start(G.idx)); });
-on('dd-map', () => { G.run = null; fadeTo(() => G.linear ? leaveLinear() : UI.map()); });
+on('dd-map', () => { G.run = null; fadeTo(() => UI.map()); });
 on('how-done', () => UI.show(G.state === 'paused' ? 'pause' : 'title'));
 on('m-back', () => { G.run = null; G.state = 'title'; UI.show('title'); titleStats(); });
 on('b-pause', () => UI.pause());
 on('p-resume', () => UI.resume());
 on('p-restart', () => { G.run = null; if (G.mp) mpReset(); fadeTo(() => G.start(G.idx)); });      // (ends a One Life run: no free retries)
 on('p-settings', () => UI.settings('pause'));
-on('p-map', () => { G.run = null; if (G.mp) mpReset(); fadeTo(() => G.linear ? leaveLinear() : UI.map()); });
+on('p-map', () => { G.run = null; if (G.mp) mpReset(); fadeTo(() => UI.map()); });
 on('d-retry', () => fadeTo(() => G.start(G.idx)));
 on('d-next', () => fadeTo(() => { if (G.trial) G.trial = trialOpen(G.idx + 1) ? { id: LEVELS[G.idx + 1].id } : null; G.start(G.idx + 1); }));
-on('d-prev', () => { if (G.linear && G.state === 'done' && G.idx > 0) fadeTo(() => G.start(G.idx - 1)); });
-on('d-map', () => fadeTo(() => G.linear ? leaveLinear() : UI.map()));
+on('d-map', () => fadeTo(() => UI.map()));
 on('set-done', () => UI.show(UI._back === 'pause' ? 'pause' : 'title'));
 addEventListener('pointerdown', () => Sound.init(), { once: true });
 addEventListener('keydown', () => Sound.init(), { once: true });
@@ -54,10 +52,6 @@ function titleStats() {
     const done = Object.keys(SAVE.d.levels).length, moths = Object.values(SAVE.d.levels).reduce((n, r) => n + (r.moths || []).filter(Boolean).length, 0);
     $('#t-stats').textContent = done ? `${done} of ${LEVELS.length} levels · ${moths} stars · ${SAVE.d.sparks} sparks` : 'The last light in a dark world';
     $('#t-play').textContent = done ? 'Continue' : 'Play';
-    const canLinear = baseFinished(), cleared = linearCount();
-    $('#t-linear').disabled = !canLinear;
-    $('#t-linear').textContent = cleared && linearFrontier() >= 0 ? 'Continue LINEAR Run' : 'LINEAR Run';
-    $('#t-linear-info').textContent = canLinear ? cleared + ' of ' + baseLevels().length + ' LINEAR levels cleared' : 'LINEAR Run unlocks after the main story.';
     try { const m = svMeta(); $('#t-saves').textContent = 'Save files · ' + m.names[m.active]; } catch (e) {}
 }
 titleStats();

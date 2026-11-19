@@ -25,11 +25,7 @@ function profPfp(id, px, img) {
   return '<span class="ppfp' + (it.t ? ' team' : '') + '" title="' + profEsc(it.n) + '" style="width:' + s + 'px;height:' + s + 'px;font-size:' + Math.round(s * .6) + 'px;background:linear-gradient(135deg,' + it.c[0] + ',' + it.c[1] + ')">' + inner + '</span>';
 }
 // someone's nickname (their account name on hover), and the Owner / Admin tag the server vouches for
-function lbWho(name, cs) {
-  var nn = cs && cs.nn && cs.nn !== name ? cs.nn : null;
-  var tags = cs && cs.tg || [], role = tags.includes('owner') ? 'owner' : tags.includes('admin') ? 'admin' : '';
-  return '<span' + (role ? ' class="role-name-' + role + '"' : '') + (nn ? ' title="' + profEsc(name) + '"' : '') + '>' + profEsc(nn || name) + '</span>' + cosRoles(cs);
-}
+function lbWho(name, cs) { var nn = cs && cs.nn && cs.nn !== name ? cs.nn : null; return (nn ? '<span title="' + profEsc(name) + '">' + profEsc(nn) + '</span>' : profEsc(name)) + cosRoles(cs); }
 function cosRoles(cs) { return ((cs && cs.tg) || []).map(function (t) { return ' <span class="ptag role-' + t + '">' + (t === 'owner' ? '\u2605 OWNER' : 'ADMIN') + '</span>'; }).join(''); }
 // a title tag: one that is won by playing (ra: an achievement, a record, a rank) is written in a moving colour of its own
 function cosTitle(it, big) { return '<span class="ptag' + (big ? ' big' : '') + ' r-' + it.r + (it.ra ? ' ra' : '') + '">' + (it.ra ? '<i>' + profEsc(it.n) + '</i>' : profEsc(it.n)) + '</span>'; }
@@ -195,12 +191,6 @@ function lbView(c) {
   if (!d.rows.length) return '<div class="lbwrap">' + side + h + '<div class="pempty">Nobody on this board yet. Be the first!</div></div></div>';
   L.eco.cos(d.rows.slice(0, 60).map(function (r) { return r.u; }));
   var cosOfU = function (u) { return L.eco.cos([])[u] || {}; };
-  if (PROF.lbBoard === 'spikes:level' || PROF.lbBoard === 'spikes:onelife') {
-    var oneLife = PROF.lbBoard === 'spikes:onelife';
-    var victors = d.rows.filter(function (row) { return oneLife ? Number(row.s) >= 100 : row.d && row.d.victor === 'Campaign victor'; });
-    if (victors.length) h += '<div class="lbme"><b>' + (oneLife ? 'One Life victors' : 'Campaign victors') + '</b><div>' +
-      victors.map(function (row) { return '<span class="ptag rec">' + lbWho(row.n, cosOfU(row.u)) + '</span>'; }).join(' ') + '</div></div>';
-  }
   var how = function (r) { return r.d ? Object.keys(r.d).slice(0, 4).map(function (k) { var v = r.d[k]; return profEsc(k) + ': ' + profEsc(typeof v === 'number' ? profFmt(v, v >= 1e6 ? 'big' : 'int') : v); }).join(', ') : ''; };
   var top = d.rows.slice(0, 3), order = [1, 0, 2];
   h += '<div class="lbpod">' + order.filter(function (i) { return top[i]; }).map(function (i) { var r = top[i], cs = cosOfU(r.u);
@@ -219,28 +209,18 @@ document.addEventListener('click', function (e) {
 });
 document.addEventListener('change', function (e) { if (e.target && e.target.id === 'lb-level' && e.target.value) { PROF.lbBoard = e.target.value; PROF.lbData = null; lbRender(); } });
 // the Leaderboards tab: every game's boards (the same boards the Profile used to show)
-function personalBoards() {
-  var records = feedRd('hgmini_board_ratings') || {};
-  var rows = ['chess', 'checkers'].map(function (id) {
-    var result = records[id] || {};
-    return '<tr><td>' + (id === 'chess' ? 'Chess' : 'Checkers') + '</td><td>' + profFmt(result.wins) + '</td><td>' + profFmt(result.elo || 1000) + '</td></tr>';
-  });
-  var linear = (feedRd('lumi_save') || {}).linear || {};
-  return '<section class="act-card personal-boards"><h3>Personal records</h3><table class="plb"><thead><tr><th>Game</th><th>Wins</th><th>Elo vs. bots</th></tr></thead><tbody>' +
-    rows.join('') + '</tbody></table><p>Last Light LINEAR Run · ' + Math.min(Object.keys(linear).length, 41) + ' / 41 levels cleared</p></section>';
-}
 function lbRender() {
   var box = document.getElementById('view-lb'); if (!box || box.hidden) return;
   var L = window.HGGrapevine, c = L && L.me() && L.eco && L.eco.catalog();
-  if (!c) { box.innerHTML = '<div class="pempty">' + (L && L.me() ? 'Loading the leaderboards...' : 'Sign in to see the global leaderboards.') + '</div>' + personalBoards(); return; }
+  if (!c) { box.innerHTML = '<div class="pempty">' + (L && L.me() ? 'Loading the leaderboards...' : 'Sign in to see the leaderboards.') + '</div>'; return; }
   var had = document.activeElement && document.activeElement.id === 'lb-find';
-  box.innerHTML = lbView(c) + personalBoards();
+  box.innerHTML = lbView(c);
   var f = document.getElementById('lb-find'); if (f && PROF.lbFind) { f.value = PROF.lbFind; lbFindApply(); } if (f && had) { f.focus(); try { f.setSelectionRange(f.value.length, f.value.length); } catch (e) {} }
 }
 // "Find a player": hide the rows that do not match (the podium stays)
 function lbFindApply() {
   var q = String(PROF.lbFind || '').trim().toLowerCase();
-  [].forEach.call(document.querySelectorAll('#view-lb .lbmain .plb tr'), function (tr, i) { if (!i) return; var td = tr.children[1]; tr.hidden = !!q && !(td && td.textContent.toLowerCase().indexOf(q) >= 0); });
+  [].forEach.call(document.querySelectorAll('#view-lb .plb tr'), function (tr, i) { if (!i) return; var td = tr.children[1]; tr.hidden = !!q && !(td && td.textContent.toLowerCase().indexOf(q) >= 0); });
   [].forEach.call(document.querySelectorAll('#view-lb .lbp'), function (p) { var b = p.querySelector('b'); p.classList.toggle('dim', !!q && !(b && b.textContent.toLowerCase().indexOf(q) >= 0)); });
 }
 document.addEventListener('input', function (e) { if (e.target && e.target.id === 'lb-find') { PROF.lbFind = e.target.value; lbFindApply(); } });

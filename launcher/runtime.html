@@ -347,6 +347,29 @@ html.playing #htour { display: none !important; }   /* the tour waits while a ga
 .padmin input, .padmin select { background: var(--raise); color: var(--text); border: 1px solid var(--line2); border-radius: 8px; padding: 8px 10px; font: inherit; }
 .padmin .pb.ghost { background: transparent; color: var(--text); border: 1px solid var(--line2); }
 
+/* ---- the boot screen: launcher/boot.css (shared with loader.html) ---- */
+/* ---- a game's loading screen (2026-11-16): the game's picture as a card over its own blurred colours, a moving bar, what is
+   happening, and a tip ---- */
+#gload { position: absolute; left: 0; right: 0; bottom: 0; top: 41px; z-index: 5; overflow: hidden; background: #060912; display: flex; align-items: center; justify-content: center; transition: opacity .45s; }
+#gload.out { opacity: 0; pointer-events: none; }
+#gload .gl-bg { position: absolute; inset: -40px; background-size: cover; background-position: center; filter: blur(28px) brightness(.4) saturate(1.4); transform: scale(1.1); animation: gl-drift 16s ease-in-out infinite; }
+#gload::after { content: ""; position: absolute; inset: 0; background: radial-gradient(70% 60% at 50% 45%, transparent, rgba(6,9,18,.85)); pointer-events: none; }
+#gload .gl-in { position: relative; z-index: 1; display: flex; flex-direction: column; align-items: center; text-align: center; padding: 0 20px; }
+.gl-card { position: relative; width: min(320px, 70vw); aspect-ratio: 16 / 9; border-radius: 16px; overflow: hidden; background: #111827 center / cover no-repeat; box-shadow: 0 18px 50px rgba(0,0,0,.55), 0 0 0 1px rgba(255,255,255,.12); animation: gl-rise .6s cubic-bezier(.2,.9,.3,1.2) both, gl-float 5s 0.6s ease-in-out infinite; }
+.gl-card::after { content: ""; position: absolute; inset: 0; background: linear-gradient(105deg, transparent 35%, rgba(255,255,255,.35) 50%, transparent 65%); transform: translateX(-120%); animation: gl-shine 2.6s 0.5s ease-in-out infinite; }
+.gl-name { font: 800 clamp(20px, 3.4vw, 34px) var(--sans); color: #fff; margin: 22px 0 0; letter-spacing: .02em; text-shadow: 0 2px 20px rgba(0,0,0,.6); }
+.gl-bar { position: relative; width: min(260px, 64vw); height: 4px; margin: 18px auto 0; border-radius: 4px; background: rgba(255,255,255,.14); overflow: hidden; }
+.gl-bar span { position: absolute; top: 0; bottom: 0; width: 38%; border-radius: 4px; background: linear-gradient(90deg, #8b5cf6, #f97316, #14b8a6); box-shadow: 0 0 10px rgba(249,115,22,.6); animation: gl-bar 1.3s ease-in-out infinite; }
+@keyframes gl-bar { 0% { left: -40%; } 100% { left: 100%; } }
+.gl-quip { margin-top: 16px; max-width: 440px; color: rgba(232,236,246,.82); font-size: 14px; min-height: 20px; }
+.gl-quip.in { animation: gl-fadein .4s both; }
+@keyframes gl-drift { 0%, 100% { transform: scale(1.1) translate(0, 0); } 50% { transform: scale(1.18) translate(-14px, 8px); } }
+@keyframes gl-rise { 0% { opacity: 0; transform: translateY(18px) scale(.92); } 100% { opacity: 1; transform: none; } }
+@keyframes gl-float { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-6px); } }
+@keyframes gl-shine { 0% { transform: translateX(-120%); } 60%, 100% { transform: translateX(120%); } }
+@keyframes gl-fadein { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: none; } }
+@media (prefers-reduced-motion: reduce) { #gload .gl-bg, .gl-card, .gl-card::after { animation: none; } }
+
 /* the Leaderboards tab */
 #view-lb { max-width: 1100px; margin: 0 auto; padding: 0 4px 40px; }
 .lbhead { display: flex; align-items: baseline; gap: 14px; flex-wrap: wrap; margin: 4px 0 12px; } .lbhead h2 { margin: 0; font-size: 24px; } .lbhead span { color: var(--dim); }
@@ -359,7 +382,7 @@ html.playing #htour { display: none !important; }   /* the tour waits while a ga
 /* the tabs wrap onto a second line instead of hiding behind the ? and name chip when space runs out */
 #tabs { flex-wrap: wrap; overflow: visible; row-gap: 0; }
 /* banned: the whole launcher is locked */
-html.banned #hub, html.banned #player, html.banned #gate, html.banned #chatdock { display: none !important; }
+html.banned #hub, html.banned #player, html.banned #gate, html.banned #boot, html.banned #chatdock { display: none !important; }
 #banwall { position: fixed; inset: 0; z-index: 99999; display: flex; align-items: center; justify-content: center; background: radial-gradient(circle at 50% 40%, #3a0a0a, #0a0202); color: #fecaca; text-align: center; padding: 24px; }
 #banwall h1 { font: 900 44px var(--sans); color: #fff; margin: 8px 0; letter-spacing: .04em; } #banwall .bw-ic { font-size: 64px; } #banwall p { font-size: 17px; max-width: 520px; margin: 8px auto; } #banwall .bw-sub { color: #fca5a5; opacity: .8; font-size: 14px; }
 /* the Leaderboards tab, reorganised */
@@ -378,9 +401,6 @@ html.banned #hub, html.banned #player, html.banned #gate, html.banned #chatdock 
 .lbp .lbstep { width: 100%; border-radius: 10px 10px 0 0; background: linear-gradient(180deg, rgba(246,201,69,.35), rgba(246,201,69,.05)); border: 1px solid rgba(246,201,69,.35); border-bottom: 0; }
 .lbp.p1 .lbstep { height: 70px; } .lbp.p2 .lbstep { height: 48px; opacity: .8; } .lbp.p3 .lbstep { height: 32px; opacity: .65; }
 .lbme { margin: 8px 0 12px; padding: 10px 14px; border-radius: 10px; background: var(--raise); border: 1px solid var(--line2); } .lbme .dimtxt { color: var(--dim); font-size: 12px; float: right; }
-.personal-boards { margin-top: 18px; }
-.personal-boards h3 { margin: 0 0 8px; }
-.personal-boards p { margin-bottom: 0; }
 .lbre { float: right; margin-left: 10px; border: 1px solid var(--line2); background: transparent; color: var(--dim); border-radius: 8px; padding: 2px 9px; font-size: 12px; cursor: pointer; } .lbre:hover { color: var(--ink, #fff); border-color: var(--line); }
 @media (max-width: 760px) { .lbwrap { grid-template-columns: 1fr; } .lbside { flex-direction: row; overflow-x: auto; position: static; } .lbside button { flex: none; } .lbp { width: 30%; } }
 
@@ -388,22 +408,6 @@ html.banned #hub, html.banned #player, html.banned #gate, html.banned #chatdock 
 @media (max-width: 1400px) { #topbar { gap: 6px 14px; } #topbar h1 { letter-spacing: .16em; } .tab { padding: 12px 10px; letter-spacing: .1em; } }
 @media (max-width: 1180px) { #topbar h1 { font-size: 13px; letter-spacing: .08em; } .tab { padding: 12px 7px; letter-spacing: .04em; font-size: 10.5px; } #tourBtn { width: 26px; height: 26px; margin-right: 2px; } }
 @media (max-width: 960px) and (min-width: 761px) { #topbar h1 { display: none; } }
-
-#hub-heading { flex: 1 1 100%; min-width: 0; display: flex; align-items: baseline; justify-content: space-between; flex-wrap: wrap; gap: 4px 18px; }
-#hub-heading h1 { display: block; font-size: clamp(15px, 2.2vw, 26px); overflow-wrap: anywhere; }
-#hub-dates { display: flex; flex-wrap: wrap; gap: 4px 14px; color: var(--text); font: .78rem var(--mono); }
-#hub-clock { color: var(--signal); font-variant-numeric: tabular-nums; }
-#topbar #tabs { order: 2; flex: 1 1 32rem; min-width: 0; overflow: visible; }
-#game-rating { display: inline-flex; gap: 4px; }
-#game-rating button[aria-pressed="true"] { color: var(--signal); border-color: var(--signal); background: var(--raise); }
-.role-name-owner, #chip.role-name-owner .nm { color: #f6cf54; }
-.role-name-admin, #chip.role-name-admin .nm { color: #73b3ff; }
-html[data-base="light"] :is(.role-name-owner, #chip.role-name-owner .nm) { color: #8b6200; }
-html[data-base="light"] :is(.role-name-admin, #chip.role-name-admin .nm) { color: #154ba8; }
-@media (max-width: 880px) {
-  #topbar #tabs { flex-basis: 100%; }
-  #topbar { padding-bottom: 4px; }
-}
 
 /* Grapevine pop-ups while playing (098-gamepops.js) */
 #view-gpops { max-width: 760px; margin: 18px auto 40px; } .gpops { background: var(--panel); border: 1px solid var(--line); border-radius: 12px; padding: 14px 18px; }
@@ -414,10 +418,12 @@ html[data-base="light"] :is(.role-name-admin, #chip.role-name-admin .nm) { color
 .gsec { margin: 28px 0 12px; font: 800 20px var(--sans); letter-spacing: .02em; color: var(--text); display: flex; align-items: baseline; gap: 12px; flex-wrap: wrap; }
 .gsec span { font: 500 13px var(--sans); color: var(--dim); }
 /* loading screen: the real stage, and a failed load */
-#game-error { background: var(--panel); color: var(--text); padding: 12px 18px; }
-#game-error p { margin: 0 0 8px; }
-#game-error button { background: var(--raise); color: var(--text); border: 1px solid var(--line2); border-radius: 6px; padding: 6px 12px; margin-right: 6px; cursor: pointer; }
-.pempty button.mbtn { font: inherit; font-weight: 700; padding: 9px 18px; border-radius: 10px; border: 0; cursor: pointer; background: var(--signal); color: var(--on-signal); }
+.gl-stage-txt { margin-top: 10px; font-size: 12px; letter-spacing: .08em; text-transform: uppercase; color: rgba(255,255,255,.55); min-height: 16px; }
+.gl-err { margin-top: 14px; display: flex; flex-direction: column; align-items: center; gap: 10px; max-width: 460px; text-align: center; }
+.gl-err[hidden] { display: none; } .gl-err b { font-size: 18px; } .gl-err span { color: rgba(255,255,255,.7); font-size: 14px; line-height: 1.4; }
+#gload.fail .gl-card, #gload.fail .gl-bar { display: none; }
+.gl-err button, .pempty button.mbtn { font: inherit; font-weight: 700; padding: 9px 18px; border-radius: 10px; border: 0; cursor: pointer; background: var(--accent, #f6c945); color: #111; }
+.gl-err button.ghost { background: transparent; border: 1px solid rgba(255,255,255,.25); color: rgba(255,255,255,.8); font-weight: 600; }
 /* quality of life: the games toolbar, stars, play time, what's new, offline */
 #gbar { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; margin: 0 0 14px; }
 #gbar:empty { display: none; }
@@ -756,14 +762,52 @@ body.hubbonked{animation:hbonkshake .5s}
   .cal-chip, .cal-more { display: none; }
 }
 </style>
+<style>/* Shared by the small entry file and the full launcher so the loading screen carries through startup. */
+#boot{position:fixed;inset:0;z-index:3000;overflow:hidden;display:flex;align-items:center;justify-content:center;background:#060912;color:#e8ecf6;font-family:'Segoe UI',system-ui,-apple-system,sans-serif;transition:opacity .6s ease,transform .6s ease}
+#boot.out{opacity:0;transform:scale(1.04);pointer-events:none}
+#boot .bt-neb{position:absolute;inset:-20%;filter:blur(60px);opacity:.75}
+#boot .bt-neb i{position:absolute;width:46vmax;height:46vmax;border-radius:50%;mix-blend-mode:screen;animation:bt-drift 18s ease-in-out infinite alternate}
+#boot .bt-neb i:nth-child(1){left:8%;top:12%;background:radial-gradient(circle,#6d3df0 0,transparent 62%)}
+#boot .bt-neb i:nth-child(2){right:4%;top:30%;background:radial-gradient(circle,#ff7a2f 0,transparent 60%);animation-duration:22s;animation-delay:-6s}
+#boot .bt-neb i:nth-child(3){left:30%;bottom:0;background:radial-gradient(circle,#14b8a6 0,transparent 60%);animation-duration:26s;animation-delay:-11s}
+#boot .bt-stars{position:absolute;inset:0;background-image:radial-gradient(1.5px 1.5px at 12% 22%,#fff9,transparent),radial-gradient(1px 1px at 72% 14%,#fff8,transparent),radial-gradient(1.5px 1.5px at 84% 68%,#fff7,transparent),radial-gradient(1px 1px at 28% 78%,#fff8,transparent),radial-gradient(1px 1px at 52% 42%,#fff6,transparent),radial-gradient(1.5px 1.5px at 92% 36%,#fff6,transparent),radial-gradient(1px 1px at 6% 58%,#fff7,transparent),radial-gradient(1px 1px at 40% 8%,#fff7,transparent);animation:bt-twinkle 4s ease-in-out infinite alternate}
+#boot .bt-in{position:relative;display:flex;flex-direction:column;align-items:center;padding:0 20px;text-align:center}
+#boot .bt-emb{position:relative;width:132px;height:132px;margin-bottom:26px;animation:bt-rise .9s cubic-bezier(.2,.9,.3,1.2) both}
+#boot .bt-emb svg{position:absolute;inset:0;width:100%;height:100%;overflow:visible}
+#boot .bt-hex{fill:rgba(255,255,255,.04);stroke:url(#bt-grad);stroke-width:3.5;stroke-linejoin:round;stroke-dasharray:340;stroke-dashoffset:340;animation:bt-draw 1.4s .15s ease-out forwards;filter:drop-shadow(0 0 10px rgba(167,139,250,.55))}
+#boot .bt-emb b{position:absolute;inset:0;display:grid;place-items:center;font-weight:900;font-size:44px;letter-spacing:-.02em;background:linear-gradient(135deg,#fff 20%,#c4b5fd 55%,#fdba74);-webkit-background-clip:text;background-clip:text;color:transparent;opacity:0;animation:bt-fade .8s .7s ease-out forwards}
+#boot .bt-orb{position:absolute;inset:-18px;animation:bt-spin 9s linear infinite}
+#boot .bt-orb i{position:absolute;left:50%;top:50%;width:8px;height:8px;margin:-4px;border-radius:50%;box-shadow:0 0 10px currentColor;background:currentColor}
+#boot .bt-orb i:nth-child(1){color:#a78bfa;transform:rotate(0deg) translateY(-84px)}
+#boot .bt-orb i:nth-child(2){color:#fb923c;transform:rotate(72deg) translateY(-84px)}
+#boot .bt-orb i:nth-child(3){color:#2dd4bf;transform:rotate(144deg) translateY(-84px)}
+#boot .bt-orb i:nth-child(4){color:#f472b6;transform:rotate(216deg) translateY(-84px)}
+#boot .bt-orb i:nth-child(5){color:#facc15;transform:rotate(288deg) translateY(-84px)}
+#boot .bt-title{font-weight:800;font-size:clamp(20px,4.4vw,40px);letter-spacing:.32em;margin-right:-.32em;white-space:nowrap;animation:bt-title 1.2s .35s cubic-bezier(.2,.8,.2,1) both}
+#boot .bt-bar{position:relative;width:min(300px,70vw);height:4px;margin-top:28px;border-radius:4px;background:rgba(255,255,255,.1);overflow:hidden}
+#boot .bt-bar span{position:absolute;left:0;top:0;bottom:0;width:calc(var(--p,.08) * 100%);border-radius:4px;background:linear-gradient(90deg,#8b5cf6,#f97316,#14b8a6);background-size:200% 100%;box-shadow:0 0 12px rgba(249,115,22,.6);transition:width .6s cubic-bezier(.2,.8,.2,1);animation:bt-flow 2.4s linear infinite}
+#boot .bt-stage{margin-top:12px;font-size:11px;font-weight:700;letter-spacing:.22em;text-transform:uppercase;color:rgba(232,236,246,.55);min-height:14px}
+#boot .bt-tip{margin-top:18px;max-width:420px;min-height:20px;font-size:14px;color:rgba(232,236,246,.8);transition:opacity .4s}
+#boot .bt-tip.dim{opacity:0}
+#boot .bt-welcome{display:none;margin-top:14px;font-size:15px;color:#ddd6fe}
+#boot.first .bt-welcome{display:block;animation:bt-fade .8s 1s both}
+@keyframes bt-drift{0%{transform:translate(0,0) scale(1)}100%{transform:translate(6vmax,-4vmax) scale(1.15)}}
+@keyframes bt-twinkle{0%{opacity:.55}100%{opacity:1}}
+@keyframes bt-rise{0%{opacity:0;transform:translateY(16px) scale(.85)}100%{opacity:1;transform:none}}
+@keyframes bt-draw{to{stroke-dashoffset:0}}
+@keyframes bt-fade{to{opacity:1}}
+@keyframes bt-spin{to{transform:rotate(360deg)}}
+@keyframes bt-title{0%{opacity:0;letter-spacing:.9em;margin-right:-.9em}100%{opacity:1}}
+@keyframes bt-flow{0%{background-position:0 0}100%{background-position:200% 0}}
+@media (prefers-reduced-motion:reduce){#boot *{animation-duration:.01s!important;animation-iteration-count:1!important}}
+</style>
 </head>
 <body>
+<div id="boot"><div class="bt-neb"><i></i><i></i><i></i></div><div class="bt-stars"></div><div class="bt-in"><div class="bt-emb"><svg viewBox="0 0 120 120" aria-hidden="true"><defs><linearGradient id="bt-grad" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#a78bfa"/><stop offset=".55" stop-color="#f97316"/><stop offset="1" stop-color="#2dd4bf"/></linearGradient></defs><polygon class="bt-hex" points="60,6 107,33 107,87 60,114 13,87 13,33"/></svg><b>HG</b><span class="bt-orb"><i></i><i></i><i></i><i></i><i></i></span></div><div class="bt-title">HUNTINGTON GAMES</div><div class="bt-bar"><span></span></div><div class="bt-stage" id="msg">Starting</div><div class="bt-tip"></div><div class="bt-welcome">Welcome! Pick a game, make your profile and earn goons.</div></div></div>
+<script>window.HG_BOOT_T0 = Date.now();</script>
 <div id="hub">
   <div id="topbar">
-    <div id="hub-heading">
-      <h1>HUNTINGTON GAMES</h1>
-      <div id="hub-dates"><time id="hub-date"></time><time id="hub-clock"></time><span>Next update <time id="hub-update">TBD</time></span></div>
-    </div>
+    <h1>HUNTINGTON GAMES</h1>
     <nav id="tabs"><button class="tab on" id="tab-games">Games</button><button class="tab" id="tab-prof">Profile</button><button class="tab" id="tab-lb">Leaderboards</button><button class="tab" id="tab-mp">Multiplayer</button><button class="tab" id="tab-act">Activity</button><button class="tab" id="tab-cal">Calendar</button><button class="tab" id="tab-chat">Grapevine</button><button class="tab" id="tab-acct">Account</button><button class="tab" id="tab-admin" hidden>&#128737;&#65039; Admin</button></nav>
     <button id="reportBtn" title="Report a player, a message or a bug to the admins">&#128681; Report</button><button id="rulesBtn" title="The rules, and what you can report">&#128220; Rules</button><button id="tourBtn" title="Take the tour (how everything works)">?</button><button id="chip" title="Your profile, goons and the shop"><span class="cdot" id="chip-dot"></span><span id="chip-pfp"></span><span class="nm" id="chip-nm"></span><span id="chip-goons"></span></button>
   </div>
@@ -886,8 +930,7 @@ body.hubbonked{animation:hbonkshake .5s}
 <button id="exp-btn" title="Prototypes and older games">experimental</button>
 <div id="exp"><div class="box"><button class="close" id="exp-close">Close</button><h2>Experimental</h2><div class="rdesc" style="margin-bottom:8px">Prototypes, remixes and side projects.</div><div id="exp-list"></div></div></div>
 <div id="player">
-  <div id="ptop"><button id="back">&#8592; All games</button><span id="ptitle"></span><button id="pfav" title="Add to favourites" hidden>&#9734;</button><span id="chathint"></span><span id="livestat"></span><div id="game-rating" role="group" aria-label="Your rating"><button type="button" data-rate="1" title="Like game" aria-label="Like game" aria-pressed="false">👍</button><button type="button" data-rate="-1" title="Dislike game" aria-label="Dislike game" aria-pressed="false">👎</button></div><button id="golive" title="Let friends watch this game with a code">Go live</button><button id="preport" title="Report a player or a bug in this game to the admins">&#128681; Report</button><button id="prestart" title="Start this game again from its first screen">Restart</button><button id="full" title="Fullscreen">Fullscreen</button><button id="newtab">New tab</button></div>
-  <div id="game-error" role="status" hidden><p></p><button type="button" id="gl-retry">Try again</button><button type="button" id="gl-back">Back to the games</button></div>
+  <div id="ptop"><button id="back">&#8592; All games</button><span id="ptitle"></span><button id="pfav" title="Add to favourites" hidden>&#9734;</button><span id="chathint"></span><span id="livestat"></span><button id="golive" title="Let friends watch this game with a code">Go live</button><button id="preport" title="Report a player or a bug in this game to the admins">&#128681; Report</button><button id="prestart" title="Start this game again from its first screen">Restart</button><button id="full" title="Fullscreen">Fullscreen</button><button id="newtab">New tab</button></div>
   <iframe id="frame" allow="fullscreen; pointer-lock; autoplay; gamepad; midi" allowfullscreen></iframe>
 </div>
 <div id="netbar" hidden></div>
@@ -972,19 +1015,19 @@ var local = !BUNDLE && !window.HG_VERSION && (location.protocol === 'file:' || /
 var GAMES = [
   { dir: 'Beat Lab', hero: 'Make your own music: paint a song on a colourful grid, or build a whole track in the studio with 250+ instruments. Share it with a code. The best songs players make may be picked to play in one of our games!', chatShift: true, name: 'Beat Lab 1.1', img: 'beatlab', tags: ['New', 'Music', 'Creative'], desc: "NEW 1.1: share your songs with a 6-digit code (or post them in #music) and open anyone's, download as audio or a project file, layer up to 4 instruments in Simple mode, 8-lane drum kits (new Rock, World and Orchestra kits), and articulations: accent, staccato, slide, vibrato, bends, flams and rolls. Simple mode is a colourful song grid; Studio is a full music studio with 250+ instruments, a piano roll, a mixer and effects. Any song can be your launcher music. Make something great: the best songs players make may be picked to play in one of our games." },
   { dir: 'Mayhem Marathon', name: 'Mayhem Marathon 1.2', img: 'mayhem', tags: ['New', '3D', 'Multiplayer', 'Party'], desc: "NEW 1.2: TRAINING - hands-on lessons (First steps, Round types, Parties and custom shows) with practice rounds where nobody is knocked out and nothing counts. 1.1: 7 new rounds, 21 in all! Roll through Log Jam, lean into the Gust Gauntlet, dodge Meteor Mayhem, hop the Lava Pillars, paint the floor in Turf War, pass the bomb in Bomb Tag and fight for the Summit Showdown final. Pick your own rounds for a custom show, and earn 22 new things to wear plus crown celebrations. The knockout party game for up to 16: friends on a 6-digit code, or bots." },
-  { dir: 'Blocky Shooter V2', name: 'Blocky Shooter 5.7', img: 'blocky', tags: ['New', '3D', 'Shooter', 'Multiplayer'], desc: 'NEW 5.6: TRAINING - hands-on lessons (Boot camp on a practice range, Classes and loadout, Modes and multiplayer) that never count for your stats. 5.5: two new maps - FROSTBITE (a snowed-in outpost with a frozen lake you slide across) and CARNIVAL (a dead funfair with a Ferris wheel and a roller-coaster track you can run along). New HUNTED mode: the first kill makes you the Hunted, with 300 health and a Minigun, and only the Hunted scores. Four new guns: Drum Shotgun, Cryo Blaster (freezes zombies solid), self-charging Plasma Rifle and a homing Seeker Launcher. New zombies (Bloater, Lobber), a new boss, The Winter King, and new camos to earn. Also: 8 classes that level up to 30, 8 multiplayer modes, bots and tournaments.' },
-  { dir: 'Sovereign', name: 'Sovereign 1.6', img: 'sovereign', tags: ['New', '3D', 'Strategy', 'Multiplayer'], desc: 'NEW 1.5: TRAINING - four hands-on lessons (your first year, war and peace, the World Council, playing online) in practice games that are thrown away afterwards. 1.4: the WORLD COUNCIL. Every four months the whole world votes on sanctions, peacekeepers and world laws (climate, arms control, minimum tax, trade, AI, space): propose your own, lobby for votes and dodge the vetoes, or defy the world and face the consequences. GLOBAL CRISES: pandemics, financial panics and even an asteroid, fought with a world fund. Four new SCENARIOS (Cold War II, After the Crash, Resource Scramble, Age of Peace) for solo, Simulator and online, new victories, 25 new events and 5 new account achievements.' },
-  { dir: 'Last Light', name: "Last Light 1.7", img: 'lastlight', tags: ['New', 'Platformer', 'Multiplayer'], desc: "NEW 1.6: TRAINING - a practice room for every move you have earned, plus lessons on trials, medals, ghosts and your light. 1.5: Frostveil, a whole new world past The Gloom. Eleven lights never came home: glide over ice, snow geysers and bottomless drops to find them, meet the people on the peaks, and free Hoarfrost the snow owl. The new glide works in every level, Trials put every level against the clock (Bronze to Lumen medals, with a ghost of your best run), pick the colour of your light, and find a secret level. Your saves carry over." },
+  { dir: 'Blocky Shooter V2', name: 'Blocky Shooter 5.6', img: 'blocky', tags: ['New', '3D', 'Shooter', 'Multiplayer'], desc: 'NEW 5.6: TRAINING - hands-on lessons (Boot camp on a practice range, Classes and loadout, Modes and multiplayer) that never count for your stats. 5.5: two new maps - FROSTBITE (a snowed-in outpost with a frozen lake you slide across) and CARNIVAL (a dead funfair with a Ferris wheel and a roller-coaster track you can run along). New HUNTED mode: the first kill makes you the Hunted, with 300 health and a Minigun, and only the Hunted scores. Four new guns: Drum Shotgun, Cryo Blaster (freezes zombies solid), self-charging Plasma Rifle and a homing Seeker Launcher. New zombies (Bloater, Lobber), a new boss, The Winter King, and new camos to earn. Also: 8 classes that level up to 30, 8 multiplayer modes, bots and tournaments.' },
+  { dir: 'Sovereign', name: 'Sovereign 1.5', img: 'sovereign', tags: ['New', '3D', 'Strategy', 'Multiplayer'], desc: 'NEW 1.5: TRAINING - four hands-on lessons (your first year, war and peace, the World Council, playing online) in practice games that are thrown away afterwards. 1.4: the WORLD COUNCIL. Every four months the whole world votes on sanctions, peacekeepers and world laws (climate, arms control, minimum tax, trade, AI, space): propose your own, lobby for votes and dodge the vetoes, or defy the world and face the consequences. GLOBAL CRISES: pandemics, financial panics and even an asteroid, fought with a world fund. Four new SCENARIOS (Cold War II, After the Crash, Resource Scramble, Age of Peace) for solo, Simulator and online, new victories, 25 new events and 5 new account achievements.' },
+  { dir: 'Last Light', name: "Last Light 1.6", img: 'lastlight', tags: ['New', 'Platformer', 'Multiplayer'], desc: "NEW 1.6: TRAINING - a practice room for every move you have earned, plus lessons on trials, medals, ghosts and your light. 1.5: Frostveil, a whole new world past The Gloom. Eleven lights never came home: glide over ice, snow geysers and bottomless drops to find them, meet the people on the peaks, and free Hoarfrost the snow owl. The new glide works in every level, Trials put every level against the clock (Bronze to Lumen medals, with a ghost of your best run), pick the colour of your light, and find a secret level. Your saves carry over." },
   { dir: 'Tower Defense 2.0', name: 'Tower Defense 3.0', img: 'td', tags: ['New', 'Strategy'], desc: 'NEW 3.0: pick one of 6 heroes with 2 abilities each, 18 new towers including a whole Alien tab, 7 alien enemies and the Mothership boss. 12 new maps with terrain and stars, boss waves every 10, a Daily Challenge, and a Map Editor with share codes. Still two modes: Tower Mode or Troop Mode, 1900 to the future.' },
   { dir: 'Frontline', chatShift: true, name: 'Frontline: Command 3.1', img: 'frontline', tags: ['New', '3D', 'Multiplayer'], desc: 'NEW 3.1: Resource Farms that grow money (more the longer they stand), and every side now gets 5 Upgrades per battle, so pick them well. 3.0: a second faction, the Iron Legion - 24 units with shields, their own upgrades and AI commander Kael (pick your side online too). 5 new maps, including 2 coastal ones with a Shipyard, Gunboats, Landing Craft and Destroyers. Night battles with rain, fog or snow, and a General perk tree with 18 perks. Plus new achievements and a Field Guide. Still here: Endless War, the 7-battle Campaign and online battles with a 6-digit code.' },
   { dir: 'Imposter', name: 'Imposter: Shades in the Lighthouse', img: 'imposter', tags: ['New', 'Multiplayer', 'Party'], desc: "NEW: one or more Shades hide among the lighthouse keepers. Do your chores, ring the bell, call a gathering and vote them into the fog before the lights go out. Up to 10 players with a 6-digit code (bots fill the empty seats), or play alone against 9 bots, on two maps." },
   { dir: 'Casino', name: 'The Lucky Goon Casino', img: 'casino', tags: ['New', 'Casino', 'Multiplayer', 'Party'], desc: "NEW: turn goons into chips (1 goon = 100 chips) and play blackjack, roulette, slots, plinko, mines, baccarat, craps, video poker and more. Live tables with everyone who is in: Live Roulette, the Rocket, Horse Racing, The Pot and coin-flip Duels. A free spin every day. Play money only: goons and chips are not worth anything outside Huntington Games." },
-  { dir: 'Steel Storm', name: 'Steel Storm 2.4', img: 'steelstorm', tags: ['New', '3D', 'Multiplayer', 'Party'], desc: "NEW 2.3: Training - three hands-on lessons (Basic training, Wings and rotors, Your garage) with practice battles that never count for your stats. 2.2: brand-new menus, a garage that shows your vehicle fighting like a pro while you pick it, and a real multiplayer screen: browse open games, host with every option, and a live party lobby with teams, ready-up and chat. You now respawn in the vehicle you picked. Plus the 2.1 rebalance: every vehicle has a job, missiles lock on, and bots bring better gear on harder settings." },
-  { dir: 'Element Lab', name: 'Element Lab 2.2', img: 'elementlab', tags: ['New', 'Sandbox'], desc: "NEW 2.0: 300 elements and 1,400 reactions. Wire up batteries, gates and turbines, build a working water-cooled nuclear reactor, pipes, pistons and factories, and watch little humans run your town. Your old saves still load." },
+  { dir: 'Steel Storm', name: 'Steel Storm 2.3', img: 'steelstorm', tags: ['New', '3D', 'Multiplayer', 'Party'], desc: "NEW 2.3: Training - three hands-on lessons (Basic training, Wings and rotors, Your garage) with practice battles that never count for your stats. 2.2: brand-new menus, a garage that shows your vehicle fighting like a pro while you pick it, and a real multiplayer screen: browse open games, host with every option, and a live party lobby with teams, ready-up and chat. You now respawn in the vehicle you picked. Plus the 2.1 rebalance: every vehicle has a job, missiles lock on, and bots bring better gear on harder settings." },
+  { dir: 'Element Lab', name: 'Element Lab 2.0', img: 'elementlab', tags: ['New', 'Sandbox'], desc: "NEW 2.0: 300 elements and 1,400 reactions. Wire up batteries, gates and turbines, build a working water-cooled nuclear reactor, pipes, pistons and factories, and watch little humans run your town. Your old saves still load." },
   { dir: 'Coffee Shop NEW', name: 'Bean & Brew Tycoon 2.2', img: 'coffee', tags: ['New', 'Tycoon'], desc: 'Away for 30 minutes pauses progress. NEW 2.1: every city has its own local specials and a local ingredient you can only buy there (Maple Lattes at home, Coconut Iced Coffee at the beach, Nitro Cold Brew downtown, Gold Leaf Hot Chocolate on the slopes...). 2.0: open shops in 5 new cities, invent drinks in the Recipe Lab, train staff with skill trees, and run a franchise chain with managers. Random events with choices, decorations, seasons and holidays, an 8-chapter career story and a latte art mini-game. Build, staff and grow a chain of coffee shops.' },
   { dir: 'Tetris', name: 'Tetris Surge 2.0', img: 'tetris', tags: ['New', 'Puzzle'], desc: 'NEW 2.0: climb the rank ladder in Surge, Sprint, Ultra and Marathon. 14 new perks, 5 new bosses, a Daily Challenge with streaks, 55 achievements, and a 70-puzzle Puzzle mode with stars, undo and hints. Plus 12 block skins, 8 backgrounds and Hold and T-Spin tutorials. Still a rogue-lite run with power blocks, plus Marathon, Sprint, Ultra and Zen.' },
   { dir: 'Market Life 1.9', name: 'Market & Life 2.2', img: 'market', tags: ['New', 'Sim'], desc: 'Away for 30 minutes pauses progress. NEW 2.1: join the military (enlist, or become an officer through the Academy, ROTC or Officer Training School), transfer from community college, stay for a master\'s, and 14 new life events. 2.0: live a whole life, from school and 22 degree programs to careers, homes, cars, family and retirement, then see your Life Score in the Hall of Lives. Trade 42 stocks and cryptos with charts, news, dividends and limit orders, save in bonds, and run 10 kinds of business. Plus 33 achievements and a Stats page.', credit: 'Original game by Robbie' },
-  { dir: '50 Levels Of Spikes 1.2', name: '100 Levels of Spikes 2.3', img: 'spikes', tags: ['New', 'Platformer', 'Multiplayer'], desc: 'NEW 2.2: Multiplayer! Race your friends or beat levels together in Co-op, and fill the room with bots (the host picks how many people and bots). Plus music, a new world every 20 levels (sunset dunes, deep sea, toxic lab, inferno) and a lot more roasts when you die.' },
+  { dir: '50 Levels Of Spikes 1.2', name: '100 Levels of Spikes 2.2', img: 'spikes', tags: ['New', 'Platformer', 'Multiplayer'], desc: 'NEW 2.2: Multiplayer! Race your friends or beat levels together in Co-op, and fill the room with bots (the host picks how many people and bots). Plus music, a new world every 20 levels (sunset dunes, deep sea, toxic lab, inferno) and a lot more roasts when you die.' },
   { dir: 'Brown E Clicker', name: 'Brown E Clicker 2.2', img: 'clicker', tags: ['New', 'Clicker'], desc: 'Away for 30 minutes pauses progress. NEW 2.1: HOW TO PLAY - three hands-on lessons (getting started, growing, ascending) in a practice game that never touches your save. Also new: a REBALANCED BETA mode (its own save and leaderboard) where buildings matter, ascending is a real choice and the game lasts; classic is untouched. Also faster to start, and auto-clickers are caught. 2.0: 24 new buildings, 287 upgrades, Golden E bonuses and seasonal events, 158 achievements and offline earnings. Ascend for Heavenly Chips and spend them in a 45-node Prestige Tree, take on Challenge Runs, and play the E Garden and E-Goods Market minigames. Plus 28 skins and backgrounds and a news ticker. Click the E. Buy upgrades. Ascend.', alt: { label: '\u25B6 Rebalanced beta', title: 'A re-tuned version of the game with its own save and leaderboard. Switch back from inside the game.', go: function () { try { localStorage.setItem('brownEClicker_variant', 'rb'); } catch (e) {} } } },
   { dir: 'Coffee Shop Tycoon Legacy', name: 'Bean & Brew Classic', img: 'legacy', tags: ['Tycoon'], desc: 'The original coffee shop tycoon. Away for 30 minutes pauses progress.', credit: 'Made by Robbie' },
   { dir: 'Levi Dash By Levi 2.0', noChat: true, name: 'Neon Dash 2.1', img: 'neondash', tags: ['Platformer'], desc: 'NEW 2.1: a World leaderboard next to your Hall of Fame. Neon Dash: Ultimate Edition. Jump the neon spikes, keep your streak going, beat your score and sign the Hall of Fame.', credit: 'Made by Levi' },
@@ -993,9 +1036,6 @@ var GAMES = [
   { dir: 'Minigames/Typing Race', name: 'Typing Race', img: 'mg-typing', cat: 'mini', tags: ['New', 'Multiplayer', 'Minigame'], desc: "Race your friends by typing the same passage: every correct letter moves your car. Up to 8 players and bots." },
   { dir: 'Minigames/Pong', name: 'Pong', img: 'mg-pong', cat: 'mini', tags: ['New', 'Multiplayer', 'Minigame'], desc: "The original, online: two paddles, one ball, first to 7. Against a friend or the bot." },
   { dir: 'Minigames/Connect Four', name: 'Connect Four', img: 'mg-connect4', cat: 'mini', tags: ['New', 'Multiplayer', 'Minigame'], desc: "Drop discs, four in a row wins. Against a friend or a bot that thinks four moves ahead." },
-  { dir: 'Sports Mix', name: 'Sports Mix', img: 'sportsmix', tags: ['New', 'Sports'], desc: 'Practice basketball, mini golf, regular golf, tennis, baseball, hockey, soccer, American football and bowling.' },
-  { dir: 'Minigames/Chess and Checkers', name: 'Chess and Checkers', img: 'boardgames', cat: 'mini', tags: ['New', 'Multiplayer', 'Strategy'], desc: 'Challenge a friend or face bots at three Elo levels. Track your own rating and wins.' },
-  { dir: 'Minigames/Zoom', name: 'Zoom', img: 'zoom', cat: 'mini', tags: ['New', '3D', 'Multiplayer', 'Racing'], desc: 'Race bikes and karts across twelve tracks in three cups. Run a sprint, Grand Prix or time trial.' },
   { dir: 'Minigames/Tic-Tac-Toe', name: 'Tic-Tac-Toe', img: 'mg-tictactoe', cat: 'mini', tags: ['New', 'Multiplayer', 'Minigame'], desc: "Three in a row, best of five. Against a friend or the bot." },
 ];
 var EXPERIMENTAL = [
@@ -1475,7 +1515,6 @@ window.HG_skipWait = function () { if (skipWait) skipWait(); };
 function playNow(g) {
   var id = ++loadId;
   current = { game: g, html: null };
-  document.getElementById('game-error').hidden = true;
   document.getElementById('ptitle').textContent = g.name;
   var hint = document.getElementById('chathint'), Lg = window.HGGrapevine;
   hint.textContent = g.noChat || !(Lg && Lg.me()) ? '' : (g.chatShift ? 'Shift+T to chat' : 'T to chat');
@@ -1484,8 +1523,10 @@ function playNow(g) {
   if (local) { HG_set(g); frame.removeAttribute('srcdoc'); frame.src = path(g) + (window.HG_TEST_QUERY || ''); return; }   // HG_TEST_QUERY: tests only (local copies)
   frame.srcdoc = message('Loading ' + g.name + '...');
   var alive = function () { return id === loadId; };
+  if (typeof glStage === 'function') glStage('Downloading');
   loadGameHtml(g, alive).then(function (r) {
     if (id !== loadId) return;
+    if (typeof glStage === 'function') glStage('Starting');
     return prepare(r.html, g, r.base).then(function (h) {
       if (id !== loadId) return;
       current.html = h;
@@ -1495,10 +1536,8 @@ function playNow(g) {
   }).catch(function () {
     if (id !== loadId) return;
     var why = BUNDLE ? 'This game is missing from the offline copy.' : navigator.onLine === false ? 'You are offline and this game is not saved on this device yet.' : 'The game server (cdn.jsdelivr.net) did not answer. It may be blocked on this network, or the connection dropped.';
-    frame.srcdoc = message('');
-    var error = document.getElementById('game-error');
-    error.querySelector('p').textContent = 'Could not load ' + g.name + '. ' + why;
-    error.hidden = false;
+    frame.srcdoc = message('Could not load ' + g.name + '.<br>' + why);
+    if (typeof glFail === 'function') glFail(g, why);
     // back online: try again by itself
     var again = function () { removeEventListener('online', again); if (id === loadId && current && current.game === g && !current.html) playNow(g); };
     if (!BUNDLE) addEventListener('online', again);
@@ -1677,8 +1716,6 @@ function paintChip() {
   document.getElementById('chip-dot').className = 'cdot' + (s === 'online' ? ' on' : s === 'signed-out' || s === 'error' ? '' : ' wait');
   // your picture and goons on the chip: the way into your profile and the shop
   var e = L && L.eco && L.eco.state();
-  chip.classList.toggle('role-name-owner', !!(e && e.owner));
-  chip.classList.toggle('role-name-admin', !!(e && !e.owner && e.perms && e.perms.length));
   document.getElementById('chip-pfp').innerHTML = e && e.equip && e.equip.pfp && typeof profPfp === 'function' ? profPfp(e.equip.pfp, 22) : '';
   document.getElementById('chip-goons').textContent = e ? (e.dev ? '∞' : e.goons) + ' goons' : '';
 }
@@ -2341,11 +2378,7 @@ function profPfp(id, px, img) {
   return '<span class="ppfp' + (it.t ? ' team' : '') + '" title="' + profEsc(it.n) + '" style="width:' + s + 'px;height:' + s + 'px;font-size:' + Math.round(s * .6) + 'px;background:linear-gradient(135deg,' + it.c[0] + ',' + it.c[1] + ')">' + inner + '</span>';
 }
 // someone's nickname (their account name on hover), and the Owner / Admin tag the server vouches for
-function lbWho(name, cs) {
-  var nn = cs && cs.nn && cs.nn !== name ? cs.nn : null;
-  var tags = cs && cs.tg || [], role = tags.includes('owner') ? 'owner' : tags.includes('admin') ? 'admin' : '';
-  return '<span' + (role ? ' class="role-name-' + role + '"' : '') + (nn ? ' title="' + profEsc(name) + '"' : '') + '>' + profEsc(nn || name) + '</span>' + cosRoles(cs);
-}
+function lbWho(name, cs) { var nn = cs && cs.nn && cs.nn !== name ? cs.nn : null; return (nn ? '<span title="' + profEsc(name) + '">' + profEsc(nn) + '</span>' : profEsc(name)) + cosRoles(cs); }
 function cosRoles(cs) { return ((cs && cs.tg) || []).map(function (t) { return ' <span class="ptag role-' + t + '">' + (t === 'owner' ? '\u2605 OWNER' : 'ADMIN') + '</span>'; }).join(''); }
 // a title tag: one that is won by playing (ra: an achievement, a record, a rank) is written in a moving colour of its own
 function cosTitle(it, big) { return '<span class="ptag' + (big ? ' big' : '') + ' r-' + it.r + (it.ra ? ' ra' : '') + '">' + (it.ra ? '<i>' + profEsc(it.n) + '</i>' : profEsc(it.n)) + '</span>'; }
@@ -2511,12 +2544,6 @@ function lbView(c) {
   if (!d.rows.length) return '<div class="lbwrap">' + side + h + '<div class="pempty">Nobody on this board yet. Be the first!</div></div></div>';
   L.eco.cos(d.rows.slice(0, 60).map(function (r) { return r.u; }));
   var cosOfU = function (u) { return L.eco.cos([])[u] || {}; };
-  if (PROF.lbBoard === 'spikes:level' || PROF.lbBoard === 'spikes:onelife') {
-    var oneLife = PROF.lbBoard === 'spikes:onelife';
-    var victors = d.rows.filter(function (row) { return oneLife ? Number(row.s) >= 100 : row.d && row.d.victor === 'Campaign victor'; });
-    if (victors.length) h += '<div class="lbme"><b>' + (oneLife ? 'One Life victors' : 'Campaign victors') + '</b><div>' +
-      victors.map(function (row) { return '<span class="ptag rec">' + lbWho(row.n, cosOfU(row.u)) + '</span>'; }).join(' ') + '</div></div>';
-  }
   var how = function (r) { return r.d ? Object.keys(r.d).slice(0, 4).map(function (k) { var v = r.d[k]; return profEsc(k) + ': ' + profEsc(typeof v === 'number' ? profFmt(v, v >= 1e6 ? 'big' : 'int') : v); }).join(', ') : ''; };
   var top = d.rows.slice(0, 3), order = [1, 0, 2];
   h += '<div class="lbpod">' + order.filter(function (i) { return top[i]; }).map(function (i) { var r = top[i], cs = cosOfU(r.u);
@@ -2535,28 +2562,18 @@ document.addEventListener('click', function (e) {
 });
 document.addEventListener('change', function (e) { if (e.target && e.target.id === 'lb-level' && e.target.value) { PROF.lbBoard = e.target.value; PROF.lbData = null; lbRender(); } });
 // the Leaderboards tab: every game's boards (the same boards the Profile used to show)
-function personalBoards() {
-  var records = feedRd('hgmini_board_ratings') || {};
-  var rows = ['chess', 'checkers'].map(function (id) {
-    var result = records[id] || {};
-    return '<tr><td>' + (id === 'chess' ? 'Chess' : 'Checkers') + '</td><td>' + profFmt(result.wins) + '</td><td>' + profFmt(result.elo || 1000) + '</td></tr>';
-  });
-  var linear = (feedRd('lumi_save') || {}).linear || {};
-  return '<section class="act-card personal-boards"><h3>Personal records</h3><table class="plb"><thead><tr><th>Game</th><th>Wins</th><th>Elo vs. bots</th></tr></thead><tbody>' +
-    rows.join('') + '</tbody></table><p>Last Light LINEAR Run · ' + Math.min(Object.keys(linear).length, 41) + ' / 41 levels cleared</p></section>';
-}
 function lbRender() {
   var box = document.getElementById('view-lb'); if (!box || box.hidden) return;
   var L = window.HGGrapevine, c = L && L.me() && L.eco && L.eco.catalog();
-  if (!c) { box.innerHTML = '<div class="pempty">' + (L && L.me() ? 'Loading the leaderboards...' : 'Sign in to see the global leaderboards.') + '</div>' + personalBoards(); return; }
+  if (!c) { box.innerHTML = '<div class="pempty">' + (L && L.me() ? 'Loading the leaderboards...' : 'Sign in to see the leaderboards.') + '</div>'; return; }
   var had = document.activeElement && document.activeElement.id === 'lb-find';
-  box.innerHTML = lbView(c) + personalBoards();
+  box.innerHTML = lbView(c);
   var f = document.getElementById('lb-find'); if (f && PROF.lbFind) { f.value = PROF.lbFind; lbFindApply(); } if (f && had) { f.focus(); try { f.setSelectionRange(f.value.length, f.value.length); } catch (e) {} }
 }
 // "Find a player": hide the rows that do not match (the podium stays)
 function lbFindApply() {
   var q = String(PROF.lbFind || '').trim().toLowerCase();
-  [].forEach.call(document.querySelectorAll('#view-lb .lbmain .plb tr'), function (tr, i) { if (!i) return; var td = tr.children[1]; tr.hidden = !!q && !(td && td.textContent.toLowerCase().indexOf(q) >= 0); });
+  [].forEach.call(document.querySelectorAll('#view-lb .plb tr'), function (tr, i) { if (!i) return; var td = tr.children[1]; tr.hidden = !!q && !(td && td.textContent.toLowerCase().indexOf(q) >= 0); });
   [].forEach.call(document.querySelectorAll('#view-lb .lbp'), function (p) { var b = p.querySelector('b'); p.classList.toggle('dim', !!q && !(b && b.textContent.toLowerCase().indexOf(q) >= 0)); });
 }
 document.addEventListener('input', function (e) { if (e.target && e.target.id === 'lb-find') { PROF.lbFind = e.target.value; lbFindApply(); } });
@@ -2705,8 +2722,8 @@ function blockyXP(l) { var per = 0; for (var r = 1; r < 50; r++) per += 600 + 20
 function blockyRanks(l) { var x = feedNum(l.xp), r = 1; while (r < 50 && x >= 600 + 200 * r) { x -= 600 + 200 * r; r++; } return feedNum(l.prestige) * 49 + (r - 1); }
 // board -> [value, details] from the saves (0 / nothing = not on the board yet)
 var LB_FEED = [
-  ['spikes:level', function () { var s = feedRd('spikes100_progress') || {}; return [feedNum(s.unlocked), s.beaten ? { victor: 'Campaign victor' } : null]; }],
-  ['spikes:onelife', function () { var s = feedRd('spikes100_progress') || {}; return [feedNum(s.bestOneLife), s.bestOneLife >= 100 ? { victor: 'One Life victor' } : null]; }],
+  ['spikes:level', function () { var s = feedRd('spikes100_progress') || {}; return [feedNum(s.unlocked)]; }],
+  ['spikes:onelife', function () { var s = feedRd('spikes100_progress') || {}; return [feedNum(s.bestOneLife)]; }],
   ['spikes:endless', function () { var s = feedRd('spikes100_progress') || {}; return [feedNum(s.bestEndless)]; }],
   // Tetris Surge keeps its top 5 per mode in best[mode] = [{ s: score, l: lines, t: ms, ... }] (sprint is sorted by time)
   ['tetris:score', function () { var t = feedRd('huntingtonTetrisSurge1') || {}, b = 0, m = '', bl = 0; for (var k in (t.best || {})) if (k !== 'sprint') (Array.isArray(t.best[k]) ? t.best[k] : []).forEach(function (e) { if (e && feedNum(e.s) > b) { b = feedNum(e.s); m = k; bl = feedNum(e.l); } }); b = Math.max(b, feedNum(feedRd('tetrisHighScore'))); return [b, m ? { mode: m, lines: bl } : null]; }],
@@ -2743,7 +2760,7 @@ var LB_FEED = [
     var lr = feedRd('lumi_save') || {}, lv = lr.levels || {}, out = [], ids = [], sum = 0, done = 0;
     for (var w = 1; w <= 4; w++) for (var n = 1; n <= 10; n++) ids.push(w + '-' + n); ids.push('5-1');      // (Last Light 1.2: 10 levels a world)
     ids.forEach(function (id) { var b = lv[id] && feedNum(lv[id].best); if (b > 0) { out.push(['lumi:lv' + id, b]); sum += b; done++; } });
-    if (done === ids.length) out.push(['lumi:full', +sum.toFixed(2), { levels: 41, 'LINEAR clears': ids.filter(function (id) { return lr.linear && lr.linear[id] != null; }).length }]);
+    if (done === ids.length) out.push(['lumi:full', +sum.toFixed(2), { levels: 41 }]);
     for (var f = 1; f <= 11; f++) { var fb = lv['6-' + f] && feedNum(lv['6-' + f].best); if (fb > 0) out.push(['lumi:lv6-' + f, fb]); }
     if (lr.runs && feedNum(lr.runs.onelife) > 0) out.push(['lumi:onelife', feedNum(lr.runs.onelife)]);
     var fl = 0; ids.forEach(function (id) { if (lv[id] && lv[id].perfect === true) fl++; });
@@ -2773,13 +2790,13 @@ function feedNow() {
   var L = window.HGGrapevine; if (!L || !L.me() || !L.online() || !L.eco) return;
   var uid = L.me().userId || L.me().name; if (FEED.uid !== uid) { FEED.uid = uid; FEED.sent = {}; FEED.left = {}; }
   var f = feedBoards(), items = [];
-  f.out.forEach(function (y) { var v = y[1], details = y[2] || null; if (!(v > 0) || !isFinite(v) || FEED.sent[y[0]] === JSON.stringify([v, details])) return; items.push({ b: y[0], s: v, d: details }); });
+  f.out.forEach(function (y) { var v = y[1]; if (!(v > 0) || !isFinite(v) || FEED.sent[y[0]] === v) return; items.push({ b: y[0], s: v, d: y[2] || null }); });
   f.leave.forEach(function (b) { if (!FEED.left[b]) { FEED.left[b] = 1; L.eco.lbLeave(b); } });
   if (items.length) L.eco.lbBatch(items).then(function (m) {
-    items.forEach(function (it) { FEED.sent[it.b] = JSON.stringify([it.s, it.d]); });
+    items.forEach(function (it) { FEED.sent[it.b] = it.s; });
     if (typeof lbRefresh === 'function') lbRefresh(Object.keys((m && m.best) || {}));
   }, function () {      // a server from before lbBatch never answers it: send them one by one, as before
-    if (FEED.uid === uid && L.online()) items.forEach(function (it) { FEED.sent[it.b] = JSON.stringify([it.s, it.d]); L.eco.lbSubmit(it.b, it.s, it.d); });
+    if (FEED.uid === uid && L.online()) items.forEach(function (it) { FEED.sent[it.b] = it.s; L.eco.lbSubmit(it.b, it.s, it.d); });
   });
   // goon claims: exactly the achievements the server does not have yet (it tells us which it has)
   var got = feedRd('hgach:v1') || {}, e = L.eco.state() || {}, has = {}, n = 0;
@@ -3621,19 +3638,137 @@ setInterval(gcSync, 3000);
   playNow = function () { var r = pn.apply(this, arguments); setTimeout(gcSync, 1500); return r; };
   closePlayer = function () { var r = cp.apply(this, arguments); setTimeout(gcSync, 50); return r; };
 })();
-function glThumb(g) {
-  return BUNDLE ? (BUNDLE.files['img:' + g.img] || '') : (local ? '' : MIRRORS[0] || '') + 'hub/' + g.img + '.jpg';
+// ---- loading screens --------------------------------------------------------------------------------------------
+// 1. The launcher's own boot screen (launcher/boot.html + boot.css, the same screen loader.html shows while it downloads
+//    the launcher, so it carries on seamlessly): stays until the hub is ready, then fades away. The very first run ever
+//    gets a longer "welcome" version.
+// 2. A loading screen over every game until it has really drawn itself: the game's picture as a card over its own
+//    blurred colours, a moving bar, what is happening, and tips (for that game and in general) with the odd silly line. 3D games (GL_SIGNAL) say when they are ready by
+//    calling parent.HG_gameReady() after their first frame; the others are "ready" once the page has loaded and is
+//    drawing smoothly (a few quick animation frames in a row). Never more than 45 s either way.
+var GL_SIGNAL = { 'Blocky Shooter V2': 1, Sovereign: 1, 'Steel Storm': 1 };
+var GL_QUIPS = ['Sharpening the spikes', 'Feeding the goons', 'Teaching the bots to aim (badly)', 'Polishing every pixel', 'Untangling the wires',
+  'Waking up the hamsters', 'Reticulating splines', 'Bribing the final boss', 'Counting to infinity (twice)', 'Loading loading screen', 'Finding the any key',
+  'Warming up the lasers', 'Blowing on the cartridge', 'Spawning dramatic music', 'Inflating the hitboxes', 'Herding the pixels', 'Charging the flux capacitor',
+  'Buffering the vibes', 'Asking the cube nicely', 'Tightening the bolts'];
+var GL_TIPS = ['Press T in any game to chat without leaving it.', 'Play every day: the daily check-in gives you a goon.', 'Goons buy pets, frames and chat bubbles in the Profile shop.',
+  'Start a party in Multiplayer and your friends join your game in one click.', 'Every game has a leaderboard. Can you get on one?', 'Your saves live in your account: sign in on any device and keep playing.',
+  'Found a bug? Tell us in #bugs-and-ideas or with the Report button.', 'Rare titles shimmer, and you only get them by playing.', 'Make your own songs in Beat Lab and share them in #music.'];
+var GL_GAME_TIPS = {
+  'Steel Storm': ['Hold your aim on a target for half a second: a red LOCK means the missile will guide.', 'Mix your lineup: a bomber for tanks, a fighter to clear the sky.', 'Flares (F) fool heat-seeking missiles some of the time.'],
+  'Last Light': ['Every guardian you beat gives you a new move.', 'Moths are hidden off the main path. Look up.', 'Dying is fine. The fastest runs come from learning each room.'],
+  'Blocky Shooter V2': ['Headshots count double.', 'Each class plays differently: try them all in the armory.', 'Prestige resets your rank but keeps your best gear.'],
+  'Sovereign': ['A strong economy wins long games.', 'Defend your capital: losing it costs you the most.'],
+  'Brown E Clicker': ['Golden Es are rare: click them fast.', 'Ascending gives heavenly chips that make every run faster.'],
+  'Beat Lab': ['Space plays and stops. Try a demo song first.', 'Simple mode is a great sketchpad: open your idea in the Studio later.'],
+  'Mayhem Marathon': ['Grab the tail and hold on: the timer is your friend.'],
+  'Market Life 1.9': ['Buy low, sell high, and never put everything in one stock.']
+};
+var GL = { el: null, t0: 0, armed: false, timer: 0, quipT: 0, id: 0 };
+function glEl() {
+  if (GL.el) return GL.el;
+  var d = document.createElement('div'); d.id = 'gload'; d.hidden = true;
+  d.innerHTML = '<div class="gl-bg"></div><div class="gl-in"><div class="gl-card"></div><div class="gl-name"></div>' +
+
+    '<div class="gl-bar"><span></span></div><div class="gl-stage-txt"></div><div class="gl-quip"></div><div class="gl-err" hidden></div></div>';
+  document.getElementById('player').appendChild(d);
+  return (GL.el = d);
 }
-function focusGame() {
-  if (!current || !document.getElementById('game-error').hidden || (!local && !current.html)) return;
-  var active = document.activeElement;
-  if (active && /INPUT|TEXTAREA|SELECT/.test(active.tagName)) return;
-  try { frame.contentWindow.focus(); } catch (_) {}
+function glThumb(g) { try { return BUNDLE ? (BUNDLE.files['img:' + g.img] || '') : (local ? '' : MIRRORS[0]) + 'hub/' + g.img + '.jpg'; } catch (e) { return ''; } }
+// what is really happening, under the bar ("Downloading", "Starting"), and a failed load with a way to try again
+function glStage(t) { var e = GL.el && GL.el.querySelector('.gl-stage-txt'); if (e) e.textContent = t ? t + '...' : ''; }
+function glFail(g, why) {
+  var d = glEl(); clearInterval(GL.quipT); clearTimeout(GL.timer); d.classList.add('fail');
+  d.querySelector('.gl-quip').textContent = '';
+  d.querySelector('.gl-stage-txt').innerHTML = '';
+  var box = d.querySelector('.gl-err'); box.hidden = false;
+  box.innerHTML = '<b>Could not load ' + String(g.name).replace(/[<&]/g, '') + '</b><span></span><button class="mbtn" id="gl-retry">Try again</button><button class="mbtn ghost" id="gl-back">Back to the games</button>';
+  box.querySelector('span').textContent = why;
+  box.querySelector('#gl-retry').onclick = function () { window.HG_retryGame(); };
+  box.querySelector('#gl-back').onclick = function () { document.getElementById('back').click(); };
 }
-window.HG_gameReady = focusGame;
-frame.addEventListener('load', focusGame);
-document.getElementById('gl-retry').onclick = function () { window.HG_retryGame(); };
-document.getElementById('gl-back').onclick = function () { closePlayer(); };
+function glQuip() {
+  var q = GL.el && GL.el.querySelector('.gl-quip'); if (!q) return;
+  var own = (GL.game && (GL_GAME_TIPS[GL.game.dir] || GL_GAME_TIPS[GL.game.name])) || [], r = Math.random(), t;
+  if (own.length && r < .5) t = own[Math.floor(Math.random() * own.length)];
+  else if (r < .85) t = GL_TIPS[Math.floor(Math.random() * GL_TIPS.length)];
+  else t = GL_QUIPS[Math.floor(Math.random() * GL_QUIPS.length)] + '...';
+  q.classList.remove('in'); void q.offsetWidth; q.textContent = t; q.classList.add('in');
+}
+function glShow(g) {
+  var d = glEl(); GL.id++; GL.armed = false; GL.t0 = Date.now(); GL.game = g;
+  d.querySelector('.gl-name').textContent = g.name;
+  var t = g.img ? glThumb(g) : ''; d.querySelector('.gl-bg').style.backgroundImage = d.querySelector('.gl-card').style.backgroundImage = t ? 'url("' + t + '")' : '';
+  d.style.top = (document.getElementById('ptop').offsetHeight || 41) + 'px'; d.hidden = false; d.classList.remove('out'); d.classList.remove('fail'); d.querySelector('.gl-err').hidden = true; glStage('');
+  glQuip(); clearInterval(GL.quipT); GL.quipT = setInterval(glQuip, 3600);
+  clearTimeout(GL.timer); GL.timer = setTimeout(glHide, 45000);
+}
+function glHide() {
+  var d = GL.el; if (!d || d.hidden || d.classList.contains('out')) return;
+  var wait = Math.max(0, 450 - (Date.now() - GL.t0));        // never just a flash (was 900 ms: a saved game is ready sooner than that)
+  setTimeout(function () { d.classList.add('out'); clearInterval(GL.quipT); glFocus(); setTimeout(function () { if (d.classList.contains('out')) d.hidden = true; }, 450); }, wait);
+}
+// hand the keyboard to the game once it is showing: a game started without a click inside it (an invite, Join, a
+// party) otherwise kept the keyboard on the launcher, and you spawned in unable to move until you clicked
+function glFocus() {
+  var a = document.activeElement;
+  if (a && a !== document.body && a !== frame && /INPUT|TEXTAREA|SELECT/.test(a.tagName)) return;      // typing in the chat dock
+  try { frame.focus(); frame.contentWindow.focus(); } catch (e) {}
+}
+// the real game page has been put into the frame: from now on its load counts
+function glArm() {
+  GL.armed = true;
+  if (!GL.game || GL_SIGNAL[GL.game.dir]) return;
+  var id = GL.id;
+  var onLoad = function () {
+    frame.removeEventListener('load', onLoad);
+    if (id !== GL.id) return;
+    var w; try { w = frame.contentWindow; w.document; } catch (e) { setTimeout(glHide, 800); return; }
+    var last = 0, good = 0, start = performance.now();
+    var tick = function (t) {
+      if (id !== GL.id || !GL.el || GL.el.hidden) return;
+      if (last) { if (t - last < 50) good++; else good = 0; }
+      last = t;
+      if (good >= 8 && performance.now() - start > 400) return glHide();
+      try { w.requestAnimationFrame(tick); } catch (e) { glHide(); }
+    };
+    try { w.requestAnimationFrame(tick); } catch (e) { glHide(); }
+  };
+  frame.addEventListener('load', onLoad);
+}
+window.HG_gameReady = function () { if (GL.armed) glHide(); };
+// hook into the player (020 piece): show when a game opens, arm when its page goes in, hide when it closes
+(function () {
+  var pn = playNow, cp = closePlayer;
+  playNow = function (g) {
+    glShow(g);
+    var r = pn.apply(this, arguments);
+    if (local) glArm();
+    else { var id = GL.id, iv = setInterval(function () { if (id !== GL.id || !current) return clearInterval(iv); if (current.html) { clearInterval(iv); glArm(); } }, 50); }
+    return r;
+  };
+  closePlayer = function () { GL.id++; clearTimeout(GL.timer); clearInterval(GL.quipT); if (GL.el) { GL.el.hidden = true; } return cp.apply(this, arguments); };
+})();
+// the boot screen: away once the hub has drawn its cards
+(function () {
+  var b = document.getElementById('boot'); if (!b) return;
+  var first = false; try { first = !localStorage.getItem('hgv:booted'); localStorage.setItem('hgv:booted', '1'); } catch (e) {}
+  if (first) b.classList.add('first');
+  var t0 = (window.HG_BOOT_T0 || Date.now()), min = first ? 2000 : 600;      // (was 2600 / 1300 ms)
+  // progress carries on from where loader.html left it (an older pasted loader leaves nothing: start part way)
+  var p = Math.max(.35, Math.min(.85, +window.HG_LOAD_P || 0)), msg = document.getElementById('msg'), tip = b.querySelector('.bt-tip');
+  b.style.setProperty('--p', p); if (msg) msg.textContent = 'Opening the launcher';
+  var creep = setInterval(function () { p = Math.min(.95, p + (.95 - p) * .18); b.style.setProperty('--p', p); }, 300);
+  var ti = Math.floor(Math.random() * GL_TIPS.length); if (tip && !tip.textContent) tip.textContent = GL_TIPS[ti];
+  var tipT = setInterval(function () { if (!tip) return; tip.classList.add('dim'); setTimeout(function () { ti = (ti + 1) % GL_TIPS.length; tip.textContent = GL_TIPS[ti]; tip.classList.remove('dim'); }, 400); }, 3800);
+  var go = function () {
+    if (go.done) return; go.done = true; clearInterval(creep);
+    b.style.setProperty('--p', 1); if (msg) msg.textContent = 'Ready';
+    setTimeout(function () { clearInterval(tipT); b.classList.add('out'); setTimeout(function () { b.remove(); }, 700); }, Math.max(250, min - (Date.now() - t0)));
+  };
+  if (document.readyState === 'complete') go(); else addEventListener('load', go);
+  setTimeout(function () { if (document.getElementById('boot')) go(); }, 8000);
+})();
 
 // ===== The Activity tab (2026-11-16): how many people play, which games are most played, who is playing what right now =====
 // Everything comes from one server answer (Grapevine 082-stats.js), cached there for 30 s; this page asks again at most
@@ -3641,18 +3776,6 @@ document.getElementById('gl-back').onclick = function () { closePlayer(); };
 var ACT = { data: null, at: 0, span: 'week', timer: 0 };
 function actFmtMin(m) { return m >= 120 ? Math.round(m / 60) + ' h' : m + ' min'; }
 function actDay(d) { var t = new Date(d + 'T12:00:00Z'); return t.toLocaleDateString(undefined, { month: 'short', day: 'numeric' }); }
-function actHistory(days, today, key, label, unit) {
-  var max = Math.max(1, ...days.map(function (day) { return Number(day[key]) || 0; }));
-  var W = 640, H = 170, width = W / Math.max(days.length, 1);
-  var bars = days.map(function (day, i) {
-    var amount = Number(day[key]) || 0, height = H * amount / max;
-    var tip = profEsc(actDay(day.d) + ' · ' + unit(amount));
-    return '<g class="act-bar" data-tip="' + tip + '"><title>' + tip + '</title><rect fill="transparent" x="' + i * width + '" width="' + width + '" height="' + H + '"/>' +
-      '<path class="' + (day.d === today ? 'today' : '') + '" d="M' + (i * width + 1) + ',' + H + ' v-' + height + ' h' + (width - 2) + ' v' + height + ' Z"/></g>';
-  }).join('');
-  return '<div class="act-card"><div class="act-ct"><b>' + label + '</b></div>' +
-    (days.length ? '<div class="act-chart"><svg viewBox="0 0 ' + W + ' ' + H + '" preserveAspectRatio="none" role="img" aria-label="' + label + '">' + bars + '</svg><div class="act-axis"><span>' + actDay(days[0].d) + '</span><span>' + actDay(days[days.length - 1].d) + '</span></div><div class="act-tip" hidden></div></div>' : '<div class="act-empty">No days counted yet.</div>') + '</div>';
-}
 function actRender() {
   var box = document.getElementById('act-home'); if (!box) return;
   var L = window.HGGrapevine;
@@ -3674,11 +3797,13 @@ function actPaint() {
       return '<div class="act-row" title="' + profEsc(g.name) + ': ' + actFmtMin(g.minutes) + ' played, ' + g.plays + ' player-days"><span class="act-pos">' + (i + 1) + '</span><span class="act-gn">' + profEsc(g.name) + '</span>' +
         '<span class="act-track"><i style="width:' + Math.max(2, Math.round(100 * g.minutes / max)) + '%"></i></span><span class="act-val">' + actFmtMin(g.minutes) + '</span></div>';
     }).join('') + '</div>' : '<div class="act-empty">Nothing played yet in this time.</div>') + '</div>';
-  var days = d.perDay.slice(-30);
-  h += actHistory(days, d.today, 'players', 'Players per day', function (n) { return n.toLocaleString() + ' players'; });
-  h += actHistory(days, d.today, 'minutes', 'Hours played per day', function (n) {
-    return (n / 60).toLocaleString(undefined, { maximumFractionDigits: 2 }) + ' hours across all players';
-  });
+  // players per day: vertical bars, hover for the numbers
+  var pd = d.perDay.slice(-30), pmax = Math.max(1, pd.reduce(function (m, x) { return Math.max(m, x.players); }, 0)), W = 640, H = 170, bw = W / Math.max(pd.length, 1);
+  var bars = pd.map(function (x, i) { var hh = Math.max(2, Math.round((H - 24) * x.players / pmax)), bx = i * bw + 1, w = Math.max(2, bw - 2);
+    return '<g class="act-bar" data-tip="' + profEsc(actDay(x.d) + ': ' + x.players + ' players · ' + actFmtMin(x.minutes) + ' played · ' + x.peak + ' online at once') + '"><rect x="' + bx + '" y="0" width="' + w + '" height="' + H + '" fill="transparent"/>' +
+      '<path d="M' + bx + ',' + H + ' V' + (H - hh + 4) + ' q0,-4 4,-4 h' + Math.max(0, w - 8) + ' q4,0 4,4 V' + H + ' Z" class="' + (x.d === d.today ? 'today' : '') + '"/></g>'; }).join('');
+  h += '<div class="act-card"><div class="act-ct"><b>Players per day</b><span class="rdesc">since ' + actDay(d.since) + ' · busiest: ' + pmax + '</span></div>' +
+    (pd.length ? '<div class="act-chart"><svg viewBox="0 0 ' + W + ' ' + H + '" preserveAspectRatio="none" role="img" aria-label="Players per day">' + bars + '</svg><div class="act-axis"><span>' + actDay(pd[0].d) + '</span><span>today</span></div><div class="act-tip" hidden></div></div>' : '<div class="act-empty">No days counted yet.</div>') + '</div>';
   // right now
   h += '<div class="act-card"><div class="act-ct"><b>Playing right now</b></div>' + (d.playingNow.length ? '<div class="act-now">' + d.playingNow.map(function (g) {
     return '<span class="act-chip"><i></i>' + profEsc(g.name) + ' <b>' + g.n + '</b></span>'; }).join('') + '</div>' : '<div class="act-empty">Nobody is in a game this minute.</div>') + '</div>';
@@ -3689,10 +3814,8 @@ document.addEventListener('click', function (e) {
   ACT.span = b.dataset.actSpan; actPaint();
 });
 document.addEventListener('mousemove', function (e) {
-  var g = e.target.closest && e.target.closest('.act-bar');
-  var tip = g && g.closest('.act-chart').querySelector('.act-tip');
-  document.querySelectorAll('#act-home .act-tip:not([hidden])').forEach(function (open) { if (open !== tip) open.hidden = true; });
-  if (!tip) return;
+  var g = e.target.closest && e.target.closest('.act-bar'), tip = document.querySelector('#act-home .act-tip'); if (!tip) return;
+  if (!g) { tip.hidden = true; return; }
   var c = tip.parentNode.getBoundingClientRect(); tip.hidden = false; tip.textContent = g.dataset.tip;
   tip.style.left = Math.min(c.width - tip.offsetWidth, Math.max(0, e.clientX - c.left - tip.offsetWidth / 2)) + 'px';
 });
@@ -4409,67 +4532,6 @@ function rbRun(name, look, out, apply) {
     });
   }).catch(function (e) { out.textContent = String(e && e.message || e); });
 }
-(function () {
-  var date = document.getElementById('hub-date'), clock = document.getElementById('hub-clock');
-  var dateFormat = new Intl.DateTimeFormat(undefined, { weekday: 'short', year: 'numeric', month: 'short', day: 'numeric' });
-  var timeFormat = new Intl.DateTimeFormat(undefined, { hour: 'numeric', minute: '2-digit' });
-  function tick() {
-    var now = new Date();
-    date.textContent = dateFormat.format(now);
-    date.dateTime = now.getFullYear() + '-' + String(now.getMonth() + 1).padStart(2, '0') + '-' + String(now.getDate()).padStart(2, '0');
-    clock.textContent = timeFormat.format(now);
-    clock.dateTime = String(now.getHours()).padStart(2, '0') + ':' + String(now.getMinutes()).padStart(2, '0');
-  }
-  tick();
-  setInterval(tick, 10000);
-  document.addEventListener('visibilitychange', tick);
-  if (!BUNDLE) {
-    var schedule = local ? fetch('latest.json').then(function (r) {
-      if (r.ok) return r.json();
-    }) : fetchRepo('latest.json').then(function (r) { return JSON.parse(r.html); });
-    schedule.then(function (metadata) {
-      var value = metadata && metadata.nextUpdate;
-      if (!/^\d{4}-\d{2}-\d{2}$/.test(value)) return;
-      var day = new Date(value + 'T00:00:00Z');
-      if (!Number.isFinite(day.getTime()) || day.toISOString().slice(0, 10) !== value) return;
-      var target = document.getElementById('hub-update');
-      target.dateTime = value;
-      target.textContent = new Intl.DateTimeFormat(undefined, { year: 'numeric', month: 'short', day: 'numeric', timeZone: 'UTC' }).format(day);
-    }).catch(function () {});
-  }
-  var group = document.getElementById('game-rating');
-  var buttons = group.querySelectorAll('button');
-  function key(game) { return 'hgq:rate:' + game.dir; }
-  function rating(game) {
-    try {
-      var value = localStorage.getItem(key(game));
-      return value === 'like' || value === '1' ? 1 : value === 'dislike' || value === '-1' ? -1 : 0;
-    } catch (_) { return 0; }
-  }
-  function paint(game) {
-    if (!game) return;
-    var value = rating(game);
-    buttons.forEach(function (button) { button.setAttribute('aria-pressed', String(Number(button.dataset.rate) === value)); });
-  }
-  group.addEventListener('click', function (event) {
-    var button = event.target.closest('button[data-rate]'), game = current && current.game;
-    if (!button || !game) return;
-    var value = Number(button.dataset.rate);
-    try { localStorage.setItem(key(game), value === rating(game) ? 'none' : value === 1 ? 'like' : 'dislike'); }
-    catch (_) { hubToast('Could not save your rating.'); return; }
-    paint(game);
-    var L = window.HGGrapevine;
-    if (L && L.online()) L.sync.run().catch(function () {});
-  });
-  window.addEventListener('storage', function (event) {
-    if (current && (!event.key || event.key === key(current.game))) paint(current.game);
-  });
-  var start = playNow;
-  playNow = function (game) {
-    paint(game);
-    return start.apply(this, arguments);
-  };
-})();
 // ===== Report: one obvious button, three small steps =====
 // The red flag is always on screen: in the top bar, and in the bar above a game. It opens one dialog:
 //   1. what is it about (a player / a chat message / a bug / something else)   2. a reason and a few words   3. sent.
@@ -4573,23 +4635,19 @@ function reportAdminAct(op, id) {
   var note = null; if (op === 'note') { note = prompt('Note for the other admins:'); if (note == null) return; }
   window.HGGrapevine.eco.reports(op, id, note).then(reportInboxPaint, function () {});
 }
-function canReadReports() {
-  var L = window.HGGrapevine, e = L && L.eco && L.eco.state();
-  return !!(e && e.perms && e.perms.indexOf('reports') >= 0);
-}
 function reportBadge() {
-  var admin = canReadReports(), n = REPORT.open;
+  var L = window.HGGrapevine, e = L && L.eco && L.eco.state(), admin = !!(e && e.dev), n = REPORT.open;
   [document.getElementById('reportBtn'), document.getElementById('preport')].forEach(function (b, i) {
     if (!b) return; b.innerHTML = '&#128681; ' + (admin && !i ? 'Reports' + (n ? ' <span class="rp-n">' + n + '</span>' : '') : 'Report'); b.classList.toggle('hot', admin && n > 0 && !i);
   });
 }
-document.getElementById('reportBtn').onclick = function () { if (canReadReports()) reportInbox(); else reportOpen({}); };
+document.getElementById('reportBtn').onclick = function () { var L = window.HGGrapevine, e = L && L.eco && L.eco.state(); if (e && e.dev) reportInbox(); else reportOpen({}); };
 document.getElementById('preport').onclick = function () { reportOpen({}); };
 (function wait() {
   var L = window.HGGrapevine; if (!L || !L.on) return setTimeout(wait, 2500);
   var asked = false;
   L.on('reports', function (m) { REPORT.open = m.open || 0; reportBadge(); if (m.open && typeof window.HG_notify === 'function' && !REPORT.said) { REPORT.said = 1; setTimeout(function () { REPORT.said = 0; }, 60000); window.HG_notify({ kind: 'report', title: 'New report', text: 'Someone sent the admins a report. Press Reports to read it.' }); } });
-  L.on('eco', function () { reportBadge(); if (canReadReports() && !asked && L.online()) { asked = true; L.eco.reports('list').then(function (m) { REPORT.open = (m && m.open) || 0; reportBadge(); }, function () { asked = false; }); } });
+  L.on('eco', function () { var e = L.eco.state(); reportBadge(); if (e && e.dev && !asked && L.online()) { asked = true; L.eco.reports('list').then(function (m) { REPORT.open = (m && m.open) || 0; reportBadge(); }, function () { asked = false; }); } });
 })();
 
 // ===== Rules (2026-11-17): the Terms of Service and "what you can report", inside the launcher =====
@@ -4769,7 +4827,7 @@ function admAfter(k) {
 }
 // ----- reports, answered here -----
 function admRepLoad() { window.HGGrapevine.eco.reports('list').then(function (m) { if (m && m.list) { ADM.reps = m; REPORT.open = m.open || 0; reportBadge(); } admRepPaint(); }, function () { var l = document.getElementById('adm-replist'); if (l) l.textContent = 'Could not load the reports.'; }); }
-var ADM_ACTS = [['dismiss', 'Close report', ''], ['warn', '⚠️ Warn them', 'moderate'], ['mute60', '🔇 Mute 1 hour', 'moderate'], ['mute1440', '🔇 Mute 1 day', 'moderate'], ['tempban1440', '⏳ Ban 1 day', 'ban'], ['tempban4320', '⏳ Ban 3 days', 'ban'], ['tempban10080', '⏳ Ban 7 days', 'ban'], ['ban', '🔨 Ban for good', 'ban']];
+var ADM_ACTS = [['dismiss', 'Dismiss (no action)', ''], ['warn', '⚠️ Warn them', 'moderate'], ['mute60', '🔇 Mute 1 hour', 'moderate'], ['mute1440', '🔇 Mute 1 day', 'moderate'], ['tempban1440', '⏳ Ban 1 day', 'ban'], ['tempban4320', '⏳ Ban 3 days', 'ban'], ['tempban10080', '⏳ Ban 7 days', 'ban'], ['ban', '🔨 Ban for good', 'ban']];
 function admRepPaint() {
   var l = document.getElementById('adm-replist'), m = ADM.reps; if (!l || !m) return;
   var KIND = { player: '🧑 Player', message: '💬 Message', bug: '🐞 Bug', other: '❓ Other' }, f = ADM.repFilter;
@@ -4785,7 +4843,7 @@ function admRepPaint() {
       (r.state === 'open'
         ? '<div class="adm-resolve"><select class="adm-act">' + acts.map(function (a) { return '<option value="' + a[0] + '">' + a[1] + '</option>'; }).join('') + '</select>' +
           '<input class="adm-reason" maxlength="200" placeholder="Reason they see (default: ' + repEsc(r.whyText || 'breaking the rules') + ')">' +
-          '<textarea class="adm-note" maxlength="300" rows="2" aria-label="Reply to ' + repEsc(r.by.n) + '" placeholder="Reply to ' + repEsc(r.by.n) + ' (optional)"></textarea>' +
+          '<textarea class="adm-note" maxlength="300" rows="2" placeholder="Note to ' + repEsc(r.by.n) + ' (optional, they see it)"></textarea>' +
           '<div class="prow"><button class="pb" data-adm-send="' + r.id + '">Send</button><button class="pb ghost" data-rpa="note" data-id="' + r.id + '">Note for admins</button></div></div>'
         : '<div class="rp-acts"><span class="rp-dim">' + (r.did ? repEsc(r.did[0].toUpperCase() + r.did.slice(1)) : 'Handled') + (r.closedBy ? ' by ' + repEsc(r.closedBy) : '') + (r.closedAt ? ', ' + hgTime(r.closedAt) : '') + '</span>' +
           (r.reply ? ' <span class="rp-note">Told the reporter: ' + repEsc(r.reply) + '</span>' : '') + ' <button class="rp-btn small ghost" data-rpa="reopen" data-id="' + r.id + '">Reopen</button></div>') +
@@ -4800,7 +4858,7 @@ function admSend(id) {
   var b = it.querySelector('[data-adm-send]'); b.disabled = true; b.textContent = 'Sending...';
   window.HGGrapevine.eco.reportResolve(id, act, { mins: mins, reason: reason, note: note }).then(function (m) {
     if (m && m.ok === false) { b.disabled = false; b.textContent = 'Send'; return hubToast(m.err || 'That did not work.'); }
-    hubToast(note ? 'Reply sent. Report closed.' : 'Report closed.');
+    hubToast(act === 'dismiss' ? 'Dismissed. ' + (r.by ? r.by.n : 'The reporter') + ' gets your note.' : 'Done. ' + (r.by ? r.by.n : 'The reporter') + ' is told.');
     admRepLoad();
   }, function (er) { b.disabled = false; b.textContent = 'Send'; hubToast(String(er && er.message || er)); });
 }

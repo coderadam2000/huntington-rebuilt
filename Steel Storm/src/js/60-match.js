@@ -7,12 +7,11 @@
 const BOT_NAMES = ['Ace', 'Viper', 'Rook', 'Bolt', 'Echo', 'Fang', 'Hawk', 'Ivy', 'Jinx', 'Kilo', 'Luna', 'Mako', 'Nova', 'Onyx', 'Pike', 'Quill', 'Raze', 'Sage', 'Tank', 'Volt', 'Wren', 'Yuri', 'Zed', 'Bram'];
 const MODES = {
     tdm: { name: 'Team Deathmatch', short: 'TDM', desc: 'First team to the kill limit' },
-    duel: { name: '1v1 Duel', short: 'DUEL', desc: 'First to three knockouts against a friend or a matching bot' },
     conq: { name: 'Conquest', short: 'CONQ', desc: 'Hold 3 points, drain their tickets' },
     ctf: { name: 'Capture the Flag', short: 'CTF', desc: 'Steal their flag, bring it home (tanks + helis carry)' },
     ffa: { name: 'Free-for-all', short: 'FFA', desc: 'Everyone for themselves' }
 };
-const MAPR = { small: 470, normal: 610, large: 720, harbor: 610, ridge: 610 };
+const MAPR = { small: 470, normal: 610, large: 720 };
 let HQ = {}, hqT = 0, sendT = 0, bsT = 0, msT = 0, hpT = 0, pgT = 0;
 
 // Bots: "match" = fight what the humans fly/drive (a random human's domain, often the same class), "mixed" = any domain.
@@ -25,10 +24,9 @@ const BOT_GEAR = {
 };
 function pickBotDef(refs, mode, k, diff) {
     const ref = refs.length ? refs[k === undefined ? Math.floor(Math.random() * refs.length) : k % refs.length] : VBY.g1a, br = brOf(ref), rt = (ref.base || ref).t;
-    if (ref.infantry && mode !== 'mixed') return vdef('troop-' + (k || 0) % HISTORICAL_NATIONS.length, 0);
     const G = BOT_GEAR[diff || (M && M.cfg && M.cfg.diff)] || BOT_GEAR.normal, t0 = clamp(rt + G.t[0], 1, MAX_TIER), t1 = clamp(rt + G.t[1], 1, MAX_TIER);
     let ln = ref.ln; if (mode === 'mixed') { const r = Math.random(); ln = r < .5 ? 'g' : r < .75 ? 'a' : 'n'; }
-    const inT = v => !v.infantry && v.ln === ln && v.t >= t0 && v.t <= t1;
+    const inT = v => v.ln === ln && v.t >= t0 && v.t <= t1;
     let L = VEHS.filter(v => inT(v) && v.br <= Math.max(1.3, br + G.br[1]) && v.br >= br + G.br[0]);
     if (!L.length) L = VEHS.filter(inT);
     if (mode !== 'mixed' && Math.random() < .5) { const same = L.filter(v => v.cls === (ref.base || ref).cls); if (same.length) L = same; }
@@ -40,25 +38,22 @@ function pickBotDef(refs, mode, k, diff) {
 // Build the match description (host / solo). players = [{id,name,veh,mm,team?}], returns the cfg every client uses.
 function makeConfig(players, opts) {
     opts = opts || {};
-    const so = save.opts, mode = MODES[opts.mode || save.mode] ? opts.mode || save.mode : 'tdm';
-    const duel = mode === 'duel', size = duel ? 1 : opts.size || save.size, split = opts.split !== undefined ? opts.split : save.split, ffa = mode === 'ffa';
+    const so = save.opts, mode = MODES[opts.mode || save.mode] ? opts.mode || save.mode : 'tdm', size = opts.size || save.size, split = opts.split !== undefined ? opts.split : save.split, ffa = mode === 'ffa';
     const cfg = { mode, size, players: [], bots: [], seed: Date.now() & 0xffffff, limit: {}, ff: opts.ff !== undefined ? +opts.ff : so.ff, map: opts.map || so.map, wx: opts.wx || so.wx, len: opts.len || so.len };
     if (cfg.wx === 'random' || !WX[cfg.wx]) cfg.wx = Object.keys(WX)[Math.floor(Math.random() * 4)];
     const teams = [[], []];
-    (duel ? players.slice(0, 2) : players).forEach((p, i) => { const team = ffa || duel ? i : (p.team === 0 || p.team === 1) ? p.team : split ? i % 2 : 0; cfg.players.push({ id: p.id, name: p.name, veh: p.veh, mm: p.mm | 0, team }); if (!ffa) teams[team].push(p); });
-    const bm = duel ? 'match' : opts.bots || save.bots || 'match', refs = players.map(p => vdef(p.veh, p.mm)).filter(Boolean);
+    players.forEach((p, i) => { const team = ffa ? i : (p.team === 0 || p.team === 1) ? p.team : split ? i % 2 : 0; cfg.players.push({ id: p.id, name: p.name, veh: p.veh, mm: p.mm | 0, team }); if (!ffa) teams[team].push(p); });
+    const bm = opts.bots || save.bots || 'match', refs = players.map(p => vdef(p.veh, p.mm)).filter(Boolean);
     const off = Math.floor(Math.random() * Math.max(1, refs.length)); cfg.bm = bm; cfg.diff = opts.diff || save.diff || 'normal';
     let bi = 0; const names = BOT_NAMES.slice().sort(() => Math.random() - .5);
     const addBot = team => { const d = pickBotDef(refs, bm === 'off' ? 'match' : bm, bi + off, cfg.diff); cfg.bots.push({ id: 100 + bi, name: 'Bot ' + names[bi % names.length], veh: d.id, mm: d.mask | 0, team }); bi++; };
     if (bm !== 'off') { if (ffa) for (let n = players.length; n < Math.min(12, size * 2); n++) addBot(n); else for (let t = 0; t < 2; t++) for (let n = teams[t].length; n < size; n++) addBot(t); }
     const L = cfg.len * 60;
     cfg.limit = { kills: opts.killLimit || (ffa ? [10, 15, 20][[3, 5, 8].indexOf(size)] : [12, 20, 30][[3, 5, 8].indexOf(size)]) || 20, tickets: opts.tickets || (size === 3 ? 80 : size === 8 ? 160 : 120), caps: opts.caps || 3, time: opts.time || L };
-    if (duel) cfg.limit.kills = 3;
     return cfg;
 }
 function beginMatch(cfg, meId, isHost) {
     Show.stop(); clearMatch();
-    setBattlefield(cfg.map);
     const ffa = cfg.mode === 'ffa', nt = ffa ? 0 : 2;
     M = { mode: cfg.mode, cfg, t: 0, state: 'play', limit: cfg.limit, kills: [0, 0], tickets: [cfg.limit.tickets || 0, cfg.limit.tickets || 0], caps: [0, 0], pts: PTS.map(() => ({ own: -1, prog: 0 })),
         flags: [0, 1].map(t => ({ t, st: 'home', x: FLAG_HOME[t].x, z: FLAG_HOME[t].z, by: -1, dt: 0 })), R: MAPR[cfg.map] || MAPR.normal,
@@ -259,13 +254,13 @@ function hostStep(dt) {
 function hostCheckEnd() {
     if (!M || M.over || !M.host || M.tut) return;      // a training match never ends by itself
     let w = -2; const L = M.limit;
-    if (M.mode === 'tdm' || M.mode === 'duel') { if (M.kills[0] >= L.kills) w = 0; else if (M.kills[1] >= L.kills) w = 1; }
+    if (M.mode === 'tdm') { if (M.kills[0] >= L.kills) w = 0; else if (M.kills[1] >= L.kills) w = 1; }
     else if (M.mode === 'conq') { if (M.tickets[0] <= 0) w = 1; else if (M.tickets[1] <= 0) w = 0; }
     else if (M.mode === 'ctf') { if (M.caps[0] >= L.caps) w = 0; else if (M.caps[1] >= L.caps) w = 1; }
     else if (M.mode === 'ffa') { for (const e of EN.values()) if (e.kills >= L.kills) { w = e.team; break; } }
     if (w === -2 && M.t >= L.time) {
         if (M.mode === 'ffa') { const top = Array.from(EN.values()).sort((a, b) => b.kills - a.kills || b.score - a.score); w = top[0] ? top[0].team : -1; }
-        else { const a = M.mode === 'tdm' || M.mode === 'duel' ? M.kills : M.mode === 'ctf' ? M.caps : M.tickets; w = a[0] > a[1] ? 0 : a[1] > a[0] ? 1 : -1; }
+        else { const a = M.mode === 'tdm' ? M.kills : M.mode === 'ctf' ? M.caps : M.tickets; w = a[0] > a[1] ? 0 : a[1] > a[0] ? 1 : -1; }
     }
     if (w !== -2) endMatch(w);
 }
@@ -339,7 +334,6 @@ function hostAddPlayer(peer) {
     if (!M || !M.host || M.over) return;
     const info = peer.info || {}, veh = VBY[info.veh] ? info.veh : 'g1a', mm = info.mm | 0;
     let e = EN.get(peer.id);
-    if (M.mode === 'duel' && !e && Array.from(EN.values()).filter(o => o.id < 100).length >= 2) return;
     if (e) {      // rejoin: the vehicle (driven by a bot meanwhile) goes back to its owner, score kept
         e.ai = null; e.isBot = false; e.remote = true; e.name = String(peer.name || e.name).replace(/ \(bot\)$/, '').slice(0, 16); e.sb.length = 0; e.recon = false;
         bcast({ t: 'addp', p: { id: e.id, name: e.name, veh: (e.def.base || e.def).id, mm: e.def.mask | 0, team: e.team }, back: 1 });

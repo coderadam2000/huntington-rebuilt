@@ -52,7 +52,7 @@ function modsHtml(v) {
 function vehCard(id, ctx) {
     const v = VBY[id]; if (!v) return '<div class="vk-note">Click a vehicle to see it here.</div>';
     const own = isOwned(id), d = own ? vdef(id, modMask(id)) : v, L = LINES[v.ln], inL = save.lineup.includes(id), sel = myVeh() === id;
-    let h = '<div class="vk-head" style="--lc:' + L.col + '"><span class="tierb">' + TIER_ROMAN[v.t] + '</span><div><small>' + L.name + ' &middot; ' + (v.infantry ? 'Infantry' : CLS_NAME[v.cls]) + '</small><h2>' + esc(v.n) + '</h2></div><span class="brb"><small>BR</small>' + brOf(d).toFixed(1) + '</span></div>';
+    let h = '<div class="vk-head" style="--lc:' + L.col + '"><span class="tierb">' + TIER_ROMAN[v.t] + '</span><div><small>' + L.name + ' &middot; ' + CLS_NAME[v.cls] + '</small><h2>' + esc(v.n) + '</h2></div><span class="brb"><small>BR</small>' + brOf(d).toFixed(1) + '</span></div>';
     h += '<div class="role"><b>Role</b>' + esc(v.role || '') + '</div>';
     if (ctx !== 'home' && v.desc) h += '<div class="desc">' + esc(v.desc) + '</div>';
     h += statBars(d) + weapHtml(d);
@@ -71,7 +71,7 @@ function vehCard(id, ctx) {
 }
 function slotHtml(v, sel, attrs, extra) {
     const d = vdef(v.id, modMask(v.id));
-    return '<div class="slot' + (sel ? ' sel' : '') + '" ' + attrs + ' style="--lc:' + LINES[v.ln].col + '"><span class="st"><span class="tierb">' + TIER_ROMAN[v.t] + '</span>' + lineIcon(v.ln) + '</span><b>' + esc(v.n) + '</b><small>' + (v.infantry ? 'Infantry' : CLS_NAME[v.cls]) + ' &middot; BR ' + brOf(d).toFixed(1) + '</small>' + (extra || '') + '</div>';
+    return '<div class="slot' + (sel ? ' sel' : '') + '" ' + attrs + ' style="--lc:' + LINES[v.ln].col + '"><span class="st"><span class="tierb">' + TIER_ROMAN[v.t] + '</span>' + lineIcon(v.ln) + '</span><b>' + esc(v.n) + '</b><small>' + CLS_NAME[v.cls] + ' &middot; BR ' + brOf(d).toFixed(1) + '</small>' + (extra || '') + '</div>';
 }
 function lineupHtml(kind) {      // home / garage: 5 slots (empty ones lead to the garage); lobby: just the lineup
     const out = [];
@@ -93,7 +93,6 @@ function researchCard(v) {
 function modeCards(dis, src) { const cur = optVal('mode', src); return Object.keys(MODES).map(k => '<button class="mcard' + (cur === k ? ' on' : '') + '" data-opt="mode" data-v="' + k + '"' + (dis ? ' disabled' : '') + '><span class="mi">' + MODES[k].short + '</span><b>' + MODES[k].name + '</b><small>' + esc(MODES[k].desc) + '</small></button>').join(''); }
 function optSummary(src) {
     const g = k => optVal(k, src), s = g('size'), lab = (k, v) => { const o = OPTS.find(x => x[0] === k); const x = o && o[2].find(y => String(y[0]) === String(v)); return x ? x[1] : v; };
-    if (g('mode') === 'duel') return 'Two players · first to three · ' + lab('map', g('map')) + ' map';
     return (g('mode') === 'ffa' ? Math.min(12, s * 2) + ' players' : s + 'v' + s) + ' &middot; ' + lab('map', g('map')) + ' map &middot; ' + g('len') + ' min &middot; ' + lab('wx', g('wx')) + ' &middot; bots ' + lab('bots', g('bots')).toLowerCase() + (+g('ff') ? ' &middot; friendly fire' : '');
 }
 // which vehicle the showcase films, and whether it runs
@@ -239,7 +238,7 @@ Object.assign(UI, {
             const v = VBY[p.veh] || VBY.g1a, br = brOf(vdef(v.id, p.mm | 0)), mine = p.id === PARTY.myId;
             return '<div class="lp' + (mine ? ' me' : '') + '" style="--lc:' + LINES[v.ln].col + '"><div class="lp-n">' + (p.id === 0 ? '<span class="star" title="Host">&#9733;</span>' : '') + '<span class="nm">' + esc(p.name) + '</span>' + (mine ? '<small>(you)</small>' : '') + (p.st && p.st !== 'connected' ? ' <small class="bad">' + esc(p.st) + '</small>' : '') + (p.id ? pingBars(p.ping || 0, p.st) : '') +
                 '<span class="rdy' + (p.id === 0 ? ' host' : p.ready ? ' on' : '') + '">' + (p.id === 0 ? 'HOST' : p.ready ? 'READY' : 'NOT READY') + '</span></div>' +
-                '<div class="lp-v">' + lineIcon(v.ln) + esc(v.n) + ' <small>' + (v.infantry ? 'Infantry' : CLS_NAME[v.cls]) + ' &middot; BR ' + br.toFixed(1) + '</small></div>' +
+                '<div class="lp-v">' + lineIcon(v.ln) + esc(v.n) + ' <small>' + CLS_NAME[v.cls] + ' &middot; BR ' + br.toFixed(1) + '</small></div>' +
                 '<div class="lp-l">' + (p.line || []).map(x => VBY[x[0]] ? '<span class="mini" title="' + esc(VBY[x[0]].n) + '">' + esc(VBY[x[0]].n.split(' ')[0]) + ' ' + (+x[1]).toFixed(1) + '</span>' : '').join('') + '</div>' +
                 (host && p.id !== 0 ? '<div class="lp-h">' + (!ffa ? '<button class="btn small" data-move="' + p.id + '" title="Move to the other team">&#8644; Move</button>' : '') + '<button class="btn small danger" data-kick="' + p.id + '" title="Remove from the party">&#10006; Kick</button></div>' : '') + '</div>';
         };
@@ -262,9 +261,9 @@ Object.assign(UI, {
     },
     // ---- garage ----
     paintGarage() {
-        UI.wallet(); const gs = UIS.gs && isOwned(UIS.gs) ? UIS.gs : (UIS.gs = myVeh()), gt = UIS.gt, nation = $('#g-nation').value;
+        UI.wallet(); const gs = UIS.gs && isOwned(UIS.gs) ? UIS.gs : (UIS.gs = myVeh()), gt = UIS.gt;
         $$('#g-tabs button').forEach(b => b.classList.toggle('on', b.dataset.gt === gt));
-        $('#g-owned').innerHTML = ['g', 'a', 'n'].filter(ln => gt === 'all' || gt === ln).map(ln => { const L = VEHS.filter(v => v.ln === ln && isOwned(v.id) && (!nation || v.nation === nation)); return '<h4 style="color:' + LINES[ln].col + '">' + LINES[ln].name + ' <small style="color:var(--mut)">' + L.length + '</small></h4><div class="cards">' + L.map(v => slotHtml(v, v.id === gs, 'data-gid="' + v.id + '"', save.lineup.includes(v.id) ? '<span class="inl">LINEUP</span>' : '')).join('') + '</div>'; }).join('');
+        $('#g-owned').innerHTML = ['g', 'a', 'n'].filter(ln => gt === 'all' || gt === ln).map(ln => { const L = VEHS.filter(v => v.ln === ln && isOwned(v.id)); return '<h4 style="color:' + LINES[ln].col + '">' + LINES[ln].name + ' <small style="color:var(--mut)">' + L.length + '</small></h4><div class="cards">' + L.map(v => slotHtml(v, v.id === gs, 'data-gid="' + v.id + '"', save.lineup.includes(v.id) ? '<span class="inl">LINEUP</span>' : '')).join('') + '</div>'; }).join('');
         $('#g-info').innerHTML = vehCard(gs, 'garage');
         $('#g-lineup').innerHTML = lineupHtml('garage');
     },
@@ -293,14 +292,6 @@ Object.assign(UI, {
     }
 });
 function bindMenu() {
-    const nations = $('#g-nation');
-    HISTORICAL_NATIONS.forEach(nation => nations.add(new Option(nation, nation)));
-    nations.onchange = () => {
-        const troop = VEHS.find(v => v.nation === nations.value && v.infantry);
-        UIS.gt = 'all';
-        if (troop) UIS.gs = troop.id;
-        UI.paintGarage(); showSync();
-    };
     $$('[data-ic]').forEach(i => { i.outerHTML = svgI(i.dataset.ic); });
     document.addEventListener('click', e => {
         const t = e.target.closest('button,.slot,.vc'); if (t && !t.disabled) sfx('click');

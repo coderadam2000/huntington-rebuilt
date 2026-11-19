@@ -141,17 +141,9 @@ function computeLabels(m) {
 // --- Globe meshes ---
 // Land: triangulated in lon/lat, long edges split so triangles hug the sphere, one merged geometry with a
 // country index per vertex (colours come from a lookup texture, so map modes never rebuild geometry).
-function antarcticCoast(map) {
-  return map?.polys.find(p => p.f.name === 'Antarctica' && p.bbox[2] - p.bbox[0] > 350 && p.bbox[3] - p.bbox[1] > 10);
-}
 function* buildLand(m, maxEdge) {
   const pos = [], cid = [], v = new THREE.Vector3();
-  let polar = false;
-  const push = (x, y, c) => {
-    if (polar) ll2v(Math.atan2(x, y) / DEG, Math.hypot(x, y) - 90, 1, v);
-    else ll2v(x, y, 1, v);
-    pos.push(v.x, v.y, v.z); cid.push(c);
-  };
+  const push = (x, y, c) => { ll2v(x, y, 1, v); pos.push(v.x, v.y, v.z); cid.push(c); };
   const tri = (ax, ay, bx, by, cx, cy, c, d) => {
     const ab = Math.hypot(ax - bx, ay - by), bc = Math.hypot(bx - cx, by - cy), ca = Math.hypot(cx - ax, cy - ay);
     const mx = Math.max(ab, bc, ca);
@@ -161,20 +153,8 @@ function* buildLand(m, maxEdge) {
     else { const x = (cx + ax) / 2, y = (cy + ay) / 2; tri(ax, ay, bx, by, x, y, c, d + 1); tri(x, y, bx, by, cx, cy, c, d + 1); }
   };
   let k = 0;
-  // The detailed map has only a degenerate south-pole ring for the mainland.
-  const ownCoast = antarcticCoast(m), coast = ownCoast || antarcticCoast(World.maps['110m']);
-  const polys = coast && !ownCoast ? [...m.polys, coast] : m.polys;
-  for (const p of polys) {
-    polar = p === coast;
-    const toV2 = r => {
-      const a = [];
-      for (let i = 0; i < r.length; i += 2) {
-        const lon = r[i], lat = r[i + 1], radius = lat + 90;
-        a.push(polar ? new THREE.Vector2(radius * Math.sin(lon * DEG), radius * Math.cos(lon * DEG)) : new THREE.Vector2(lon, lat));
-      }
-      if (polar && a[0].distanceToSquared(a[a.length - 1]) < 1e-8) a.pop();
-      return a;
-    };
+  for (const p of m.polys) {
+    const toV2 = r => { const a = []; for (let i = 0; i < r.length; i += 2) a.push(new THREE.Vector2(r[i], r[i + 1])); return a; };
     const outer = toV2(p.rings[0]), holes = p.rings.slice(1).map(toV2), all = outer.concat(...holes);
     let faces;
     try { faces = THREE.ShapeUtils.triangulateShape(outer, holes); } catch (e) { faces = []; }

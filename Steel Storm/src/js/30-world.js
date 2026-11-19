@@ -12,18 +12,6 @@ const ISL = [
     { x: -440, z: -370, r: 55, h: 8, c: 3 }, { x: 440, z: 370, r: 55, h: 8, c: 4 }, { x: 440, z: -370, r: 55, h: 8, c: 5 }, { x: -440, z: 370, r: 55, h: 8, c: 6 }
 ];
 const HILLS = [[-420, -130, 55, 16], [-200, 150, 60, 14], [170, -150, 70, 18], [430, 120, 55, 16], [0, -95, 45, 12], [75, 100, 40, 9], [-60, -150, 50, 10], [250, 150, 40, 9], [-300, -170, 40, 10]];
-const EXTRA_HILLS = {
-    harbor: [[-160, 65, 95, 18], [140, -72, 85, 20], [0, 152, 100, 15]],
-    ridge: [[-215, -72, 96, 36], [-110, -45, 108, 43], [30, -25, 120, 52], [175, 52, 105, 38]]
-};
-let worldMap = '', activeHills = HILLS, worldLayer;
-function setBattlefield(map) {
-    const next = Object.hasOwn(EXTRA_HILLS, map) ? map : '';
-    if (next === worldMap) return;
-    worldMap = next;
-    activeHills = next ? HILLS.concat(EXTRA_HILLS[next]) : HILLS;
-    buildWorld();
-}
 const TOWNS = [{ x: -250, z: -20, n: 15, p: 0 }, { x: 0, z: 10, n: 13, p: 1 }, { x: 250, z: 20, n: 15, p: 2 }, { x: -470, z: 185, n: 9 }, { x: 470, z: -185, n: 9 }, { x: -120, z: -135, n: 6 }, { x: 120, z: 135, n: 6 }];
 const PTS = [{ x: -250, z: -20, name: 'A' }, { x: 0, z: 10, name: 'B' }, { x: 250, z: 20, name: 'C' }];
 const FLAG_HOME = [{ x: -455, z: 10 }, { x: 455, z: -10 }];      // capture the flag bases (behind each team's tank spawn)
@@ -40,7 +28,7 @@ function H(x, z) {
     }
     if (b > -0.5) {
         const k = clamp(b / 3, 0, 1);
-        for (let i = 0; i < activeHills.length; i++) { const h = activeHills[i], dx = x - h[0], dz = z - h[1], q = (dx * dx + dz * dz) / (2 * (h[2] / 2) * (h[2] / 2)); if (q < 8) b += h[3] * Math.exp(-q) * k; }
+        for (let i = 0; i < HILLS.length; i++) { const h = HILLS[i], dx = x - h[0], dz = z - h[1], q = (dx * dx + dz * dz) / (2 * (h[2] / 2) * (h[2] / 2)); if (q < 8) b += h[3] * Math.exp(-q) * k; }
         b += wob(x, z) * 2.2 * clamp(b / 6, 0, 1);
     }
     return b;
@@ -246,24 +234,8 @@ function applyWeather(k) {
 function assignFlareLights() { FLARES.forEach((f, i) => { f.l = W0.flares && FLASH.length > Q.lights + i ? FLASH[Q.lights + i].l : null; if (f.l) { f.l.color.setHex(0xffe6b0); f.l.distance = 320; } }); }
 let terrain, waterMesh, miniCv, cloudMesh, ptViz = [], flagViz = [], treeChunks = [];
 function buildWorld() {
-    if (worldLayer) {
-        const materials = new Set(), geometries = new Set();
-        worldLayer.traverse(node => {
-            if (node.geometry) geometries.add(node.geometry);
-            if (node.material && ![terrainHi, terrainLo, waterHi, waterLo].includes(node.material)) materials.add(node.material);
-        });
-        geometries.forEach(geo => geo.dispose());
-        materials.forEach(material => { if (material.map) material.map.dispose(); material.dispose(); });
-        scene.remove(worldLayer);
-        BLD.length = ptViz.length = flagViz.length = treeChunks.length = 0;
-    }
-    worldLayer = new THREE.Group();
-    scene.add(worldLayer);
-    if (!terrainHi) {
-        initTerrainTextures(); terrainHi = makeTerrainHi(); waterHi = makeWaterHi();
-        waterLo = new THREE.MeshLambertMaterial({ color: 0x2f7fb0, transparent: true, opacity: .84, depthWrite: false });
-    }
-    const rng = mulberry(worldMap === 'harbor' ? 20240516 : worldMap === 'ridge' ? 20241104 : 20241031);
+    initTerrainTextures(); terrainHi = makeTerrainHi(); waterHi = makeWaterHi(); waterLo = new THREE.MeshLambertMaterial({ color: 0x2f7fb0, transparent: true, opacity: .84, depthWrite: false });
+    const rng = mulberry(20241031);
     // terrain: smooth normals, vertex colours for the low tier
     const N = 150, SZ = EXT * 2 + 120, g = new THREE.PlaneGeometry(SZ, SZ, N, N); g.rotateX(-PI / 2);
     const p = g.attributes.position, col = new Float32Array(p.count * 3), c = new THREE.Color();
@@ -279,9 +251,9 @@ function buildWorld() {
         c.offsetHSL(0, 0, j); col[i * 3] = c.r; col[i * 3 + 1] = c.g; col[i * 3 + 2] = c.b;
     }
     g.setAttribute('color', new THREE.BufferAttribute(col, 3));
-    terrain = new THREE.Mesh(g, Q.hi ? terrainHi : terrainLo); terrain.receiveShadow = true; terrain.matrixAutoUpdate = false; worldLayer.add(terrain);
+    terrain = new THREE.Mesh(g, Q.hi ? terrainHi : terrainLo); terrain.receiveShadow = true; terrain.matrixAutoUpdate = false; scene.add(terrain);
     waterMesh = new THREE.Mesh(new THREE.PlaneGeometry(6000, 6000).rotateX(-PI / 2), Q.hi ? waterHi : waterLo);
-    waterMesh.renderOrder = 1; waterMesh.receiveShadow = false; worldLayer.add(waterMesh);
+    waterMesh.renderOrder = 1; waterMesh.receiveShadow = false; scene.add(waterMesh);
     // houses: walls with a window texture, gable roofs, hangars by the airstrips
     const places = [], palette = [0xe4d9bd, 0xc9b896, 0xd8a48a, 0xd9d4c7, 0xaab3bd, 0xcfae7a];
     const okSpot = (x0, z0, w, d) => {
@@ -308,11 +280,11 @@ function buildWorld() {
         bm.setMatrixAt(i, mt.compose(v1.set(b.x, b.base, b.z), q0, v2.set(b.w, b.h, b.d))); bm.setColorAt(i, cc.setHex(b.col));
         rm.setMatrixAt(i, mt.compose(v1.set(b.x, b.base + b.h, b.z), q0, v2.set(b.w + .8, Math.min(b.w, b.d) * .5, b.d + .8))); rm.setColorAt(i, cc.setHex(i % 3 ? 0x8a4a34 : 0x5a5f66));
     });
-    bm.castShadow = rm.castShadow = true; bm.receiveShadow = rm.receiveShadow = true; worldLayer.add(bm, rm);
+    bm.castShadow = rm.castShadow = true; bm.receiveShadow = rm.receiveShadow = true; scene.add(bm, rm);
     const hg = new THREE.CylinderGeometry(1, 1, 1, 12, 1, false, 0, PI); hg.rotateZ(PI / 2); hg.rotateY(PI / 2);
     const hm = new THREE.InstancedMesh(hg, new THREE.MeshLambertMaterial({ color: 0x8c949c }), 4); let hi = 0;
     for (const s of STRIPS) for (let k = 0; k < 2; k++) { const x = s[0] + 30 + k * 34, z = s[2] + 24 * Math.sign(s[2]), y = H(x, z) - .5; hm.setMatrixAt(hi++, mt.compose(v1.set(x, y, z), q0, v2.set(14, 9, 22))); }
-    hm.castShadow = hm.receiveShadow = true; worldLayer.add(hm);
+    hm.castShadow = hm.receiveShadow = true; scene.add(hm);
     // trees: two kinds (pine, broadleaf), instanced in a 4 x 4 grid of chunks so the frustum culls them
     const T1 = []; cy(T1, .3, .42, 2.4, 5, 0, 1.2, 0, 0x6b4a2b); cy(T1, 0, 2.3, 3.6, 7, 0, 3.6, 0, 0x2f6e38); cy(T1, 0, 1.7, 2.8, 7, 0, 5.4, 0, 0x3a8044); cy(T1, 0, 1.1, 2, 6, 0, 6.9, 0, 0x46904e);
     const T2 = []; cy(T2, .32, .45, 2.6, 5, 0, 1.3, 0, 0x6b4a2b); sph(T2, 2.3, 0, 4.2, 0, 0x4f8a3a, 1, .85, 1); sph(T2, 1.6, .9, 5.2, .4, 0x5c9a42, 1, .8, 1);
@@ -332,16 +304,16 @@ function buildWorld() {
         const L = spots[kind].filter(s => Math.floor((s[0] + EXT) / (EXT / 2)) === cx && Math.floor((s[2] + EXT) / (EXT / 2)) === cz); if (!L.length) continue;
         const im = new THREE.InstancedMesh(tg[kind], tmat, L.length);
         L.forEach((s, i) => { QT.setFromAxisAngle(V3.set(0, 1, 0), s[4]); im.setMatrixAt(i, mt.compose(v1.set(s[0], s[1] - .2, s[2]), QT, v2.set(s[3], s[3] * (0.9 + rng() * .5), s[3]))); });
-        im.computeBoundingSphere(); im.castShadow = true; im.userData.n = L.length; im.count = Math.round(L.length * Q.trees); worldLayer.add(im); treeChunks.push(im);
+        im.computeBoundingSphere(); im.castShadow = true; im.userData.n = L.length; im.count = Math.round(L.length * Q.trees); scene.add(im); treeChunks.push(im);
     }
     // rocks on slopes and shores
     const rg = new THREE.DodecahedronGeometry(1, 0), rk = new THREE.InstancedMesh(rg, new THREE.MeshLambertMaterial({ color: 0x8a867c, flatShading: true }), 160); let rn = 0;
     for (let k = 0; k < 4000 && rn < 160; k++) { const x1 = (rng() * 2 - 1) * (EXT - 20), z1 = (rng() * 2 - 1) * (EXT - 20), h = H(x1, z1); if (h < .5 || Math.abs(H(x1 + 4, z1) - h) < 1.2 && h > 2.5) continue; const s = 1 + rng() * 2.6; QT.setFromEuler(new THREE.Euler(rng() * 3, rng() * 3, 0)); rk.setMatrixAt(rn++, mt.compose(v1.set(x1, h, z1), QT, v2.set(s, s * .7, s * 1.2))); }
-    rk.count = rn; rk.castShadow = rk.receiveShadow = true; worldLayer.add(rk);
+    rk.count = rn; rk.castShadow = rk.receiveShadow = true; scene.add(rk);
     // clouds (flat blobs high above)
     const cg = new THREE.IcosahedronGeometry(1, 1); cloudMesh = new THREE.InstancedMesh(cg, new THREE.MeshLambertMaterial({ color: 0xf4f8ff, transparent: true, opacity: .92, emissive: 0x666a70 }), 44);
     for (let i = 0; i < 44; i++) cloudMesh.setMatrixAt(i, mt.compose(v1.set((rng() * 2 - 1) * 1000, 190 + rng() * 110, (rng() * 2 - 1) * 1000), q0, v2.set(25 + rng() * 40, 5 + rng() * 6, 18 + rng() * 25)));
-    worldLayer.add(cloudMesh);
+    scene.add(cloudMesh);
     // capture points: ring on the ground, a flag and a tall light beam
     PTS.forEach((pt) => {
         pt.y = H(pt.x, pt.z);
@@ -350,7 +322,7 @@ function buildWorld() {
         const pole = new THREE.Mesh(new THREE.CylinderGeometry(.25, .25, 16, 5), new THREE.MeshLambertMaterial({ color: 0x444444 })); pole.position.y = 8;
         const flag = new THREE.Mesh(new THREE.BoxGeometry(7, 4, .2), m); flag.position.set(3.5, 14, 0);
         const bmat = new THREE.MeshBasicMaterial({ color: 0xcccccc, transparent: true, opacity: .22, depthWrite: false }), beam = new THREE.Mesh(new THREE.CylinderGeometry(6, 6, 260, 8, 1, true), bmat); beam.position.y = 130;
-        grp.add(ring, pole, flag, beam); grp.position.set(pt.x, pt.y, pt.z); worldLayer.add(grp);
+        grp.add(ring, pole, flag, beam); grp.position.set(pt.x, pt.y, pt.z); scene.add(grp);
         ptViz.push({ grp, m, bmat });
     });
     // capture-the-flag flags + home pads
@@ -360,15 +332,15 @@ function buildWorld() {
         const pole = new THREE.Mesh(new THREE.CylinderGeometry(.2, .2, 9, 5), new THREE.MeshLambertMaterial({ color: 0xdddddd })); pole.position.y = 4.5;
         const cloth = new THREE.Mesh(new THREE.BoxGeometry(4.5, 2.6, .15), m); cloth.position.set(2.25, 7.6, 0);
         const bmat = new THREE.MeshBasicMaterial({ color: teamCol(t), transparent: true, opacity: .25, depthWrite: false }), beam = new THREE.Mesh(new THREE.CylinderGeometry(2.5, 2.5, 200, 8, 1, true), bmat); beam.position.y = 100;
-        grp.add(pole, cloth, beam); worldLayer.add(grp);
-        const pad = new THREE.Mesh(new THREE.TorusGeometry(14, .6, 4, 32).rotateX(PI / 2), m); pad.position.set(h.x, h.y + .6, h.z); worldLayer.add(pad);
+        grp.add(pole, cloth, beam); scene.add(grp);
+        const pad = new THREE.Mesh(new THREE.TorusGeometry(14, .6, 4, 32).rotateX(PI / 2), m); pad.position.set(h.x, h.y + .6, h.z); scene.add(pad);
         flagViz.push({ grp, pad, cloth });
     });
     // flare sprites for the night preset
     flareMesh = new THREE.InstancedMesh(new THREE.IcosahedronGeometry(1, 1), new THREE.MeshBasicMaterial({ color: 0xfff1c0 }), 3);
-    for (let i = FLARES.length; i < 3; i++) FLARES.push({ x: rnd(-300, 300), y: rnd(60, 220), z: rnd(-200, 200), l: null });
-    flareMesh.frustumCulled = false; flareMesh.visible = false; worldLayer.add(flareMesh);
-    if (!rain) buildRain();
+    for (let i = 0; i < 3; i++) FLARES.push({ x: rnd(-300, 300), y: rnd(60, 220), z: rnd(-200, 200), l: null });
+    flareMesh.frustumCulled = false; flareMesh.visible = false; scene.add(flareMesh);
+    buildRain();
     setPointsVisible(false); setFlagsVisible(false);
     // minimap: baked once
     miniCv = document.createElement('canvas'); miniCv.width = miniCv.height = 180;

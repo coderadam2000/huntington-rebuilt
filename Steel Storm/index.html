@@ -5,7 +5,7 @@
 })();</script><!--/HG-->
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-<title>Steel Storm 2.4</title>
+<title>Steel Storm 2.3</title>
 <style>
 /* ===== base: colours, type, buttons, inputs, modal cards (2.2) ===== */
 :root{--y:#ffd21f;--y2:#ff9d00;--bg:#0a0f1f;--p:#111833;--p2:#1a2448;--pa:rgba(10,15,33,.88);--pb:rgba(16,23,48,.92);--ln:#2d3b72;--tx:#eef2ff;--mut:#93a0c8;--cy:#4fe0ff;--t0:#3b9bff;--t1:#ff4d4d;--ok:#4cd964;--bad:#ff5a5a;--warn:#ffb340;--nav:220px;--top:60px;--hd:"Arial Black",Impact,"Trebuchet MS",sans-serif}
@@ -387,7 +387,7 @@ table.board{width:100%;font-size:12px;border-collapse:collapse;margin-top:8px}ta
 <div id="menu" class="hidden" data-view="menu">
   <div class="shade"></div>
   <header class="mtop">
-    <div class="brand"><span class="logo">STEEL<b>STORM</b></span><a id="b-new" class="ver" href="#">v2.4 &middot; What's new</a></div>
+    <div class="brand"><span class="logo">STEEL<b>STORM</b></span><a id="b-new" class="ver" href="#">v2.3 &middot; What's new</a></div>
     <div class="wallet">
       <span class="w-pill" title="Credits: buy vehicles"><i class="ic cr"></i><b id="w-cr">0</b></span>
       <span class="w-pill" title="Research points for what you are researching"><i class="ic rp"></i><b id="w-rp">0</b></span>
@@ -464,7 +464,6 @@ table.board{width:100%;font-size:12px;border-collapse:collapse;margin-top:8px}ta
   <section id="v-garage" class="view hidden">
     <div class="sheet g-list">
       <div class="sheet-h"><h2>Garage</h2><div class="tabs" id="g-tabs"><button data-gt="all">All</button><button data-gt="g">Ground</button><button data-gt="a">Air</button><button data-gt="n">Naval</button></div></div>
-      <label class="note" for="g-nation">Historical nation</label> <select id="g-nation"><option value="">All nations</option></select>
       <div id="g-owned" class="vgrid"></div>
     </div>
     <aside class="vpanel" id="g-info"></aside>
@@ -523,13 +522,12 @@ table.board{width:100%;font-size:12px;border-collapse:collapse;margin-top:8px}ta
   <div class="card wide">
     <div class="card-h"><h2>How to play</h2><button class="x" data-close title="Close">&times;</button></div>
     <div class="how">
-      <div><h4>Modes</h4><p><b>1v1 Duel:</b> first to three knockouts. <b>Team Deathmatch:</b> first team to the kill limit. <b>Conquest:</b> hold the 3 points; the team holding more drains the other team's tickets. <b>Capture the Flag:</b> drive (or fly a helicopter) over the enemy flag and bring it to your own base while your flag is home. <b>Free-for-all:</b> everyone against everyone.</p>
+      <div><h4>Modes</h4><p><b>Team Deathmatch:</b> first team to the kill limit. <b>Conquest:</b> hold the 3 points; the team holding more drains the other team's tickets. <b>Capture the Flag:</b> drive (or fly a helicopter) over the enemy flag and bring it to your own base while your flag is home. <b>Free-for-all:</b> everyone against everyone.</p>
       <h4>Progress</h4><p>Every match earns <b>credits</b> and <b>research points</b>. Research vehicles in 15 branches (tiers I-V), buy them, then research <b>modules</b> for each vehicle you own (engine, armour, guns, ammo, stabiliser / countermeasures / radar). Battle rating keeps you with vehicles like yours.</p>
       <h4>Multiplayer</h4><p>Open <b>Multiplayer</b>: join an open game from the list, type a friend's 6-digit code, or <b>Host</b> one with your own options. In the party lobby pick a team and press <b>READY</b>; the host starts, bots fill the empty slots. Friends can join a running battle, and a dropped player gets their vehicle and score back.</p>
       <h4>Respawning</h4><p>When you are destroyed, the vehicle you picked before the battle is ready first. Pick another one from your lineup (keys <b>1-5</b>) and press <b>DEPLOY</b> or <b>Space</b>.</p></div>
       <div><h4>Controls</h4>
       <table class="keys">
-      <tr><td><kbd>V</kbd> / Mouse wheel</td><td>Switch camera / zoom</td></tr>
       <tr><td>Mouse</td><td>Aim camera / turrets / steer jet</td></tr>
       <tr><td><kbd>W</kbd> <kbd>S</kbd></td><td>Throttle (tank and ship: forward, back)</td></tr>
       <tr><td><kbd>A</kbd> <kbd>D</kbd></td><td>Steer (helicopter: strafe)</td></tr>
@@ -549,8 +547,7 @@ table.board{width:100%;font-size:12px;border-collapse:collapse;margin-top:8px}ta
 </div>
 <div id="s-new" class="scr dim hidden">
   <div class="card wide">
-    <div class="card-h"><h2>Steel Storm 2.4: what's new</h2><button class="x" data-close title="Close">&times;</button></div>
-    <p>Fight a 1v1 Duel, try the Harbor and Highlands battlefields, or choose a historical nation in the Garage for infantry and vehicle options. Press V to change perspective.</p>
+    <div class="card-h"><h2>Steel Storm 2.3: what's new</h2><button class="x" data-close title="Close">&times;</button></div>
     <div class="how"><div>
       <h4>Training</h4><p>New <b>Training</b> button in the menu: three hands-on lessons where you do each step yourself. <b>Basic training</b> (drive, aim, fire, destroy, capture, respawn), <b>Wings and rotors</b> (planes and helicopters) and <b>Your garage</b> (research, buying, modules, the lineup and multiplayer). The practice battles never count for your stats or the leaderboards.</p>
       <h4 class="old">Steel Storm 2.2</h4>
@@ -627,7 +624,7 @@ function mulberry(seed) { return function () { seed |= 0; seed = seed + 0x6D2B79
 const TEAM_COL = [0x3b9bff, 0xff4d4d, 0x4cd964, 0xffd21f, 0xc77dff, 0xff9d3a, 0x3ae0d0, 0xff6ac1, 0xa0e85a, 0xe8e8e8, 0x7a8cff, 0xd08a5a, 0x5ad0ff, 0xffb0b0, 0x9a9a9a, 0xb0ff6a, 0xffe08a, 0x8affd8];
 const teamCol = t => TEAM_COL[((t | 0) % TEAM_COL.length + TEAM_COL.length) % TEAM_COL.length];
 const teamHex = t => '#' + teamCol(t).toString(16).padStart(6, '0');
-const VERSION = '2.4';
+const VERSION = '2.3';
 let toastT = 0;
 function toast(t) { const e = $('#toast'); e.textContent = t; e.classList.add('on'); clearTimeout(toastT); toastT = setTimeout(() => e.classList.remove('on'), 2600); }
 
@@ -684,9 +681,9 @@ function fixSave(s) {      // tier I is always owned; drop unknown ids; keep a u
     if (s.target && !(VBY[s.target] ? !s.researched[s.target] : MODBY[s.target] && !s.mods[s.target])) s.target = null;
     if (!(s.credits >= 0)) s.credits = 0;
     if (!(s.freeRp >= 0)) s.freeRp = 0;
-    if (!['tdm', 'duel', 'conq', 'ctf', 'ffa'].includes(s.mode)) s.mode = 'tdm';
+    if (!['tdm', 'conq', 'ctf', 'ffa'].includes(s.mode)) s.mode = 'tdm';
     s.size = [3, 5, 8].includes(s.size) ? s.size : 5;
-    const o = s.opts; o.len = [5, 10, 15].includes(o.len) ? o.len : 10; if (!['small', 'normal', 'large', 'harbor', 'ridge'].includes(o.map)) o.map = 'normal';
+    const o = s.opts; o.len = [5, 10, 15].includes(o.len) ? o.len : 10; if (!['small', 'normal', 'large'].includes(o.map)) o.map = 'normal';
     o.ff = o.ff ? 1 : 0; if (!['noon', 'evening', 'overcast', 'night', 'random'].includes(o.wx)) o.wx = 'noon';
     if (!['off', 'match', 'mixed'].includes(s.bots)) s.bots = 'match';
     if (!['low', 'med', 'high'].includes(s.settings.quality)) s.settings.quality = 'med';
@@ -990,28 +987,6 @@ VEHS.forEach(v => {
     v.role = ROLE[v.cls]; v.pw = k('hp') * k('dps') * Math.sqrt(k('ar') * k('sp'));
 });
 const BR_ADJ = { lt: 0, mt: 0, ht: .3, td: .2, spaa: -.2, arty: 0, ftr: 0, atk: -.1, bmb: .1, heli: 0, pb: -.2, dd: 0, cl: .2, bb: .4, ss: .1 };
-// Arcade variants of historical vehicles. Their stats use the existing game balance.
-for (const [id, baseId, name, origin, colors, weapon] of [
-    ['hist-mark-v', 'g1b', 'Mark V', 'Britain · World War I', [0x666749, 0x545537], 'Vickers gun'],
-    ['hist-sherman', 'g2b', 'M4 Sherman', 'United States · World War II', [0x657343, 0x4e5d36], 'Browning'],
-    ['hist-t55', 'g3c', 'T-55', 'Soviet Union · Cold War', [0x5a6754, 0x405047], 'Coaxial machine gun'],
-    ['hist-spitfire', 'a1a', 'Spitfire', 'Britain · World War II', [0x627567, 0x435a58], 'Wing guns'],
-    ['hist-zero', 'a2a', 'A6M Zero', 'Japan · World War II', [0xbfc7b4, 0x788779], 'Wing cannons']
-]) {
-    const base = VEHS.find(vehicle => vehicle.id === baseId);
-    if (!base) continue;
-    const w1 = { ...base.w1, n: base.ln === 'a' ? weapon : base.w1.n };
-    const w2 = base.w2 && { ...base.w2, n: base.ln === 'g' ? weapon : base.w2.n };
-    VEHS.push({ ...base, id, n: name, nation: origin.split(' · ')[0], req: baseId, m: { ...base.m, c: colors }, desc: origin + ' · Historical arcade vehicle', w1, w2 });
-}
-const HISTORICAL_NATIONS = ['Britain', 'United States', 'Soviet Union', 'Japan'];
-for (const [i, label] of ['Lee-Enfield', 'M1 Garand', 'Mosin-Nagant', 'Arisaka'].entries()) {
-    const nation = HISTORICAL_NATIONS[i], uniform = [0x7c7251, 0x606d46, 0x64694c, 0x99845c][i];
-    VEHS.push({ id: 'troop-' + i, ln: 'g', cls: 'lt', t: 1, n: nation + ' Rifleman', nation, req: null, infantry: true,
-        hp: 84, ar: 0, sp: 9, tn: 4.8, tt: 4.8, r: .67, cd: 7, el: .85,
-        m: { hull: [.55, 1.6, .6], c: [uniform, 0x333935] }, role: 'Small target with light equipment',
-        w1: { ...W.guns(10, .45), n: label }, pw: .7, desc: nation + ' · Playable infantry with arcade weapon balance' });
-}
 const VBY = {};
 function calcDps(v) { let dps = 0; for (const k of ['w1', 'w2', 'w3']) { const w = v[k]; if (w) dps += w.dmg * (w.nn || 1) / Math.max(0.04, w.rl) * (w.sp ? 1.6 : 1); } return dps; }
 VEHS.forEach((v, i) => {
@@ -1563,46 +1538,7 @@ function decalGeo(list, num) {      // list entries [x, y, z, size] on the +X si
     return g;
 }
 // ---- build a live model for an entity ----
-function makeRifleman(def, team) {
-    const root = new THREE.Group(), tur = new THREE.Group(), gun = new THREE.Group();
-    const disposables = [], materials = new Map();
-    function box(parent, width, height, depth, x, y, z, color) {
-        if (!materials.has(color)) {
-            const material = new THREE.MeshLambertMaterial({ color });
-            materials.set(color, material); disposables.push(material);
-        }
-        const geometry = new THREE.BoxGeometry(width, height, depth);
-        disposables.push(geometry);
-        const mesh = new THREE.Mesh(geometry, materials.get(color));
-        mesh.position.set(x, y, z);
-        mesh.castShadow = true;
-        parent.add(mesh);
-        return mesh;
-    }
-    const [uniform, dark] = def.m.c;
-    const body = box(root, .55, .61, .4, 0, 1.03, 0, uniform);
-    const legs = [-.14,.14].map(x => {
-        const limb = new THREE.Group();
-        limb.position.set(x,.72,0);
-        root.add(limb);
-        box(limb,.2,.62,.22,0,-.32,0,uniform);
-        box(limb,.21,.16,.33,0,-.66,.05,dark);
-        return limb;
-    });
-    tur.position.y = 1.07; root.add(tur);
-    box(tur,.35,.34,.32,0,.47,0,0xc19c75);
-    box(tur,.39,.17,.36,0,.62,0,uniform);
-    gun.position.set(.06,.12,.22); tur.add(gun);
-    box(gun,.14,.16,.73,.15,.02,.2,dark);
-    box(gun,.15,.25,.35,-.05,-.09,.06,uniform);
-    box(gun,.15,.25,.35,.31,-.09,.06,uniform);
-    box(tur,.12,.13,.05,.26,.08,-.12,teamCol(team));
-    const muzzle = new THREE.Object3D();
-    muzzle.position.set(.15,.02,.6); gun.add(muzzle);
-    return { root, body, tur, gun, legs, team, muzzles: [muzzle], props: [], turs: [], kit: [], disposables };
-}
 function makeModel(def, team, num) {
-    if (def.infantry) return makeRifleman(def, team);
     const b = def.base || def, P = getParts(def, team), root = new THREE.Group(), o = { root, team, muzzles: [], turs: [], props: [], tur: null, gun: null, kit: [], disposables: [] };
     const mat = MAT.veh[b.ln + ((team | 0) & 1)];
     const add = (geo, m, parent, pos) => { const me = new THREE.Mesh(geo, m); if (pos) me.position.set(pos[0], pos[1], pos[2]); me.castShadow = true; me.receiveShadow = b.ln === 'n'; (parent || root).add(me); return me; };
@@ -1653,18 +1589,6 @@ const ISL = [
     { x: -440, z: -370, r: 55, h: 8, c: 3 }, { x: 440, z: 370, r: 55, h: 8, c: 4 }, { x: 440, z: -370, r: 55, h: 8, c: 5 }, { x: -440, z: 370, r: 55, h: 8, c: 6 }
 ];
 const HILLS = [[-420, -130, 55, 16], [-200, 150, 60, 14], [170, -150, 70, 18], [430, 120, 55, 16], [0, -95, 45, 12], [75, 100, 40, 9], [-60, -150, 50, 10], [250, 150, 40, 9], [-300, -170, 40, 10]];
-const EXTRA_HILLS = {
-    harbor: [[-160, 65, 95, 18], [140, -72, 85, 20], [0, 152, 100, 15]],
-    ridge: [[-215, -72, 96, 36], [-110, -45, 108, 43], [30, -25, 120, 52], [175, 52, 105, 38]]
-};
-let worldMap = '', activeHills = HILLS, worldLayer;
-function setBattlefield(map) {
-    const next = Object.hasOwn(EXTRA_HILLS, map) ? map : '';
-    if (next === worldMap) return;
-    worldMap = next;
-    activeHills = next ? HILLS.concat(EXTRA_HILLS[next]) : HILLS;
-    buildWorld();
-}
 const TOWNS = [{ x: -250, z: -20, n: 15, p: 0 }, { x: 0, z: 10, n: 13, p: 1 }, { x: 250, z: 20, n: 15, p: 2 }, { x: -470, z: 185, n: 9 }, { x: 470, z: -185, n: 9 }, { x: -120, z: -135, n: 6 }, { x: 120, z: 135, n: 6 }];
 const PTS = [{ x: -250, z: -20, name: 'A' }, { x: 0, z: 10, name: 'B' }, { x: 250, z: 20, name: 'C' }];
 const FLAG_HOME = [{ x: -455, z: 10 }, { x: 455, z: -10 }];      // capture the flag bases (behind each team's tank spawn)
@@ -1681,7 +1605,7 @@ function H(x, z) {
     }
     if (b > -0.5) {
         const k = clamp(b / 3, 0, 1);
-        for (let i = 0; i < activeHills.length; i++) { const h = activeHills[i], dx = x - h[0], dz = z - h[1], q = (dx * dx + dz * dz) / (2 * (h[2] / 2) * (h[2] / 2)); if (q < 8) b += h[3] * Math.exp(-q) * k; }
+        for (let i = 0; i < HILLS.length; i++) { const h = HILLS[i], dx = x - h[0], dz = z - h[1], q = (dx * dx + dz * dz) / (2 * (h[2] / 2) * (h[2] / 2)); if (q < 8) b += h[3] * Math.exp(-q) * k; }
         b += wob(x, z) * 2.2 * clamp(b / 6, 0, 1);
     }
     return b;
@@ -1887,24 +1811,8 @@ function applyWeather(k) {
 function assignFlareLights() { FLARES.forEach((f, i) => { f.l = W0.flares && FLASH.length > Q.lights + i ? FLASH[Q.lights + i].l : null; if (f.l) { f.l.color.setHex(0xffe6b0); f.l.distance = 320; } }); }
 let terrain, waterMesh, miniCv, cloudMesh, ptViz = [], flagViz = [], treeChunks = [];
 function buildWorld() {
-    if (worldLayer) {
-        const materials = new Set(), geometries = new Set();
-        worldLayer.traverse(node => {
-            if (node.geometry) geometries.add(node.geometry);
-            if (node.material && ![terrainHi, terrainLo, waterHi, waterLo].includes(node.material)) materials.add(node.material);
-        });
-        geometries.forEach(geo => geo.dispose());
-        materials.forEach(material => { if (material.map) material.map.dispose(); material.dispose(); });
-        scene.remove(worldLayer);
-        BLD.length = ptViz.length = flagViz.length = treeChunks.length = 0;
-    }
-    worldLayer = new THREE.Group();
-    scene.add(worldLayer);
-    if (!terrainHi) {
-        initTerrainTextures(); terrainHi = makeTerrainHi(); waterHi = makeWaterHi();
-        waterLo = new THREE.MeshLambertMaterial({ color: 0x2f7fb0, transparent: true, opacity: .84, depthWrite: false });
-    }
-    const rng = mulberry(worldMap === 'harbor' ? 20240516 : worldMap === 'ridge' ? 20241104 : 20241031);
+    initTerrainTextures(); terrainHi = makeTerrainHi(); waterHi = makeWaterHi(); waterLo = new THREE.MeshLambertMaterial({ color: 0x2f7fb0, transparent: true, opacity: .84, depthWrite: false });
+    const rng = mulberry(20241031);
     // terrain: smooth normals, vertex colours for the low tier
     const N = 150, SZ = EXT * 2 + 120, g = new THREE.PlaneGeometry(SZ, SZ, N, N); g.rotateX(-PI / 2);
     const p = g.attributes.position, col = new Float32Array(p.count * 3), c = new THREE.Color();
@@ -1920,9 +1828,9 @@ function buildWorld() {
         c.offsetHSL(0, 0, j); col[i * 3] = c.r; col[i * 3 + 1] = c.g; col[i * 3 + 2] = c.b;
     }
     g.setAttribute('color', new THREE.BufferAttribute(col, 3));
-    terrain = new THREE.Mesh(g, Q.hi ? terrainHi : terrainLo); terrain.receiveShadow = true; terrain.matrixAutoUpdate = false; worldLayer.add(terrain);
+    terrain = new THREE.Mesh(g, Q.hi ? terrainHi : terrainLo); terrain.receiveShadow = true; terrain.matrixAutoUpdate = false; scene.add(terrain);
     waterMesh = new THREE.Mesh(new THREE.PlaneGeometry(6000, 6000).rotateX(-PI / 2), Q.hi ? waterHi : waterLo);
-    waterMesh.renderOrder = 1; waterMesh.receiveShadow = false; worldLayer.add(waterMesh);
+    waterMesh.renderOrder = 1; waterMesh.receiveShadow = false; scene.add(waterMesh);
     // houses: walls with a window texture, gable roofs, hangars by the airstrips
     const places = [], palette = [0xe4d9bd, 0xc9b896, 0xd8a48a, 0xd9d4c7, 0xaab3bd, 0xcfae7a];
     const okSpot = (x0, z0, w, d) => {
@@ -1949,11 +1857,11 @@ function buildWorld() {
         bm.setMatrixAt(i, mt.compose(v1.set(b.x, b.base, b.z), q0, v2.set(b.w, b.h, b.d))); bm.setColorAt(i, cc.setHex(b.col));
         rm.setMatrixAt(i, mt.compose(v1.set(b.x, b.base + b.h, b.z), q0, v2.set(b.w + .8, Math.min(b.w, b.d) * .5, b.d + .8))); rm.setColorAt(i, cc.setHex(i % 3 ? 0x8a4a34 : 0x5a5f66));
     });
-    bm.castShadow = rm.castShadow = true; bm.receiveShadow = rm.receiveShadow = true; worldLayer.add(bm, rm);
+    bm.castShadow = rm.castShadow = true; bm.receiveShadow = rm.receiveShadow = true; scene.add(bm, rm);
     const hg = new THREE.CylinderGeometry(1, 1, 1, 12, 1, false, 0, PI); hg.rotateZ(PI / 2); hg.rotateY(PI / 2);
     const hm = new THREE.InstancedMesh(hg, new THREE.MeshLambertMaterial({ color: 0x8c949c }), 4); let hi = 0;
     for (const s of STRIPS) for (let k = 0; k < 2; k++) { const x = s[0] + 30 + k * 34, z = s[2] + 24 * Math.sign(s[2]), y = H(x, z) - .5; hm.setMatrixAt(hi++, mt.compose(v1.set(x, y, z), q0, v2.set(14, 9, 22))); }
-    hm.castShadow = hm.receiveShadow = true; worldLayer.add(hm);
+    hm.castShadow = hm.receiveShadow = true; scene.add(hm);
     // trees: two kinds (pine, broadleaf), instanced in a 4 x 4 grid of chunks so the frustum culls them
     const T1 = []; cy(T1, .3, .42, 2.4, 5, 0, 1.2, 0, 0x6b4a2b); cy(T1, 0, 2.3, 3.6, 7, 0, 3.6, 0, 0x2f6e38); cy(T1, 0, 1.7, 2.8, 7, 0, 5.4, 0, 0x3a8044); cy(T1, 0, 1.1, 2, 6, 0, 6.9, 0, 0x46904e);
     const T2 = []; cy(T2, .32, .45, 2.6, 5, 0, 1.3, 0, 0x6b4a2b); sph(T2, 2.3, 0, 4.2, 0, 0x4f8a3a, 1, .85, 1); sph(T2, 1.6, .9, 5.2, .4, 0x5c9a42, 1, .8, 1);
@@ -1973,16 +1881,16 @@ function buildWorld() {
         const L = spots[kind].filter(s => Math.floor((s[0] + EXT) / (EXT / 2)) === cx && Math.floor((s[2] + EXT) / (EXT / 2)) === cz); if (!L.length) continue;
         const im = new THREE.InstancedMesh(tg[kind], tmat, L.length);
         L.forEach((s, i) => { QT.setFromAxisAngle(V3.set(0, 1, 0), s[4]); im.setMatrixAt(i, mt.compose(v1.set(s[0], s[1] - .2, s[2]), QT, v2.set(s[3], s[3] * (0.9 + rng() * .5), s[3]))); });
-        im.computeBoundingSphere(); im.castShadow = true; im.userData.n = L.length; im.count = Math.round(L.length * Q.trees); worldLayer.add(im); treeChunks.push(im);
+        im.computeBoundingSphere(); im.castShadow = true; im.userData.n = L.length; im.count = Math.round(L.length * Q.trees); scene.add(im); treeChunks.push(im);
     }
     // rocks on slopes and shores
     const rg = new THREE.DodecahedronGeometry(1, 0), rk = new THREE.InstancedMesh(rg, new THREE.MeshLambertMaterial({ color: 0x8a867c, flatShading: true }), 160); let rn = 0;
     for (let k = 0; k < 4000 && rn < 160; k++) { const x1 = (rng() * 2 - 1) * (EXT - 20), z1 = (rng() * 2 - 1) * (EXT - 20), h = H(x1, z1); if (h < .5 || Math.abs(H(x1 + 4, z1) - h) < 1.2 && h > 2.5) continue; const s = 1 + rng() * 2.6; QT.setFromEuler(new THREE.Euler(rng() * 3, rng() * 3, 0)); rk.setMatrixAt(rn++, mt.compose(v1.set(x1, h, z1), QT, v2.set(s, s * .7, s * 1.2))); }
-    rk.count = rn; rk.castShadow = rk.receiveShadow = true; worldLayer.add(rk);
+    rk.count = rn; rk.castShadow = rk.receiveShadow = true; scene.add(rk);
     // clouds (flat blobs high above)
     const cg = new THREE.IcosahedronGeometry(1, 1); cloudMesh = new THREE.InstancedMesh(cg, new THREE.MeshLambertMaterial({ color: 0xf4f8ff, transparent: true, opacity: .92, emissive: 0x666a70 }), 44);
     for (let i = 0; i < 44; i++) cloudMesh.setMatrixAt(i, mt.compose(v1.set((rng() * 2 - 1) * 1000, 190 + rng() * 110, (rng() * 2 - 1) * 1000), q0, v2.set(25 + rng() * 40, 5 + rng() * 6, 18 + rng() * 25)));
-    worldLayer.add(cloudMesh);
+    scene.add(cloudMesh);
     // capture points: ring on the ground, a flag and a tall light beam
     PTS.forEach((pt) => {
         pt.y = H(pt.x, pt.z);
@@ -1991,7 +1899,7 @@ function buildWorld() {
         const pole = new THREE.Mesh(new THREE.CylinderGeometry(.25, .25, 16, 5), new THREE.MeshLambertMaterial({ color: 0x444444 })); pole.position.y = 8;
         const flag = new THREE.Mesh(new THREE.BoxGeometry(7, 4, .2), m); flag.position.set(3.5, 14, 0);
         const bmat = new THREE.MeshBasicMaterial({ color: 0xcccccc, transparent: true, opacity: .22, depthWrite: false }), beam = new THREE.Mesh(new THREE.CylinderGeometry(6, 6, 260, 8, 1, true), bmat); beam.position.y = 130;
-        grp.add(ring, pole, flag, beam); grp.position.set(pt.x, pt.y, pt.z); worldLayer.add(grp);
+        grp.add(ring, pole, flag, beam); grp.position.set(pt.x, pt.y, pt.z); scene.add(grp);
         ptViz.push({ grp, m, bmat });
     });
     // capture-the-flag flags + home pads
@@ -2001,15 +1909,15 @@ function buildWorld() {
         const pole = new THREE.Mesh(new THREE.CylinderGeometry(.2, .2, 9, 5), new THREE.MeshLambertMaterial({ color: 0xdddddd })); pole.position.y = 4.5;
         const cloth = new THREE.Mesh(new THREE.BoxGeometry(4.5, 2.6, .15), m); cloth.position.set(2.25, 7.6, 0);
         const bmat = new THREE.MeshBasicMaterial({ color: teamCol(t), transparent: true, opacity: .25, depthWrite: false }), beam = new THREE.Mesh(new THREE.CylinderGeometry(2.5, 2.5, 200, 8, 1, true), bmat); beam.position.y = 100;
-        grp.add(pole, cloth, beam); worldLayer.add(grp);
-        const pad = new THREE.Mesh(new THREE.TorusGeometry(14, .6, 4, 32).rotateX(PI / 2), m); pad.position.set(h.x, h.y + .6, h.z); worldLayer.add(pad);
+        grp.add(pole, cloth, beam); scene.add(grp);
+        const pad = new THREE.Mesh(new THREE.TorusGeometry(14, .6, 4, 32).rotateX(PI / 2), m); pad.position.set(h.x, h.y + .6, h.z); scene.add(pad);
         flagViz.push({ grp, pad, cloth });
     });
     // flare sprites for the night preset
     flareMesh = new THREE.InstancedMesh(new THREE.IcosahedronGeometry(1, 1), new THREE.MeshBasicMaterial({ color: 0xfff1c0 }), 3);
-    for (let i = FLARES.length; i < 3; i++) FLARES.push({ x: rnd(-300, 300), y: rnd(60, 220), z: rnd(-200, 200), l: null });
-    flareMesh.frustumCulled = false; flareMesh.visible = false; worldLayer.add(flareMesh);
-    if (!rain) buildRain();
+    for (let i = 0; i < 3; i++) FLARES.push({ x: rnd(-300, 300), y: rnd(60, 220), z: rnd(-200, 200), l: null });
+    flareMesh.frustumCulled = false; flareMesh.visible = false; scene.add(flareMesh);
+    buildRain();
     setPointsVisible(false); setFlagsVisible(false);
     // minimap: baked once
     miniCv = document.createElement('canvas'); miniCv.width = miniCv.height = 180;
@@ -2108,25 +2016,6 @@ function fxSmoke(x, y, z, s, hex) { part(x + rnd(-.4, .4), y, z + rnd(-.4, .4), 
 const PR = [];
 const PVIS = { bullet: [0.12, 0.12, 3.2, 0xffee88], shell: [0.45, 0.45, 1.8, 0xffc050], rocket: [0.5, 0.5, 2.6, 0xffffff], bomb: [1, 1, 2.4, 0x333333], missile: [0.45, 0.45, 2.8, 0xf0f0f0], torp: [0.6, 0.5, 4, 0x1e2a33] };
 function addProj(o) { if (PR.length > 600) PR.shift(); PR.push(o); return o; }
-function bombTerrainMarker(e) {
-    const bomb = e.def.w3;
-    if (e.def.ln !== 'a' || bomb?.k !== 'bomb' || e.a3 <= 0) return null;
-    const nextMuzzle = e.muz + 1;
-    const start = muzzleWorld(e, e.def.heli ? 1 + (nextMuzzle & 1) : nextMuzzle);
-    const speed = e.speed, cp = Math.cos(e.pitch);
-    const vx = e.def.heli ? e.vx : Math.sin(e.yaw) * cp * speed;
-    let vy = e.def.heli ? e.vy : Math.sin(e.pitch) * speed;
-    const vz = e.def.heli ? e.vz : Math.cos(e.yaw) * cp * speed;
-    let x = start.x, y = start.y - 1.2, z = start.z;
-    const step = 1 / 30;  // Uses the arcade simulation's projectile integrator and ground surface.
-    for (let i = 0; i < bomb.life / step; i++) {
-        vy -= bomb.g * step;
-        x += vx * step; y += vy * step; z += vz * step;
-        const surface = GHS(x, z);
-        if (y <= surface) return { x, y: surface, z };
-    }
-    return null;
-}
 function segSphere(ax, ay, az, bx, by, bz, cx, cy, cz, r) {
     const dx = bx - ax, dy = by - ay, dz = bz - az, l2 = dx * dx + dy * dy + dz * dz;
     let t = l2 > 0 ? ((cx - ax) * dx + (cy - ay) * dy + (cz - az) * dz) / l2 : 0; t = clamp(t, 0, 1);
@@ -2274,7 +2163,6 @@ function applyAnim(e, dt) {
     if (d.ln === 'g') {
         m.tur.rotation.y = e.tur - e.yaw; m.gun.rotation.x = -e.gun;
         e.trk += e.speed * dt; if (m.trMat) m.trMat.map.offset.x = (P_WHEELED(e) ? -e.trk * .26 : -e.trk * .55);
-        if (m.legs) m.legs.forEach((leg, i) => { leg.rotation.x = Math.sin(e.trk * 4 + i * PI) * clamp(Math.abs(e.speed) / 12, 0, .7); });
     } else if (d.ln === 'n') { for (const t of m.turs) t.rotation.y = e.tur - e.yaw; }
     else for (const p of m.props) { const ax = p.userData.ax, s = dt * (d.heli ? 26 : 30 + e.speed * .3); if (ax === 'y') p.rotation.y += s; else if (ax === '-y') p.rotation.y -= s; else if (ax === 'x') p.rotation.x += s * 1.6; else p.rotation.z += s; }
 }
@@ -2285,7 +2173,7 @@ function muzzleWorld(e, i) {
 function killVisual(e) {
     if (!e.alive && e.dieT) return;
     e.alive = false; e.dieT = simTime; if (e.mdl) e.mdl.root.visible = false;
-    const big = e.def.infantry ? 2 : e.def.ln === 'n' ? 14 : e.def.ln === 'g' ? 8 : 6;
+    const big = e.def.ln === 'n' ? 14 : e.def.ln === 'g' ? 8 : 6;
     fxExplosion(e.x, e.y + 1.5, e.z, big);
     if (e.def.ln === 'n' && H(e.x, e.z) < 0) fxSplash(e.x, e.z, 8);
     for (let i = 0; i < fxN(8); i++) part(e.x, e.y + 2, e.z, rnd(-1, 1) * 14, rnd(6, 18), rnd(-1, 1) * 14, rnd(.4, 1), rnd(.8, 1.6), 0x2a2a2a, 14, .8);
@@ -2811,12 +2699,11 @@ function aiStep(e, dt) {
 const BOT_NAMES = ['Ace', 'Viper', 'Rook', 'Bolt', 'Echo', 'Fang', 'Hawk', 'Ivy', 'Jinx', 'Kilo', 'Luna', 'Mako', 'Nova', 'Onyx', 'Pike', 'Quill', 'Raze', 'Sage', 'Tank', 'Volt', 'Wren', 'Yuri', 'Zed', 'Bram'];
 const MODES = {
     tdm: { name: 'Team Deathmatch', short: 'TDM', desc: 'First team to the kill limit' },
-    duel: { name: '1v1 Duel', short: 'DUEL', desc: 'First to three knockouts against a friend or a matching bot' },
     conq: { name: 'Conquest', short: 'CONQ', desc: 'Hold 3 points, drain their tickets' },
     ctf: { name: 'Capture the Flag', short: 'CTF', desc: 'Steal their flag, bring it home (tanks + helis carry)' },
     ffa: { name: 'Free-for-all', short: 'FFA', desc: 'Everyone for themselves' }
 };
-const MAPR = { small: 470, normal: 610, large: 720, harbor: 610, ridge: 610 };
+const MAPR = { small: 470, normal: 610, large: 720 };
 let HQ = {}, hqT = 0, sendT = 0, bsT = 0, msT = 0, hpT = 0, pgT = 0;
 
 // Bots: "match" = fight what the humans fly/drive (a random human's domain, often the same class), "mixed" = any domain.
@@ -2829,10 +2716,9 @@ const BOT_GEAR = {
 };
 function pickBotDef(refs, mode, k, diff) {
     const ref = refs.length ? refs[k === undefined ? Math.floor(Math.random() * refs.length) : k % refs.length] : VBY.g1a, br = brOf(ref), rt = (ref.base || ref).t;
-    if (ref.infantry && mode !== 'mixed') return vdef('troop-' + (k || 0) % HISTORICAL_NATIONS.length, 0);
     const G = BOT_GEAR[diff || (M && M.cfg && M.cfg.diff)] || BOT_GEAR.normal, t0 = clamp(rt + G.t[0], 1, MAX_TIER), t1 = clamp(rt + G.t[1], 1, MAX_TIER);
     let ln = ref.ln; if (mode === 'mixed') { const r = Math.random(); ln = r < .5 ? 'g' : r < .75 ? 'a' : 'n'; }
-    const inT = v => !v.infantry && v.ln === ln && v.t >= t0 && v.t <= t1;
+    const inT = v => v.ln === ln && v.t >= t0 && v.t <= t1;
     let L = VEHS.filter(v => inT(v) && v.br <= Math.max(1.3, br + G.br[1]) && v.br >= br + G.br[0]);
     if (!L.length) L = VEHS.filter(inT);
     if (mode !== 'mixed' && Math.random() < .5) { const same = L.filter(v => v.cls === (ref.base || ref).cls); if (same.length) L = same; }
@@ -2844,25 +2730,22 @@ function pickBotDef(refs, mode, k, diff) {
 // Build the match description (host / solo). players = [{id,name,veh,mm,team?}], returns the cfg every client uses.
 function makeConfig(players, opts) {
     opts = opts || {};
-    const so = save.opts, mode = MODES[opts.mode || save.mode] ? opts.mode || save.mode : 'tdm';
-    const duel = mode === 'duel', size = duel ? 1 : opts.size || save.size, split = opts.split !== undefined ? opts.split : save.split, ffa = mode === 'ffa';
+    const so = save.opts, mode = MODES[opts.mode || save.mode] ? opts.mode || save.mode : 'tdm', size = opts.size || save.size, split = opts.split !== undefined ? opts.split : save.split, ffa = mode === 'ffa';
     const cfg = { mode, size, players: [], bots: [], seed: Date.now() & 0xffffff, limit: {}, ff: opts.ff !== undefined ? +opts.ff : so.ff, map: opts.map || so.map, wx: opts.wx || so.wx, len: opts.len || so.len };
     if (cfg.wx === 'random' || !WX[cfg.wx]) cfg.wx = Object.keys(WX)[Math.floor(Math.random() * 4)];
     const teams = [[], []];
-    (duel ? players.slice(0, 2) : players).forEach((p, i) => { const team = ffa || duel ? i : (p.team === 0 || p.team === 1) ? p.team : split ? i % 2 : 0; cfg.players.push({ id: p.id, name: p.name, veh: p.veh, mm: p.mm | 0, team }); if (!ffa) teams[team].push(p); });
-    const bm = duel ? 'match' : opts.bots || save.bots || 'match', refs = players.map(p => vdef(p.veh, p.mm)).filter(Boolean);
+    players.forEach((p, i) => { const team = ffa ? i : (p.team === 0 || p.team === 1) ? p.team : split ? i % 2 : 0; cfg.players.push({ id: p.id, name: p.name, veh: p.veh, mm: p.mm | 0, team }); if (!ffa) teams[team].push(p); });
+    const bm = opts.bots || save.bots || 'match', refs = players.map(p => vdef(p.veh, p.mm)).filter(Boolean);
     const off = Math.floor(Math.random() * Math.max(1, refs.length)); cfg.bm = bm; cfg.diff = opts.diff || save.diff || 'normal';
     let bi = 0; const names = BOT_NAMES.slice().sort(() => Math.random() - .5);
     const addBot = team => { const d = pickBotDef(refs, bm === 'off' ? 'match' : bm, bi + off, cfg.diff); cfg.bots.push({ id: 100 + bi, name: 'Bot ' + names[bi % names.length], veh: d.id, mm: d.mask | 0, team }); bi++; };
     if (bm !== 'off') { if (ffa) for (let n = players.length; n < Math.min(12, size * 2); n++) addBot(n); else for (let t = 0; t < 2; t++) for (let n = teams[t].length; n < size; n++) addBot(t); }
     const L = cfg.len * 60;
     cfg.limit = { kills: opts.killLimit || (ffa ? [10, 15, 20][[3, 5, 8].indexOf(size)] : [12, 20, 30][[3, 5, 8].indexOf(size)]) || 20, tickets: opts.tickets || (size === 3 ? 80 : size === 8 ? 160 : 120), caps: opts.caps || 3, time: opts.time || L };
-    if (duel) cfg.limit.kills = 3;
     return cfg;
 }
 function beginMatch(cfg, meId, isHost) {
     Show.stop(); clearMatch();
-    setBattlefield(cfg.map);
     const ffa = cfg.mode === 'ffa', nt = ffa ? 0 : 2;
     M = { mode: cfg.mode, cfg, t: 0, state: 'play', limit: cfg.limit, kills: [0, 0], tickets: [cfg.limit.tickets || 0, cfg.limit.tickets || 0], caps: [0, 0], pts: PTS.map(() => ({ own: -1, prog: 0 })),
         flags: [0, 1].map(t => ({ t, st: 'home', x: FLAG_HOME[t].x, z: FLAG_HOME[t].z, by: -1, dt: 0 })), R: MAPR[cfg.map] || MAPR.normal,
@@ -3063,13 +2946,13 @@ function hostStep(dt) {
 function hostCheckEnd() {
     if (!M || M.over || !M.host || M.tut) return;      // a training match never ends by itself
     let w = -2; const L = M.limit;
-    if (M.mode === 'tdm' || M.mode === 'duel') { if (M.kills[0] >= L.kills) w = 0; else if (M.kills[1] >= L.kills) w = 1; }
+    if (M.mode === 'tdm') { if (M.kills[0] >= L.kills) w = 0; else if (M.kills[1] >= L.kills) w = 1; }
     else if (M.mode === 'conq') { if (M.tickets[0] <= 0) w = 1; else if (M.tickets[1] <= 0) w = 0; }
     else if (M.mode === 'ctf') { if (M.caps[0] >= L.caps) w = 0; else if (M.caps[1] >= L.caps) w = 1; }
     else if (M.mode === 'ffa') { for (const e of EN.values()) if (e.kills >= L.kills) { w = e.team; break; } }
     if (w === -2 && M.t >= L.time) {
         if (M.mode === 'ffa') { const top = Array.from(EN.values()).sort((a, b) => b.kills - a.kills || b.score - a.score); w = top[0] ? top[0].team : -1; }
-        else { const a = M.mode === 'tdm' || M.mode === 'duel' ? M.kills : M.mode === 'ctf' ? M.caps : M.tickets; w = a[0] > a[1] ? 0 : a[1] > a[0] ? 1 : -1; }
+        else { const a = M.mode === 'tdm' ? M.kills : M.mode === 'ctf' ? M.caps : M.tickets; w = a[0] > a[1] ? 0 : a[1] > a[0] ? 1 : -1; }
     }
     if (w !== -2) endMatch(w);
 }
@@ -3143,7 +3026,6 @@ function hostAddPlayer(peer) {
     if (!M || !M.host || M.over) return;
     const info = peer.info || {}, veh = VBY[info.veh] ? info.veh : 'g1a', mm = info.mm | 0;
     let e = EN.get(peer.id);
-    if (M.mode === 'duel' && !e && Array.from(EN.values()).filter(o => o.id < 100).length >= 2) return;
     if (e) {      // rejoin: the vehicle (driven by a bot meanwhile) goes back to its owner, score kept
         e.ai = null; e.isBot = false; e.remote = true; e.name = String(peer.name || e.name).replace(/ \(bot\)$/, '').slice(0, 16); e.sb.length = 0; e.recon = false;
         bcast({ t: 'addp', p: { id: e.id, name: e.name, veh: (e.def.base || e.def).id, mm: e.def.mask | 0, team: e.team }, back: 1 });
@@ -3393,7 +3275,6 @@ function startPlay(force) {
     if (PARTY.net && !PARTY.host) return toast('Only the party host can start.');
     if (PARTY.net) {
         const r = hostRoster(), notReady = r.filter(p => !p.ready && p.id !== 0);
-        if (lobbyOpts().mode === 'duel' && r.length > 2) return toast('A duel needs a party with at most two players.');
         if (notReady.length && !force && !(PARTY.force && Date.now() - PARTY.force < 6000)) { PARTY.force = Date.now(); return toast(notReady.map(p => p.name).join(', ') + ' not ready. Press START again to start anyway.'); }
     }
     const players = PARTY.net ? hostRoster().map(p => ({ id: p.id, name: p.name, veh: p.veh, mm: p.mm, team: p.team })) : [{ id: 0, name: myName(), veh: myVeh(), mm: modMask(myVeh()) }];
@@ -3452,8 +3333,8 @@ function migrantJoined(peer, old) {
 // ---------- launcher hooks (invites, open parties) ----------
 let lpOpen = '', advT = 0;
 function advMode() {      // what the open-games list shows under the host's name (Grapevine keeps 40 characters)
-    const m = MODES[save.mode] || MODES.tdm, s = save.size, map = { small: 'Small', normal: 'Normal', large: 'Large', harbor: 'Harbor', ridge: 'Highlands' }[save.opts.map] || 'Normal';
-    const t = n => n + (save.mode === 'ffa' || save.mode === 'duel' ? '' : ' ' + s + 'v' + s) + ' · ' + map + ' map' + (PARTY.inMatch ? ' · in battle' : '');
+    const m = MODES[save.mode] || MODES.tdm, s = save.size, map = { small: 'Small', normal: 'Normal', large: 'Large' }[save.opts.map] || 'Normal';
+    const t = n => n + (save.mode === 'ffa' ? '' : ' ' + s + 'v' + s) + ' · ' + map + ' map' + (PARTY.inMatch ? ' · in battle' : '');
     return t(m.name).length <= 40 ? t(m.name) : t(m.short);
 }
 function advertise() {
@@ -3497,7 +3378,7 @@ const UIS = { rs: null, gs: null, rln: 'g', gt: 'all', screen: 'menu', selDead: 
 const OPTS = [
     ['size', 'Team size', [[3, '3v3'], [5, '5v5'], [8, '8v8']]],
     ['len', 'Length', [[5, '5 min'], [10, '10 min'], [15, '15 min']]],
-    ['map', 'Battlefield', [['small', 'Small'], ['normal', 'Normal'], ['large', 'Large'], ['harbor', 'Harbor'], ['ridge', 'Highlands']]],
+    ['map', 'Map size', [['small', 'Small'], ['normal', 'Normal'], ['large', 'Large']]],
     ['wx', 'Weather', [['noon', 'Noon'], ['evening', 'Evening'], ['overcast', 'Rain'], ['night', 'Night'], ['random', '?']]],
     ['bots', 'Bots', [['off', 'Off'], ['match', 'Match me'], ['mixed', 'Mixed']]],
     ['diff', 'Bot skill', [['easy', 'Easy'], ['normal', 'Normal'], ['hard', 'Hard']]],
@@ -3613,7 +3494,7 @@ const UI = {
     },
     paintPause() {
         if (!M) return; const left = Math.max(0, M.limit.time - M.t), clock = Math.floor(left / 60) + ':' + String(Math.floor(left % 60)).padStart(2, '0');
-        const v = t => M.mode === 'tdm' || M.mode === 'duel' ? M.kills[t] : M.mode === 'ctf' ? M.caps[t] : M.mode === 'conq' ? Math.ceil(M.tickets[t]) : 0;
+        const v = t => M.mode === 'tdm' ? M.kills[t] : M.mode === 'ctf' ? M.caps[t] : M.mode === 'conq' ? Math.ceil(M.tickets[t]) : 0;
         $('#ps-info').innerHTML = '<span>' + esc(MODES[M.mode].name) + '</span><span>' + clock + ' left</span>' + (M.mode === 'ffa' ? '<span>' + (ME ? ME.kills : 0) + ' kills</span>' : '<span><b class="t0">' + v(0) + '</b> : <b class="t1">' + v(1) + '</b></span>');
     },
     // per-frame HUD
@@ -3627,8 +3508,7 @@ const UI = {
             const top = Array.from(EN.values()).sort((a, b) => b.kills - a.kills)[0], rank = Array.from(EN.values()).filter(e => e.kills > ME.kills).length + 1;
             $('#h-score').innerHTML = '<div class="tm t0">' + ME.kills + '<small>YOU (#' + rank + ')</small></div><div class="tt">' + clock + '<small>to ' + M.limit.kills + '</small></div><div class="tm t1">' + (top ? top.kills : 0) + '<small>LEADER</small></div>';
         } else {
-            const kd = M.mode === 'tdm' || M.mode === 'duel';
-            const v = t => kd ? M.kills[t] : M.mode === 'ctf' ? M.caps[t] : Math.ceil(M.tickets[t]), lab = kd ? 'KILLS' : M.mode === 'ctf' ? 'FLAGS' : 'TICKETS';
+            const v = t => M.mode === 'tdm' ? M.kills[t] : M.mode === 'ctf' ? M.caps[t] : Math.ceil(M.tickets[t]), lab = M.mode === 'tdm' ? 'KILLS' : M.mode === 'ctf' ? 'FLAGS' : 'TICKETS';
             $('#h-score').innerHTML = '<div class="tm t0">' + v(0) + '<small>' + lab + '</small></div><div class="tt">' + clock + '</div><div class="tm t1">' + v(1) + '<small>' + lab + '</small></div>';
         }
         if (M.mode === 'conq') $$('#h-cap .cp').forEach(el => { const p = M.pts[+el.dataset.i], i = el.firstChild; const own = p.own; el.style.borderColor = own < 0 ? '#fff8' : teamHex(own); i.style.background = p.prog === 0 ? 'none' : teamHex(p.prog > 0 ? 1 : 0); i.style.height = Math.abs(p.prog) * 100 + '%'; });
@@ -3733,17 +3613,6 @@ function drawOverlay() {
         const p = proj(Cam.lead.x, Cam.lead.y, Cam.lead.z);
         if (p) { c.strokeStyle = '#ff5a4a'; c.lineWidth = 2; c.beginPath(); c.moveTo(p[0], p[1] - 9); c.lineTo(p[0] + 9, p[1]); c.lineTo(p[0], p[1] + 9); c.lineTo(p[0] - 9, p[1]); c.closePath(); c.stroke(); }
     }
-    const target = ME.alive && bombTerrainMarker(ME);
-    const impact = target && proj(target.x, target.y, target.z);
-    if (impact) {
-        const [x, y] = impact;
-        c.fillStyle = c.strokeStyle = '#ffd21f';
-        c.lineWidth = 2;
-        c.beginPath(); c.arc(x, y, 14, 0, TAU);
-        c.moveTo(x - 6, y); c.lineTo(x + 6, y); c.moveTo(x, y - 6); c.lineTo(x, y + 6); c.stroke();
-        c.font = 'bold 11px Trebuchet MS,sans-serif';
-        c.fillText('TERRAIN IMPACT', x, y + 30);
-    }
     if (ME.alive && (ME.def.ln !== 'a' || ME.def.heli) && Cam.aimD) {
         const m = muzzleWorld(ME, 0), dd = Cam.aimD, fx = Math.sin(ME.tur) * Math.cos(ME.gun), fy = Math.sin(ME.gun), fz = Math.cos(ME.tur) * Math.cos(ME.gun);
         const w = ME.def.w1, tt = dd / (w.v || 200), drop = w.k === 'missile' ? 0 : 0.5 * w.g * tt * tt;
@@ -3826,7 +3695,7 @@ function modsHtml(v) {
 function vehCard(id, ctx) {
     const v = VBY[id]; if (!v) return '<div class="vk-note">Click a vehicle to see it here.</div>';
     const own = isOwned(id), d = own ? vdef(id, modMask(id)) : v, L = LINES[v.ln], inL = save.lineup.includes(id), sel = myVeh() === id;
-    let h = '<div class="vk-head" style="--lc:' + L.col + '"><span class="tierb">' + TIER_ROMAN[v.t] + '</span><div><small>' + L.name + ' &middot; ' + (v.infantry ? 'Infantry' : CLS_NAME[v.cls]) + '</small><h2>' + esc(v.n) + '</h2></div><span class="brb"><small>BR</small>' + brOf(d).toFixed(1) + '</span></div>';
+    let h = '<div class="vk-head" style="--lc:' + L.col + '"><span class="tierb">' + TIER_ROMAN[v.t] + '</span><div><small>' + L.name + ' &middot; ' + CLS_NAME[v.cls] + '</small><h2>' + esc(v.n) + '</h2></div><span class="brb"><small>BR</small>' + brOf(d).toFixed(1) + '</span></div>';
     h += '<div class="role"><b>Role</b>' + esc(v.role || '') + '</div>';
     if (ctx !== 'home' && v.desc) h += '<div class="desc">' + esc(v.desc) + '</div>';
     h += statBars(d) + weapHtml(d);
@@ -3845,7 +3714,7 @@ function vehCard(id, ctx) {
 }
 function slotHtml(v, sel, attrs, extra) {
     const d = vdef(v.id, modMask(v.id));
-    return '<div class="slot' + (sel ? ' sel' : '') + '" ' + attrs + ' style="--lc:' + LINES[v.ln].col + '"><span class="st"><span class="tierb">' + TIER_ROMAN[v.t] + '</span>' + lineIcon(v.ln) + '</span><b>' + esc(v.n) + '</b><small>' + (v.infantry ? 'Infantry' : CLS_NAME[v.cls]) + ' &middot; BR ' + brOf(d).toFixed(1) + '</small>' + (extra || '') + '</div>';
+    return '<div class="slot' + (sel ? ' sel' : '') + '" ' + attrs + ' style="--lc:' + LINES[v.ln].col + '"><span class="st"><span class="tierb">' + TIER_ROMAN[v.t] + '</span>' + lineIcon(v.ln) + '</span><b>' + esc(v.n) + '</b><small>' + CLS_NAME[v.cls] + ' &middot; BR ' + brOf(d).toFixed(1) + '</small>' + (extra || '') + '</div>';
 }
 function lineupHtml(kind) {      // home / garage: 5 slots (empty ones lead to the garage); lobby: just the lineup
     const out = [];
@@ -3867,7 +3736,6 @@ function researchCard(v) {
 function modeCards(dis, src) { const cur = optVal('mode', src); return Object.keys(MODES).map(k => '<button class="mcard' + (cur === k ? ' on' : '') + '" data-opt="mode" data-v="' + k + '"' + (dis ? ' disabled' : '') + '><span class="mi">' + MODES[k].short + '</span><b>' + MODES[k].name + '</b><small>' + esc(MODES[k].desc) + '</small></button>').join(''); }
 function optSummary(src) {
     const g = k => optVal(k, src), s = g('size'), lab = (k, v) => { const o = OPTS.find(x => x[0] === k); const x = o && o[2].find(y => String(y[0]) === String(v)); return x ? x[1] : v; };
-    if (g('mode') === 'duel') return 'Two players · first to three · ' + lab('map', g('map')) + ' map';
     return (g('mode') === 'ffa' ? Math.min(12, s * 2) + ' players' : s + 'v' + s) + ' &middot; ' + lab('map', g('map')) + ' map &middot; ' + g('len') + ' min &middot; ' + lab('wx', g('wx')) + ' &middot; bots ' + lab('bots', g('bots')).toLowerCase() + (+g('ff') ? ' &middot; friendly fire' : '');
 }
 // which vehicle the showcase films, and whether it runs
@@ -4013,7 +3881,7 @@ Object.assign(UI, {
             const v = VBY[p.veh] || VBY.g1a, br = brOf(vdef(v.id, p.mm | 0)), mine = p.id === PARTY.myId;
             return '<div class="lp' + (mine ? ' me' : '') + '" style="--lc:' + LINES[v.ln].col + '"><div class="lp-n">' + (p.id === 0 ? '<span class="star" title="Host">&#9733;</span>' : '') + '<span class="nm">' + esc(p.name) + '</span>' + (mine ? '<small>(you)</small>' : '') + (p.st && p.st !== 'connected' ? ' <small class="bad">' + esc(p.st) + '</small>' : '') + (p.id ? pingBars(p.ping || 0, p.st) : '') +
                 '<span class="rdy' + (p.id === 0 ? ' host' : p.ready ? ' on' : '') + '">' + (p.id === 0 ? 'HOST' : p.ready ? 'READY' : 'NOT READY') + '</span></div>' +
-                '<div class="lp-v">' + lineIcon(v.ln) + esc(v.n) + ' <small>' + (v.infantry ? 'Infantry' : CLS_NAME[v.cls]) + ' &middot; BR ' + br.toFixed(1) + '</small></div>' +
+                '<div class="lp-v">' + lineIcon(v.ln) + esc(v.n) + ' <small>' + CLS_NAME[v.cls] + ' &middot; BR ' + br.toFixed(1) + '</small></div>' +
                 '<div class="lp-l">' + (p.line || []).map(x => VBY[x[0]] ? '<span class="mini" title="' + esc(VBY[x[0]].n) + '">' + esc(VBY[x[0]].n.split(' ')[0]) + ' ' + (+x[1]).toFixed(1) + '</span>' : '').join('') + '</div>' +
                 (host && p.id !== 0 ? '<div class="lp-h">' + (!ffa ? '<button class="btn small" data-move="' + p.id + '" title="Move to the other team">&#8644; Move</button>' : '') + '<button class="btn small danger" data-kick="' + p.id + '" title="Remove from the party">&#10006; Kick</button></div>' : '') + '</div>';
         };
@@ -4036,9 +3904,9 @@ Object.assign(UI, {
     },
     // ---- garage ----
     paintGarage() {
-        UI.wallet(); const gs = UIS.gs && isOwned(UIS.gs) ? UIS.gs : (UIS.gs = myVeh()), gt = UIS.gt, nation = $('#g-nation').value;
+        UI.wallet(); const gs = UIS.gs && isOwned(UIS.gs) ? UIS.gs : (UIS.gs = myVeh()), gt = UIS.gt;
         $$('#g-tabs button').forEach(b => b.classList.toggle('on', b.dataset.gt === gt));
-        $('#g-owned').innerHTML = ['g', 'a', 'n'].filter(ln => gt === 'all' || gt === ln).map(ln => { const L = VEHS.filter(v => v.ln === ln && isOwned(v.id) && (!nation || v.nation === nation)); return '<h4 style="color:' + LINES[ln].col + '">' + LINES[ln].name + ' <small style="color:var(--mut)">' + L.length + '</small></h4><div class="cards">' + L.map(v => slotHtml(v, v.id === gs, 'data-gid="' + v.id + '"', save.lineup.includes(v.id) ? '<span class="inl">LINEUP</span>' : '')).join('') + '</div>'; }).join('');
+        $('#g-owned').innerHTML = ['g', 'a', 'n'].filter(ln => gt === 'all' || gt === ln).map(ln => { const L = VEHS.filter(v => v.ln === ln && isOwned(v.id)); return '<h4 style="color:' + LINES[ln].col + '">' + LINES[ln].name + ' <small style="color:var(--mut)">' + L.length + '</small></h4><div class="cards">' + L.map(v => slotHtml(v, v.id === gs, 'data-gid="' + v.id + '"', save.lineup.includes(v.id) ? '<span class="inl">LINEUP</span>' : '')).join('') + '</div>'; }).join('');
         $('#g-info').innerHTML = vehCard(gs, 'garage');
         $('#g-lineup').innerHTML = lineupHtml('garage');
     },
@@ -4067,14 +3935,6 @@ Object.assign(UI, {
     }
 });
 function bindMenu() {
-    const nations = $('#g-nation');
-    HISTORICAL_NATIONS.forEach(nation => nations.add(new Option(nation, nation)));
-    nations.onchange = () => {
-        const troop = VEHS.find(v => v.nation === nations.value && v.infantry);
-        UIS.gt = 'all';
-        if (troop) UIS.gs = troop.id;
-        UI.paintGarage(); showSync();
-    };
     $$('[data-ic]').forEach(i => { i.outerHTML = svgI(i.dataset.ic); });
     document.addEventListener('click', e => {
         const t = e.target.closest('button,.slot,.vc'); if (t && !t.disabled) sfx('click');
@@ -4853,8 +4713,7 @@ function trainHook() {
 // ============================================================
 // INPUT, CAMERA, THE MAIN LOOP, BOOT, and the debug hook window.__steelstorm
 // ============================================================
-const IN = { keys: {}, mb: [0, 0, 0], camYaw: 0, camPitch: .2, zoom: 1, view: 0 };
-const CAMERA_NAMES = ['Chase camera', 'First person', 'Wide chase camera'];
+const IN = { keys: {}, mb: [0, 0, 0], camYaw: 0, camPitch: .2, zoom: 1 };
 const Cam = {
     aimD: 0, aim: { x: 0, y: 0, z: 0 }, deadYaw: 0, specId: -1, solOk: true, mlock: null, mlId: -1, mlT: 0,
     reset() { if (!ME) return; IN.camYaw = ME.yaw; IN.camPitch = ME.def.ln === 'a' && !ME.def.heli ? 0.05 : 0.22; IN.zoom = 1; },
@@ -4937,8 +4796,6 @@ function updateCamera(dt) {
     if (!ME) return;
     const e = ME; let yaw = IN.camYaw, pit = IN.camPitch;
     const d = e.def;
-    const firstPerson = e.alive && IN.view === 1;
-    if (e.mdl) e.mdl.root.visible = e.alive && !firstPerson;
     if (!e.alive) {
         let t = EN.get(Cam.specId); if (UIS.spec >= 0 && Cam.specId !== UIS.spec && EN.get(UIS.spec) && EN.get(UIS.spec).alive && !t) { Cam.specId = UIS.spec; t = EN.get(UIS.spec); }
         if (!t || !t.alive) { if (simTime - (e.dieT || 0) > 2.5 || !e.dieT) { nextSpec(1); t = EN.get(Cam.specId); } }
@@ -4949,16 +4806,14 @@ function updateCamera(dt) {
         camera.lookAt(cx, cy, cz);
     } else {
         Cam.deadYaw = yaw; Cam.specId = -1;
-        const cp = Math.cos(pit), dist = firstPerson ? 0 : d.cd * IN.zoom * (IN.view === 2 ? 1.65 : 1) * (d.w1.arty ? 1.2 : 1), lift = d.infantry ? 1.55 : d.ln === 'a' ? 3 : d.ln === 'n' ? 6 : 3.2;
+        const cp = Math.cos(pit), dist = d.cd * IN.zoom * (d.w1.arty ? 1.2 : 1), lift = d.ln === 'a' ? 3 : d.ln === 'n' ? 6 : 3.2;
         const cx = e.x, cy = e.y + lift - (d.sub ? e.dive * 3 : 0), cz = e.z;
         camera.position.set(cx - Math.sin(yaw) * cp * dist, cy - Math.sin(pit) * dist, cz - Math.cos(yaw) * cp * dist);
         const gmin = Math.max(H(camera.position.x, camera.position.z), 0) + 2; if (camera.position.y < gmin) camera.position.y = gmin;
         camera.lookAt(cx + Math.sin(yaw) * cp * 30, cy + Math.sin(pit) * 30, cz + Math.cos(yaw) * cp * 30);
     }
     if (shakeAmt > .02) { camera.position.x += rnd(-1, 1) * shakeAmt * .15; camera.position.y += rnd(-1, 1) * shakeAmt * .15; shakeAmt *= Math.pow(.02, dt); } else shakeAmt = 0;
-    const normalFov = d.ln === 'a' && !d.heli && e.alive ? 70 + (e.speed - d.minSp) / (d.sp - d.minSp) * 8 : 68;
-    const fov = firstPerson ? clamp(normalFov * IN.zoom, 32, 95) : normalFov;
-    if (Math.abs(camera.fov - fov) > .1) { camera.fov = fov; camera.updateProjectionMatrix(); }
+    const fov = d.ln === 'a' && !d.heli && e.alive ? 70 + (e.speed - d.minSp) / (d.sp - d.minSp) * 8 : 68; if (Math.abs(camera.fov - fov) > .1) { camera.fov = fov; camera.updateProjectionMatrix(); }
     listenerPos = camera.position;
 }
 // ---------- one simulation step (also driven by HGNet.every while the host's tab is hidden) ----------
@@ -5048,7 +4903,6 @@ function bindInput() {
         if (M && !e.repeat) {
             if (e.code === 'Escape' && !Cam.locked() && ME && ME.alive && !M.over && $('#s-pause').classList.contains('hidden') && $('#s-settings').classList.contains('hidden')) $('#s-pause').classList.remove('hidden');
             if (e.code === 'KeyC' && ME && ME.alive && ME.def.sub) { ME.diveOn = !ME.diveOn; toast(ME.diveOn ? 'Diving: only torpedoes can hit you, guns are off' : 'Surfacing'); }
-            if (e.code === 'KeyV' && ME?.alive) { IN.view = (IN.view + 1) % CAMERA_NAMES.length; IN.zoom = 1; toast(CAMERA_NAMES[IN.view]); }
             if (e.code === 'KeyF' && ME && ME.alive) { if (!dropFlares(ME) && !ME.def.flares && ME.def.ln === 'a') toast('Research the Countermeasures module for flares'); }
             if (e.code === 'Enter' && PARTY.net) { e.preventDefault(); const i = $('#h-say'); i.classList.remove('hidden'); if (document.pointerLockElement) document.exitPointerLock(); setTimeout(() => i.focus(), 0); IN.keys = {}; }
         }

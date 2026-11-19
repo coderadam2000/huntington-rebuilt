@@ -212,14 +212,14 @@ function drawGoalShape(g, x, y) {
     g.fillRect(x + 10, y + 10, goal.w - 20, goal.h - 20);
 }
 
-function drawPlayerShape(g, x, y, w, h, grav, vx, col, blink = false) {
+function drawPlayerShape(g, x, y, w, h, grav, vx, col) {
     g.fillStyle = col || '#38bdf8';
     g.fillRect(x, y, w, h);
     g.fillStyle = '#fff';
     const eyeOffsetX = vx > 0 ? 4 : (vx < 0 ? -4 : 0);
     const eyeY = grav > 0 ? y + 4 : y + h - 8;
-    g.fillRect(x + 4 + eyeOffsetX, eyeY, 4, blink ? 1 : 4);
-    g.fillRect(x + 16 + eyeOffsetX, eyeY, 4, blink ? 1 : 4);
+    g.fillRect(x + 4 + eyeOffsetX, eyeY, 4, 4);
+    g.fillRect(x + 16 + eyeOffsetX, eyeY, 4, 4);
 }
 
 function drawZoneRect(g, x, y, w, h, tick) {
@@ -353,15 +353,13 @@ function draw() {
         let stretchY = 1 + (player.vy * g * 0.02);
         let stretchX = 1 - (Math.abs(player.vy) * 0.01);
         if (player.grounded) { stretchX = 1; stretchY = 1; }
-        const idle = Math.max(0, (player.idleTicks || 0) - 180);
-        if (idle) { stretchY += Math.sin(idle / 17) * 0.08; stretchX -= Math.sin(idle / 17) * 0.06; }
         let drawW = player.w * stretchX;
         let drawH = player.h * stretchY;
         let drawX = player.x + (player.w - drawW) / 2;
         let drawY = g > 0 ? player.y + (player.h - drawH) : player.y;
         ctx.fillRect(drawX, drawY, drawW, drawH);
         ctx.shadowBlur = 0;
-        drawPlayerShape(ctx, drawX, drawY, drawW, drawH, g, player.vx, undefined, idle % 130 > 123);
+        drawPlayerShape(ctx, drawX, drawY, drawW, drawH, g, player.vx);
     }
 
 

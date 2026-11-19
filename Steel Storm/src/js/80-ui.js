@@ -5,7 +5,7 @@ const UIS = { rs: null, gs: null, rln: 'g', gt: 'all', screen: 'menu', selDead: 
 const OPTS = [
     ['size', 'Team size', [[3, '3v3'], [5, '5v5'], [8, '8v8']]],
     ['len', 'Length', [[5, '5 min'], [10, '10 min'], [15, '15 min']]],
-    ['map', 'Battlefield', [['small', 'Small'], ['normal', 'Normal'], ['large', 'Large'], ['harbor', 'Harbor'], ['ridge', 'Highlands']]],
+    ['map', 'Map size', [['small', 'Small'], ['normal', 'Normal'], ['large', 'Large']]],
     ['wx', 'Weather', [['noon', 'Noon'], ['evening', 'Evening'], ['overcast', 'Rain'], ['night', 'Night'], ['random', '?']]],
     ['bots', 'Bots', [['off', 'Off'], ['match', 'Match me'], ['mixed', 'Mixed']]],
     ['diff', 'Bot skill', [['easy', 'Easy'], ['normal', 'Normal'], ['hard', 'Hard']]],
@@ -121,7 +121,7 @@ const UI = {
     },
     paintPause() {
         if (!M) return; const left = Math.max(0, M.limit.time - M.t), clock = Math.floor(left / 60) + ':' + String(Math.floor(left % 60)).padStart(2, '0');
-        const v = t => M.mode === 'tdm' || M.mode === 'duel' ? M.kills[t] : M.mode === 'ctf' ? M.caps[t] : M.mode === 'conq' ? Math.ceil(M.tickets[t]) : 0;
+        const v = t => M.mode === 'tdm' ? M.kills[t] : M.mode === 'ctf' ? M.caps[t] : M.mode === 'conq' ? Math.ceil(M.tickets[t]) : 0;
         $('#ps-info').innerHTML = '<span>' + esc(MODES[M.mode].name) + '</span><span>' + clock + ' left</span>' + (M.mode === 'ffa' ? '<span>' + (ME ? ME.kills : 0) + ' kills</span>' : '<span><b class="t0">' + v(0) + '</b> : <b class="t1">' + v(1) + '</b></span>');
     },
     // per-frame HUD
@@ -135,8 +135,7 @@ const UI = {
             const top = Array.from(EN.values()).sort((a, b) => b.kills - a.kills)[0], rank = Array.from(EN.values()).filter(e => e.kills > ME.kills).length + 1;
             $('#h-score').innerHTML = '<div class="tm t0">' + ME.kills + '<small>YOU (#' + rank + ')</small></div><div class="tt">' + clock + '<small>to ' + M.limit.kills + '</small></div><div class="tm t1">' + (top ? top.kills : 0) + '<small>LEADER</small></div>';
         } else {
-            const kd = M.mode === 'tdm' || M.mode === 'duel';
-            const v = t => kd ? M.kills[t] : M.mode === 'ctf' ? M.caps[t] : Math.ceil(M.tickets[t]), lab = kd ? 'KILLS' : M.mode === 'ctf' ? 'FLAGS' : 'TICKETS';
+            const v = t => M.mode === 'tdm' ? M.kills[t] : M.mode === 'ctf' ? M.caps[t] : Math.ceil(M.tickets[t]), lab = M.mode === 'tdm' ? 'KILLS' : M.mode === 'ctf' ? 'FLAGS' : 'TICKETS';
             $('#h-score').innerHTML = '<div class="tm t0">' + v(0) + '<small>' + lab + '</small></div><div class="tt">' + clock + '</div><div class="tm t1">' + v(1) + '<small>' + lab + '</small></div>';
         }
         if (M.mode === 'conq') $$('#h-cap .cp').forEach(el => { const p = M.pts[+el.dataset.i], i = el.firstChild; const own = p.own; el.style.borderColor = own < 0 ? '#fff8' : teamHex(own); i.style.background = p.prog === 0 ? 'none' : teamHex(p.prog > 0 ? 1 : 0); i.style.height = Math.abs(p.prog) * 100 + '%'; });
@@ -240,17 +239,6 @@ function drawOverlay() {
     if (ME.alive && Cam.lead) {
         const p = proj(Cam.lead.x, Cam.lead.y, Cam.lead.z);
         if (p) { c.strokeStyle = '#ff5a4a'; c.lineWidth = 2; c.beginPath(); c.moveTo(p[0], p[1] - 9); c.lineTo(p[0] + 9, p[1]); c.lineTo(p[0], p[1] + 9); c.lineTo(p[0] - 9, p[1]); c.closePath(); c.stroke(); }
-    }
-    const target = ME.alive && bombTerrainMarker(ME);
-    const impact = target && proj(target.x, target.y, target.z);
-    if (impact) {
-        const [x, y] = impact;
-        c.fillStyle = c.strokeStyle = '#ffd21f';
-        c.lineWidth = 2;
-        c.beginPath(); c.arc(x, y, 14, 0, TAU);
-        c.moveTo(x - 6, y); c.lineTo(x + 6, y); c.moveTo(x, y - 6); c.lineTo(x, y + 6); c.stroke();
-        c.font = 'bold 11px Trebuchet MS,sans-serif';
-        c.fillText('TERRAIN IMPACT', x, y + 30);
     }
     if (ME.alive && (ME.def.ln !== 'a' || ME.def.heli) && Cam.aimD) {
         const m = muzzleWorld(ME, 0), dd = Cam.aimD, fx = Math.sin(ME.tur) * Math.cos(ME.gun), fy = Math.sin(ME.gun), fz = Math.cos(ME.tur) * Math.cos(ME.gun);

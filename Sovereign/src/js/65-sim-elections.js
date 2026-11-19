@@ -220,7 +220,6 @@ const ElectionNight = {
 function endGame(kind, headline, text) {
   if (!G || G.over || G.sim) return;
   G.over = { kind, headline, text, day: G.day };
-  if (!G.tut && kind === 'victory') Store.set('interplanetaryUnlocked', true);
   Clock.pause();
   const n = G.nations[G.player.idx], c = World.countries[n.idx], L = legacyScore(n), P = G.player;
   const entry = { country: c.name, flag: c.flag, leader: P.title + ' ' + P.name, years: (G.day / 365).toFixed(1), ending: headline, score: L.total, date: fmtDate(G.day), at: Date.now() };
