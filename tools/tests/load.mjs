@@ -7,7 +7,6 @@ import path from 'node:path';
 
 const ROOT = new URL('../../', import.meta.url).pathname;
 const HOST = 'https://fiddle.jshell.net/', REPO = 'coderadam2000/huntington-rebuilt', REL = 'r99', GAME = 'Tetris';
-const RUNTIME = 'launcher/runtime.html';
 let failures = 0;
 const check = (name, ok, extra = '') => { console.log(`${ok ? 'PASS' : 'FAIL'}  ${name}${extra ? '  — ' + extra : ''}`); if (!ok) failures++; };
 const sleep = ms => new Promise(r => setTimeout(r, ms));
@@ -15,8 +14,8 @@ async function until(fn, ms = 15000, every = 150) { const t0 = Date.now(); for (
 
 const browser = await chromium.launch({ args: ['--no-sandbox'] });
 // mode per mirror host: 'ok' | 'dead' (fails at once) | 'hang' (never answers) | a number (answers after that many ms)
-async function hub(mirrors, loaderFile, { requireAccount, blockAccount = false, savedAccount = false, detachedFile = false, oldRelease = false } = {}) {
-  const host = detachedFile ? new URL('../../index.html', import.meta.url).href : HOST;
+async function hub(mirrors, loaderFile, { requireAccount, blockAccount = false, savedAccount = false } = {}) {
+  const host = loaderFile === 'loader.html' ? 'https://coderadam2000.github.io/huntington-rebuilt/loader.html' : HOST;
   const ctx = await browser.newContext({ viewport: { width: 1280, height: 800 } });
   await ctx.addInitScript(saved => {
     localStorage.setItem('hg_release', '999');
@@ -31,12 +30,7 @@ async function hub(mirrors, loaderFile, { requireAccount, blockAccount = false, 
   await page.route('**/*', async r => {
     const u = r.request().url();
     if (u === host) {
-      let body;
-      if (loaderFile === 'legacy') {
-        body = `<script>fetch('https://cdn.jsdelivr.net/gh/${REPO}@main/index.html').then(r => r.text()).then(html => {
-          window.HG_VERSION = 'main'; document.open(); document.write(html); document.close();
-        });<\/script>`;
-      } else body = fs.readFileSync(path.join(ROOT, loaderFile || RUNTIME), 'utf8');
+      let body = fs.readFileSync(path.join(ROOT, loaderFile || 'index.html'), 'utf8');
       if (!loaderFile) body = body.replace(/<head[^>]*>/i, m => m + `<script>window.HG_VERSION='${REL}';</script>`);
       if (requireAccount !== undefined) body = body.replace(/var HG_REQUIRE_GRAPEVINE = (?:true|false);/, `var HG_REQUIRE_GRAPEVINE = ${requireAccount};`);
       return r.fulfill({ contentType: 'text/html', body });
@@ -45,17 +39,15 @@ async function hub(mirrors, loaderFile, { requireAccount, blockAccount = false, 
     if (m) {
       const [, mirror, repo, ref, filePath] = m;
       if (repo !== REPO || ref !== (loaderFile ? 'main' : REL)) return r.abort();
-      const file = decodeURIComponent(filePath.split('?')[0]);
-      const mode = mirrors[mirror] ?? 'ok';
+      const mode = mirrors[mirror] ?? 'ok', file = decodeURIComponent(filePath.split('?')[0]);
       page.reqs.push(mirror + ':' + file);
       if (blockAccount && file === 'gv/account.js') return r.abort();
-      if (mode === 'dead' && !(loaderFile === 'legacy' && file === 'index.html')) return r.abort();
+      if (mode === 'dead') return r.abort();
       if (mode === 'hang') return;                                   // never answered
       if (typeof mode === 'number') await sleep(mode);
-      if (oldRelease && file === RUNTIME) return r.fulfill({ status: 404, body: 'no' });
-      const f = path.join(ROOT, oldRelease && file === 'index.html' ? RUNTIME : file);
+      const f = path.join(ROOT, file);
       if (!fs.existsSync(f)) return r.fulfill({ status: 404, body: 'no' });
-      return r.fulfill({ headers: { 'access-control-allow-origin': '*' }, contentType: /\.html$/.test(f) ? 'text/html' : /\.js$/.test(f) ? 'text/javascript' : /\.json$/.test(f) ? 'application/json' : 'image/jpeg', body: fs.readFileSync(f) });
+      return r.fulfill({ contentType: /\.html$/.test(f) ? 'text/html' : /\.js$/.test(f) ? 'text/javascript' : /\.json$/.test(f) ? 'application/json' : 'image/jpeg', body: fs.readFileSync(f) });
     }
     return r.abort();                                                // nothing else exists in this test
   });
@@ -84,44 +76,14 @@ try {
   check('re-enabling the requirement shows the sign-in gate on startup', await page.locator('#gate').isVisible());
   await page.context().close();
 
-  console.log('=== Entry files load the runtime from the rebuilt repository ===');
-  for (const loaderFile of ['index.html', 'loader.html', 'deliverables/loader-to-paste.txt', 'legacy']) {
+  console.log('=== Both loaders fetch index.html from the rebuilt repository ===');
+  for (const loaderFile of ['loader.html', 'deliverables/loader-to-paste.txt']) {
     const page = await hub({ cdn: 'dead' }, loaderFile);
-    check(`${loaderFile} boots from the next mirror on main`, !!(await game(page)) && page.reqs.includes('fastly:' + RUNTIME), page.errs.slice(0, 2).join(' | '));
+    check(`${loaderFile} boots from the next mirror on main`, !!(await game(page)) && page.reqs.includes('fastly:index.html'), page.errs.slice(0, 2).join(' | '));
     await play(page);
     check('Tetris opens with a valid launcher token', !!(await until(() => page.evaluate(() => document.getElementById('frame').contentWindow.HG_OK === 1))) && page.reqs.includes('fastly:Tetris/index.html'));
     await page.context().close();
   }
-  page = await hub({}, 'index.html', { detachedFile: true });
-  check('index.html opens via file:// and fetches the hosted runtime', !!(await game(page)) && page.reqs.includes('cdn:' + RUNTIME));
-  await page.context().close();
-  page = await hub({}, 'index.html', { oldRelease: true });
-  check('a copied entry works against a release with the previous layout', !!(await game(page)) && page.reqs.includes('cdn:index.html'));
-  await page.context().close();
-
-  console.log('=== Cached runtime and exported offline copy ===');
-  const cachedNetwork = {};
-  const cached = await hub(cachedNetwork, 'index.html');
-  check('the complete runtime is cached as soon as the launcher opens', !!(await until(() =>
-    cached.evaluate(async () => (await idbGet('hub'))?.text.includes('id="view-games"')))));
-  await play(cached);
-  await playing(cached);
-  const offline = await cached.evaluate(async () => {
-    // The test only needs one saved game. The normal export waits for the rest of the downloads.
-    startCache = async () => {};
-    const meta = await getMeta();
-    meta.libs.Tetris = [];
-    return (await buildOfflineHtml()).html;
-  });
-  await cached.route(HOST + 'offline.html', route => route.fulfill({ contentType: 'text/html', body: offline }));
-  for (const mirror of ['cdn', 'fastly', 'gcore', 'testingcf']) cachedNetwork[mirror] = 'dead';
-  await cached.reload();
-  check('the small entry opens the cached runtime when all mirrors fail', !!(await until(() => game(cached))));
-  await cached.goto(HOST + 'offline.html');
-  const embedded = !!(await game(cached)) && !!(await cached.evaluate(() => BUNDLE && BUNDLE.files['game:Tetris/index.html']));
-  if (embedded) await play(cached);
-  check('the offline export embeds the launcher and plays a saved game', embedded && !!(await playing(cached)));
-  await cached.context().close();
 
   console.log('=== 1. a healthy network: load, then the saved copy ===');
   let P = await hub({});

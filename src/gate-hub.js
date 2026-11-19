@@ -1,4 +1,4 @@
-// Readable reference for the hub-side licence code (the shipped copy in launcher/runtime.html is obfuscated).
+// Readable reference for the hub-side licence code (the shipped copy in index.html is obfuscated).
 // 1) Site lock: hub runs only on official hosts; anywhere else -> shutdown screen.
 (function () {
   var H = location.hostname;

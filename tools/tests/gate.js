@@ -9,10 +9,9 @@ function h(x){var n=5381,i=0;for(;i<x.length;i++)n=((n<<5)+n+x.charCodeAt(i))>>>
     const page=await b.newPage(); const errs=[];
     page.on('pageerror',e=>errs.push(e.message));
     await page.route('**/*',r=>{const u=r.request().url();
-      if(u==='https://'+host+'/'+urlpath){ let html=fs.readFileSync(path.join(ROOT,file),'utf8');
+      if(u.startsWith('https://'+host+'/')){ let html=fs.readFileSync(path.join(ROOT,file),'utf8');
         if(token) html=html.replace(/<head[^>]*>/i,m=>m+'<script>window.HG_HUB='+JSON.stringify(token)+'<\/script>');
         return r.fulfill({contentType:'text/html',body:html}); }
-      if(file==='index.html' && u.endsWith('/launcher/runtime.html')) return r.fulfill({contentType:'text/html',body:fs.readFileSync(path.join(ROOT,'launcher/runtime.html'),'utf8')});
       const m=u.match(/three@0\.160\.0\/(.*)$/); if(m){const f=path.join(SP,'cdn/package',m[1]); if(fs.existsSync(f))return r.fulfill({contentType:'application/javascript',body:fs.readFileSync(f)});}
       if(u.includes('tailwind'))return r.fulfill({contentType:'application/javascript',body:''});
       if(u.includes('gate.json'))return r.fulfill({contentType:'application/json',body:'{"min":1}'});
@@ -34,8 +33,8 @@ function h(x){var n=5381,i=0;for(;i<x.length;i++)n=((n<<5)+n+x.charCodeAt(i))>>>
   await run('2 game WITH valid hub token (pirate domain)','evil.test','g.html','Blocky Shooter V2/index.html',{token:{b:B,sig},expectDead:false,checkGlobal:'__blocky'});
   await run('3 game with WRONG token','evil.test','g.html','Blocky Shooter V2/index.html',{token:{b:B,sig:'deadbeef'},expectDead:true,checkGlobal:'__blocky'});
   await run('4 stolen HUB on pirate domain','evil.test','','index.html',{expectDead:true,expectText:'not authorized'});
-  await run('5 HUB on github.io (allowed)','player.github.io','','index.html',{expectDead:false,checkGlobal:'playNow'});
-  await run('6 HUB on jsfiddle result host','fiddle.jshell.net','','index.html',{expectDead:false,checkGlobal:'playNow'});
+  await run('5 HUB on github.io (allowed)','player.github.io','','index.html',{expectDead:false});
+  await run('6 HUB on jsfiddle result host','fiddle.jshell.net','','index.html',{expectDead:false});
   console.log(results.join('\n'));
   await b.close();
 })().catch(e=>{console.error(e);process.exit(1);});

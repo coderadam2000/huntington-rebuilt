@@ -6,7 +6,10 @@
 <title>Huntington Games Launcher</title>
 <style>
 html,body{margin:0;height:100%;background:#060912}
-/* Shared by the small entry file and the full launcher so the loading screen carries through startup. */
+/*@boot.css*/
+/* The loading screen (2026-11-16). The SAME rules and markup live in loader.html (the code people paste into jsfiddle),
+   so the screen is up from the first moment and carries on unchanged into the launcher's own boot screen.
+   tools/check.js keeps the two copies identical: edit launcher/boot.css and launcher/boot.html, then node tools/check.js --fix. */
 #boot{position:fixed;inset:0;z-index:3000;overflow:hidden;display:flex;align-items:center;justify-content:center;background:#060912;color:#e8ecf6;font-family:'Segoe UI',system-ui,-apple-system,sans-serif;transition:opacity .6s ease,transform .6s ease}
 #boot.out{opacity:0;transform:scale(1.04);pointer-events:none}
 #boot .bt-neb{position:absolute;inset:-20%;filter:blur(60px);opacity:.75}
@@ -44,108 +47,81 @@ html,body{margin:0;height:100%;background:#060912}
 @keyframes bt-title{0%{opacity:0;letter-spacing:.9em;margin-right:-.9em}100%{opacity:1}}
 @keyframes bt-flow{0%{background-position:0 0}100%{background-position:200% 0}}
 @media (prefers-reduced-motion:reduce){#boot *{animation-duration:.01s!important;animation-iteration-count:1!important}}
-
+/*@/boot.css*/
 </style>
 </head>
 <body>
+<!--@boot.html-->
 <div id="boot"><div class="bt-neb"><i></i><i></i><i></i></div><div class="bt-stars"></div><div class="bt-in"><div class="bt-emb"><svg viewBox="0 0 120 120" aria-hidden="true"><defs><linearGradient id="bt-grad" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#a78bfa"/><stop offset=".55" stop-color="#f97316"/><stop offset="1" stop-color="#2dd4bf"/></linearGradient></defs><polygon class="bt-hex" points="60,6 107,33 107,87 60,114 13,87 13,33"/></svg><b>HG</b><span class="bt-orb"><i></i><i></i><i></i><i></i><i></i></span></div><div class="bt-title">HUNTINGTON GAMES</div><div class="bt-bar"><span></span></div><div class="bt-stage" id="msg">Starting</div><div class="bt-tip"></div><div class="bt-welcome">Welcome! Pick a game, make your profile and earn goons.</div></div></div>
-
-<noscript>JavaScript is required to load Huntington Games.</noscript>
-<script>// This file also runs when index.html is pasted into another page or opened on its own.
+<!--@/boot.html-->
+<script>
+// Huntington Games Launcher. Paste this into the HTML panel at jsfiddle.net or jsbin.com.
+// The launcher loads index.html from the rebuilt repository's main branch through jsDelivr.
+function cachedHub(repo, cb) {
+  // the launcher saves a copy of itself in IndexedDB the first time it runs, for when jsDelivr cannot be reached
+  try {
+    var rq = indexedDB.open('hg-offline:' + repo, 1);
+    rq.onupgradeneeded = function () { try { rq.result.createObjectStore('files'); } catch (e) {} };
+    rq.onerror = rq.onblocked = function () { cb(null); };
+    rq.onsuccess = function () {
+      try {
+        var g = rq.result.transaction('files').objectStore('files').get('hub');
+        g.onsuccess = function () { cb(g.result && g.result.text ? g.result : null); };
+        g.onerror = function () { cb(null); };
+      } catch (e) { cb(null); }
+    };
+  } catch (e) { cb(null); }
+}
+// the loading screen: progress, what is happening, and a tip (the launcher's own boot screen carries on from here)
+var HG_TIPS = ['Press T in any game to chat without leaving it.', 'Play every day: the daily check-in gives you a goon.', 'Goons buy pets, frames and chat bubbles in the Profile shop.',
+  'Start a party in Multiplayer and your friends join your game in one click.', 'Every game has a leaderboard. Can you get on one?', 'Your saves live in your account: sign in on any device and keep playing.',
+  'Found a bug? Tell us in #bugs-and-ideas or with the Report button.', 'Rare titles shimmer, and you only get them by playing.', 'Make your own songs in Beat Lab and share them in #music.'];
+function hgP(p, stage, tip) {
+  var b = document.getElementById('boot'); if (b) b.style.setProperty('--p', p); window.HG_LOAD_P = p;
+  var m = document.getElementById('msg'); if (m && stage) m.textContent = stage;
+  var t = document.querySelector('#boot .bt-tip'); if (t && tip) { t.textContent = tip; t.className = 'bt-tip'; }
+}
+(function tips() {
+  var t = document.querySelector('#boot .bt-tip'); if (!t) return; var i = Math.floor(Math.random() * HG_TIPS.length);
+  t.textContent = HG_TIPS[i];
+  window.HG_TIP_T = setInterval(function () { if (t.dataset.err) return; t.className = 'bt-tip dim'; setTimeout(function () { i = (i + 1) % HG_TIPS.length; t.textContent = HG_TIPS[i]; t.className = 'bt-tip'; }, 400); }, 3800);
+})();
 (function () {
-  var repo = 'coderadam2000/huntington-rebuilt';
-  var runtime = 'launcher/runtime.html';
-  var version = /^[\w.-]+$/.test(window.HG_VERSION || '') ? window.HG_VERSION : 'main';
-  var hosts = ['cdn', 'fastly', 'gcore', 'testingcf'];
-  var boot = document.getElementById('boot'), message = document.getElementById('msg'), tip = boot.querySelector('.bt-tip');
-  var saved, offlineTimer, started = false, failed = false, mirror = 0;
-
-  function status(progress, text, detail) {
-    boot.style.setProperty('--p', progress);
-    message.textContent = text;
-    tip.textContent = detail || '';
+  var repo = 'coderadam2000/huntington-rebuilt', version = 'main';
+  var hosts = ['cdn', 'fastly', 'gcore', 'testingcf'], i = 0, booted = false, failed = false, saved = null, timer = null;
+  function boot(html, ver) {
+    if (booted) return; booted = true; clearTimeout(timer);
+    clearInterval(window.HG_TIP_T); hgP(.72, 'Starting');
+    var tag = '<script>window.HG_VERSION = ' + JSON.stringify(ver) + '; window.HG_LOAD_P = .72;<\/script>';
+    html = /<head[^>]*>/i.test(html) ? html.replace(/<head[^>]*>/i, function (m) { return m + tag; }) : tag + html;
+    document.open(); document.write(html); document.close();
   }
-
-  function isRuntime(html) {
-    // Also recognizes full hub HTML cached or published before the entry file was split out.
-    return typeof html === 'string' && /<div\s+id="view-games"/.test(html);
+  function useSaved() { // no network: run the copy of the launcher saved on an earlier visit
+    if (saved) { hgP(.6, 'Offline: loading the saved copy'); boot(saved.text, saved.rel); return true; }
+    return false;
   }
-
-  function start(html, ref) {
-    if (started) return;
-    started = true;
-    clearTimeout(offlineTimer);
-    status(.72, 'Starting');
-    window.HG_VERSION = ref || undefined;
-    window.HG_LOAD_P = .72;
-    window.HG_BOOT_RUNTIME = html;
-    document.open();
-    document.write(html);
-    document.close();
-  }
-
-  function useSaved() {
-    if (!saved) return false;
-    start(saved.text, saved.rel || version);
-    return true;
-  }
-
-  function readSaved() {
-    try {
-      var request = indexedDB.open('hg-offline:' + repo, 1);
-      request.onupgradeneeded = function () { request.result.createObjectStore('files'); };
-      request.onsuccess = function () {
-        var db = request.result;
-        try {
-          var lookup = db.transaction('files').objectStore('files').get('hub');
-          lookup.onsuccess = function () {
-            if (lookup.result && isRuntime(lookup.result.text)) saved = lookup.result;
-            if (failed && !started) useSaved();
-          };
-        } catch (error) {}
-        finally { db.close(); }
-      };
-    } catch (error) {}
-  }
-
-  async function download(url, timeout) {
-    var controller = new AbortController();
-    var timer = setTimeout(function () { controller.abort(); }, timeout);
-    try {
-      var response = await fetch(url, { cache: 'no-cache', signal: controller.signal });
-      if (!response.ok) return { status: response.status };
-      return { html: await response.text() };
-    } finally { clearTimeout(timer); }
-  }
-
-  async function load() {
-    // Direct visits to the served checkout keep using its local games and account files.
-    var host = location.hostname;
-    if (!window.HG_VERSION && (/\.github\.io$/.test(host) || host === 'localhost' || host === '127.0.0.1')) {
-      try {
-        var nearby = await download(runtime, 3500);
-        if (isRuntime(nearby.html)) return start(nearby.html);
-      } catch (error) {}
+  cachedHub(repo, function (r) { saved = r; if (failed && !booted) useSaved(); });
+  function next() {
+    if (booted) return;
+    if (i >= hosts.length) {
+      failed = true;
+      if (useSaved()) return;
+      var tp = document.querySelector('#boot .bt-tip'); if (tp) tp.dataset.err = '1';
+      hgP(1, 'Could not download the launcher', 'cdn.jsdelivr.net may be blocked on this network. Wait a minute and reload, or try another network.');
+      return;
     }
-
-    while (!started && mirror < hosts.length) {
-      var base = 'https://' + hosts[mirror++] + '.jsdelivr.net/gh/' + repo + '@' + version + '/';
-      status(.3 + mirror * .08, mirror > 1 ? 'Trying another mirror' : 'Downloading the launcher');
-      try {
-        var result = await download(base + runtime, 10000);
-        // A copied entry can also boot against a release that still ships the full hub at index.html.
-        if (!started && result.status === 404) result = await download(base + 'index.html', 10000);
-        if (isRuntime(result.html)) return start(result.html, version);
-      } catch (error) {}
-    }
-    if (started) return;
-    failed = true;
-    if (!useSaved()) status(1, 'Could not download the launcher', 'Check your connection and reload to try again.');
+    var url = 'https://' + hosts[i++] + '.jsdelivr.net/gh/' + repo + '@' + version + '/index.html';
+    hgP(.3 + i * .08, i > 1 ? 'Trying another mirror' : 'Downloading the launcher');
+    var ctl = window.AbortController ? new AbortController() : null, t = setTimeout(function () { if (ctl) ctl.abort(); }, 10000);
+    fetch(url, { cache: 'no-cache', signal: ctl ? ctl.signal : undefined }).then(function (r) {
+      clearTimeout(t);
+      if (!r.ok) throw new Error('HTTP ' + r.status);
+      return r.text();
+    }).then(function (html) { boot(html, version); }).catch(function () { clearTimeout(t); next(); });
   }
-
-  readSaved();
-  offlineTimer = setTimeout(function () { if (!started) useSaved(); }, 8000);
-  load();
+  // a slow or blocked network should not leave kids waiting when a saved copy exists
+  timer = setTimeout(function () { if (!booted) useSaved(); }, 8000);
+  next();
 })();
 </script>
 </body>

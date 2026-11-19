@@ -9,7 +9,6 @@ if(!B) throw new Error('set HG_BUILD (and HG_SECRET for gate.js)');
     const page=await b.newPage(); const errs=[]; page.on('pageerror',e=>errs.push(e.message));
     await page.route('**/*',r=>{const u=r.request().url();
       if(u==='https://fiddle.jshell.net/'){ let html=fs.readFileSync(path.join(ROOT,'index.html'),'utf8').replace(/<head[^>]*>/i,m=>m+'<script>window.HG_VERSION="r'+B+'"<\/script>'); return r.fulfill({contentType:'text/html',body:html}); }
-      if(u.endsWith('@r'+B+'/launcher/runtime.html')) return r.fulfill({contentType:'text/html',body:fs.readFileSync(path.join(ROOT,'launcher/runtime.html'),'utf8')});
       if(/\/Blocky Shooter V2\/index\.html/.test(decodeURIComponent(u))) return r.fulfill({contentType:'text/html',body:fs.readFileSync(path.join(ROOT,'Blocky Shooter V2/index.html'),'utf8')});
       if(/hub\/blocky\.jpg/.test(u)) return r.fulfill({contentType:'image/jpeg',body:fs.readFileSync(path.join(ROOT,'hub/blocky.jpg'))});
       const m=u.match(/three@0\.160\.0\/(.*)$/); if(m){const f=path.join(SP,'cdn/package',m[1]); if(fs.existsSync(f))return r.fulfill({contentType:'application/javascript',body:fs.readFileSync(f)});}
@@ -35,7 +34,7 @@ if(!B) throw new Error('set HG_BUILD (and HG_SECRET for gate.js)');
     const page=await b.newPage();
     await page.addInitScript((ago)=>{ try{localStorage.setItem('hg_lastok', String(Date.now()-ago*86400000));}catch(e){} window.__noNet=1; }, days);
     await page.route('**/*',r=>{const u=r.request().url();
-      if(u==='https://x.github.io/'){ let html=fs.readFileSync(path.join(ROOT,'launcher/runtime.html'),'utf8').replace(/<head[^>]*>/i,m=>m+'<script>window.HG_VERSION="r'+B+'";window.HG_BUNDLE={version:"r'+B+'",builtAt:Date.now()-10*86400000,files:{},meta:{libs:{},mods:{}}};<\/script>'); return r.fulfill({contentType:'text/html',body:html}); }
+      if(u==='https://x.github.io/'){ let html=fs.readFileSync(path.join(ROOT,'index.html'),'utf8').replace(/<head[^>]*>/i,m=>m+'<script>window.HG_VERSION="r'+B+'";window.HG_BUNDLE={version:"r'+B+'",builtAt:Date.now()-10*86400000,files:{},meta:{libs:{},mods:{}}};<\/script>'); return r.fulfill({contentType:'text/html',body:html}); }
       if(u.includes('gate.json')) return r.abort();  // simulate no connection
       return r.abort();});
     await page.goto('https://x.github.io/',{waitUntil:'load',timeout:20000}).catch(()=>{});

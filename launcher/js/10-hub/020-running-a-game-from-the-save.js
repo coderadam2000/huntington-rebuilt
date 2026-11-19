@@ -82,7 +82,8 @@ async function buildOfflineHtml() {
     for (var j = 0; j < urls.length; j++) if (!files['lib:' + urls[j]]) { var l = await idbGet('lib:' + urls[j]); if (l) files['lib:' + urls[j]] = l.text; }
   }
   for (var k = 0; k < GAMES.length; k++) { var im = await idbGet('img:' + GAMES[k].img); if (im && im.size) files['img:' + GAMES[k].img] = await toDataUri(im); }
-  var hubText = hubRuntime || (await fetchRepo('launcher/runtime.html')).html;
+  var hub = await idbGet('hub'), hubText = hub && hub.text;
+  if (!hubText) hubText = (await fetchRepo('index.html')).html;
   var json = JSON.stringify({ version: v, builtAt: Date.now(), files: files, meta: { libs: libs, mods: meta.mods } })
     .replace(/[\u007f-\uffff]/g, function (c) { return '\\u' + ('0000' + c.charCodeAt(0).toString(16)).slice(-4); }).replace(/</g, '\\u003c');
   var tag = '<script>window.HG_VERSION=' + JSON.stringify(v) + ';window.HG_BUNDLE=' + json + ';<\/script>';

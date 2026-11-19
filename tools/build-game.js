@@ -2,7 +2,6 @@
 // Joins a game's sources into the one file the Launcher loads, <game>/index.html:
 //   <game>/src/shell.html with <!--@css--> <- src/css/*.css, <!--@js--> <- src/js/*.js (both in file-name order),
 //   <!--@data--> <- <game>/data/*.json|*.tsv as <script type="application/json" id="<prefix>-data-<name>"> tags.
-// For the launcher (. --src launcher), build launcher/runtime.html and the small entry files.
 // <!--@js indent=8--> indents every non-blank game line by 8 spaces (sources are kept unindented).
 // Keeps the <!--HG-->...<!--/HG--> licence block of the current index.html as is.
 // Usage: node tools/build-game.js "<game dir>" [--check]   (--check: syntax-check the joined script too)
@@ -15,9 +14,7 @@ const fs = require('fs'), path = require('path'), cp = require('child_process'),
 const SRCNAME = process.argv.includes('--src') ? process.argv[process.argv.indexOf('--src') + 1] : 'src';     // the launcher: . --src launcher
 const GAME = process.argv.slice(2).find((a, i, all) => !a.startsWith('--') && all[i - 1] !== '--src');
 if (!GAME) { console.error('usage: node tools/build-game.js "<game dir>" [--check]'); process.exit(1); }
-const DIR = path.join(__dirname, '..', GAME), SRC = path.join(DIR, SRCNAME);
-const isHub = GAME === '.' && SRCNAME === 'launcher';
-const OUT = isHub ? path.join(SRC, 'runtime.html') : path.join(DIR, 'index.html');
+const DIR = path.join(__dirname, '..', GAME), SRC = path.join(DIR, SRCNAME), OUT = path.join(DIR, 'index.html');
 const DATA_PREFIX = { Sovereign: 'sov' }[GAME] || GAME.toLowerCase().replace(/[^a-z0-9]+/g, '');
 const list = (d, ext) => fs.existsSync(d) ? fs.readdirSync(d).filter(f => f.endsWith(ext)).sort().map(f => path.join(d, f)) : [];
 const read = f => fs.readFileSync(f, 'utf8');
@@ -41,29 +38,23 @@ const inlined = [];
 const inlineOf = (rel, tagOpen) => {
   const p = path.join(SRC, rel), files = rel.endsWith('/') ? list(p, '') .filter(f => fs.statSync(f).isFile()) : [p];
   const body = files.map(read).join('');
-  if (tagOpen && /<\/script/i.test(body)) throw new Error('"</script" inside ' + rel + ' would end the script tag early');
-  if (tagOpen) inlined.push({ rel, body, module: /type=["']?module/i.test(tagOpen) });
+  if (/<\/script/i.test(body) && /^js\//.test(rel)) throw new Error('"</script" inside ' + rel + ' would end the script tag early');
+  inlined.push({ rel, body, module: /type=["']?module/i.test(tagOpen || '') });
   return body;
 };
 const indent = (s, n) => n ? s.split('\n').map(l => l ? ' '.repeat(n) + l : l).join('\n') : s;
-const inline = template => read(path.join(SRC, template))
+let html = read(path.join(SRC, 'shell.html'))
   .replace(/<!--@inline ([^>]+?)-->/g, (m, rel, off, all) => { const tag = all.lastIndexOf('<script', off), close = all.lastIndexOf('</script', off);
-    return inlineOf(rel.trim(), tag > close ? all.slice(tag, all.indexOf('>', tag) + 1) : ''); });
-let html = inline('shell.html')
+    return inlineOf(rel.trim(), tag > close ? all.slice(tag, all.indexOf('>', tag) + 1) : ''); })
   .replace('<!--@css-->', () => '<style>\n' + css + '\n</style>')
   .replace('<!--@data-->', () => data)
   .replace(/<!--@js(?: indent=(\d+))?-->/, (_, n) => '<script type="module">\n' + indent(js, +n || 0) + '\n</script>');
 const old = fs.existsSync(OUT) ? read(OUT) : '', hg = /\n<!--HG-->[\s\S]*?<!--\/HG-->/.exec(old);
 if (hg) { const m = /<head[^>]*>/i.exec(html); html = html.slice(0, m.index + m[0].length) + hg[0] + html.slice(m.index + m[0].length); }
-const entry = isHub ? inline('entry.html') : null;
-if (process.argv.includes('--check')) for (const it of inlined) {
+if (process.argv.includes('--check')) for (const it of inlined.filter(i => /^js\//.test(i.rel))) {
   const tmp = path.join(os.tmpdir(), 'game-check-' + process.pid + (it.module ? '.mjs' : '.js'));
   fs.writeFileSync(tmp, it.module ? it.body.replace(/^\s*import .*$/mg, '') : it.body);
   try { cp.execFileSync(process.execPath, ['--check', tmp], { stdio: 'inherit' }); } catch (e) { console.error('syntax error in ' + it.rel); throw e; } finally { fs.unlinkSync(tmp); }
 }
 fs.writeFileSync(OUT, html);
 console.log('built ' + path.relative(path.join(__dirname, '..'), OUT) + ' (' + (html.length / 1024).toFixed(0) + ' KB)');
-if (isHub) {
-  for (const file of ['index.html', 'loader.html', 'deliverables/loader-to-paste.txt']) fs.writeFileSync(path.join(DIR, file), entry);
-  console.log('built launcher entry files (' + (Buffer.byteLength(entry) / 1024).toFixed(1) + ' KB each)');
-}

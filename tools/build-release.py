@@ -9,7 +9,7 @@ SECRET_OUT = pathlib.Path(os.environ.get('HG_TOOLS', '/tmp/hg-tools')) / 'hg_sec
 GAMES = ['Sovereign','Frontline','Blocky Shooter V2','Tower Defense 2.0','Coffee Shop NEW','Tetris','Market Life 1.9','50 Levels Of Spikes 1.2','Brown E Clicker','Coffee Shop Tycoon Legacy','Levi Dash By Levi 2.0','Last Light','Imposter','Element Lab','Steel Storm','Mayhem Marathon','Casino','Minigames/Reaction Duel','Minigames/Snake Arena','Minigames/Typing Race','Minigames/Pong','Minigames/Connect Four','Minigames/Tic-Tac-Toe','Beat Lab']
 def obf(js): return subprocess.run(['node', str(pathlib.Path(__file__).resolve().parent/'obf.js')], input=js, capture_output=True, text=True, check=True).stdout.strip()
 # hub
-hub = ROOT/'launcher/runtime.html'; lines = hub.read_text().split('\n')
+hub = ROOT/'index.html'; lines = hub.read_text().split('\n')
 k = [i for i, l in enumerate(lines) if l.startswith('var HG_BUILD_N')]; assert len(k) == 1, 'HG_BUILD_N line not found exactly once'
 k = k[0]; lines[k] = 'var HG_BUILD_N = %d; /* release build - set by tools/build-release.py */' % N
 htpl = (ROOT/'src/hub-licence.tpl.js').read_text()

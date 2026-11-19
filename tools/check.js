@@ -5,7 +5,7 @@
 //   node tools/check.js "Tetris" "Last Light"     only these games (the cross-checks still run)
 // What it checks:
 //   1. every game's index.html is exactly what its src/ builds to (nobody edited the built file, nobody forgot to rebuild),
-//      and each script in it parses (build-game.js --check). The hub build includes the runtime and its entry files.
+//      and each script in it parses (build-game.js --check). The hub too (launcher/ -> index.html).
 //   2. the lists that must agree do: every game on the launcher's main page is in tools/build-release.py GAMES (or it
 //      would ship without its licence block), has its hub/<img>.jpg, and its folder exists.
 //   3. the six minigames carry the same shared lobby files as Minigames/_shared.
@@ -32,30 +32,17 @@ for (const d of fs.readdirSync(ROOT)) {
   if (fs.existsSync(path.join(ROOT, d, 'src', 'shell.html'))) games.push(d);
   if (d === 'Minigames') for (const m of fs.readdirSync(path.join(ROOT, d))) if (fs.existsSync(path.join(ROOT, d, m, 'src', 'shell.html'))) games.push(d + '/' + m);
 }
-const targets = games.map(g => ({ name: g, args: [g], outputs: [g + '/index.html'] })).concat([{
-  name: 'the hub (launcher/)', args: ['.', '--src', 'launcher'], hub: true,
-  outputs: ['launcher/runtime.html', 'index.html', 'loader.html', 'deliverables/loader-to-paste.txt']
-}]);
-const selected = targets.filter(t => !only.length || only.includes(t.name) || (t.hub && only.includes('.')));
-for (const t of selected) {
-  const outputs = t.outputs.map(file => {
-    const out = path.join(ROOT, file);
-    return { file, out, before: fs.existsSync(out) ? read(out) : null };
-  });
+const targets = games.map(g => ({ name: g, args: [g], out: path.join(ROOT, g, 'index.html') })).concat([{ name: 'the hub (launcher/)', args: ['.', '--src', 'launcher'], out: path.join(ROOT, 'index.html'), hub: true }]);
+for (const t of targets) {
+  if (only.length && !only.includes(t.name) && !(t.hub && only.includes('.'))) continue;
+  const before = fs.existsSync(t.out) ? read(t.out) : '';
   const r = cp.spawnSync(process.execPath, [path.join(__dirname, 'build-game.js'), ...t.args, '--check'], { encoding: 'utf8' });
-  if (r.status !== 0) problems.push(`${t.name}: does not build: ${(r.stderr || r.stdout).split('\n').filter(l => /Error|error/.test(l))[0] || 'see node tools/build-game.js'}`);
-  for (const { file, out, before } of outputs) {
-    const after = fs.existsSync(out) ? read(out) : null;
-    if (before === after) continue;
-    const isRuntime = file === 'launcher/runtime.html';
-    const matches = before !== null && after !== null && norm(before, isRuntime) === norm(after, isRuntime);
-    if (!matches && r.status === 0) {
-      if (FIX) { notes.push(`${file} rebuilt from its sources`); continue; }
-      problems.push(`${file} is out of date (run: node tools/check.js --fix)`);
-    }
-    if (before === null) fs.rmSync(out, { force: true });
-    else fs.writeFileSync(out, before);  // preserve any release-specific lines
-  }
+  if (r.status !== 0) { problems.push(`${t.name}: does not build: ${(r.stderr || r.stdout).split('\n').filter(l => /Error|error/.test(l))[0] || 'see node tools/build-game.js'}`); if (before) fs.writeFileSync(t.out, before); continue; }
+  const after = read(t.out);
+  if (norm(before, t.hub) !== norm(after, t.hub)) {
+    if (FIX) notes.push(`${t.name}: index.html rebuilt from its sources`);
+    else { problems.push(`${t.name}: index.html is not what its sources build to (run: node tools/check.js --fix, then commit both)`); fs.writeFileSync(t.out, before); }
+  } else if (before !== after) fs.writeFileSync(t.out, before);      // only the release lines differ: keep the file as it was
 }
 // --- 2. the lists ---
 try {
@@ -105,7 +92,16 @@ try {
     if (core > acc + 1000 && built.status === 0) notes.push('gv/core.js is newer than gv/account.js: run bash tools/build-gv.sh if you changed it');
   }
 } catch (e) {}
-// --- 5. Beat Lab's engine on its own (Beat Lab/engine.js), for the launcher's music player: its src files 10-16 joined ---
+// --- 5. the loading screen lives in two places: the hub (launcher/boot.css + boot.html, inlined by the build) and loader.html
+//        (the code people paste into jsfiddle). The loader's copy sits between /*@boot.css*/ ... /*@/boot.css*/ and
+//        <!--@boot.html--> ... <!--@/boot.html-->; --fix copies the launcher's version in. ---
+try {
+  const L = path.join(ROOT, 'loader.html'); let ld = read(L);
+  const css = read(path.join(ROOT, 'launcher/boot.css')).trim(), html = read(path.join(ROOT, 'launcher/boot.html')).trim();
+  const want = ld.replace(/\/\*@boot\.css\*\/[\s\S]*?\/\*@\/boot\.css\*\//, '/*@boot.css*/\n' + css + '\n/*@/boot.css*/').replace(/<!--@boot\.html-->[\s\S]*?<!--@\/boot\.html-->/, '<!--@boot.html-->\n' + html + '\n<!--@/boot.html-->');
+  if (want !== ld) { if (FIX) { fs.writeFileSync(L, want); notes.push('loader.html: the loading screen was copied in from launcher/boot.*'); } else problems.push('loader.html carries an old copy of the loading screen (node tools/check.js --fix)'); }
+} catch (e) { problems.push('loader.html: ' + e.message); }
+// --- 6. Beat Lab's engine on its own (Beat Lab/engine.js), for the launcher's music player: its src files 10-16 joined ---
 try {
   const dir = path.join(ROOT, 'Beat Lab/src/js'), files = fs.readdirSync(dir).filter(f => /^1[0-6]-/.test(f)).sort();
   const want = '// Beat Lab engine, built from Beat Lab/src/js/' + files.join(', ') + ' by tools/check.js --fix. Do not edit.\n' + files.map(f => read(path.join(dir, f))).join('\n');
@@ -114,5 +110,5 @@ try {
 } catch (e) { problems.push('Beat Lab/engine.js: ' + e.message); }
 for (const n of notes) console.log('note  ' + n);
 for (const p of problems) console.log('FAIL  ' + p);
-console.log(problems.length ? `\n${problems.length} problem(s)` : `ok: ${selected.reduce((count, target) => count + target.outputs.length, 0)} built file(s) match their sources, lists agree`);
+console.log(problems.length ? `\n${problems.length} problem(s)` : `ok: ${targets.length - (only.length ? targets.length - only.length : 0)} built file(s) match their sources, lists agree`);
 process.exit(problems.length ? 1 : 0);
