@@ -6,7 +6,8 @@ import { chromium } from 'playwright';
 
 const origin = 'http://localhost:8090';
 const read = path => readFileSync(new URL('../../' + path, import.meta.url), 'utf8');
-const app = read('index.html');
+const entry = read('index.html');
+const app = read('launcher/runtime.html');
 const accounts = new Map();
 const { publicKey, privateKey } = generateKeyPairSync('ed25519');
 const serverPub = publicKey.export({ type: 'spki', format: 'der' }).subarray(-32).toString('hex');
@@ -63,7 +64,8 @@ async function device(browser, options = {}) {
   });
   await page.route('**/*', route => {
     const url = route.request().url();
-    if (url === origin + '/index.html') return route.fulfill({ contentType: 'text/html', body: app });
+    if (url === origin + '/index.html') return route.fulfill({ contentType: 'text/html', body: entry });
+    if (url === origin + '/launcher/runtime.html') return route.fulfill({ contentType: 'text/html', body: app });
     if (url === origin + '/gv/account.js') return route.fulfill({ contentType: 'application/javascript', body: accountScript });
     return route.abort();
   });

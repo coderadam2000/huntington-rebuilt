@@ -9,6 +9,7 @@ function setVersion(v) { MIRRORS = MIRROR_HOSTS.map(function (m) { return m + RE
 var versionReady = Promise.resolve(window.HG_VERSION || 'main');
 function cacheRelease(v) { return v === 'main' ? v + '-' + HG_build() : v; }
 var BUNDLE = window.HG_BUNDLE || null; // only set inside the saved "Huntington Games Offline.html"
+var hubRuntime = window.HG_BOOT_RUNTIME || '';
 var local = !BUNDLE && !window.HG_VERSION && (location.protocol === 'file:' || /github\.io$/.test(location.hostname) || location.hostname === '127.0.0.1' || location.hostname === 'localhost');
 
 var GAMES = [
@@ -178,6 +179,7 @@ function idbDo(mode, fn) { // resolves to the request result, or null on any pro
 }
 function idbGet(k) { return idbDo('readonly', function (s) { return s.get(k); }); }
 function idbPut(k, v) { return idbDo('readwrite', function (s) { return s.put(v, k); }); }
+if (!local && !BUNDLE && hubRuntime) idbPut('hub', { text: hubRuntime, rel: window.HG_VERSION || 'main' });
 function idbHas(k) { return idbDo('readonly', function (s) { return s.count(k); }).then(function (n) { return n > 0; }); }
 function gkey(g) { return 'game:' + g.dir + '/' + (g.file || 'index.html'); }
 // A saved record is { text, rel, sha }. In the offline copy the files are plain strings.
@@ -335,10 +337,6 @@ async function runCache() {
     return getRec(gkey(g)).then(function (r) { if (r && r.rel === rel && meta.libs[g.dir]) OFF.done[g.dir] = 1; });
   }));
   OFF.running = true; OFF.failed = 0; offProgress();
-  var hub = await idbGet('hub');
-  if (!hub || hub.rel !== v || v === 'main') {
-    try { var h = await fetchRepo('index.html'); await idbPut('hub', { text: h.html, rel: v }); } catch (e) {}
-  }
   var hashes = await fetchHashes(v);
   var imgs = GAMES.map(function (g) {
     return idbHas('img:' + g.img).then(function (have) { if (have) return; return fetchRepo('hub/' + g.img + '.jpg', true).then(function (r) { return idbPut('img:' + g.img, r.html); }).catch(function () {}); });

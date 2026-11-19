@@ -20,6 +20,6 @@ SAVE IT SO YOU DON'T HAVE TO PASTE EVERY TIME (free account)
 4. Your fiddle now has a permanent link (and its /show link). Bookmark the /show link and it opens the games straight away next time - no pasting.
 
 NOTES
-- The loader downloads `index.html` from the `main` branch of `coderadam2000/huntington-rebuilt` through jsDelivr.
+- The small `index.html` and `loader-to-paste.txt` download the full launcher from `launcher/runtime.html` in the repository through jsDelivr.
 - Online multiplayer (Frontline, Blocky Shooter) needs an internet connection.
 - The games only run from the official Huntington Games pages. Copies posted on other websites will show a "shut down" message.

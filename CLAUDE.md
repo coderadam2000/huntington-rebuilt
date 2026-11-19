@@ -1,7 +1,7 @@
 # Huntington Games
 
 Single-file browser games (each `<Game>/index.html`, inline JS/CSS) played on school Chromebooks through the
-Launcher (`loader.html` pasted into jsfiddle/jsbin, which loads the hub `index.html` from `coderadam2000/huntington-rebuilt@main` through jsDelivr).
+Launcher (`index.html` or `loader.html` pasted into jsfiddle/jsbin, which loads `launcher/runtime.html` from `coderadam2000/huntington-rebuilt@main` through jsDelivr).
 
 ## Usage limits are tight: work efficiently
 - Never read a whole game file (they are 5k-20k lines). Grep with line numbers, then Read only the ranges you need.
@@ -26,6 +26,7 @@ Launcher (`loader.html` pasted into jsfiddle/jsbin, which loads the hub `index.h
   Sovereign, Blocky Shooter V2 and Last Light join `src/js/*.js` into one module (`<!--@js-->`); the older games were split
   by `tools/split-game.py` and paste their pieces back in verbatim (`<!--@inline js/10-game/-->`), plain scripts and all.
 - The launcher hub too: edit `launcher/` (shell.html, css/, js/10-hub/ pieces), then `node tools/build-game.js . --src launcher --check`.
+  This builds `launcher/runtime.html` and generates the small entry files from `launcher/entry.html` and `launcher/bootstrap.js`.
   Grapevine: edit `grapevine/src/`, then `node tools/build.mjs --check` there (see grapevine/CLAUDE.md), then `bash tools/sync-grapevine.sh` here.
   `gv/account.js` is built from `gv/core.js`, `ach.js`, `ui.js`: `bash tools/build-gv.sh`.
 - Minigames share one lobby: edit `Minigames/_shared/mg.js|mg.css`, then `bash Minigames/build.sh`.
