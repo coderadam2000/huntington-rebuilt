@@ -67,6 +67,25 @@ function fxSmoke(x, y, z, s, hex) { part(x + rnd(-.4, .4), y, z + rnd(-.4, .4), 
 const PR = [];
 const PVIS = { bullet: [0.12, 0.12, 3.2, 0xffee88], shell: [0.45, 0.45, 1.8, 0xffc050], rocket: [0.5, 0.5, 2.6, 0xffffff], bomb: [1, 1, 2.4, 0x333333], missile: [0.45, 0.45, 2.8, 0xf0f0f0], torp: [0.6, 0.5, 4, 0x1e2a33] };
 function addProj(o) { if (PR.length > 600) PR.shift(); PR.push(o); return o; }
+function bombTerrainMarker(e) {
+    const bomb = e.def.w3;
+    if (e.def.ln !== 'a' || bomb?.k !== 'bomb' || e.a3 <= 0) return null;
+    const nextMuzzle = e.muz + 1;
+    const start = muzzleWorld(e, e.def.heli ? 1 + (nextMuzzle & 1) : nextMuzzle);
+    const speed = e.speed, cp = Math.cos(e.pitch);
+    const vx = e.def.heli ? e.vx : Math.sin(e.yaw) * cp * speed;
+    let vy = e.def.heli ? e.vy : Math.sin(e.pitch) * speed;
+    const vz = e.def.heli ? e.vz : Math.cos(e.yaw) * cp * speed;
+    let x = start.x, y = start.y - 1.2, z = start.z;
+    const step = 1 / 30;  // Uses the arcade simulation's projectile integrator and ground surface.
+    for (let i = 0; i < bomb.life / step; i++) {
+        vy -= bomb.g * step;
+        x += vx * step; y += vy * step; z += vz * step;
+        const surface = GHS(x, z);
+        if (y <= surface) return { x, y: surface, z };
+    }
+    return null;
+}
 function segSphere(ax, ay, az, bx, by, bz, cx, cy, cz, r) {
     const dx = bx - ax, dy = by - ay, dz = bz - az, l2 = dx * dx + dy * dy + dz * dz;
     let t = l2 > 0 ? ((cx - ax) * dx + (cy - ay) * dy + (cz - az) * dz) / l2 : 0; t = clamp(t, 0, 1);
@@ -214,6 +233,7 @@ function applyAnim(e, dt) {
     if (d.ln === 'g') {
         m.tur.rotation.y = e.tur - e.yaw; m.gun.rotation.x = -e.gun;
         e.trk += e.speed * dt; if (m.trMat) m.trMat.map.offset.x = (P_WHEELED(e) ? -e.trk * .26 : -e.trk * .55);
+        if (m.legs) m.legs.forEach((leg, i) => { leg.rotation.x = Math.sin(e.trk * 4 + i * PI) * clamp(Math.abs(e.speed) / 12, 0, .7); });
     } else if (d.ln === 'n') { for (const t of m.turs) t.rotation.y = e.tur - e.yaw; }
     else for (const p of m.props) { const ax = p.userData.ax, s = dt * (d.heli ? 26 : 30 + e.speed * .3); if (ax === 'y') p.rotation.y += s; else if (ax === '-y') p.rotation.y -= s; else if (ax === 'x') p.rotation.x += s * 1.6; else p.rotation.z += s; }
 }
@@ -224,7 +244,7 @@ function muzzleWorld(e, i) {
 function killVisual(e) {
     if (!e.alive && e.dieT) return;
     e.alive = false; e.dieT = simTime; if (e.mdl) e.mdl.root.visible = false;
-    const big = e.def.ln === 'n' ? 14 : e.def.ln === 'g' ? 8 : 6;
+    const big = e.def.infantry ? 2 : e.def.ln === 'n' ? 14 : e.def.ln === 'g' ? 8 : 6;
     fxExplosion(e.x, e.y + 1.5, e.z, big);
     if (e.def.ln === 'n' && H(e.x, e.z) < 0) fxSplash(e.x, e.z, 8);
     for (let i = 0; i < fxN(8); i++) part(e.x, e.y + 2, e.z, rnd(-1, 1) * 14, rnd(6, 18), rnd(-1, 1) * 14, rnd(.4, 1), rnd(.8, 1.6), 0x2a2a2a, 14, .8);

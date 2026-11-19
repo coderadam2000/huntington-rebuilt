@@ -39,8 +39,8 @@ function blockyXP(l) { var per = 0; for (var r = 1; r < 50; r++) per += 600 + 20
 function blockyRanks(l) { var x = feedNum(l.xp), r = 1; while (r < 50 && x >= 600 + 200 * r) { x -= 600 + 200 * r; r++; } return feedNum(l.prestige) * 49 + (r - 1); }
 // board -> [value, details] from the saves (0 / nothing = not on the board yet)
 var LB_FEED = [
-  ['spikes:level', function () { var s = feedRd('spikes100_progress') || {}; return [feedNum(s.unlocked)]; }],
-  ['spikes:onelife', function () { var s = feedRd('spikes100_progress') || {}; return [feedNum(s.bestOneLife)]; }],
+  ['spikes:level', function () { var s = feedRd('spikes100_progress') || {}; return [feedNum(s.unlocked), s.beaten ? { victor: 'Campaign victor' } : null]; }],
+  ['spikes:onelife', function () { var s = feedRd('spikes100_progress') || {}; return [feedNum(s.bestOneLife), s.bestOneLife >= 100 ? { victor: 'One Life victor' } : null]; }],
   ['spikes:endless', function () { var s = feedRd('spikes100_progress') || {}; return [feedNum(s.bestEndless)]; }],
   // Tetris Surge keeps its top 5 per mode in best[mode] = [{ s: score, l: lines, t: ms, ... }] (sprint is sorted by time)
   ['tetris:score', function () { var t = feedRd('huntingtonTetrisSurge1') || {}, b = 0, m = '', bl = 0; for (var k in (t.best || {})) if (k !== 'sprint') (Array.isArray(t.best[k]) ? t.best[k] : []).forEach(function (e) { if (e && feedNum(e.s) > b) { b = feedNum(e.s); m = k; bl = feedNum(e.l); } }); b = Math.max(b, feedNum(feedRd('tetrisHighScore'))); return [b, m ? { mode: m, lines: bl } : null]; }],
@@ -77,7 +77,7 @@ var LB_FEED = [
     var lr = feedRd('lumi_save') || {}, lv = lr.levels || {}, out = [], ids = [], sum = 0, done = 0;
     for (var w = 1; w <= 4; w++) for (var n = 1; n <= 10; n++) ids.push(w + '-' + n); ids.push('5-1');      // (Last Light 1.2: 10 levels a world)
     ids.forEach(function (id) { var b = lv[id] && feedNum(lv[id].best); if (b > 0) { out.push(['lumi:lv' + id, b]); sum += b; done++; } });
-    if (done === ids.length) out.push(['lumi:full', +sum.toFixed(2), { levels: 41 }]);
+    if (done === ids.length) out.push(['lumi:full', +sum.toFixed(2), { levels: 41, 'LINEAR clears': ids.filter(function (id) { return lr.linear && lr.linear[id] != null; }).length }]);
     for (var f = 1; f <= 11; f++) { var fb = lv['6-' + f] && feedNum(lv['6-' + f].best); if (fb > 0) out.push(['lumi:lv6-' + f, fb]); }
     if (lr.runs && feedNum(lr.runs.onelife) > 0) out.push(['lumi:onelife', feedNum(lr.runs.onelife)]);
     var fl = 0; ids.forEach(function (id) { if (lv[id] && lv[id].perfect === true) fl++; });
@@ -107,13 +107,13 @@ function feedNow() {
   var L = window.HGGrapevine; if (!L || !L.me() || !L.online() || !L.eco) return;
   var uid = L.me().userId || L.me().name; if (FEED.uid !== uid) { FEED.uid = uid; FEED.sent = {}; FEED.left = {}; }
   var f = feedBoards(), items = [];
-  f.out.forEach(function (y) { var v = y[1]; if (!(v > 0) || !isFinite(v) || FEED.sent[y[0]] === v) return; items.push({ b: y[0], s: v, d: y[2] || null }); });
+  f.out.forEach(function (y) { var v = y[1], details = y[2] || null; if (!(v > 0) || !isFinite(v) || FEED.sent[y[0]] === JSON.stringify([v, details])) return; items.push({ b: y[0], s: v, d: details }); });
   f.leave.forEach(function (b) { if (!FEED.left[b]) { FEED.left[b] = 1; L.eco.lbLeave(b); } });
   if (items.length) L.eco.lbBatch(items).then(function (m) {
-    items.forEach(function (it) { FEED.sent[it.b] = it.s; });
+    items.forEach(function (it) { FEED.sent[it.b] = JSON.stringify([it.s, it.d]); });
     if (typeof lbRefresh === 'function') lbRefresh(Object.keys((m && m.best) || {}));
   }, function () {      // a server from before lbBatch never answers it: send them one by one, as before
-    if (FEED.uid === uid && L.online()) items.forEach(function (it) { FEED.sent[it.b] = it.s; L.eco.lbSubmit(it.b, it.s, it.d); });
+    if (FEED.uid === uid && L.online()) items.forEach(function (it) { FEED.sent[it.b] = JSON.stringify([it.s, it.d]); L.eco.lbSubmit(it.b, it.s, it.d); });
   });
   // goon claims: exactly the achievements the server does not have yet (it tells us which it has)
   var got = feedRd('hgach:v1') || {}, e = L.eco.state() || {}, has = {}, n = 0;

@@ -14,6 +14,7 @@ function changeGameState(newState) {
     const prev = currentGameState;
     currentGameState = newState;
     clearInputs();
+    if (newState !== 'playing') clearScreenFlash();
     for (const el of [ui.mainMenu, ui.pauseMenu, ui.shop, ui.gameOver, $('camp-result'), $('camp-arrow'), $('camp-brief'), ui.hud, ui.minimap, ui.crosshair, ui.scope, ui.optic, ui.settings]) el.classList.add('hidden');
     if (newState !== 'playing') setStyle(ui.clsFx, 'opacity', '0');      // the class screen-edge glow only shows in play
     if (newState !== 'main' && !(newState === 'shop' && returnMenuState === 'main') && !(newState === 'settings' && settingsReturn === 'main')) menuSceneOn(false);   // 5.0 start-screen zombies off

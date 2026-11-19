@@ -117,7 +117,7 @@ function admAfter(k) {
 }
 // ----- reports, answered here -----
 function admRepLoad() { window.HGGrapevine.eco.reports('list').then(function (m) { if (m && m.list) { ADM.reps = m; REPORT.open = m.open || 0; reportBadge(); } admRepPaint(); }, function () { var l = document.getElementById('adm-replist'); if (l) l.textContent = 'Could not load the reports.'; }); }
-var ADM_ACTS = [['dismiss', 'Dismiss (no action)', ''], ['warn', '⚠️ Warn them', 'moderate'], ['mute60', '🔇 Mute 1 hour', 'moderate'], ['mute1440', '🔇 Mute 1 day', 'moderate'], ['tempban1440', '⏳ Ban 1 day', 'ban'], ['tempban4320', '⏳ Ban 3 days', 'ban'], ['tempban10080', '⏳ Ban 7 days', 'ban'], ['ban', '🔨 Ban for good', 'ban']];
+var ADM_ACTS = [['dismiss', 'Close report', ''], ['warn', '⚠️ Warn them', 'moderate'], ['mute60', '🔇 Mute 1 hour', 'moderate'], ['mute1440', '🔇 Mute 1 day', 'moderate'], ['tempban1440', '⏳ Ban 1 day', 'ban'], ['tempban4320', '⏳ Ban 3 days', 'ban'], ['tempban10080', '⏳ Ban 7 days', 'ban'], ['ban', '🔨 Ban for good', 'ban']];
 function admRepPaint() {
   var l = document.getElementById('adm-replist'), m = ADM.reps; if (!l || !m) return;
   var KIND = { player: '🧑 Player', message: '💬 Message', bug: '🐞 Bug', other: '❓ Other' }, f = ADM.repFilter;
@@ -133,7 +133,7 @@ function admRepPaint() {
       (r.state === 'open'
         ? '<div class="adm-resolve"><select class="adm-act">' + acts.map(function (a) { return '<option value="' + a[0] + '">' + a[1] + '</option>'; }).join('') + '</select>' +
           '<input class="adm-reason" maxlength="200" placeholder="Reason they see (default: ' + repEsc(r.whyText || 'breaking the rules') + ')">' +
-          '<textarea class="adm-note" maxlength="300" rows="2" placeholder="Note to ' + repEsc(r.by.n) + ' (optional, they see it)"></textarea>' +
+          '<textarea class="adm-note" maxlength="300" rows="2" aria-label="Reply to ' + repEsc(r.by.n) + '" placeholder="Reply to ' + repEsc(r.by.n) + ' (optional)"></textarea>' +
           '<div class="prow"><button class="pb" data-adm-send="' + r.id + '">Send</button><button class="pb ghost" data-rpa="note" data-id="' + r.id + '">Note for admins</button></div></div>'
         : '<div class="rp-acts"><span class="rp-dim">' + (r.did ? repEsc(r.did[0].toUpperCase() + r.did.slice(1)) : 'Handled') + (r.closedBy ? ' by ' + repEsc(r.closedBy) : '') + (r.closedAt ? ', ' + hgTime(r.closedAt) : '') + '</span>' +
           (r.reply ? ' <span class="rp-note">Told the reporter: ' + repEsc(r.reply) + '</span>' : '') + ' <button class="rp-btn small ghost" data-rpa="reopen" data-id="' + r.id + '">Reopen</button></div>') +
@@ -148,7 +148,7 @@ function admSend(id) {
   var b = it.querySelector('[data-adm-send]'); b.disabled = true; b.textContent = 'Sending...';
   window.HGGrapevine.eco.reportResolve(id, act, { mins: mins, reason: reason, note: note }).then(function (m) {
     if (m && m.ok === false) { b.disabled = false; b.textContent = 'Send'; return hubToast(m.err || 'That did not work.'); }
-    hubToast(act === 'dismiss' ? 'Dismissed. ' + (r.by ? r.by.n : 'The reporter') + ' gets your note.' : 'Done. ' + (r.by ? r.by.n : 'The reporter') + ' is told.');
+    hubToast(note ? 'Reply sent. Report closed.' : 'Report closed.');
     admRepLoad();
   }, function (er) { b.disabled = false; b.textContent = 'Send'; hubToast(String(er && er.message || er)); });
 }

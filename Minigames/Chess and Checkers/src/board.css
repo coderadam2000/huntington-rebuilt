@@ -1,0 +1,17 @@
+body { background: radial-gradient(ellipse at 50% 0%, #243f4c, #0b1520 65%); }
+#match { margin: 0 auto; padding: 12px; width: min(100%, 570px); }
+#match header { display: flex; align-items: center; justify-content: space-between; gap: 12px; }
+#match h1 { margin: 0; font-size: 1.55rem; }
+#game-status { margin: 5px 0 10px; }
+#board { display: grid; grid-template-columns: repeat(8,minmax(0,1fr)); width: min(100%, 72dvh); margin-inline: auto; border: 4px solid #243949; border-radius: 8px; overflow: hidden; }
+.square { display: grid; place-items: center; padding: 0; min-width: 0; aspect-ratio: 1; border: 0; border-radius: 0; cursor: pointer; font-size: clamp(1.25rem, 7vw, 3.25rem); line-height: 1; background: #e8d8b5; color: #15222c; }
+.square.dark { background: #5c8279; }
+.square.white { color: #fff4dc; text-shadow: 0 1px 2px #1b2f36, 0 0 2px #1b2f36; }
+.square.selected { box-shadow: inset 0 0 0 4px #ffc658; }
+.square.target { box-shadow: inset 0 0 0 4px #79edbd; }
+.square:focus-visible { outline: 3px solid #1873db; outline-offset: -3px; }
+#promotion { display: block; margin: 10px auto; text-align: center; }
+#promotion[hidden] { display: none; }
+#board-prefs { display: flex; justify-content: center; flex-wrap: wrap; gap: 8px 16px; margin: 12px 0; }
+#board-prefs select, #promotion select { background: #1b2f3c; color: white; border: 1px solid #7290a3; padding: 5px; border-radius: 5px; }
+#board-records { text-align: center; font-size: .9rem; margin-bottom: 8px; }

@@ -36,19 +36,23 @@
   <div class="tag">The dark took everything. Take it back.</div>
   <div class="menu">
     <button class="btn big" id="t-play">Play</button>
-    <button class="btn" id="t-settings">Settings</button>
-    <button class="btn" id="t-trials">Trials <span class="newtag">new</span></button>
+    <button class="btn" id="t-train">Training</button>
+    <button class="btn" id="t-trials">Time trials</button>
+    <button class="btn" id="t-linear" aria-describedby="t-linear-info">LINEAR Run</button>
     <button class="btn" id="t-onelife">One Life run</button>
     <button class="btn" id="t-mp">Play together</button>
-    <button class="btn" id="t-saves">Save files</button>
-    <button class="btn" id="t-stats-btn">Stats</button>
-    <button class="btn" id="t-lore-btn">People</button>
-    <button class="btn" id="t-look">Your light</button>
-    <button class="btn" id="t-how">How to play</button>
-    <button class="btn" id="t-train">Training <span class="newtag" id="t-train-new">new</span></button>
+  </div>
+  <p class="foot" id="t-linear-info"></p>
+  <div class="menu title-tools">
+    <button class="btn small" id="t-settings">Settings</button>
+    <button class="btn small" id="t-saves">Save files</button>
+    <button class="btn small" id="t-stats-btn">Stats</button>
+    <button class="btn small" id="t-lore-btn">People</button>
+    <button class="btn small" id="t-look">Your light</button>
+    <button class="btn small" id="t-how">How to play</button>
   </div>
   <div class="foot" id="t-stats"></div>
-  <button class="ver" id="t-ver" title="What's new in 1.6">Version 1.6 · Training: a practice room for every move you have learned · Frostveil · Trials with medals · <u>What's new</u></button>
+  <button class="ver" id="t-ver">Version 1.7 · <u>What's new</u></button>
 </div>
 
 <!-- world map -->
@@ -77,6 +81,7 @@
     <div id="d-unlock"></div>
     <div class="row">
       <button class="btn" id="d-retry">Play again</button>
+      <button class="btn hidden" id="d-prev">Previous level</button>
       <button class="btn big" id="d-next">Next level</button>
     </div>
     <button class="btn small" id="d-map">Level map</button>
@@ -152,8 +157,9 @@
 <!-- 1.5: what's new -->
 <div id="s-new" class="screen dim hidden">
   <div class="card wide">
-    <h2>What's new in 1.6</h2>
+    <h2>What's new in 1.7</h2>
     <div class="how newlist">
+      <p><b>LINEAR Run</b> opens after you clear the main story. Clear your current level before returning to the preceding one. Your progress and times are saved separately.</p>
       <p><b>Training</b> (1.6, on the title screen): three short hands-on lessons. A practice room for every move you have earned
       (run, jump, double jump, wall jump, dash, glide), Trials, medals and ghosts, and your light, the people you met and playing together.
       Practice never records times or stats.</p>

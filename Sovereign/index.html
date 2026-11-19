@@ -112,7 +112,17 @@ input { font: inherit; color: var(--text); }
 #load-text { color: var(--dim); font-size: 13px; min-height: 1.4em; }
 
 /* title */
-#title .title-box { position: absolute; left: 6vw; top: 50%; transform: translateY(-50%); }
+#title .title-box { position: absolute; left: 6vw; top: 50%; transform: translateY(-50%); max-width: 88vw; max-height: calc(100% - 40px); overflow-y: auto; padding-right: 8px; }
+.title-box .menu { max-width: 100%; }
+.space-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(105px, 1fr)); gap: 6px; }
+.space-grid .btn { border-inline-start: 3px solid var(--planet); min-width: 0; padding-inline: 6px; }
+.space-grid .btn small { display: block; color: var(--dim); font-size: 10px; }
+#space-orders .actions { flex-wrap: wrap; }
+@media (max-height: 620px) {
+  #title .logo.big { font-size: clamp(30px, 7vh, 65px); }
+  #title .tagline { margin-bottom: 12px; }
+  #title .menu { gap: 4px; }
+}
 .tagline { color: var(--dim); font-size: 18px; letter-spacing: .08em; margin: 4px 0 30px 4px; }
 .menu { display: flex; flex-direction: column; gap: 10px; width: 260px; }
 .btn { background: var(--panel2); border: 1px solid var(--line); border-radius: 8px; padding: 11px 18px; text-align: left; font-size: 16px; transition: background .15s, border-color .15s, transform .1s; }
@@ -389,7 +399,7 @@ textarea.code { width: 100%; height: 80px; background: rgba(0, 0, 0, .35); color
 // Source is split into src/js/*.js and joined (in file-name order) into one module by tools/build-game.js.
 import * as THREE from 'three';
 
-const VERSION = '1.5';
+const VERSION = '1.6';
 const DEG = Math.PI / 180;
 const clamp = (v, a, b) => v >= a ? (v <= b ? v : b) : a;   // NaN comes out as the low end, never NaN
 const lerp = (a, b, t) => a + (b - a) * t;
@@ -583,9 +593,17 @@ function computeLabels(m) {
 // --- Globe meshes ---
 // Land: triangulated in lon/lat, long edges split so triangles hug the sphere, one merged geometry with a
 // country index per vertex (colours come from a lookup texture, so map modes never rebuild geometry).
+function antarcticCoast(map) {
+  return map?.polys.find(p => p.f.name === 'Antarctica' && p.bbox[2] - p.bbox[0] > 350 && p.bbox[3] - p.bbox[1] > 10);
+}
 function* buildLand(m, maxEdge) {
   const pos = [], cid = [], v = new THREE.Vector3();
-  const push = (x, y, c) => { ll2v(x, y, 1, v); pos.push(v.x, v.y, v.z); cid.push(c); };
+  let polar = false;
+  const push = (x, y, c) => {
+    if (polar) ll2v(Math.atan2(x, y) / DEG, Math.hypot(x, y) - 90, 1, v);
+    else ll2v(x, y, 1, v);
+    pos.push(v.x, v.y, v.z); cid.push(c);
+  };
   const tri = (ax, ay, bx, by, cx, cy, c, d) => {
     const ab = Math.hypot(ax - bx, ay - by), bc = Math.hypot(bx - cx, by - cy), ca = Math.hypot(cx - ax, cy - ay);
     const mx = Math.max(ab, bc, ca);
@@ -595,8 +613,20 @@ function* buildLand(m, maxEdge) {
     else { const x = (cx + ax) / 2, y = (cy + ay) / 2; tri(ax, ay, bx, by, x, y, c, d + 1); tri(x, y, bx, by, cx, cy, c, d + 1); }
   };
   let k = 0;
-  for (const p of m.polys) {
-    const toV2 = r => { const a = []; for (let i = 0; i < r.length; i += 2) a.push(new THREE.Vector2(r[i], r[i + 1])); return a; };
+  // The detailed map has only a degenerate south-pole ring for the mainland.
+  const ownCoast = antarcticCoast(m), coast = ownCoast || antarcticCoast(World.maps['110m']);
+  const polys = coast && !ownCoast ? [...m.polys, coast] : m.polys;
+  for (const p of polys) {
+    polar = p === coast;
+    const toV2 = r => {
+      const a = [];
+      for (let i = 0; i < r.length; i += 2) {
+        const lon = r[i], lat = r[i + 1], radius = lat + 90;
+        a.push(polar ? new THREE.Vector2(radius * Math.sin(lon * DEG), radius * Math.cos(lon * DEG)) : new THREE.Vector2(lon, lat));
+      }
+      if (polar && a[0].distanceToSquared(a[a.length - 1]) < 1e-8) a.pop();
+      return a;
+    };
     const outer = toV2(p.rings[0]), holes = p.rings.slice(1).map(toV2), all = outer.concat(...holes);
     let faces;
     try { faces = THREE.ShapeUtils.triangulateShape(outer, holes); } catch (e) { faces = []; }
@@ -1663,6 +1693,12 @@ const UI = {
     $('#title .menu').innerHTML = (has ? '<button class="btn gold" data-act="continue">Continue</button><button class="btn" data-act="new">New Game</button><button class="btn" data-act="load">Load Game</button>'
       : '<button class="btn gold" data-act="new">New Game</button>') +
       `<button class="btn" data-act="online">Play online with friends (2-6 leaders)</button><button class="btn" data-act="sim">Simulator: watch the AI, take over anyone</button><button class="btn" data-act="explore">Explore the World</button><button class="btn" data-act="hall">Hall of Leaders</button>${trainButton()}<button class="btn" data-act="whatsnew">What\'s new in ${VERSION}</button><button class="btn" data-act="settings">Settings</button><button class="btn" data-act="credits">Credits</button>`;
+    const space = document.createElement('button');
+    space.className = 'btn';
+    space.textContent = spaceUnlocked() ? 'Sovereign Interplanetary' : 'Interplanetary · Win a campaign to unlock';
+    space.disabled = !spaceUnlocked();
+    space.onclick = openInterplanetary;
+    $('#title .menu').insertBefore(space, $('#title .menu').children[has ? 3 : 1]);
     if (!Store.get('seen15', false)) { Store.set('seen15', true); if (has) setTimeout(() => { if (this.screen === 'title' && $('#modal').classList.contains('hidden') && !Tutor.active && !Tutor.offerOpen) this.whatsNew(); }, 900); }
     setTimeout(() => trainOffer(), 1200);      // 1.5: a new player (no saves yet) is offered Your first year once
   },
@@ -3237,6 +3273,7 @@ const ElectionNight = {
 function endGame(kind, headline, text) {
   if (!G || G.over || G.sim) return;
   G.over = { kind, headline, text, day: G.day };
+  if (!G.tut && kind === 'victory') Store.set('interplanetaryUnlocked', true);
   Clock.pause();
   const n = G.nations[G.player.idx], c = World.countries[n.idx], L = legacyScore(n), P = G.player;
   const entry = { country: c.name, flag: c.flag, leader: P.title + ' ' + P.name, years: (G.day / 365).toFixed(1), ending: headline, score: L.total, date: fmtDate(G.day), at: Date.now() };
@@ -7363,6 +7400,145 @@ setInterval(() => { try { Online.tick(); Online.bar(); } catch (e) {} }, 400);
 window.__hgJoin = c => { Online.open(); $('#on-code').value = c; Online.joinRoom(c); return true; };
 window.__hgHost = convId => { Online.open(); Online.hostRoom(); const iv = setInterval(() => { if (Online.code) { clearInterval(iv); try { window.parent.HG_sendInvite(convId, { game: 'sovereign', code: Online.code, max: 6 }); } catch (e) {} } }, 300); setTimeout(() => clearInterval(iv), 25000); };
 setTimeout(function hgBoot() { try { if (!window.__sov || !window.__sov.ready) return setTimeout(hgBoot, 500); const p = window.parent; if (!p || p === window) return; const c = p.HG_takeJoin && p.HG_takeJoin('sovereign'); if (c) return window.__hgJoin(c); const h = p.HG_takeHost && p.HG_takeHost('sovereign'); if (h && h.convId) window.__hgHost(h.convId); } catch (e) {} }, 800);
+
+// ---- 83-interplanetary.js ----
+const SPACE_BODIES = [
+  ['Mercury', '#bb9d8e'], ['Venus', '#e2b476'], ['Earth', '#68aff2'], ['Mars', '#d4795a'],
+  ['Ceres', '#a6a9b7'], ['Jupiter', '#d8a581'], ['Saturn', '#e3c495'], ['Uranus', '#78d5d3'],
+  ['Neptune', '#6e8bde'], ['Pluto', '#d3aca0'], ['Haumea', '#a6bdc8'], ['Makemake', '#ca907c'], ['Eris', '#d6d8e5']
+];
+const SPACE_NEUTRAL = -1;
+const SPACE_PLAYER = 0;
+const SPACE_WIN = 8;
+const SPACE_SIDES = ['Your faction', 'Inner Alliance', 'Outer Union'];
+let spaceState, spaceSelected;
+
+function spaceUnlocked() {
+  return Store.get('interplanetaryUnlocked', false) || Store.get('hall', []).some(entry => String(entry.ending).startsWith('Victory:'));
+}
+
+function newSpaceGame(index) {
+  const bodies = SPACE_BODIES.map((_, i) => ({ side: SPACE_NEUTRAL, fleet: 2 + i % 3, industry: 1 }));
+  const homes = [index, ...[2, 10, 6].filter(i => i !== index).slice(0, 2)];
+  homes.forEach((i, side) => { bodies[i] = { side, fleet: side === SPACE_PLAYER ? 10 : 7, industry: 2 }; });
+  return { bodies, turn: 1, credits: 9, range: 1, orders: 2, result: '', message: 'Develop industry or send a fleet to a neighboring world.' };
+}
+
+function spaceShips(attacker, defender) {
+  if (attacker.side === defender.side) return Math.max(0, attacker.fleet - 1);
+  return Math.min(Math.max(0, attacker.fleet - 1), defender.fleet + 2);
+}
+
+function spaceMove(state, from, to) {
+  const attacker = state.bodies[from], defender = state.bodies[to];
+  const ships = spaceShips(attacker, defender);
+  if (!ships) return;
+  attacker.fleet -= ships;
+  if (attacker.side === defender.side) defender.fleet += ships;
+  else if (ships > defender.fleet) {
+    defender.fleet = ships - defender.fleet;
+    defender.side = attacker.side;
+  } else defender.fleet -= ships;
+}
+
+function spaceResult(state) {
+  const held = state.bodies.filter(body => body.side === SPACE_PLAYER).length;
+  if (held >= SPACE_WIN) return 'Victory · You control the solar system';
+  if (!held) return 'Defeat · Your last world was captured';
+  if (state.bodies.some(body => body.side > 0 && state.bodies.filter(x => x.side === body.side).length >= SPACE_WIN)) return 'Defeat · A rival formed a solar majority';
+  return '';
+}
+
+function spaceAdvance(state) {
+  state.turn++;
+  state.orders = 2;
+  state.bodies.forEach(body => {
+    if (body.side !== SPACE_NEUTRAL) body.fleet = Math.min(30, body.fleet + body.industry);
+    if (body.side === SPACE_PLAYER) state.credits += body.industry;
+  });
+  const moves = [];
+  for (const side of [1, 2]) {
+    const choices = [];
+    state.bodies.forEach((a, i) => {
+      if (a.side !== side) return;
+      for (const j of [i - 1, i + 1]) {
+        const target = state.bodies[j];
+        if (target && target.side !== side && a.fleet - 2 > target.fleet) choices.push([i, j, target.fleet]);
+      }
+    });
+    choices.sort((a, b) => a[2] - b[2]);
+    if (!choices.length) continue;
+    const [from, to] = choices[0];
+    spaceMove(state, from, to);
+    moves.push(SPACE_SIDES[side] + ' took ' + SPACE_BODIES[to][0] + '.');
+  }
+  state.message = moves.join(' ') || 'Industry produced fleets. Your credits and orders have refreshed.';
+}
+
+function openInterplanetary() {
+  if (!spaceUnlocked()) return;
+  spaceState = Store.get('interplanetary', null);
+  if (!spaceState || !Array.isArray(spaceState.bodies) || spaceState.bodies.length !== SPACE_BODIES.length) return spaceSetup();
+  spaceSelected = spaceState.bodies.findIndex(b => b.side === SPACE_PLAYER);
+  spacePaint();
+}
+
+function spaceSetup() {
+  UI.modal('<h2>Sovereign Interplanetary</h2><p>Choose a home world. Take control of eight worlds before either rival faction does.</p>' +
+    '<div class="space-grid">' + SPACE_BODIES.map(([name, color], i) => '<button class="btn" style="--planet:' + color + '" data-space-home="' + i + '">' + name + '</button>').join('') +
+    '</div><div class="actions"><button class="btn" data-act="close-modal">Back to title</button></div>');
+  $$('[data-space-home]').forEach(button => { button.onclick = () => {
+    spaceSelected = Number(button.dataset.spaceHome);
+    spaceState = newSpaceGame(spaceSelected);
+    Store.set('interplanetary', spaceState);
+    spacePaint();
+  }; });
+}
+
+function spacePaint() {
+  const s = spaceState;
+  const selected = s.bodies[spaceSelected], owned = s.bodies.filter(body => body.side === SPACE_PLAYER).length;
+  UI.modal('<h2>Sovereign Interplanetary</h2><p>Turn ' + s.turn + ' · ' + s.credits + ' credits · ' + s.orders + ' orders · ' + owned + ' / ' + SPACE_WIN + ' worlds</p>' +
+    '<div class="space-grid">' + SPACE_BODIES.map(([name, color], i) => {
+      const b = s.bodies[i];
+      return '<button class="btn' + (i === spaceSelected ? ' gold' : '') + '" style="--planet:' + color + '" data-space-world="' + i + '" aria-pressed="' + (i === spaceSelected) + '">' + name +
+        '<small>' + (SPACE_SIDES[b.side] || 'Neutral') + ' · ' + b.fleet + ' ships</small></button>';
+    }).join('') + '</div><p role="status">' + esc(s.result || s.message) + '</p>' +
+    (!s.result && selected ? '<div id="space-orders"><div class="actions">' +
+      '<button class="btn" data-space-action="develop"' + (selected.side !== SPACE_PLAYER || s.credits < 4 || selected.industry >= 5 || !s.orders ? ' disabled' : '') + '>Develop · 4 credits</button>' +
+      '<button class="btn" data-space-action="research"' + (s.range >= 2 || s.credits < 8 || !s.orders ? ' disabled' : '') + '>Research range · 8 credits</button>' +
+      '<button class="btn gold" data-space-action="advance">End turn</button></div><div class="actions">' +
+      s.bodies.map((body, i) => selected.side === SPACE_PLAYER && i !== spaceSelected && Math.abs(i - spaceSelected) <= s.range && s.orders && spaceShips(selected, body) ?
+        '<button class="btn" data-space-ship="' + i + '">' + (body.side === SPACE_PLAYER ? 'Reinforce ' : 'Send fleet to ') + SPACE_BODIES[i][0] + '</button>' : '').join('') +
+      '</div></div>' : '') +
+    '<div class="actions"><button class="btn" data-act="close-modal">Back to title</button>' +
+    (s.result ? '<button class="btn gold" id="space-restart">New solar campaign</button>' : '') + '</div>');
+  $$('[data-space-world]').forEach(button => { button.onclick = () => { spaceSelected = Number(button.dataset.spaceWorld); spacePaint(); }; });
+  $$('[data-space-ship]').forEach(button => { button.onclick = () => {
+    const to = Number(button.dataset.spaceShip);
+    spaceMove(s, spaceSelected, to);
+    s.orders--;
+    s.message = 'Fleet sent to ' + SPACE_BODIES[to][0] + '.';
+    spaceSave();
+  }; });
+  $$('[data-space-action]').forEach(button => { button.onclick = () => {
+    if (button.dataset.spaceAction === 'develop') {
+      s.credits -= 4; s.orders--; selected.industry++;
+      s.message = SPACE_BODIES[spaceSelected][0] + ' grew to industry level ' + selected.industry + '.';
+    } else if (button.dataset.spaceAction === 'research') {
+      s.credits -= 8; s.orders--; s.range = 2; s.message = 'Fleets can now travel up to two worlds along the route.';
+    } else spaceAdvance(s);
+    spaceSave();
+  }; });
+  const restart = $('#space-restart');
+  if (restart) restart.onclick = spaceSetup;
+}
+
+function spaceSave() {
+  spaceState.result = spaceResult(spaceState);
+  Store.set('interplanetary', spaceState);
+  spacePaint();
+}
 
 // ---- 87-tutor.js ----
 // ===== Training (2026-11-16): the coach-mark engine. A copy of Beat Lab's 80-tutor.js look and behaviour, made game-agnostic =====

@@ -119,7 +119,14 @@ function checkZones() {
 
 
 // One fixed 60Hz step. Returns 0 = keep playing, 1 = died, 2 = reached the goal.
-function updatePhysics() { worldStep(); return bodyStep(); }
+function updatePhysics() {
+    const x = player.x, y = player.y;
+    worldStep();
+    const result = bodyStep();
+    player.idleTicks = player.grounded && !keys.left && !keys.right && !keys.jump &&
+        Math.abs(x - player.x) < 0.05 && Math.abs(y - player.y) < 0.05 ? (player.idleTicks || 0) + 1 : 0;
+    return result;
+}
 // the world moves once a frame; bodyStep moves whoever `player` is (in multiplayer the bots take turns being it)
 function worldStep() {
     levelTick++;
@@ -255,6 +262,7 @@ function startCampaign(level, oneLife, endless) {
     playMode = 'campaign';
     currentLevel = level;
     totalDeaths = 0;
+    insultLevelKey = '';
     isOneLife = oneLife;
     isEndless = endless;
     loadCampaignLevel(currentLevel);
@@ -383,13 +391,23 @@ const INSULTS = {
     ]
 };
 let insultLevelKey = '', insultDeaths = 0, lastInsult = '';
+const roastBags = {};
 function deathInsult() {
     const key = playMode + ':' + (playMode === 'campaign' ? currentLevel : (customLevel ? customLevel.name : ''));
     if (key !== insultLevelKey) { insultLevelKey = key; insultDeaths = 0; }
     insultDeaths++;
-    const pool = insultDeaths <= 1 ? INSULTS.first : insultDeaths <= 6 ? INSULTS.again : INSULTS.many;
-    let line = lastInsult;
-    for (let i = 0; i < 8 && line === lastInsult; i++) line = pool[Math.floor(Math.random() * pool.length)];
+    const tier = insultDeaths <= 1 ? 'first' : insultDeaths <= 6 ? 'again' : 'many';
+    let bag = roastBags[tier];
+    if (!bag || !bag.length) {
+        bag = roastBags[tier] = INSULTS[tier].slice();
+        for (let i = bag.length - 1; i > 0; i--) {
+            const j = Math.floor(Math.random() * (i + 1));
+            [bag[i], bag[j]] = [bag[j], bag[i]];
+        }
+        const last = bag.length - 1;
+        if (last > 0 && bag[last] === lastInsult) [bag[last], bag[0]] = [bag[0], bag[last]];
+    }
+    const line = bag.pop();
     lastInsult = line;
     return line.replace(/\{n\}/g, insultDeaths).replace(/\{lv\}/g, playMode === 'campaign' ? currentLevel : 'this');
 }
@@ -397,24 +415,30 @@ function deathInsult() {
 function triggerDeath() {
     gameState = 'DEAD';
     if (playMode === 'campaign') totalDeaths++; else customDeaths++;
-    deathDisplay.textContent = `Deaths: ${playMode === 'campaign' ? totalDeaths : customDeaths}`;
+    const tally = `Deaths: ${playMode === 'campaign' ? totalDeaths : customDeaths}`;
+    deathDisplay.textContent = tally;
+    document.getElementById('deathTally').textContent = tally;
+    const roast = deathInsult();
     createParticles(player.x + player.w/2, player.y + player.h/2, 30, '#38bdf8');
 
     if (playMode === 'campaign' && isOneLife) {
         if (currentLevel - 1 > progress.bestOneLife) { progress.bestOneLife = currentLevel - 1; saveProgress(); }
         currentLevel = 1;
         document.getElementById('deathHeader').textContent = "LIFE LOST";
-        document.getElementById('deathMessage').textContent = "One Life Mode: Progress reset to Level 1. " + deathInsult();
+        document.getElementById('deathMessage').textContent = "One Life Mode: Progress reset to Level 1. " + roast;
         document.getElementById('retryBtn').textContent = "Restart Journey";
     } else {
         document.getElementById('deathHeader').textContent = "You Died";
-        document.getElementById('deathMessage').textContent = deathInsult();
+        document.getElementById('deathMessage').textContent = roast;
         document.getElementById('retryBtn').textContent = "Try Again";
     }
     document.getElementById('deathBackBtn').textContent = backLabel();
 
     const token = ++deathToken;
     setTimeout(() => { if (gameState === 'DEAD' && token === deathToken) deathScreen.classList.remove('hidden'); }, 500);
+    if (autoRespawn.checked && playMode !== 'test' && !(playMode === 'campaign' && isOneLife)) {
+        setTimeout(() => { if (token === deathToken) retryLevel(); }, 1450);
+    }
 }
 
 
@@ -445,7 +469,7 @@ function levelComplete() {
         gameState = 'VICTORY';
         let modeType = isOneLife ? "One Life" : "Normal";
         progress.beaten = true;
-        if (isOneLife) progress.bestOneLife = MAX_LEVELS;
+        if (isOneLife) progress.bestOneLife = Math.max(progress.bestOneLife, MAX_LEVELS);
         saveProgress();
         document.getElementById('finalStats').textContent = `Total Deaths: ${totalDeaths} (${modeType})`;
         setTimeout(() => {

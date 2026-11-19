@@ -154,6 +154,7 @@ window.HG_skipWait = function () { if (skipWait) skipWait(); };
 function playNow(g) {
   var id = ++loadId;
   current = { game: g, html: null };
+  document.getElementById('game-error').hidden = true;
   document.getElementById('ptitle').textContent = g.name;
   var hint = document.getElementById('chathint'), Lg = window.HGGrapevine;
   hint.textContent = g.noChat || !(Lg && Lg.me()) ? '' : (g.chatShift ? 'Shift+T to chat' : 'T to chat');
@@ -162,10 +163,8 @@ function playNow(g) {
   if (local) { HG_set(g); frame.removeAttribute('srcdoc'); frame.src = path(g) + (window.HG_TEST_QUERY || ''); return; }   // HG_TEST_QUERY: tests only (local copies)
   frame.srcdoc = message('Loading ' + g.name + '...');
   var alive = function () { return id === loadId; };
-  if (typeof glStage === 'function') glStage('Downloading');
   loadGameHtml(g, alive).then(function (r) {
     if (id !== loadId) return;
-    if (typeof glStage === 'function') glStage('Starting');
     return prepare(r.html, g, r.base).then(function (h) {
       if (id !== loadId) return;
       current.html = h;
@@ -175,8 +174,10 @@ function playNow(g) {
   }).catch(function () {
     if (id !== loadId) return;
     var why = BUNDLE ? 'This game is missing from the offline copy.' : navigator.onLine === false ? 'You are offline and this game is not saved on this device yet.' : 'The game server (cdn.jsdelivr.net) did not answer. It may be blocked on this network, or the connection dropped.';
-    frame.srcdoc = message('Could not load ' + g.name + '.<br>' + why);
-    if (typeof glFail === 'function') glFail(g, why);
+    frame.srcdoc = message('');
+    var error = document.getElementById('game-error');
+    error.querySelector('p').textContent = 'Could not load ' + g.name + '. ' + why;
+    error.hidden = false;
     // back online: try again by itself
     var again = function () { removeEventListener('online', again); if (id === loadId && current && current.game === g && !current.html) playNow(g); };
     if (!BUNDLE) addEventListener('online', again);
@@ -355,6 +356,8 @@ function paintChip() {
   document.getElementById('chip-dot').className = 'cdot' + (s === 'online' ? ' on' : s === 'signed-out' || s === 'error' ? '' : ' wait');
   // your picture and goons on the chip: the way into your profile and the shop
   var e = L && L.eco && L.eco.state();
+  chip.classList.toggle('role-name-owner', !!(e && e.owner));
+  chip.classList.toggle('role-name-admin', !!(e && !e.owner && e.perms && e.perms.length));
   document.getElementById('chip-pfp').innerHTML = e && e.equip && e.equip.pfp && typeof profPfp === 'function' ? profPfp(e.equip.pfp, 22) : '';
   document.getElementById('chip-goons').textContent = e ? (e.dev ? '∞' : e.goons) + ' goons' : '';
 }

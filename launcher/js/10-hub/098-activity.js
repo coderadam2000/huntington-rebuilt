@@ -5,6 +5,18 @@
 var ACT = { data: null, at: 0, span: 'week', timer: 0 };
 function actFmtMin(m) { return m >= 120 ? Math.round(m / 60) + ' h' : m + ' min'; }
 function actDay(d) { var t = new Date(d + 'T12:00:00Z'); return t.toLocaleDateString(undefined, { month: 'short', day: 'numeric' }); }
+function actHistory(days, today, key, label, unit) {
+  var max = Math.max(1, ...days.map(function (day) { return Number(day[key]) || 0; }));
+  var W = 640, H = 170, width = W / Math.max(days.length, 1);
+  var bars = days.map(function (day, i) {
+    var amount = Number(day[key]) || 0, height = H * amount / max;
+    var tip = profEsc(actDay(day.d) + ' · ' + unit(amount));
+    return '<g class="act-bar" data-tip="' + tip + '"><title>' + tip + '</title><rect fill="transparent" x="' + i * width + '" width="' + width + '" height="' + H + '"/>' +
+      '<path class="' + (day.d === today ? 'today' : '') + '" d="M' + (i * width + 1) + ',' + H + ' v-' + height + ' h' + (width - 2) + ' v' + height + ' Z"/></g>';
+  }).join('');
+  return '<div class="act-card"><div class="act-ct"><b>' + label + '</b></div>' +
+    (days.length ? '<div class="act-chart"><svg viewBox="0 0 ' + W + ' ' + H + '" preserveAspectRatio="none" role="img" aria-label="' + label + '">' + bars + '</svg><div class="act-axis"><span>' + actDay(days[0].d) + '</span><span>' + actDay(days[days.length - 1].d) + '</span></div><div class="act-tip" hidden></div></div>' : '<div class="act-empty">No days counted yet.</div>') + '</div>';
+}
 function actRender() {
   var box = document.getElementById('act-home'); if (!box) return;
   var L = window.HGGrapevine;
@@ -26,13 +38,11 @@ function actPaint() {
       return '<div class="act-row" title="' + profEsc(g.name) + ': ' + actFmtMin(g.minutes) + ' played, ' + g.plays + ' player-days"><span class="act-pos">' + (i + 1) + '</span><span class="act-gn">' + profEsc(g.name) + '</span>' +
         '<span class="act-track"><i style="width:' + Math.max(2, Math.round(100 * g.minutes / max)) + '%"></i></span><span class="act-val">' + actFmtMin(g.minutes) + '</span></div>';
     }).join('') + '</div>' : '<div class="act-empty">Nothing played yet in this time.</div>') + '</div>';
-  // players per day: vertical bars, hover for the numbers
-  var pd = d.perDay.slice(-30), pmax = Math.max(1, pd.reduce(function (m, x) { return Math.max(m, x.players); }, 0)), W = 640, H = 170, bw = W / Math.max(pd.length, 1);
-  var bars = pd.map(function (x, i) { var hh = Math.max(2, Math.round((H - 24) * x.players / pmax)), bx = i * bw + 1, w = Math.max(2, bw - 2);
-    return '<g class="act-bar" data-tip="' + profEsc(actDay(x.d) + ': ' + x.players + ' players · ' + actFmtMin(x.minutes) + ' played · ' + x.peak + ' online at once') + '"><rect x="' + bx + '" y="0" width="' + w + '" height="' + H + '" fill="transparent"/>' +
-      '<path d="M' + bx + ',' + H + ' V' + (H - hh + 4) + ' q0,-4 4,-4 h' + Math.max(0, w - 8) + ' q4,0 4,4 V' + H + ' Z" class="' + (x.d === d.today ? 'today' : '') + '"/></g>'; }).join('');
-  h += '<div class="act-card"><div class="act-ct"><b>Players per day</b><span class="rdesc">since ' + actDay(d.since) + ' · busiest: ' + pmax + '</span></div>' +
-    (pd.length ? '<div class="act-chart"><svg viewBox="0 0 ' + W + ' ' + H + '" preserveAspectRatio="none" role="img" aria-label="Players per day">' + bars + '</svg><div class="act-axis"><span>' + actDay(pd[0].d) + '</span><span>today</span></div><div class="act-tip" hidden></div></div>' : '<div class="act-empty">No days counted yet.</div>') + '</div>';
+  var days = d.perDay.slice(-30);
+  h += actHistory(days, d.today, 'players', 'Players per day', function (n) { return n.toLocaleString() + ' players'; });
+  h += actHistory(days, d.today, 'minutes', 'Hours played per day', function (n) {
+    return (n / 60).toLocaleString(undefined, { maximumFractionDigits: 2 }) + ' hours across all players';
+  });
   // right now
   h += '<div class="act-card"><div class="act-ct"><b>Playing right now</b></div>' + (d.playingNow.length ? '<div class="act-now">' + d.playingNow.map(function (g) {
     return '<span class="act-chip"><i></i>' + profEsc(g.name) + ' <b>' + g.n + '</b></span>'; }).join('') + '</div>' : '<div class="act-empty">Nobody is in a game this minute.</div>') + '</div>';
@@ -43,8 +53,10 @@ document.addEventListener('click', function (e) {
   ACT.span = b.dataset.actSpan; actPaint();
 });
 document.addEventListener('mousemove', function (e) {
-  var g = e.target.closest && e.target.closest('.act-bar'), tip = document.querySelector('#act-home .act-tip'); if (!tip) return;
-  if (!g) { tip.hidden = true; return; }
+  var g = e.target.closest && e.target.closest('.act-bar');
+  var tip = g && g.closest('.act-chart').querySelector('.act-tip');
+  document.querySelectorAll('#act-home .act-tip:not([hidden])').forEach(function (open) { if (open !== tip) open.hidden = true; });
+  if (!tip) return;
   var c = tip.parentNode.getBoundingClientRect(); tip.hidden = false; tip.textContent = g.dataset.tip;
   tip.style.left = Math.min(c.width - tip.offsetWidth, Math.max(0, e.clientX - c.left - tip.offsetWidth / 2)) + 'px';
 });

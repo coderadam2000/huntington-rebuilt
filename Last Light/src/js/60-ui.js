@@ -69,13 +69,16 @@ const UI = {
     pause() {
         if (G.state !== 'play' || G.done) return;
         G.state = 'paused'; Input.clear();
-        const rec = SAVE.d.levels[G.L.def.id];
+        const rec = G.linear ? { best: SAVE.d.linear[G.L.def.id] } : SAVE.d.levels[G.L.def.id];
+        $('#p-map').textContent = G.linear ? 'Main menu' : 'Level map';
         $('#p-info').innerHTML = `<div class="drow"><span>${G.L.def.id} · ${G.L.def.name}</span><b>${fmtTime(G.time)}</b></div>` + (rec && rec.best != null ? `<div class="drow"><span>Best</span><b>${fmtTime(rec.best)}</b></div>` : '')
             + `<div class="drow"><span>Falls this run</span><b>${G.stats.deaths}</b></div><div class="drow"><span>Sparks</span><b>${G.got.sparks} / ${G.L.sparks}</b></div>`;
         this.show('pause');
     },
     resume() { if (G.state !== 'paused') return; G.state = 'play'; this.show(null); Input.clear(); },
     results(r) {
+        $('#d-prev').classList.add('hidden');
+        $('#d-map').textContent = 'Level map';
         const rows = [
             ['Time', fmtTime(r.time) + (r.best ? '<span class="new">NEW BEST</span>' : '')],
             ['Sparks', r.sparks + ' / ' + r.sparksOf],
@@ -130,7 +133,8 @@ const TIPS = ['Lanterns are checkpoints: light every one you pass.', 'Hold jump 
 UI.died = function () {
     G.state = 'dead'; Input.clear(); $('#banner').classList.remove('on'); $('#hud').classList.add('hidden'); $('#touch').classList.add('hidden');
     $('#dd-cause').textContent = (CAUSE[G.cause] || 'The light went out.') + (G.run ? '  One Life run over: ' + G.run.cleared + ' level' + (G.run.cleared === 1 ? '' : 's') + ' cleared (best ' + ((SAVE.d.runs || {}).onelife || 0) + ').' : '');
-    const rec = SAVE.d.levels[G.L.def.id];
+    const rec = G.linear ? { best: SAVE.d.linear[G.L.def.id] } : SAVE.d.levels[G.L.def.id];
+    $('#dd-map').textContent = G.linear ? 'Main menu' : 'Level map';
     $('#dd-rows').innerHTML = `<div><b>${G.stats.deaths}</b><span>this run</span></div><div><b>${SAVE.d.deaths}</b><span>all time</span></div><div><b>${fmtTime(G.time)}</b><span>time</span></div>` + (rec && rec.best != null ? `<div><b>${fmtTime(rec.best)}</b><span>best</span></div>` : '');
     $('#dd-tip').textContent = TIPS[Math.floor(Math.random() * TIPS.length)];
     SAVE.write(); this.show('dead');
@@ -149,6 +153,7 @@ UI.stats = function () {
         ['Stories heard', talkCount() + ' / ' + TALK_N], ['Guardians freed', Object.keys(SAVE.d.guards || {}).filter(k => GUARDS[k]).length + ' / ' + Object.keys(GUARDS).length], ['Lost lanterns found', Object.keys(SAVE.d.secrets || {}).length + ' / ' + LEVELS.filter(l => l.map.some(r => r.includes('z'))).length],
         ['Levels done flawless', flawlessCount() + ' / ' + LEVELS.length], ['Bosses beaten', n('bossKills')], ['All best times', total == null ? 'clear every level' : fmtTime(total)],
         ['Frozen lanterns', frozenFound() + ' / 11'], ['Trial medals', medalCount(1) + ' won · ' + medalCount(3) + ' gold · ' + medalPoints() + ' points'],
+        ['LINEAR levels', linearCount() + ' / ' + baseLevels().length],
         ['sec', 'Falls'], ['Total', SAVE.d.deaths], ['Into pits', n('death_pit')], ['On spikes', n('death_spike')], ['In lava', n('death_lava')], ['To enemies', enemy], ['Hits taken', n('hits')],
         ['sec', 'Moves'], ['Jumps', n('jumps')], ['Double jumps', n('djumps')], ['Wall jumps', n('walljumps')], ['Dashes', n('dashes')], ['Time gliding', Math.round(S.glide || 0) + ' s'], ['Enemies defeated', n('kills')], ['Lanterns lit', n('lanterns')],
         ['Distance', n('dist').toLocaleString() + ' tiles']];

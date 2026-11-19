@@ -86,6 +86,7 @@ const GradeShader = {
         }`
 };
 let composer = null, bloomPass = null, gradePass = null, fxaaPass = null;
+let renderContextLost = false;
 function updatePostSize() {
     if (!composer) return;
     gradePass.uniforms.uRes.value.set(window.innerWidth, window.innerHeight);
@@ -231,6 +232,17 @@ function init3D() {
     renderer.shadowMap.enabled = Q.shadows;
     renderer.shadowMap.type = Q.soft ? THREE.PCFSoftShadowMap : THREE.PCFShadowMap;
     $('game-container').appendChild(renderer.domElement);
+    renderer.domElement.addEventListener('webglcontextlost', e => {
+        e.preventDefault();
+        renderer.domElement.style.visibility = 'hidden';
+        renderContextLost = true;
+        clearScreenFlash();
+    });
+    renderer.domElement.addEventListener('webglcontextrestored', () => {
+        setupPost();
+        onWindowResize();
+        renderContextLost = false;
+    });
 
 
     detailTex = makeDetailTexture(); detailTex.anisotropy = Q.aniso;

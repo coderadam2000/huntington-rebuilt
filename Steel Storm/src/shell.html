@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-<title>Steel Storm 2.3</title>
+<title>Steel Storm 2.4</title>
 <!--@css-->
 <script type="importmap">
 { "imports": {
@@ -21,7 +21,7 @@
 <div id="menu" class="hidden" data-view="menu">
   <div class="shade"></div>
   <header class="mtop">
-    <div class="brand"><span class="logo">STEEL<b>STORM</b></span><a id="b-new" class="ver" href="#">v2.3 &middot; What's new</a></div>
+    <div class="brand"><span class="logo">STEEL<b>STORM</b></span><a id="b-new" class="ver" href="#">v2.4 &middot; What's new</a></div>
     <div class="wallet">
       <span class="w-pill" title="Credits: buy vehicles"><i class="ic cr"></i><b id="w-cr">0</b></span>
       <span class="w-pill" title="Research points for what you are researching"><i class="ic rp"></i><b id="w-rp">0</b></span>
@@ -98,6 +98,7 @@
   <section id="v-garage" class="view hidden">
     <div class="sheet g-list">
       <div class="sheet-h"><h2>Garage</h2><div class="tabs" id="g-tabs"><button data-gt="all">All</button><button data-gt="g">Ground</button><button data-gt="a">Air</button><button data-gt="n">Naval</button></div></div>
+      <label class="note" for="g-nation">Historical nation</label> <select id="g-nation"><option value="">All nations</option></select>
       <div id="g-owned" class="vgrid"></div>
     </div>
     <aside class="vpanel" id="g-info"></aside>
@@ -156,12 +157,13 @@
   <div class="card wide">
     <div class="card-h"><h2>How to play</h2><button class="x" data-close title="Close">&times;</button></div>
     <div class="how">
-      <div><h4>Modes</h4><p><b>Team Deathmatch:</b> first team to the kill limit. <b>Conquest:</b> hold the 3 points; the team holding more drains the other team's tickets. <b>Capture the Flag:</b> drive (or fly a helicopter) over the enemy flag and bring it to your own base while your flag is home. <b>Free-for-all:</b> everyone against everyone.</p>
+      <div><h4>Modes</h4><p><b>1v1 Duel:</b> first to three knockouts. <b>Team Deathmatch:</b> first team to the kill limit. <b>Conquest:</b> hold the 3 points; the team holding more drains the other team's tickets. <b>Capture the Flag:</b> drive (or fly a helicopter) over the enemy flag and bring it to your own base while your flag is home. <b>Free-for-all:</b> everyone against everyone.</p>
       <h4>Progress</h4><p>Every match earns <b>credits</b> and <b>research points</b>. Research vehicles in 15 branches (tiers I-V), buy them, then research <b>modules</b> for each vehicle you own (engine, armour, guns, ammo, stabiliser / countermeasures / radar). Battle rating keeps you with vehicles like yours.</p>
       <h4>Multiplayer</h4><p>Open <b>Multiplayer</b>: join an open game from the list, type a friend's 6-digit code, or <b>Host</b> one with your own options. In the party lobby pick a team and press <b>READY</b>; the host starts, bots fill the empty slots. Friends can join a running battle, and a dropped player gets their vehicle and score back.</p>
       <h4>Respawning</h4><p>When you are destroyed, the vehicle you picked before the battle is ready first. Pick another one from your lineup (keys <b>1-5</b>) and press <b>DEPLOY</b> or <b>Space</b>.</p></div>
       <div><h4>Controls</h4>
       <table class="keys">
+      <tr><td><kbd>V</kbd> / Mouse wheel</td><td>Switch camera / zoom</td></tr>
       <tr><td>Mouse</td><td>Aim camera / turrets / steer jet</td></tr>
       <tr><td><kbd>W</kbd> <kbd>S</kbd></td><td>Throttle (tank and ship: forward, back)</td></tr>
       <tr><td><kbd>A</kbd> <kbd>D</kbd></td><td>Steer (helicopter: strafe)</td></tr>
@@ -181,7 +183,8 @@
 </div>
 <div id="s-new" class="scr dim hidden">
   <div class="card wide">
-    <div class="card-h"><h2>Steel Storm 2.3: what's new</h2><button class="x" data-close title="Close">&times;</button></div>
+    <div class="card-h"><h2>Steel Storm 2.4: what's new</h2><button class="x" data-close title="Close">&times;</button></div>
+    <p>Fight a 1v1 Duel, try the Harbor and Highlands battlefields, or choose a historical nation in the Garage for infantry and vehicle options. Press V to change perspective.</p>
     <div class="how"><div>
       <h4>Training</h4><p>New <b>Training</b> button in the menu: three hands-on lessons where you do each step yourself. <b>Basic training</b> (drive, aim, fire, destroy, capture, respawn), <b>Wings and rotors</b> (planes and helicopters) and <b>Your garage</b> (research, buying, modules, the lineup and multiplayer). The practice battles never count for your stats or the leaderboards.</p>
       <h4 class="old">Steel Storm 2.2</h4>

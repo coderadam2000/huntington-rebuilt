@@ -252,3 +252,10 @@ kbd { display: inline-block; min-width: 26px; padding: 1px 7px; margin: 0 2px; b
 #s-title .menu .btn.big { grid-column: 1 / -1; justify-self: center; }
 #s-title .menu .btn { margin: 5px; }
 @media (max-width: 480px) { #s-title .menu { grid-template-columns: auto; } }
+#s-title { justify-content: safe center; overflow-y: auto; padding: 16px; pointer-events: auto; }
+#s-title .menu { grid-template-columns: repeat(2, minmax(0, 1fr)); max-width: 430px; width: 100%; margin-top: 12px; }
+#s-title .menu .btn { margin: 3px; min-width: 0; }
+#s-title .menu .btn.big { width: calc(100% - 6px); }
+#s-title .title-tools { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+#t-linear:disabled { opacity: .55; cursor: default; }
+#t-linear-info { margin: 8px 0 0; text-align: center; }

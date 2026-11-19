@@ -1,0 +1,16 @@
+:root { color-scheme: dark; font: 16px system-ui, sans-serif; background: #0b1822; color: #ebf5f5; }
+* { box-sizing: border-box; }
+body { margin: 0; }
+main { width: min(100% - 22px, 920px); margin: 18px auto; }
+header, .title { display: flex; justify-content: space-between; gap: 12px; align-items: center; flex-wrap: wrap; }
+header p, h1, h2 { margin: 0; }
+nav, .controls { display: flex; gap: 7px; flex-wrap: wrap; margin: 12px 0; }
+section { background: #142736; padding: 14px; border: 1px solid #385765; border-radius: 12px; }
+button { font: inherit; background: #213947; color: inherit; border: 1px solid #55717e; border-radius: 6px; padding: 6px 12px; cursor: pointer; }
+button[aria-pressed="true"], #play { background: #93e5be; border-color: #93e5be; color: #092219; font-weight: 700; }
+button:disabled { opacity: .55; cursor: default; }
+canvas { background: #266f58; width: 100%; height: auto; display: block; border-radius: 8px; }
+.controls { align-items: center; }
+.controls label { display: grid; flex: 1 1 120px; min-width: 0; }
+.controls label[hidden] { display: none; }
+#instructions, #feedback { margin: 8px 0; color: #cddce5; }

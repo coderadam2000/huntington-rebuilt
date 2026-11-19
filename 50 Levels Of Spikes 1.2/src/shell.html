@@ -26,7 +26,7 @@
 
     <div id="startScreen" class="overlay">
         <h1>100 Levels of Spikes</h1>
-        <div class="version-badge">v2.2 · Multiplayer</div>
+        <div class="version-badge">v2.3</div>
         <p class="subtitle">A precision platformer that gets harder every level.</p>
 
         <div class="mode-selection">
@@ -38,6 +38,7 @@
                 <input type="checkbox" id="endlessToggle">
                 Endless Mode (No level limit)
             </label>
+            <label><input type="checkbox" id="autoRespawn"> Auto-respawn in normal play</label>
         </div>
 
 
@@ -91,6 +92,7 @@
 
     <div id="deathScreen" class="overlay hidden">
         <h1 id="deathHeader" style="color: var(--danger-color); text-shadow: 0 0 15px var(--danger-color);">You Died</h1>
+        <p id="deathTally"></p>
         <p id="deathMessage">You hit a spike or fell into the void!</p>
         <button id="retryBtn" onclick="retryLevel()" style="background-color: var(--danger-color); box-shadow: 0 5px 0 #be123c;">Try Again</button>
         <div class="menu-row">
@@ -154,6 +156,8 @@
     <div id="whatsNewScreen" class="overlay hidden">
         <h1 class="screen-title">What's New</h1>
         <div class="news-box">
+            <h3>v2.3</h3>
+            <p>Toggle auto-respawn for normal play, try the shuffled death roasts, or let the cube rest for a moment.</p>
             <h3>v2.2: Multiplayer</h3>
             <ul>
                 <li><b>Race</b> your friends to the goal (5, 3, 2 and 1 points), or play <b>Co-op</b> and get everyone through.</li>

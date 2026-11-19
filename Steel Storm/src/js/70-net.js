@@ -157,6 +157,7 @@ function startPlay(force) {
     if (PARTY.net && !PARTY.host) return toast('Only the party host can start.');
     if (PARTY.net) {
         const r = hostRoster(), notReady = r.filter(p => !p.ready && p.id !== 0);
+        if (lobbyOpts().mode === 'duel' && r.length > 2) return toast('A duel needs a party with at most two players.');
         if (notReady.length && !force && !(PARTY.force && Date.now() - PARTY.force < 6000)) { PARTY.force = Date.now(); return toast(notReady.map(p => p.name).join(', ') + ' not ready. Press START again to start anyway.'); }
     }
     const players = PARTY.net ? hostRoster().map(p => ({ id: p.id, name: p.name, veh: p.veh, mm: p.mm, team: p.team })) : [{ id: 0, name: myName(), veh: myVeh(), mm: modMask(myVeh()) }];
@@ -215,8 +216,8 @@ function migrantJoined(peer, old) {
 // ---------- launcher hooks (invites, open parties) ----------
 let lpOpen = '', advT = 0;
 function advMode() {      // what the open-games list shows under the host's name (Grapevine keeps 40 characters)
-    const m = MODES[save.mode] || MODES.tdm, s = save.size, map = { small: 'Small', normal: 'Normal', large: 'Large' }[save.opts.map] || 'Normal';
-    const t = n => n + (save.mode === 'ffa' ? '' : ' ' + s + 'v' + s) + ' · ' + map + ' map' + (PARTY.inMatch ? ' · in battle' : '');
+    const m = MODES[save.mode] || MODES.tdm, s = save.size, map = { small: 'Small', normal: 'Normal', large: 'Large', harbor: 'Harbor', ridge: 'Highlands' }[save.opts.map] || 'Normal';
+    const t = n => n + (save.mode === 'ffa' || save.mode === 'duel' ? '' : ' ' + s + 'v' + s) + ' · ' + map + ' map' + (PARTY.inMatch ? ' · in battle' : '');
     return t(m.name).length <= 40 ? t(m.name) : t(m.short);
 }
 function advertise() {

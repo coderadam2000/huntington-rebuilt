@@ -61,6 +61,7 @@ function buildBuckets() {
 }
 
 function resetPlayer(x, y) {
+    player.idleTicks = 0;
     player.x = x;
     player.y = y;
     player.vx = 0;

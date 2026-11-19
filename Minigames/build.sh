@@ -4,6 +4,7 @@ cd "$(dirname "$0")/.."
 for d in Minigames/*/; do
   g="${d%/}"; [ "$(basename "$g")" = "_shared" ] && continue; [ -d "$g/src" ] || continue
   mkdir -p "$g/src/js" "$g/src/css"
-  cp Minigames/_shared/mg.js "$g/src/js/00-mg.js"; cp Minigames/_shared/mg.css "$g/src/css/00-mg.css"
+  rg -q '<!--@inline ../../_shared/mg.js-->' "$g/src/shell.html" || cp Minigames/_shared/mg.js "$g/src/js/00-mg.js"
+  rg -q '<!--@inline ../../_shared/mg.css-->' "$g/src/shell.html" || cp Minigames/_shared/mg.css "$g/src/css/00-mg.css"
   node tools/build-game.js "$g" --check | tail -1
 done

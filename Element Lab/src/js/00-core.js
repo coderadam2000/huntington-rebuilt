@@ -1,7 +1,7 @@
 // ==========================================
 // ELEMENT LAB - core: helpers, saves, settings, sound
 // ==========================================
-const VERSION = '2.0';
+const VERSION = '2.2';
 const AMB = 20;                                   // room temperature, degrees C
 const clamp = (v, a, b) => v < a ? a : v > b ? b : v;
 const $ = id => document.getElementById(id);

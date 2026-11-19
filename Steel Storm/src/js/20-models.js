@@ -451,7 +451,46 @@ function decalGeo(list, num) {      // list entries [x, y, z, size] on the +X si
     return g;
 }
 // ---- build a live model for an entity ----
+function makeRifleman(def, team) {
+    const root = new THREE.Group(), tur = new THREE.Group(), gun = new THREE.Group();
+    const disposables = [], materials = new Map();
+    function box(parent, width, height, depth, x, y, z, color) {
+        if (!materials.has(color)) {
+            const material = new THREE.MeshLambertMaterial({ color });
+            materials.set(color, material); disposables.push(material);
+        }
+        const geometry = new THREE.BoxGeometry(width, height, depth);
+        disposables.push(geometry);
+        const mesh = new THREE.Mesh(geometry, materials.get(color));
+        mesh.position.set(x, y, z);
+        mesh.castShadow = true;
+        parent.add(mesh);
+        return mesh;
+    }
+    const [uniform, dark] = def.m.c;
+    const body = box(root, .55, .61, .4, 0, 1.03, 0, uniform);
+    const legs = [-.14,.14].map(x => {
+        const limb = new THREE.Group();
+        limb.position.set(x,.72,0);
+        root.add(limb);
+        box(limb,.2,.62,.22,0,-.32,0,uniform);
+        box(limb,.21,.16,.33,0,-.66,.05,dark);
+        return limb;
+    });
+    tur.position.y = 1.07; root.add(tur);
+    box(tur,.35,.34,.32,0,.47,0,0xc19c75);
+    box(tur,.39,.17,.36,0,.62,0,uniform);
+    gun.position.set(.06,.12,.22); tur.add(gun);
+    box(gun,.14,.16,.73,.15,.02,.2,dark);
+    box(gun,.15,.25,.35,-.05,-.09,.06,uniform);
+    box(gun,.15,.25,.35,.31,-.09,.06,uniform);
+    box(tur,.12,.13,.05,.26,.08,-.12,teamCol(team));
+    const muzzle = new THREE.Object3D();
+    muzzle.position.set(.15,.02,.6); gun.add(muzzle);
+    return { root, body, tur, gun, legs, team, muzzles: [muzzle], props: [], turs: [], kit: [], disposables };
+}
 function makeModel(def, team, num) {
+    if (def.infantry) return makeRifleman(def, team);
     const b = def.base || def, P = getParts(def, team), root = new THREE.Group(), o = { root, team, muzzles: [], turs: [], props: [], tur: null, gun: null, kit: [], disposables: [] };
     const mat = MAT.veh[b.ln + ((team | 0) & 1)];
     const add = (geo, m, parent, pos) => { const me = new THREE.Mesh(geo, m); if (pos) me.position.set(pos[0], pos[1], pos[2]); me.castShadow = true; me.receiveShadow = b.ln === 'n'; (parent || root).add(me); return me; };

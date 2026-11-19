@@ -194,6 +194,28 @@ VEHS.forEach(v => {
     v.role = ROLE[v.cls]; v.pw = k('hp') * k('dps') * Math.sqrt(k('ar') * k('sp'));
 });
 const BR_ADJ = { lt: 0, mt: 0, ht: .3, td: .2, spaa: -.2, arty: 0, ftr: 0, atk: -.1, bmb: .1, heli: 0, pb: -.2, dd: 0, cl: .2, bb: .4, ss: .1 };
+// Arcade variants of historical vehicles. Their stats use the existing game balance.
+for (const [id, baseId, name, origin, colors, weapon] of [
+    ['hist-mark-v', 'g1b', 'Mark V', 'Britain · World War I', [0x666749, 0x545537], 'Vickers gun'],
+    ['hist-sherman', 'g2b', 'M4 Sherman', 'United States · World War II', [0x657343, 0x4e5d36], 'Browning'],
+    ['hist-t55', 'g3c', 'T-55', 'Soviet Union · Cold War', [0x5a6754, 0x405047], 'Coaxial machine gun'],
+    ['hist-spitfire', 'a1a', 'Spitfire', 'Britain · World War II', [0x627567, 0x435a58], 'Wing guns'],
+    ['hist-zero', 'a2a', 'A6M Zero', 'Japan · World War II', [0xbfc7b4, 0x788779], 'Wing cannons']
+]) {
+    const base = VEHS.find(vehicle => vehicle.id === baseId);
+    if (!base) continue;
+    const w1 = { ...base.w1, n: base.ln === 'a' ? weapon : base.w1.n };
+    const w2 = base.w2 && { ...base.w2, n: base.ln === 'g' ? weapon : base.w2.n };
+    VEHS.push({ ...base, id, n: name, nation: origin.split(' · ')[0], req: baseId, m: { ...base.m, c: colors }, desc: origin + ' · Historical arcade vehicle', w1, w2 });
+}
+const HISTORICAL_NATIONS = ['Britain', 'United States', 'Soviet Union', 'Japan'];
+for (const [i, label] of ['Lee-Enfield', 'M1 Garand', 'Mosin-Nagant', 'Arisaka'].entries()) {
+    const nation = HISTORICAL_NATIONS[i], uniform = [0x7c7251, 0x606d46, 0x64694c, 0x99845c][i];
+    VEHS.push({ id: 'troop-' + i, ln: 'g', cls: 'lt', t: 1, n: nation + ' Rifleman', nation, req: null, infantry: true,
+        hp: 84, ar: 0, sp: 9, tn: 4.8, tt: 4.8, r: .67, cd: 7, el: .85,
+        m: { hull: [.55, 1.6, .6], c: [uniform, 0x333935] }, role: 'Small target with light equipment',
+        w1: { ...W.guns(10, .45), n: label }, pw: .7, desc: nation + ' · Playable infantry with arcade weapon balance' });
+}
 const VBY = {};
 function calcDps(v) { let dps = 0; for (const k of ['w1', 'w2', 'w3']) { const w = v[k]; if (w) dps += w.dmg * (w.nn || 1) / Math.max(0.04, w.rl) * (w.sp ? 1.6 : 1); } return dps; }
 VEHS.forEach((v, i) => {

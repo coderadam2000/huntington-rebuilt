@@ -88,6 +88,7 @@ try {
   for (const loaderFile of ['index.html', 'loader.html', 'deliverables/loader-to-paste.txt', 'legacy']) {
     const page = await hub({ cdn: 'dead' }, loaderFile);
     check(`${loaderFile} boots from the next mirror on main`, !!(await game(page)) && page.reqs.includes('fastly:' + RUNTIME), page.errs.slice(0, 2).join(' | '));
+    check('the startup and game loading overlays are absent', await page.locator('#boot, #gload').count() === 0);
     await play(page);
     check('Tetris opens with a valid launcher token', !!(await until(() => page.evaluate(() => document.getElementById('frame').contentWindow.HG_OK === 1))) && page.reqs.includes('fastly:Tetris/index.html'));
     await page.context().close();
@@ -159,12 +160,12 @@ try {
   const net = { cdn: 'dead', fastly: 'dead', gcore: 'dead', testingcf: 'dead' };
   P = await hub(net);
   await play(P);
-  const err = await until(() => P.evaluate(() => { const e = document.querySelector('#gload .gl-err'); return e && !e.hidden ? e.innerText : null; }), 25000);
-  check('the loading screen says it could not load, with a Try again button', /Could not load/.test(err || '') && /Try again/.test(err || ''), (err || '').replace(/\s+/g, ' ').slice(0, 120));
+  const err = await until(() => P.evaluate(() => { const e = document.querySelector('#game-error'); return e && !e.hidden ? e.innerText : null; }), 25000);
+  check('a failed download shows a Try again button', /Could not load/.test(err || '') && /Try again/.test(err || ''), (err || '').replace(/\s+/g, ' ').slice(0, 120));
   net.cdn = 'ok';
   await P.evaluate(() => document.getElementById('gl-retry').click());      // (the sign-in gate covers the page in this bare test)
   check('Try again loads it once the network is back', !!(await playing(P)));
-  check('...and the error is gone', await P.evaluate(() => document.querySelector('#gload .gl-err').hidden));
+  check('...and the error is gone', await P.evaluate(() => document.querySelector('#game-error').hidden));
   await P.context().close();
 
   console.log('\n=== 5. resting on a card starts the download ===');

@@ -11,7 +11,7 @@ let tickN = 0, stamp = 1;
 const CNT = new Int32Array(NE);                   // cells per element (recount())
 const MADE = new Uint8Array(NE);                  // elements the simulation itself has made (challenges)
 const STAT = { grown: 0, rain: 0, lamp: 0, infected: 0, ate: 0, alk: 0, boomN: 0, chain: 0,
-    fission: 0, turbine: 0, andOn: 0, notOn: 0, crystal: 0, deaths: 0, burst: 0, born: 0, pumped: 0, pushed: 0 };
+    fission: 0, turbine: 0, andOn: 0, notOn: 0, crystal: 0, deaths: 0, burst: 0, born: 0, pumped: 0, pushed: 0, popped: 0, meltedCheese: 0, moss: 0 };
 const ix = (x, y) => (y + 1) * P + x + 1;
 const CHUNK = 16;
 const MESH = ID.mesh, PIPE = ID.pipe, VALVE = ID.valve;
@@ -146,6 +146,8 @@ function phase(i, e, to, alt, altP, thr, x, y) {
     tp[i] = thr;                                   // the excess heat is spent on the change (cheap latent heat)
     if (to === ID.steam && rnd() < 0.03) sfx('sizzle', 0.5);
     if (to === ID.cuso4crystal) STAT.crystal++;
+    if (to === ID.popcorn) STAT.popped++;
+    if (to === ID.meltedcheese) STAT.meltedCheese++;
     wk(x, y);
 }
 

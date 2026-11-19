@@ -184,7 +184,7 @@ textarea { width: 100%; min-height: 90px; background: #070b16; color: var(--txt)
 
 <div id="title" class="screen">
   <div class="tbg" id="tbg"></div>
-  <div class="logo"><span class="l1">Element</span><span class="l2">Lab</span><span class="l3" id="t-ver">2.0</span></div>
+  <div class="logo"><span class="l1">Element</span><span class="l2">Lab</span><span class="l3" id="t-ver">2.2</span></div>
   <div class="tag">Build reactors, circuits and cities. 300 elements, every one reacts.</div>
   <div class="menu">
     <button class="btn big" id="t-play">Enter the lab</button>
@@ -207,7 +207,7 @@ textarea { width: 100%; min-height: 90px; background: #070b16; color: var(--txt)
 // ==========================================
 // ELEMENT LAB - core: helpers, saves, settings, sound
 // ==========================================
-const VERSION = '2.0';
+const VERSION = '2.2';
 const AMB = 20;                                   // room temperature, degrees C
 const clamp = (v, a, b) => v < a ? a : v > b ? b : v;
 const $ = id => document.getElementById(id);
@@ -694,7 +694,7 @@ let tickN = 0, stamp = 1;
 const CNT = new Int32Array(NE);                   // cells per element (recount())
 const MADE = new Uint8Array(NE);                  // elements the simulation itself has made (challenges)
 const STAT = { grown: 0, rain: 0, lamp: 0, infected: 0, ate: 0, alk: 0, boomN: 0, chain: 0,
-    fission: 0, turbine: 0, andOn: 0, notOn: 0, crystal: 0, deaths: 0, burst: 0, born: 0, pumped: 0, pushed: 0 };
+    fission: 0, turbine: 0, andOn: 0, notOn: 0, crystal: 0, deaths: 0, burst: 0, born: 0, pumped: 0, pushed: 0, popped: 0, meltedCheese: 0, moss: 0 };
 const ix = (x, y) => (y + 1) * P + x + 1;
 const CHUNK = 16;
 const MESH = ID.mesh, PIPE = ID.pipe, VALVE = ID.valve;
@@ -829,6 +829,8 @@ function phase(i, e, to, alt, altP, thr, x, y) {
     tp[i] = thr;                                   // the excess heat is spent on the change (cheap latent heat)
     if (to === ID.steam && rnd() < 0.03) sfx('sizzle', 0.5);
     if (to === ID.cuso4crystal) STAT.crystal++;
+    if (to === ID.popcorn) STAT.popped++;
+    if (to === ID.meltedcheese) STAT.meltedCheese++;
     wk(x, y);
 }
 
@@ -1479,7 +1481,7 @@ function updMoss(i, x, y, e) {
     if (el[j] !== 0) return false;
     let stone = 0, wet = 0;
     for (let d = 0; d < 4; d++) { const q = el[j + OFF[d]]; if (q === ID.stone || q === ID.brick || q === ID.concrete || q === ID.wood) stone = 1; if (q === ID.water) wet = 1; }
-    if (stone && (wet || rnd() < 0.3)) { put(j, ID.moss, 0, true); STAT.grown++; wkI(j); }
+    if (stone && (wet || rnd() < 0.3)) { put(j, ID.moss, 0, true); STAT.grown++; STAT.moss++; wkI(j); }
     return false;
 }
 
@@ -2939,7 +2941,13 @@ const CHALLENGES = [
     { id: 'crystal', name: 'Grow crystals', hint: 'Dissolve copper sulfate in water, then boil the water away.', test: () => STAT.crystal >= 15 },
     { id: 'town', name: 'Populate a town', hint: 'Have 15 people living in your lab at once.', test: () => CNT[ID.human] >= 15 },
     { id: 'bake', name: 'Bake bread', hint: 'Mix flour and water into dough, then heat it.', test: () => MADE[ID.bread] },
-    { id: 'piston', name: 'Heavy lifting', hint: 'Power a piston so it pushes something.', test: () => STAT.pushed >= 3 }
+    { id: 'piston', name: 'Heavy lifting', hint: 'Power a piston so it pushes something.', test: () => STAT.pushed >= 3 },
+    { id: 'popcorn', name: 'Movie night', hint: 'Warm Corn Kernels with the heat tool until they pop.', test: () => STAT.popped >= 12 },
+    { id: 'cheese', name: 'Fondue', hint: 'Warm Cheese until it flows.', test: () => STAT.meltedCheese >= 15 },
+    { id: 'pump', name: 'Lift station', hint: 'Use a powered Pump to move 20 cells of liquid.', test: () => STAT.pumped >= 20 },
+    { id: 'moss', name: 'Moss garden', hint: 'Give Moss damp Stone to spread across.', test: () => STAT.moss >= 20 },
+    { id: 'notgate', name: 'Switch it around', hint: 'Place a NOT gate so it can turn an unpowered input into a powered output.', test: () => STAT.notOn > 0 },
+    { id: 'aquarium', name: 'School of fish', hint: 'Keep ten fish swimming in water at the same time.', test: () => CNT[ID.fish] >= 10 }
 ];
 const DONE = LS.get('elementlab_challenges', {}) || {};
 let onChallenge = null;

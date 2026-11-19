@@ -13,6 +13,11 @@ const modeDisplay = document.getElementById('modeDisplay');
 const keyDisplay = document.getElementById('keyDisplay');
 const oneLifeToggle = document.getElementById('oneLifeToggle');
 const endlessToggle = document.getElementById('endlessToggle');
+const autoRespawn = document.getElementById('autoRespawn');
+try { autoRespawn.checked = localStorage.getItem('spikes100_autoRespawn') === '1'; } catch (_) {}
+autoRespawn.addEventListener('change', () => {
+    try { localStorage.setItem('spikes100_autoRespawn', autoRespawn.checked ? '1' : '0'); } catch (_) {}
+});
 const pauseScreen = document.getElementById('pauseScreen');
 const clearScreen = document.getElementById('clearScreen');
 const levelSelectScreen = document.getElementById('levelSelectScreen');
@@ -33,7 +38,7 @@ let MAX_SPEED = 6;          // only ever changed by the window.__spikes.setPhys 
 let JUMP_FORCE = -11.5;     // (same)
 const MAX_LEVELS = 100;
 const GENERATED_LEVELS = 50; // levels 1-50 get a fresh layout every try; 51-100 are hand-built (HAND_LEVELS)
-const GAME_VERSION = '2.2';
+const GAME_VERSION = '2.3';
 
 // Hand-built levels and the editor use a tile grid: 30px tiles, 18 rows (= the 540px screen height)
 const TILE = 30;
