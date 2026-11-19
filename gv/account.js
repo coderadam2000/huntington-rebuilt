@@ -706,7 +706,6 @@ const GVLink = (() => {
   // Only the games' own keys travel (the launcher's page origin can hold other sites' data too). A new game's keys
   // must be added here: it is the list of prefixes the games write.
   var GAME_KEYS = CFG.saveKeys || /^(spikes100_|blocky|huntington|brownEClicker|beanBrew|neon|tetrisHighScore|frontline_|lifeScorePB|marketLife|netWorthPB|td2_|td-|sov\.|lumi_|imposter_|steelstorm_|elementlab_|mayhem_|hgach|hgq:|hgmini_|beatlab_|gv:set:)/;
-  var CALENDAR_PREFIX = 'gv:set:calendar:';
   var SAVE_MAX = 400000;
   var sy = { running: null, state: 'idle', text: '', at: Number(store.get('syncat') || 0), n: 0, timer: null, open: false, first: null, waiters: {}, synced: false };
   function syncMeta() { try { return JSON.parse(store.get('sync') || '{}'); } catch (e) { return {}; } }
@@ -785,35 +784,18 @@ const GVLink = (() => {
     if (x == null || y == null) return false;
     return x < y - Math.max(0.5, y * 0.02);
   }
-  function mergeCalendar(device, cloud) {
-    function read(value) {
-      try { return Object.assign(Object.create(null), JSON.parse(value)); }
-      catch (e) { return Object.create(null); }
-    }
-    // Each event has its own version. Keep deletion records so an offline device cannot restore old events.
-    var local = read(device), merged = read(cloud);
-    Object.keys(local).forEach(function (id) {
-      var a = local[id], b = merged[id];
-      if (!a) return;
-      if (!b || a.changedAt > b.changedAt || (a.changedAt === b.changedAt &&
-        (Boolean(a.deleted) === Boolean(b.deleted) ? JSON.stringify(a) > JSON.stringify(b) : a.deleted))) merged[id] = a;
-    });
-    return JSON.stringify(merged);
-  }
   var H0 = 'e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855';   // sha256 of '' (a deleted save)
   function syncRun(opts) {
     if (sy.running) return sy.running;
     if (!st.ready) return Promise.reject(new Error('Not connected to Grapevine.'));
     if (!sameAccount()) return Promise.reject(new Error('Another tab changed the account on this device.'));
     opts = opts || {};
-    var calendarKey = CALENDAR_PREFIX + st.userId;
     var p = (async function () {
       setSync('syncing', 'Syncing your saves...');
       var meta = syncMeta(), now = Date.now(), local = {}, firstOnDevice = !store.get('syncat');
       var keys = eligible(), seen = {};
       for (var i = 0; i < keys.length; i++) {
         var k = keys[i], v = localStorage.getItem(k);
-        if (k.indexOf(CALENDAR_PREFIX) === 0 && k !== calendarKey) continue;
         if (v == null || v.length > SAVE_MAX) continue;
         var h = await sha256hex(v), m0 = meta[k];
         var base = m0 ? (m0.b !== undefined ? m0.b : m0.h) : null;      // saves synced before bases existed: their last hash
@@ -829,23 +811,19 @@ const GVLink = (() => {
       if (massGone) { gone.forEach(function (k) { delete meta[k]; }); try { console.warn('[saves] ' + gone.length + ' saves vanished from this device at once: taking them back from the account, not deleting them'); } catch (e) {} }
       Object.keys(meta).forEach(function (k) {
         if (seen[k]) return;
-        if (k.indexOf(CALENDAR_PREFIX) === 0) { delete meta[k]; return; }
         var m0 = meta[k], base = m0.b !== undefined ? m0.b : m0.h;
         if (base && base !== H0 && GAME_KEYS.test(k)) { if (m0.h !== H0) meta[k] = { h: H0, t: now, b: base }; local[k] = { v: '', h: H0, t: meta[k].t, b: base }; }
         else if (base === H0) local[k] = { v: '', h: H0, t: m0.t, b: H0 };
         else delete meta[k];
       });
       var list = (await rpc({ type: 'savesList' }, 'saves')).items || [];
-      var srv = {}; list.forEach(function (it) {
-        if (it.k.indexOf(CALENDAR_PREFIX) !== 0 || it.k === calendarKey) srv[it.k] = it;
-      });
+      var srv = {}; list.forEach(function (it) { srv[it.k] = it; });
       var need = [], put = [], judge = [];
       Object.keys(srv).forEach(function (k) {
         var l = local[k], sh = srv[k].h;
         if (!l) { if (sh !== H0) need.push(k); return; }
         if (l.h === sh) { meta[k].b = sh; return; }
-        if (k === calendarKey && sh !== H0 && l.b !== sh) need.push(k);   // reconcile events even if only the cloud changed
-        else if (l.b && l.b === l.h) need.push(k);                     // only the cloud changed it
+        if (l.b && l.b === l.h) need.push(k);                          // only the cloud changed it
         else if (l.b && l.b === sh) put.push(k);                       // only this device changed it
         else judge.push(k);                                            // both changed it, or never synced here
       });
@@ -863,33 +841,11 @@ const GVLink = (() => {
         });
       }
       var pulled = 0, deferred = 0;
-      if (sy.open || opts.noApply) {
-        var pending = need.length;
-        need = sy.open ? [] : need.filter(function (k) { return k === calendarKey && local[k]; });
-        deferred = pending - need.length;
-      }
+      if (need.length && (sy.open || opts.noApply)) { deferred = need.length; need = []; }
       for (var j = 0; j < need.length; j += 10) {
         var got = await rpc({ type: 'savesGet', keys: need.slice(j, j + 10) }, 'savesData');
         for (var g = 0; g < (got.items || []).length; g++) {
           var it = got.items[g], old = localStorage.getItem(it.k);
-          if (it.k === calendarKey) {
-            if (!sameAccount() || calendarKey !== CALENDAR_PREFIX + st.userId) throw new Error('Another tab changed the account on this device.');
-            if (it.v !== '') {
-              var merged = mergeCalendar(old, it.v);
-              if (merged.length > SAVE_MAX) throw new Error('Your calendar is too large to sync.');
-              if (!opts.noApply && merged !== old) { localStorage.setItem(it.k, merged); pulled++; }
-              var cloudHash = await sha256hex(it.v);
-              var mergedHash = merged === it.v ? cloudHash : await sha256hex(merged);
-              meta[it.k] = { h: mergedHash, t: now, b: cloudHash };
-              if (mergedHash !== cloudHash) {
-                srv[it.k] = { h: cloudHash, at: it.at };
-                local[it.k] = { v: merged, h: mergedHash, t: now, b: cloudHash };
-                put.push(it.k);
-              }
-              continue;
-            }
-            if (opts.noApply) continue;
-          }
           if (old != null && old !== it.v) { try { localStorage.setItem('hgv:bak:' + it.k, old); localStorage.setItem('hgv:bakfor:' + it.k, st.userId); } catch (e) {} }
           try { if (it.v === '') localStorage.removeItem(it.k); else localStorage.setItem(it.k, it.v); } catch (e) { continue; }
           var nh = srv[it.k] ? srv[it.k].h : await sha256hex(it.v);
