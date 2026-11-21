@@ -44,6 +44,14 @@ var LB_FEED = [
   // 100 LOS 2.3: beating the game (and beating it in one life) is sent along, so the board puts victors above everyone else at 100
   ['spikes:level', function () { var s = feedRd('spikes100_progress') || {}; return [feedNum(s.unlocked), s.beaten ? { victor: 'beat all 100' } : null]; }],
   ['spikes:onelife', function () { var s = feedRd('spikes100_progress') || {}; return [feedNum(s.bestOneLife), feedNum(s.bestOneLife) >= 100 ? { victor: 'all 100 in one life' } : null]; }],
+  // Chess and Checkers (2026-11-20): highest rating and most wins, per game. Sent only once the server lists the boards.
+  ['mini:*', function () {
+    var s = feedRd('hgmini_cc') || {}, out = [];
+    ['chess', 'checkers'].forEach(function (g) { var r = s[g] || {};
+      if (feedNum(r.n) > 0 && feedHasBoard('mini:' + g + '-elo')) out.push(['mini:' + g + '-elo', feedNum(r.elo), { peak: feedNum(r.peak), games: feedNum(r.n) }]);
+      if (feedNum(r.w) > 0 && feedHasBoard('mini:' + g + '-wins')) out.push(['mini:' + g + '-wins', feedNum(r.w), { lost: feedNum(r.l), drawn: feedNum(r.d) }]); });
+    return out;
+  }],
   ['spikes:endless', function () { var s = feedRd('spikes100_progress') || {}; return [feedNum(s.bestEndless)]; }],
   // Tetris Surge keeps its top 5 per mode in best[mode] = [{ s: score, l: lines, t: ms, ... }] (sprint is sorted by time)
   ['tetris:score', function () { var t = feedRd('huntingtonTetrisSurge1') || {}, b = 0, m = '', bl = 0; for (var k in (t.best || {})) if (k !== 'sprint') (Array.isArray(t.best[k]) ? t.best[k] : []).forEach(function (e) { if (e && feedNum(e.s) > b) { b = feedNum(e.s); m = k; bl = feedNum(e.l); } }); b = Math.max(b, feedNum(feedRd('tetrisHighScore'))); return [b, m ? { mode: m, lines: bl } : null]; }],
@@ -101,7 +109,7 @@ function feedBoards() {
   LB_FEED.forEach(function (x) {
     try {
       var r = x[1]();
-      if (x[0] === 'lumi:*') r.forEach(function (y) { out.push([y[0], y[1], y[2]]); });
+      if (/:\*$/.test(x[0])) r.forEach(function (y) { out.push([y[0], y[1], y[2]]); });
       else if (r[2] === 'leave') leave.push(x[0]);
       else out.push([x[0], r[0], r[1]]);
     } catch (e) {}

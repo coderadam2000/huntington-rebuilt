@@ -909,6 +909,7 @@ var GAMES = [
   { dir: 'Minigames/Snake Arena', name: 'Snake Arena', img: 'mg-snake', cat: 'mini', tags: ['New', 'Multiplayer', 'Minigame'], desc: "Every snake on one board: eat, grow, don't crash. Last one slithering wins. Up to 8 players and bots." },
   { dir: 'Minigames/Typing Race', name: 'Typing Race', img: 'mg-typing', cat: 'mini', tags: ['New', 'Multiplayer', 'Minigame'], desc: "Race your friends by typing the same passage: every correct letter moves your car. Up to 8 players and bots." },
   { dir: 'Minigames/Pong', name: 'Pong', img: 'mg-pong', cat: 'mini', tags: ['New', 'Multiplayer', 'Minigame'], desc: "The original, online: two paddles, one ball, first to 7. Against a friend or the bot." },
+  { dir: 'Minigames/Chess and Checkers', name: 'Chess and Checkers', img: 'mg-chess', cat: 'mini', tags: ['New', 'Multiplayer', 'Minigame', 'Strategy'], desc: "NEW: chess and checkers against a friend or one of 8 bots, from Rookie to Unreal. Every game is ranked: win to raise your rating and climb from Rookie to Unreal." },
   { dir: 'Minigames/Connect Four', name: 'Connect Four', img: 'mg-connect4', cat: 'mini', tags: ['New', 'Multiplayer', 'Minigame'], desc: "Drop discs, four in a row wins. Against a friend or a bot that thinks four moves ahead." },
   { dir: 'Minigames/Tic-Tac-Toe', name: 'Tic-Tac-Toe', img: 'mg-tictactoe', cat: 'mini', tags: ['New', 'Multiplayer', 'Minigame'], desc: "Three in a row, best of five. Against a friend or the bot." },
 ];
@@ -1786,7 +1787,7 @@ window.HG_notify = function (n) {
 // A game asks for the chats it can invite into (HG_inviteTargets) and sends an invite (HG_sendInvite): a normal chat
 // message ending in "hg-invite:<game>:<party code>", so it reads fine in the Grapevine app too. When one arrives the
 // pop-up shows a JOIN button: it opens the game (or tells the open one) and the game collects the code with HG_takeJoin.
-var INVITE_GAMES = { blocky: 'Blocky Shooter V2', frontline: 'Frontline', imposter: 'Imposter', lumi: 'Last Light', spikes: '50 Levels Of Spikes 1.2', sovereign: 'Sovereign', warpvp: 'Steel Storm', mayhem: 'Mayhem Marathon', 'mg-reaction': 'Minigames/Reaction Duel', 'mg-snake': 'Minigames/Snake Arena', 'mg-typing': 'Minigames/Typing Race', 'mg-pong': 'Minigames/Pong', 'mg-connect4': 'Minigames/Connect Four', 'mg-tictactoe': 'Minigames/Tic-Tac-Toe' }, INVITE_RE = /hg-invite:([a-z0-9-]+):([A-Za-z0-9-]{4,40})/, pendingJoin = null, pendingHost = null;
+var INVITE_GAMES = { blocky: 'Blocky Shooter V2', frontline: 'Frontline', imposter: 'Imposter', lumi: 'Last Light', spikes: '50 Levels Of Spikes 1.2', sovereign: 'Sovereign', warpvp: 'Steel Storm', mayhem: 'Mayhem Marathon', 'mg-reaction': 'Minigames/Reaction Duel', 'mg-snake': 'Minigames/Snake Arena', 'mg-typing': 'Minigames/Typing Race', 'mg-pong': 'Minigames/Pong', 'mg-connect4': 'Minigames/Connect Four', 'mg-chess': 'Minigames/Chess and Checkers', 'mg-tictactoe': 'Minigames/Tic-Tac-Toe' }, INVITE_RE = /hg-invite:([a-z0-9-]+):([A-Za-z0-9-]{4,40})/, pendingJoin = null, pendingHost = null;
 function inviteGame(id) { var d = INVITE_GAMES[id]; return d ? GAMES.filter(function (g) { return g.dir === d; })[0] || null : null; }
 window.HG_inviteTargets = function () {
   var api = chatApi(); if (!api) return [];
@@ -2616,6 +2617,14 @@ var LB_FEED = [
   // 100 LOS 2.3: beating the game (and beating it in one life) is sent along, so the board puts victors above everyone else at 100
   ['spikes:level', function () { var s = feedRd('spikes100_progress') || {}; return [feedNum(s.unlocked), s.beaten ? { victor: 'beat all 100' } : null]; }],
   ['spikes:onelife', function () { var s = feedRd('spikes100_progress') || {}; return [feedNum(s.bestOneLife), feedNum(s.bestOneLife) >= 100 ? { victor: 'all 100 in one life' } : null]; }],
+  // Chess and Checkers (2026-11-20): highest rating and most wins, per game. Sent only once the server lists the boards.
+  ['mini:*', function () {
+    var s = feedRd('hgmini_cc') || {}, out = [];
+    ['chess', 'checkers'].forEach(function (g) { var r = s[g] || {};
+      if (feedNum(r.n) > 0 && feedHasBoard('mini:' + g + '-elo')) out.push(['mini:' + g + '-elo', feedNum(r.elo), { peak: feedNum(r.peak), games: feedNum(r.n) }]);
+      if (feedNum(r.w) > 0 && feedHasBoard('mini:' + g + '-wins')) out.push(['mini:' + g + '-wins', feedNum(r.w), { lost: feedNum(r.l), drawn: feedNum(r.d) }]); });
+    return out;
+  }],
   ['spikes:endless', function () { var s = feedRd('spikes100_progress') || {}; return [feedNum(s.bestEndless)]; }],
   // Tetris Surge keeps its top 5 per mode in best[mode] = [{ s: score, l: lines, t: ms, ... }] (sprint is sorted by time)
   ['tetris:score', function () { var t = feedRd('huntingtonTetrisSurge1') || {}, b = 0, m = '', bl = 0; for (var k in (t.best || {})) if (k !== 'sprint') (Array.isArray(t.best[k]) ? t.best[k] : []).forEach(function (e) { if (e && feedNum(e.s) > b) { b = feedNum(e.s); m = k; bl = feedNum(e.l); } }); b = Math.max(b, feedNum(feedRd('tetrisHighScore'))); return [b, m ? { mode: m, lines: bl } : null]; }],
@@ -2673,7 +2682,7 @@ function feedBoards() {
   LB_FEED.forEach(function (x) {
     try {
       var r = x[1]();
-      if (x[0] === 'lumi:*') r.forEach(function (y) { out.push([y[0], y[1], y[2]]); });
+      if (/:\*$/.test(x[0])) r.forEach(function (y) { out.push([y[0], y[1], y[2]]); });
       else if (r[2] === 'leave') leave.push(x[0]);
       else out.push([x[0], r[0], r[1]]);
     } catch (e) {}
