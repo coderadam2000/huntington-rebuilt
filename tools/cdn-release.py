@@ -9,7 +9,7 @@ import hashlib, json, os, subprocess, sys, time, urllib.parse, urllib.request
 
 REPO = os.environ.get('GITHUB_REPOSITORY', 'coderadam2000/huntington-rebuilt')
 SHA, LIST = sys.argv[1], sys.argv[2]
-LIMIT = time.time() + float(os.environ.get('CDN_MINUTES', '30')) * 60
+LIMIT = time.time() + float(os.environ.get('CDN_MINUTES', '12')) * 60
 files = [l.strip() for l in open(LIST) if l.strip()]
 if not files: print('nothing to purge'); sys.exit(0)
 q = urllib.parse.quote

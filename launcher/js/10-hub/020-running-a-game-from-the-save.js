@@ -48,10 +48,15 @@ function loadGameHtml(g, alive) {
     if (!MIRRORS.length) setVersion(v);
     var rel = cacheRelease(v);
     return (PRE[g.dir] || Promise.resolve()).then(function () { return getRec(key); }).then(function (rec) {
-      if (rec && rec.rel === rel) return { html: rec.text, base: MIRRORS[0], cached: true };
-      return fetchRepoRetry(path(g), false, alive).then(function (r) {
-        var nr = { text: r.html, rel: rel, sha: null }; MEM[key] = nr; idbPut(key, nr);
-        return r;
+      // a copy saved for this exact commit is right; otherwise only one whose fingerprint still matches the newest file
+      if (rec && rec.rel === rel && v !== 'main') return { html: rec.text, base: MIRRORS[0], cached: true };
+      return hashesFor(v).then(function (hs) {
+        var hash = (hs && hs['/' + g.dir + '/' + (g.file || 'index.html')]) || null;
+        if (rec && hash && rec.sha === hash) { if (rec.rel !== rel) { rec = { text: rec.text, rel: rel, sha: hash }; MEM[key] = rec; idbPut(key, rec); } return { html: rec.text, base: MIRRORS[0], cached: true }; }
+        return fetchRepoRetry(path(g), false, alive).then(function (r) {
+          var nr = { text: r.html, rel: rel, sha: hash }; MEM[key] = nr; idbPut(key, nr);
+          return r;
+        }, function (e) { if (rec) return { html: rec.text, base: MIRRORS[0], cached: true }; throw e; });      // no network: the saved copy
       });
     });
   });

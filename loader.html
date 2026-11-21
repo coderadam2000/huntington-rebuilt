@@ -119,9 +119,23 @@ function hgP(p, stage, tip) {
       return r.text();
     }).then(function (html) { boot(html, version); }).catch(function () { clearTimeout(t); next(); });
   }
+  // the newest commit, straight from GitHub: jsDelivr can serve an older commit under '@main' for hours, an address pinned to
+  // a commit is always right. No answer in 2.5 s (blocked, or GitHub's hourly limit for the school): use '@main' as before.
+  function newest(cb) {
+    var ctl = window.AbortController ? new AbortController() : null, t = setTimeout(function () { if (ctl) ctl.abort(); }, 2500), done = false;
+    var fin = function (s) { if (done) return; done = true; clearTimeout(t); cb(/^[0-9a-f]{40}$/.test(s || '') ? s : null); };
+    try {
+      fetch('https://api.github.com/repos/' + repo + '/commits/main', { headers: { Accept: 'application/vnd.github.sha' }, cache: 'no-store', signal: ctl ? ctl.signal : undefined })
+        .then(function (r) { return r.ok ? r.text() : ''; }).then(function (s) { fin((s || '').trim()); }, function () { fin(null); });
+    } catch (e) { fin(null); }
+  }
   // a slow or blocked network should not leave kids waiting when a saved copy exists
   timer = setTimeout(function () { if (!booted) useSaved(); }, 8000);
-  next();
+  hgP(.2, 'Finding the newest version');
+  newest(function (s) {
+    if (s) { version = s; try { localStorage.setItem('hgv:sha', JSON.stringify({ s: s, t: Date.now() })); } catch (e) {} }
+    next();
+  });
 })();
 </script>
 </body>

@@ -881,8 +881,46 @@ var HG_BUILD_N = 80; /* release build - set by tools/build-release.py */
 var MIRROR_HOSTS = ['https://cdn.jsdelivr.net/gh/', 'https://fastly.jsdelivr.net/gh/', 'https://gcore.jsdelivr.net/gh/', 'https://testingcf.jsdelivr.net/gh/'];
 var MIRRORS = [];
 function setVersion(v) { MIRRORS = MIRROR_HOSTS.map(function (m) { return m + REPO_NAME + '@' + v + '/'; }); }
-var versionReady = Promise.resolve(window.HG_VERSION || 'main');
+// 2026-11-21: always load the newest push. jsDelivr can keep serving an older commit under '@main' for hours, so the hub
+// asks GitHub which commit main is on and loads every file pinned to that commit (a pinned address is never stale).
+// If GitHub cannot be reached (blocked, or its 60-an-hour limit for one school network), it falls back to '@main'.
+// A hub that a loader fetched from '@main' also checks that it IS the newest launcher, and swaps itself if not.
+var HG_HUB_ID = 'adaee1661a51';      // the build fills in a fingerprint of this file
+var HG_SHA_RE = /^[0-9a-f]{40}$/;
+function latestSha() {
+  try { var c = JSON.parse(localStorage.getItem('hgv:sha') || 'null'); if (c && HG_SHA_RE.test(c.s) && Date.now() - c.t < 120000) return Promise.resolve(c.s); } catch (e) {}
+  var ctl = window.AbortController ? new AbortController() : null, t = setTimeout(function () { if (ctl) ctl.abort(); }, 2500);
+  return fetch('https://api.github.com/repos/' + REPO_NAME + '/commits/main', { headers: { Accept: 'application/vnd.github.sha' }, signal: ctl ? ctl.signal : undefined, cache: 'no-store' })
+    .then(function (r) { clearTimeout(t); return r.ok ? r.text() : null; })
+    .then(function (s) { s = (s || '').trim(); if (!HG_SHA_RE.test(s)) return null; try { localStorage.setItem('hgv:sha', JSON.stringify({ s: s, t: Date.now() })); } catch (e) {} return s; })
+    .catch(function () { clearTimeout(t); return null; });
+}
+// the hub a loader fetched from '@main' may be old: if the newest commit's launcher is a different build, run that one
+function newerHub(sha) {
+  var url = 'https://cdn.jsdelivr.net/gh/' + REPO_NAME + '@' + sha + '/index.html';
+  var ctl = window.AbortController ? new AbortController() : null, t = setTimeout(function () { if (ctl) ctl.abort(); }, 5000);
+  return fetch(url, { signal: ctl ? ctl.signal : undefined }).then(function (r) { clearTimeout(t); return r.ok ? r.text() : null; }).then(function (h) {
+    var m = h && /HG_HUB_ID = '([0-9a-f]{12})'/.exec(h);
+    if (!m || m[1] === HG_HUB_ID || /__BUILD/.test(HG_HUB_ID)) return false;
+    var tag = '<script>window.HG_VERSION = ' + JSON.stringify(sha) + '; window.HG_LOAD_P = .8;<\/script>';
+    h = /<head[^>]*>/i.test(h) ? h.replace(/<head[^>]*>/i, function (x) { return x + tag; }) : tag + h;
+    document.open(); document.write(h); document.close(); return true;
+  }).catch(function () { clearTimeout(t); return false; });
+}
+var versionReady = (function () {
+  var v = window.HG_VERSION, lh = location.hostname;
+  if (v && v !== 'main') return Promise.resolve(v);                           // a loader already picked the commit
+  if (window.HG_BUNDLE || (!v && (location.protocol === 'file:' || /github\.io$/.test(lh) || lh === '127.0.0.1' || lh === 'localhost'))) return Promise.resolve(v || 'main');
+  return latestSha().then(function (sha) {
+    if (!sha) return 'main';
+    return newerHub(sha).then(function (swapped) { return swapped ? new Promise(function () {}) : sha; });     // swapped: this page is gone
+  });
+})();
 function cacheRelease(v) { return v === 'main' ? v + '-' + HG_build() : v; }
+// per-file fingerprints of a version (jsDelivr's data API), fetched once per visit: a saved game is reused only when its
+// fingerprint still matches, so a push that changes a game always reaches players (the release label 'main-80' never changed)
+var HASHES = {};
+function hashesFor(v) { return HASHES[v] || (HASHES[v] = fetchHashes(v)); }
 var BUNDLE = window.HG_BUNDLE || null; // only set inside the saved "Huntington Games Offline.html"
 var local = !BUNDLE && !window.HG_VERSION && (location.protocol === 'file:' || /github\.io$/.test(location.hostname) || location.hostname === '127.0.0.1' || location.hostname === 'localhost');
 
@@ -981,7 +1019,7 @@ function timedFetch(url, ms, opts) {
 // so the browser's own cache may be used; only the unnumbered fallback ('main') is always re-checked.
 function fetchRepo(p, asBlob) {
   function one(base) {
-    return timedFetch(base + p, 25000, /@r\d+\/$/.test(base) ? {} : { cache: 'no-cache' }).then(function (r) {
+    return timedFetch(base + p, 25000, /@(r\d+|[0-9a-f]{40})\/$/.test(base) ? {} : { cache: 'no-cache' }).then(function (r) {
       if (!r.ok) throw new Error('HTTP ' + r.status);
       return asBlob ? r.blob() : r.text();
     }).then(function (body) { return { html: body, base: base }; });
@@ -1175,14 +1213,15 @@ async function cacheLibsFor(html) { // downloads every library a game page needs
   return { urls: Object.keys(all), ok: ok };
 }
 function fetchHashes(v) { // per-file hashes of a release (jsDelivr data API), so unchanged files are not downloaded again
-  return timedFetch('https://data.jsdelivr.com/v1/packages/gh/' + REPO_NAME + '@' + v + '?structure=flat', 8000).then(function (r) { return r.json(); }).then(function (j) {
+  return timedFetch('https://data.jsdelivr.com/v1/packages/gh/' + REPO_NAME + '@' + v + '?structure=flat', 4000).then(function (r) { return r.json(); }).then(function (j) {
     var m = {}; (j.files || []).forEach(function (f) { m[f.name] = f.hash; }); return m;
   }).catch(function () { return null; });
 }
 async function cacheGame(g, v, hashes) {
+  if (!hashes) hashes = await hashesFor(v);
   var key = gkey(g), rel = cacheRelease(v), meta = await getMeta(), hash = (hashes && hashes['/' + g.dir + '/' + (g.file || 'index.html')]) || null;
   var rec = await getRec(key), html;
-  if (rec && (rec.rel === rel || (hash && rec.sha === hash))) {
+  if (rec && ((rec.rel === rel && v !== 'main') || (hash && rec.sha === hash))) {
     html = rec.text;
     if (rec.rel !== rel) { rec = { text: html, rel: rel, sha: hash }; MEM[key] = rec; await idbPut(key, rec); }
   } else {
@@ -1289,10 +1328,15 @@ function loadGameHtml(g, alive) {
     if (!MIRRORS.length) setVersion(v);
     var rel = cacheRelease(v);
     return (PRE[g.dir] || Promise.resolve()).then(function () { return getRec(key); }).then(function (rec) {
-      if (rec && rec.rel === rel) return { html: rec.text, base: MIRRORS[0], cached: true };
-      return fetchRepoRetry(path(g), false, alive).then(function (r) {
-        var nr = { text: r.html, rel: rel, sha: null }; MEM[key] = nr; idbPut(key, nr);
-        return r;
+      // a copy saved for this exact commit is right; otherwise only one whose fingerprint still matches the newest file
+      if (rec && rec.rel === rel && v !== 'main') return { html: rec.text, base: MIRRORS[0], cached: true };
+      return hashesFor(v).then(function (hs) {
+        var hash = (hs && hs['/' + g.dir + '/' + (g.file || 'index.html')]) || null;
+        if (rec && hash && rec.sha === hash) { if (rec.rel !== rel) { rec = { text: rec.text, rel: rel, sha: hash }; MEM[key] = rec; idbPut(key, rec); } return { html: rec.text, base: MIRRORS[0], cached: true }; }
+        return fetchRepoRetry(path(g), false, alive).then(function (r) {
+          var nr = { text: r.html, rel: rel, sha: hash }; MEM[key] = nr; idbPut(key, nr);
+          return r;
+        }, function (e) { if (rec) return { html: rec.text, base: MIRRORS[0], cached: true }; throw e; });      // no network: the saved copy
       });
     });
   });

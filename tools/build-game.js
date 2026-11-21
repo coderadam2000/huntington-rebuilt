@@ -56,5 +56,8 @@ if (process.argv.includes('--check')) for (const it of inlined.filter(i => /^js\
   fs.writeFileSync(tmp, it.module ? it.body.replace(/^\s*import .*$/mg, '') : it.body);
   try { cp.execFileSync(process.execPath, ['--check', tmp], { stdio: 'inherit' }); } catch (e) { console.error('syntax error in ' + it.rel); throw e; } finally { fs.unlinkSync(tmp); }
 }
+// __BUILD_HASH__ becomes a fingerprint of the built file (the same sources always give the same value): the hub compares
+// its own with the newest one on the CDN to tell whether it is out of date.
+if (html.includes('__BUILD_HASH__')) html = html.split('__BUILD_HASH__').join(require('crypto').createHash('sha1').update(html).digest('hex').slice(0, 12));
 fs.writeFileSync(OUT, html);
 console.log('built ' + path.relative(path.join(__dirname, '..'), OUT) + ' (' + (html.length / 1024).toFixed(0) + ' KB)');
