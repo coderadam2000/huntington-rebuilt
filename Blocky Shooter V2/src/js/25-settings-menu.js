@@ -172,7 +172,9 @@ function prestigePanel() {
 // 4.0: the version line on the menu opens this - the highlights of the whole update
 function whatsNew() {
     const sec = (title, col, items) => `<div class="mlabel" style="color:${col}">${title}</div><ul class="news text-sm text-gray-200">${items.map(i => `<li>${i}</li>`).join('')}</ul>`;
-    return `<div class="text-2xl font-black text-white mt-2">WHAT'S NEW IN 5.6 - TRAINING</div>` +
+    return `<div class="text-2xl font-black text-white mt-2">WHAT'S NEW IN 5.7 - FIXES</div>` +
+        sec('NO MORE WHITE SCREEN', '#fde68a', ['The screen could get stuck bright white until you paused and came back. The game now spots everything that could cause it and puts it right by itself, straight away.']) +
+        `<div class="text-2xl font-black text-white mt-4">5.6 - TRAINING</div>` +
         sec('TRAINING', '#a5b4fc', ['New <b>TRAINING</b> button on the home screen: three hands-on lessons where you do each step yourself. <b>Boot camp</b> (move, jump, sprint, slide, shoot, aim, reload, switch, grenade, ability, pickups and a few zombies on a practice range), <b>Classes and loadout</b> and <b>Modes and multiplayer</b>.',
             'The practice range is a sandbox: it never counts for your XP, kills, best waves or the leaderboards, and your saved run is kept.']) +
         `<div class="text-2xl font-black text-white mt-4">5.5 - FROSTBITE &amp; CARNIVAL</div>` + whatsNew55(sec) +
