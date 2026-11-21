@@ -1,5 +1,5 @@
 /*!
- * HGNet 1.0 - online multiplayer for Huntington Games.
+ * HGNet 1.0 - online multiplayer for Taco Games.
  *
  * One self-contained file (ES5, no build step) that a game pastes inline to get online play with a
  * 6-digit room code. Read src/hgnet-README.md for how to use it from a game.

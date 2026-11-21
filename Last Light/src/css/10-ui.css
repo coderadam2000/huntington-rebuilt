@@ -135,7 +135,7 @@ kbd { display: inline-block; min-width: 26px; padding: 1px 7px; margin: 0 2px; b
   font-size: 28px; touch-action: none; }
 #touch button.on { background: rgba(255, 211, 107, .45); }
 
-/* opening splash: "Huntington Games presents", then the title catches light */
+/* opening splash: "Taco Games presents", then the title catches light */
 #splash { position: fixed; inset: 0; z-index: 100; background: radial-gradient(ellipse at 50% 60%, #1a1238 0%, #07051a 55%, #020108 100%);
   display: flex; align-items: center; justify-content: center; overflow: hidden; transition: opacity .55s ease, transform .55s ease; }
 #splash.out { opacity: 0; transform: scale(1.06); pointer-events: none; }

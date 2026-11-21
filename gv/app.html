@@ -4097,7 +4097,7 @@ function maybeNotify(c, m){
   if (level === 'silent') return;
   if (level === 'mentions' && !mention) return;
   if (SET.mentionsOnly && !mention) return;
-  // Inside the Huntington Games launcher: hand it the message, so it can show a notification over a game that is being
+  // Inside the Taco Games launcher: hand it the message, so it can show a notification over a game that is being
   // played (the launcher decides whether to show it; it knows what is on screen).
   if (window.parent !== window) {
     try {
@@ -4548,7 +4548,7 @@ function paintUserProfile(m){
     const ab = document.createElement('div'); ab.className = 'pfline';
     ab.textContent = p2.about; holder.append(ab);
   }
-  // achievements from the Huntington Games launcher
+  // achievements from the Taco Games launcher
   const ac = p2.ach;
   if (ac && ac.n > 0) {
     const ab = document.createElement('div'); ab.className = 'pfline pfach';
@@ -4559,7 +4559,7 @@ function paintUserProfile(m){
   holder.style.display = (p2.status || p2.about || (ac && ac.n > 0)) ? 'block' : 'none';
 }
 // ---- reports: tell the admins (the server keeps them; see archive 078-reports.js) ----------------------------
-// Inside the Huntington Games launcher its own Report dialog does the asking (parent.HG_report); on its own this app
+// Inside the Taco Games launcher its own Report dialog does the asking (parent.HG_report); on its own this app
 // asks with a plain prompt. Either way a reported message travels as its id, so the admins read what was really sent.
 function launcherReport(pre){ try { if (window.parent !== window && typeof window.parent.HG_report === 'function') { window.parent.HG_report(pre); return true; } } catch (e) {} return false; }
 function reportMessage(m){
@@ -6611,7 +6611,7 @@ document.addEventListener('pointerdown', e => {
 });
 $('#actions').addEventListener('keydown', e => { if (e.key === 'Escape') { e.preventDefault(); actClose(); $('#text').focus(); } });
 
-// Inside the Huntington Games launcher the page above us can open games (invites); anywhere else there is none.
+// Inside the Taco Games launcher the page above us can open games (invites); anywhere else there is none.
 const INVITE_NAMES = { blocky: 'Blocky Shooter', frontline: 'Frontline: Command' };
 function gameHub(){ try { return window.parent !== window && window.parent.HG_inviteGames ? window.parent : null; } catch (e) { return null; } }
 // Result cards: a roll, a flip, a pick, a countdown. Anything that is not one
@@ -6634,20 +6634,20 @@ function renderCard(el, m){
     return false;
   }
   if (m.kind !== 'text') return false;
-  // an achievement shared from the Huntington Games launcher: "... hg-ach:<game>:<id>"
+  // an achievement shared from the Taco Games launcher: "... hg-ach:<game>:<id>"
   if ((mm = /hg-ach:([a-z0-9]+):([A-Za-z0-9_-]{1,40})/.exec(t))) {
     const said = t.replace(mm[0], '').replace(/\s*-\s*$/, '').trim();
     const c = document.createElement('div'); c.className = 'rcard ach';
     c.innerHTML = `<b>🏆 Achievement</b><span>${esc(said)}</span>`;
     el.append(c); return true;
   }
-  // a game invite from the Huntington Games launcher: "... hg-invite:<game>:<party code>"
+  // a game invite from the Taco Games launcher: "... hg-invite:<game>:<party code>"
   if ((mm = /hg-invite:([a-z0-9-]+):([A-Za-z0-9-]{4,40})/.exec(t))) {
     const hub = gameHub(), name = INVITE_NAMES[mm[1]] || mm[1], said = t.replace(mm[0], '').replace(/\s*-\s*$/, '').trim();
     const c = document.createElement('div'); c.className = 'rcard invite';
     c.innerHTML = `<b>🎮 ${esc(name)}</b>` + (said ? `<span>${esc(said)}</span>` : '') + (said.includes(mm[2]) ? '' : `<span>party code ${esc(mm[2])}</span>`);
     if (m.userId !== S.userId) {
-      const go = document.createElement('button'); go.className = 'btn'; go.textContent = hub && hub.HG_joinInvite ? 'Join game' : 'Open Huntington Games to join';
+      const go = document.createElement('button'); go.className = 'btn'; go.textContent = hub && hub.HG_joinInvite ? 'Join game' : 'Open Taco Games to join';
       go.disabled = !(hub && hub.HG_joinInvite);
       const g = mm[1], code = mm[2];
       go.onclick = () => { try { hub.HG_joinInvite(g, code); } catch (e) {} };
@@ -6719,7 +6719,7 @@ function tourSteps(){
     { title: 'That is the lot.', text: 'Enter sends, Shift+Enter is a new line, <code>/help</code> lists the commands, <kbd>?</kbd> lists the keys, and <code>/guide</code> replays this.', center: true, next: 'Done' }
   ];
 }
-// Inside the Huntington Games launcher there is ONE tour, the launcher's: it walks through the games, your profile and
+// Inside the Taco Games launcher there is ONE tour, the launcher's: it walks through the games, your profile and
 // then into this app. So there, /guide and the offer hand over to it, and the app reports what you do (sent, closed…).
 const LAUNCHER_TOUR = () => { try { return window.parent !== window && window.parent.HG_tour ? window.parent.HG_tour : null; } catch (e) { return null; } };
 function tutorial(){ const T = LAUNCHER_TOUR(); if (T) { markGuideSeen(); T.start('chat'); return; } tourStart(); }
@@ -8502,7 +8502,7 @@ if (keyLocked) $('#unlockHint').textContent = 'Locked here as ' + (store.getItem
 loadSettings();
 paintLinks();
 
-// For the Huntington Games launcher, which shows a small chat window over a running game (press T). It reads and writes through the
+// For the Taco Games launcher, which shows a small chat window over a running game (press T). It reads and writes through the
 // same paths as the screen above, so what is said there lands in the same conversations.
 const EMBED_FN = [];
 window.GVEmbed = {
@@ -8546,7 +8546,7 @@ window.GV = { send, openConv, deliver, sendImage, join, signIn, signUp, showStar
               openAcct, applySettings, get settings(){ return SET; } };
 
 // ---- pictures, titles, ranks and nicknames next to names; the wheel; leaving a chat ----------------------------
-// What people wear (picture, banner, title: bought with goons in the Huntington Games launcher, or earned) comes
+// What people wear (picture, banner, title: bought with goons in the Taco Games launcher, or earned) comes
 // from the server in batches (cosGet) for whoever is on screen, with the shop catalog once per visit to draw it.
 // Ranks are 1-5 per game (1 is best) from the global leaderboards; first place on any board is a Record Holder.
 // Nicknames are yours alone: kept in this browser, shown instead of the name (the real one is in the tooltip).
@@ -8628,7 +8628,7 @@ function frameHtml(html, c){
 }
 // the name button on a message row (and anywhere else a name is shown that way)
 function decorateWho(btn, uid, name, heart){
-  if (uid === 'server') { btn.innerHTML = '<span class="srvav">⚙</span><span class="wn">Server</span><span class="gtag role-server" title="Messages from the Huntington Games server itself">SERVER</span>'; btn.classList.add('srv'); return; }
+  if (uid === 'server') { btn.innerHTML = '<span class="srvav">⚙</span><span class="wn">Server</span><span class="gtag role-server" title="Messages from the Taco Games server itself">SERVER</span>'; btn.classList.add('srv'); return; }
   cosNeed(uid);
   const c = COS.get(uid), nk = nickOf(uid);
   const nn = !nk && c && c.nn && c.nn !== name ? c.nn : null;      // their own nickname (yours for them comes first)

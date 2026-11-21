@@ -102,7 +102,7 @@ function makeNet(HG) { const net = HG.create({ game: GAME_ID, dropMs: DROP_MS })
 function partyCreate(code) {
     if (PARTY.net || PARTY.busy) return; PARTY.busy = true; partyStatus('Opening a party...');
     hgLoad().then(HG => {
-        if (!HG) { PARTY.busy = false; return partyStatus('Parties need the Huntington Games launcher (or a connection to the game servers).', true); }
+        if (!HG) { PARTY.busy = false; return partyStatus('Parties need the Taco Games launcher (or a connection to the game servers).', true); }
         const net = makeNet(HG);
         net.host({ name: myName(), maxPlayers: PARTY_MAX, code, accept: () => true }).then(r => {
             PARTY.host = true; PARTY.code = r.code; PARTY.myId = 0; PARTY.busy = false; PARTY.mem = { 0: { team: 0, ready: true } };
@@ -114,7 +114,7 @@ function partyJoin(code, extra) {
     code = String(code || '').replace(/\D/g, ''); if (code.length !== 6) return partyStatus('Type the 6-digit code.', true);
     if (PARTY.net || PARTY.busy) return Promise.resolve(false); PARTY.busy = true; partyStatus('Joining...');
     return hgLoad().then(HG => {
-        if (!HG) { PARTY.busy = false; partyStatus('Parties need the Huntington Games launcher (or a connection to the game servers).', true); return false; }
+        if (!HG) { PARTY.busy = false; partyStatus('Parties need the Taco Games launcher (or a connection to the game servers).', true); return false; }
         const net = makeNet(HG);
         return net.join(code, { name: myName(), info: Object.assign(myInfo(), extra || {}) }).then(r => {
             PARTY.host = false; PARTY.code = r.code || code; PARTY.myId = r.id; PARTY.busy = false; partyStatus(r.rejoined ? 'Back in the party.' : 'In the party.');

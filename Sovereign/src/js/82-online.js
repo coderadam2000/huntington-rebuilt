@@ -44,7 +44,7 @@ const Online = {
   hostRoom() {
     if (this.net) return; this.st('Opening a room...');
     this.hgnet().then(HG => {
-      if (!HG) return this.st('Online play needs the Huntington Games launcher.', true);
+      if (!HG) return this.st('Online play needs the Taco Games launcher.', true);
       this.name = this.myName(); const net = this.net = HG.create({ game: 'sovereign' }); this.wire(net);
       net.host({ name: this.name, maxPlayers: 6, info: { v: SOV_PROTO }, accept: p => this.started ? 'That game has already started.' : (p && p.info && p.info.v) !== SOV_PROTO ? 'This room runs Sovereign ' + VERSION + ' and you have ' + protoText(p && p.info && p.info.v) + '. Reload Sovereign from the launcher so you both have the same version.' : true }).then(r => {
         this.host = true; this.code = r.code; this.id = 0; this.names[0] = this.name; this.st('Room open. Pick your country, then start when everyone is in.'); this.lobbySend(); this.advertise();
@@ -55,7 +55,7 @@ const Online = {
     code = String(code || '').replace(/\D/g, ''); if (code.length !== 6) return this.st('Type the 6-digit code.', true);
     if (this.net) return; this.st('Joining...');
     this.hgnet().then(HG => {
-      if (!HG) return this.st('Online play needs the Huntington Games launcher.', true);
+      if (!HG) return this.st('Online play needs the Taco Games launcher.', true);
       this.name = this.myName(); const net = this.net = HG.create({ game: 'sovereign' }); this.wire(net);
       net.join(code, { name: this.name, info: { v: SOV_PROTO } }).then(r => { const hv = net.hostInfo && net.hostInfo.info && net.hostInfo.info.v; if (hv !== SOV_PROTO) { this.net = null; try { net.close(); } catch (e) {} return this.st('That room runs ' + protoText(hv) + ' (you have ' + VERSION + '). Everyone needs the same version: reload Sovereign from the launcher.', true); } this.host = false; this.code = r.code || code; this.id = r.id; this.st('In the room. Pick your country and wait for the host to start.'); this.paint(); },
         e => { this.net = null; this.st(e.message || 'Could not join.', true); });

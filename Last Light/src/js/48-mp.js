@@ -37,7 +37,7 @@ function mpReset() { try { MP.net && MP.net.close(); } catch (e) {} Object.assig
 function mpHost() {
     mpStatus('Opening a room...');
     mpHG().then(HG => {
-        if (!HG) return mpStatus('Playing together needs the Huntington Games launcher.', true);
+        if (!HG) return mpStatus('Playing together needs the Taco Games launcher.', true);
         MP.name = mpName(); const net = HG.create({ game: 'lumi' }); MP.net = net; mpWire(net);
         net.host({ name: MP.name, maxPlayers: MP_MAX, accept: () => MP.on ? 'That game has already started.' : true }).then(r => {
             MP.host = true; MP.code = r.code; MP.me = 0; mpStatus('Room open: share the code!'); mpLobbySend();
@@ -49,7 +49,7 @@ function mpJoin(code) {
     code = String(code || '').replace(/\D/g, ''); if (code.length !== 6) return mpStatus('Type the 6-digit code.', true);
     mpStatus('Joining...');
     mpHG().then(HG => {
-        if (!HG) return mpStatus('Playing together needs the Huntington Games launcher.', true);
+        if (!HG) return mpStatus('Playing together needs the Taco Games launcher.', true);
         MP.name = mpName(); const net = HG.create({ game: 'lumi' }); MP.net = net; mpWire(net);
         net.join(code, { name: MP.name }).then(r => { MP.host = false; MP.code = r.code || code; MP.me = r.id; mpStatus('In the room. Waiting for the host to start.'); mpPaintLobby(); },
             e => { mpStatus(e.message || 'Could not join.', true); MP.net = null; });

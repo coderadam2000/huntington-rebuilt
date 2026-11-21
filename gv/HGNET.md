@@ -1,4 +1,4 @@
-# HGNet - online multiplayer for Huntington Games
+# HGNet - online multiplayer for Taco Games
 
 HGNet is one self-contained JavaScript file (`src/hgnet.js`, ES5, no build step) that gives any of our
 games online play with a **6-digit room code**. Paste it inline into the game, call `HGNet.create()`,

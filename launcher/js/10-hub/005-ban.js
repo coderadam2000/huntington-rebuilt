@@ -9,8 +9,8 @@ function banLock(text) {
   try { localStorage.setItem('hgv:ban', JSON.stringify({ text: text || '', at: Date.now() })); } catch (e) {}
   var d = document.getElementById('banwall');
   if (!d) { d = document.createElement('div'); d.id = 'banwall'; (document.body || document.documentElement).appendChild(d); }
-  d.innerHTML = '<div class="bw-in"><div class="bw-ic">&#9940;</div><h1>Banned</h1><p>' + String(text || 'This device is banned from Huntington Games.').replace(/[&<>"]/g, function (c) { return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]; }) +
-    '</p><p class="bw-sub">This device can no longer use Huntington Games: no games, no chat, no accounts.</p></div>';
+  d.innerHTML = '<div class="bw-in"><div class="bw-ic">&#9940;</div><h1>Banned</h1><p>' + String(text || 'This device is banned from Taco Games.').replace(/[&<>"]/g, function (c) { return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]; }) +
+    '</p><p class="bw-sub">This device can no longer use Taco Games: no games, no chat, no accounts.</p></div>';
   document.documentElement.classList.add('banned');
   try { var f = document.getElementById('frame'); if (f) { f.removeAttribute('srcdoc'); f.src = 'about:blank'; } } catch (e) {}
   try { var g = document.getElementById('gvapp'); if (g) { g.removeAttribute('srcdoc'); g.src = 'about:blank'; } } catch (e) {}

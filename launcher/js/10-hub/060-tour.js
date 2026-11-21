@@ -9,7 +9,7 @@ function htGv() { try { var f = document.getElementById('gvapp'); return f && f.
 function htSteps() {
   var gvFind = function (fn) { return function () { var d = htGv(); return d ? fn(d) : null; }; };
   return [
-    { title: 'Welcome to Huntington Games', text: 'One account for every game, your profile, and Grapevine chat. Two minutes: we point at things, you press them. Skip any time.', center: true, next: 'Start' },
+    { title: 'Welcome to Taco Games', text: 'One account for every game, your profile, and Grapevine chat. Two minutes: we point at things, you press them. Skip any time.', center: true, next: 'Start' },
     { target: '#grid .game', title: 'Games', text: 'Every card is a game. Press one to play: it saves to your account by itself, on any computer you sign in on.', next: 'Next' },
     { target: '#chip', title: 'Your profile', text: 'This is you: your picture, your goons and your title. Press it.', wait: 'click' },
     { target: '[data-ptab="shop"]', title: 'The Goon Shop', text: '<b>Goons</b> come from playing: every achievement, 15 minutes of play, Blocky waves and ranks, daily top spots. Spend them here on pictures, banners, titles and Blocky skins. Press it.', wait: 'click' },

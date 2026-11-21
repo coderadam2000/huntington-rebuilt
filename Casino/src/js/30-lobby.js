@@ -88,7 +88,7 @@ function cage(kind) {
   modal(h('h2', null, buy ? '🏦 Buy chips' : '🏦 Cash out'),
     h('p', null, h('b', { class: 'gold' }, '1 goon = ' + rate + ' chips'), ' both ways. ', buy ? (dev ? 'Developer: unlimited goons.' : 'You have ' + fmt(S.bal.goons) + ' goons.') : 'You have ' + fmt(S.bal.chips) + ' chips.'),
     h('div', { class: 'mrow' }, h('span', null, 'Goons:'), inp, ...quick), out,
-    h('p', { class: 'small' }, 'Play money only: goons and chips cannot be bought with or swapped for real money or anything outside Huntington Games.'),
+    h('p', { class: 'small' }, 'Play money only: goons and chips cannot be bought with or swapped for real money or anything outside Taco Games.'),
     h('div', { class: 'mrow end' }, h('button', { class: 'btn', onclick: closeModal }, 'Cancel'), go));
   upd(); inp.focus(); inp.select();
 }
@@ -157,7 +157,7 @@ function openOdds() {
   const rows = ids.map(k => h('tr', null, h('td', null, h('b', null, gName(k))), h('td', { class: 'num' }, S.edge[k] != null ? S.edge[k] + '%' : '–'), h('td', { class: 'num' }, S.edge[k] != null ? (100 - S.edge[k]).toFixed(1) + '%' : '–'), h('td', null, HOW[k])));
   $('#main').append(h('div', { class: 'odds' }, h('div', { class: 'odds-in' },
     h('h2', null, '❓ How it works and the odds'),
-    h('div', { class: 'warn' }, h('b', null, 'Play money only. '), 'Goons and chips are a toy currency for Huntington Games. They have no real-money value and cannot be bought, sold, or cashed out for money or anything outside the games.'),
+    h('div', { class: 'warn' }, h('b', null, 'Play money only. '), 'Goons and chips are a toy currency for Taco Games. They have no real-money value and cannot be bought, sold, or cashed out for money or anything outside the games.'),
     h('ul', null,
       h('li', null, h('b', null, '1 goon = ' + (S.limits.rate || 100) + ' chips'), ', both ways, at the cage (top right).'),
       h('li', null, 'Bets are ' + S.limits.min + ' to ' + fmt(S.limits.max) + ' chips. Every result is decided on the Grapevine server, never in this page.'),

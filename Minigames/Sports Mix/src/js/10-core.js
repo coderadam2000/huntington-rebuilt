@@ -16,7 +16,7 @@ function smSave() { let s = null; try { s = JSON.parse(mgLs('hgmini_sports') || 
 function smWrite(s) { mgLs('hgmini_sports', JSON.stringify(s)); }
 // ---- the page ----
 document.getElementById('app').innerHTML = `<canvas id="sm-cv"></canvas><div id="sm-hud" class="hidden"></div><div id="sm-msg" class="hidden"></div>
-  <div id="sm-menu"><div class="mg-card sm-card"><div class="mg-kicker">Huntington Games</div><h1>Sports Mix</h1><p class="mg-sub">Eight sports. Play a bot, or open a room and play your friends.</p>
+  <div id="sm-menu"><div class="mg-card sm-card"><div class="mg-kicker">Taco Games</div><h1>Sports Mix</h1><p class="mg-sub">Eight sports. Play a bot, or open a room and play your friends.</p>
   <div id="sm-grid"></div><div class="mg-row"><button class="mg-btn" id="sm-online">🌐 Play friends online</button></div><div id="sm-recs" class="mg-sub"></div></div></div>
   <div id="sm-pick" class="hidden"><div class="mg-card sm-card"><h2 id="sm-pt"></h2><p class="mg-sub" id="sm-pd"></p><div id="sm-po"></div><div class="mg-row"><button class="mg-btn big" id="sm-go">Play ▶</button><button class="mg-btn" id="sm-back">Back</button></div><div class="sm-keys" id="sm-pk"></div></div></div>`;
 const CV = document.getElementById('sm-cv'), G = CV.getContext('2d');

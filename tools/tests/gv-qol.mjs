@@ -111,7 +111,7 @@ try {
   await A.click('#prestart');
   check('Restart reloads the game (after asking)', !!(await until(() => A.evaluate(() => window.__fr > 0), 8000)));
   await A.evaluate(() => document.getElementById('back').click()); await A.waitForTimeout(600);
-  check('the tab title is back', /Huntington/i.test(await A.title()) && !/Tetris/.test(await A.title()), await A.title());
+  check('the tab title is back', /Taco/i.test(await A.title()) && !/Tetris/.test(await A.title()), await A.title());
   const st = await A.evaluate(() => document.querySelector('.game[data-dir="Tetris"] .gstat').textContent);
   check('the card shows how long you played and when', /Played 1h 1m/.test(st) && /just now/.test(st), st);
   check('one visit, even with a restart', await A.evaluate(() => JSON.parse(localStorage.getItem('hgq:play')).Tetris.n === 1));

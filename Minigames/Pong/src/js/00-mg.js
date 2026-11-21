@@ -1,5 +1,5 @@
 // ==========================================
-// HUNTINGTON MINIGAMES: the shared lobby (copied into every minigame by Minigames/build.sh; edit it here).
+// TACO MINIGAMES: the shared lobby (copied into every minigame by Minigames/build.sh; edit it here).
 // Play vs bots right away, or open a room (6-digit code, HGNet = the launcher's multiplayer network) and friends
 // join; the host adds bots to fill seats and starts. The host runs the game (and the bots) and tells everyone.
 // A game calls MG.init({...}) and gets onStart(roster, seed), onMsg(peerId, msg), onLeave(id) back.
@@ -27,7 +27,7 @@ MG.init = function (cfg) {
     MG.cfg = Object.assign({ min: 2, max: 8, bots: 7, defBots: 1, color: '#38bdf8', solo: true }, cfg);
     document.documentElement.style.setProperty('--mg', MG.cfg.color);
     const d = document.createElement('div'); d.id = 'mg-lobby';
-    d.innerHTML = `<div class="mg-card"><div class="mg-kicker">Huntington Minigames</div><h1>${mgEsc(cfg.title)}</h1><p class="mg-sub">${cfg.sub || ''}</p>
+    d.innerHTML = `<div class="mg-card"><div class="mg-kicker">Taco Minigames</div><h1>${mgEsc(cfg.title)}</h1><p class="mg-sub">${cfg.sub || ''}</p>
       <div class="mg-how">${cfg.howto || ''}</div>
       <div class="mg-row">${MG.cfg.solo ? '<button class="mg-btn big" id="mg-solo">Play vs bots</button>' : ''}<button class="mg-btn" id="mg-host">Open a room</button>
         <input id="mg-code" maxlength="7" inputmode="numeric" placeholder="6-digit code" autocomplete="off"><button class="mg-btn" id="mg-join">Join</button></div>
@@ -91,7 +91,7 @@ function mgWire(net) {
 function mgHost() {
     if (MG.net) return; mgSay('Opening a room...');
     mgHG().then(HG => {
-        if (!HG) return mgSay('Playing with friends needs the Huntington Games launcher. "Play vs bots" works anywhere.', true);
+        if (!HG) return mgSay('Playing with friends needs the Taco Games launcher. "Play vs bots" works anywhere.', true);
         MG.name = mgMyName(); const net = MG.net = HG.create({ game: MG.cfg.id }); mgWire(net);
         net.host({ name: MG.name, maxPlayers: MG.cfg.max, accept: () => MG.started ? 'That game has already started.' : true }).then(r => {
             MG.host = true; MG.solo = false; MG.code = r.code; MG.me = 0; mgSay('Room open: share the code, add bots if you like, then Start.'); mgLobbySend(); mgAdvertise();
@@ -102,7 +102,7 @@ function mgJoin(code) {
     code = String(code || '').replace(/\D/g, ''); if (code.length !== 6) return mgSay('Type the 6-digit code.', true);
     if (MG.net) return; mgSay('Joining...');
     mgHG().then(HG => {
-        if (!HG) return mgSay('Playing with friends needs the Huntington Games launcher.', true);
+        if (!HG) return mgSay('Playing with friends needs the Taco Games launcher.', true);
         MG.name = mgMyName(); const net = MG.net = HG.create({ game: MG.cfg.id }); mgWire(net);
         net.join(code, { name: MG.name }).then(r => { MG.host = false; MG.solo = false; MG.code = r.code || code; MG.me = r.id; mgSay('In the room. The host starts the game.'); mgPaint(); },
             e => { MG.net = null; mgSay(e.message || 'Could not join.', true); });

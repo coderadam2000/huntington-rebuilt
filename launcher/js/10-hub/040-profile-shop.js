@@ -124,7 +124,7 @@ function profExtras(e, c, shop) {
       '<button class="pb buy" data-pex="crate"' + (left ? '' : ' disabled') + '>Open a crate (' + P.crate + ' goons)</button></div></div>' +
     '<div class="pex"><span class="pexi">&#128157;</span><div><b>Give goons to a friend</b><p>A present for a friend, up to ' + P.giftMax + ' goons a day.</p>' +
       (friends.length ? '<div class="prow"><select id="px-friend">' + friends.map(function (n) { return '<option>' + profEsc(n) + '</option>'; }).join('') + '</select><input id="px-n" type="number" min="1" max="' + P.giftMax + '" value="1" style="width:76px"><button class="pb" data-pex="gift">Give</button></div>' : '<p class="pnote">Add a friend in Grapevine first.</p>') + '</div></div>' +
-    '<div class="pex"><span class="pexi">&#127920;</span><div><b>The casino</b><p>Swap goons for chips (1 goon = 100 chips) and play slots, blackjack, roulette and more, or sit at a live table with everyone. Goons are play money: they are not worth anything outside Huntington Games.</p>' +
+    '<div class="pex"><span class="pexi">&#127920;</span><div><b>The casino</b><p>Swap goons for chips (1 goon = 100 chips) and play slots, blackjack, roulette and more, or sit at a live table with everyone. Goons are play money: they are not worth anything outside Taco Games.</p>' +
       '<button class="pb" data-pex="casino">Open the casino</button></div></div></div>';
 }
 function profBoards(c) {
@@ -182,10 +182,10 @@ setInterval(function () { if (!document.hidden && Date.now() - (PROF.lbAt || 0) 
 // a podium for the top three, your own place, then everyone else
 function lbView(c) {
   var games = [], count = {};
-  Object.keys(c.boards).forEach(function (k) { var g = c.boards[k].g; if (/^hub:/.test(k)) g = 'Huntington Games'; if (games.indexOf(g) < 0) games.push(g); count[g] = (count[g] || 0) + 1; });
-  games.sort(function (a, b) { return a === 'Huntington Games' ? -1 : b === 'Huntington Games' ? 1 : a.localeCompare(b); });
+  Object.keys(c.boards).forEach(function (k) { var g = c.boards[k].g; if (/^hub:/.test(k)) g = 'Taco Games'; if (games.indexOf(g) < 0) games.push(g); count[g] = (count[g] || 0) + 1; });
+  games.sort(function (a, b) { return a === 'Taco Games' ? -1 : b === 'Taco Games' ? 1 : a.localeCompare(b); });
   if (games.indexOf(PROF.lbGame) < 0) PROF.lbGame = games[0];
-  var gOf = function (k) { return /^hub:/.test(k) ? 'Huntington Games' : c.boards[k].g; };
+  var gOf = function (k) { return /^hub:/.test(k) ? 'Taco Games' : c.boards[k].g; };
   var keys = Object.keys(c.boards).filter(function (k) { return gOf(k) === PROF.lbGame; });
   var main = keys.filter(function (k) { return !/^lumi:lv/.test(k); }), levels = keys.filter(function (k) { return /^lumi:lv/.test(k); });
   if (keys.indexOf(PROF.lbBoard) < 0) PROF.lbBoard = main[0] || keys[0];

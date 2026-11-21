@@ -218,7 +218,7 @@ const UI = {
       ['🕊', 'The World Council', 'Every four months the whole world votes: sanctions, peacekeepers and world laws on climate, arms, tax, aid, trade, AI and space. Propose your own resolutions, lobby with political capital or aid money, and watch out for vetoes. Break a world law and the world will notice. (Council, in the menu.)'],
       ['🦠', 'Global crises', 'Pandemics, a world financial panic, a food crisis, a solar superstorm, a cyber plague and, very rarely, an asteroid. Every country pledges to a world fund; the fuller it is, the less everyone suffers.'],
       ['🧊', 'Four new scenarios', 'Start in Cold War II, After the Crash, the Resource Scramble or the Age of Peace, each with its own goal. Works in New Game, the Simulator and online rooms (the host picks).'],
-      ['🏆', 'New victories and achievements', 'Voice of the World, Saviour of Humanity and a goal for each scenario, plus 12 new achievements (5 more count on your Huntington Games account).'],
+      ['🏆', 'New victories and achievements', 'Voice of the World, Saviour of Humanity and a goal for each scenario, plus 12 new achievements (5 more count on your Taco Games account).'],
       ['📰', '25 new events', 'Bribes for your Council vote, defecting pilots, barter towns, a lost city, a treasure ship, the oldest person on Earth and the heist of the century.'],
       ['🌐', 'Online', 'Everyone in a room needs Sovereign 1.4: older and newer versions now refuse each other with a clear message.']
     ];
@@ -226,8 +226,8 @@ const UI = {
   },
   credits() {
     this.modal(`<h2>Credits</h2><div class="credits">
-      <div class="hg">A Huntington Games production</div>
-      <p><b>Sovereign</b> version ${VERSION}. Made by Huntington Games.</p>
+      <div class="hg">A Taco Games production</div>
+      <p><b>Sovereign</b> version ${VERSION}. Made by Taco Games.</p>
       <p><b>Country figures:</b> rounded public estimates for 2025. Leaders as of mid 2026.</p>
       <p><b>Map borders:</b> Natural Earth (public domain), via world-atlas.</p>
       <p><b>Country facts:</b> mledoze/countries (Open Database License).</p>

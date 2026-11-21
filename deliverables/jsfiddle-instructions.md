@@ -1,4 +1,4 @@
-HOW TO PLAY HUNTINGTON GAMES IN JSFIDDLE
+HOW TO PLAY TACO GAMES IN JSFIDDLE
 
 1. Go to jsfiddle.net.
 2. Find the "HTML" panel (top-left box).
@@ -22,4 +22,4 @@ SAVE IT SO YOU DON'T HAVE TO PASTE EVERY TIME (free account)
 NOTES
 - The loader downloads `index.html` from the `main` branch of `coderadam2000/huntington-rebuilt` through jsDelivr.
 - Online multiplayer (Frontline, Blocky Shooter) needs an internet connection.
-- The games only run from the official Huntington Games pages. Copies posted on other websites will show a "shut down" message.
+- The games only run from the official Taco Games pages. Copies posted on other websites will show a "shut down" message.

@@ -543,7 +543,7 @@ body.busy .lockable{pointer-events:none;opacity:.55}
   </div>
 </header>
 <main id="main"></main>
-<footer id="foot">Play money only. Goons and chips are not worth anything outside Huntington Games. <span id="foot-x"></span></footer>
+<footer id="foot">Play money only. Goons and chips are not worth anything outside Taco Games. <span id="foot-x"></span></footer>
 <div id="toasts"></div>
 <div id="modal" class="hidden"><div class="mbox" id="mbox"></div></div>
 <script type="module">
@@ -1022,7 +1022,7 @@ const apiIsMock = () => !!(S.api && S.api.mock);
 // one call: retries once on "Slow down", keeps the clock and the balance in step
 async function call(op, args, opt) {
   opt = opt || {};
-  if (!S.api) throw new Error('Open the casino from the Huntington Games launcher and sign in to play.');
+  if (!S.api) throw new Error('Open the casino from the Taco Games launcher and sign in to play.');
   const src = S.api; let rep;
   try { rep = await src.eco.casino(op, args || {}); }
   catch (e) {
@@ -1286,7 +1286,7 @@ function cage(kind) {
   modal(h('h2', null, buy ? '🏦 Buy chips' : '🏦 Cash out'),
     h('p', null, h('b', { class: 'gold' }, '1 goon = ' + rate + ' chips'), ' both ways. ', buy ? (dev ? 'Developer: unlimited goons.' : 'You have ' + fmt(S.bal.goons) + ' goons.') : 'You have ' + fmt(S.bal.chips) + ' chips.'),
     h('div', { class: 'mrow' }, h('span', null, 'Goons:'), inp, ...quick), out,
-    h('p', { class: 'small' }, 'Play money only: goons and chips cannot be bought with or swapped for real money or anything outside Huntington Games.'),
+    h('p', { class: 'small' }, 'Play money only: goons and chips cannot be bought with or swapped for real money or anything outside Taco Games.'),
     h('div', { class: 'mrow end' }, h('button', { class: 'btn', onclick: closeModal }, 'Cancel'), go));
   upd(); inp.focus(); inp.select();
 }
@@ -1355,7 +1355,7 @@ function openOdds() {
   const rows = ids.map(k => h('tr', null, h('td', null, h('b', null, gName(k))), h('td', { class: 'num' }, S.edge[k] != null ? S.edge[k] + '%' : '–'), h('td', { class: 'num' }, S.edge[k] != null ? (100 - S.edge[k]).toFixed(1) + '%' : '–'), h('td', null, HOW[k])));
   $('#main').append(h('div', { class: 'odds' }, h('div', { class: 'odds-in' },
     h('h2', null, '❓ How it works and the odds'),
-    h('div', { class: 'warn' }, h('b', null, 'Play money only. '), 'Goons and chips are a toy currency for Huntington Games. They have no real-money value and cannot be bought, sold, or cashed out for money or anything outside the games.'),
+    h('div', { class: 'warn' }, h('b', null, 'Play money only. '), 'Goons and chips are a toy currency for Taco Games. They have no real-money value and cannot be bought, sold, or cashed out for money or anything outside the games.'),
     h('ul', null,
       h('li', null, h('b', null, '1 goon = ' + (S.limits.rate || 100) + ' chips'), ', both ways, at the cage (top right).'),
       h('li', null, 'Bets are ' + S.limits.min + ' to ' + fmt(S.limits.max) + ' chips. Every result is decided on the Grapevine server, never in this page.'),
@@ -2393,9 +2393,9 @@ function gate(reason, waiting) {
   const prSw = sw('Practice mode (pretend chips)', false, v => { if (v) boot(true); });
   $('#main').append(h('div', { class: 'gate' }, h('div', { class: 'card' },
     h('div', { class: 'big-ico' }, '🍀🎰'), h('h1', null, 'The Lucky Goon'),
-    h('p', null, reason || 'Open the casino from the Huntington Games launcher and sign in to play.'),
+    h('p', null, reason || 'Open the casino from the Taco Games launcher and sign in to play.'),
     waiting ? h('p', { class: 'small' }, 'Waiting for the Grapevine connection…') : null,
-    h('div', { class: 'warn' }, h('b', null, 'Play money only. '), 'Goons and chips are not worth anything outside Huntington Games: they cannot be bought, sold or cashed out for real money or anything else.'),
+    h('div', { class: 'warn' }, h('b', null, 'Play money only. '), 'Goons and chips are not worth anything outside Taco Games: they cannot be bought, sold or cashed out for real money or anything else.'),
     h('p', { class: 'small' }, 'Want to look around first? Practice mode plays every game with pretend chips and never talks to the server.'),
     h('div', { class: 'mrow center' }, prSw))));
 }
@@ -2403,7 +2403,7 @@ function welcome() {
   if (store.get('welcomed', false) || S.practice) return;
   modal(h('h2', null, '🍀 Welcome to The Lucky Goon'),
     h('p', null, 'Swap goons for chips at the cage (', h('b', { class: 'gold' }, '1 goon = ' + S.limits.rate + ' chips'), ') and play tables, machines and live games with everyone in the casino.'),
-    h('div', { class: 'warn' }, h('b', null, 'Play money only. '), 'Goons and chips have no real-money value and cannot be bought, sold or cashed out for anything outside Huntington Games.'),
+    h('div', { class: 'warn' }, h('b', null, 'Play money only. '), 'Goons and chips have no real-money value and cannot be bought, sold or cashed out for anything outside Taco Games.'),
     h('p', { class: 'small' }, 'Every game keeps a small house edge (listed on the ? page), so over time the house wins. Play for fun.'),
     h('div', { class: 'mrow end' }, h('button', { class: 'btn', onclick: () => { closeModal(); openOdds(); } }, 'See the odds'), h('button', { class: 'btn gold', onclick: () => { store.set('welcomed', true); closeModal(); } }, 'Let\'s play')));
 }

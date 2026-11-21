@@ -159,7 +159,7 @@ function netReset() {
 function netHost() {
     if (NET.net || NET.busy) return; NET.busy = true; netStatus('Opening a room...');
     hgLoad().then(HG => {
-        if (!HG) { NET.busy = false; return netStatus('Online play needs the Huntington Games launcher (or a connection to the game servers).', true); }
+        if (!HG) { NET.busy = false; return netStatus('Online play needs the Taco Games launcher (or a connection to the game servers).', true); }
         const net = HG.create({ game: GAME_ID }); NET.net = net; wireNet(net);
         net.host({ name: myName(), maxPlayers: MAXP, info: { look: save.look, pv: PROTO, ver: VERSION }, accept: j => guestRefusal(j && j.info) || (hostRoster().length >= MAXP ? 'The room is full.' : true) }).then(r => {
             NET.host = true; G.host = true; G.me = 0; NET.code = r.code; NET.busy = false; rememberRoom(r.code); netStatus('Room open - share the code!'); broadcastLobby();
@@ -170,7 +170,7 @@ function netJoin(code) {
     code = String(code || '').replace(/\D/g, ''); if (code.length !== 6) return netStatus('Type the 6-digit code.', true);
     if (NET.net || NET.busy) return; NET.busy = true; netStatus('Joining ' + code + '...');
     hgLoad().then(HG => {
-        if (!HG) { NET.busy = false; return netStatus('Online play needs the Huntington Games launcher (or a connection to the game servers).', true); }
+        if (!HG) { NET.busy = false; return netStatus('Online play needs the Taco Games launcher (or a connection to the game servers).', true); }
         const net = HG.create({ game: GAME_ID }); NET.net = net; wireNet(net);
         net.join(code, { name: myName(), info: { look: save.look, pv: PROTO, ver: VERSION } }).then(r => {
             const bad = hostRefusal(r.hostInfo);

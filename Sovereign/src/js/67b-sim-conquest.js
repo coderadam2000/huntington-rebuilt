@@ -94,7 +94,7 @@ function checkDomination() {
   UI.modal(`<h2>🌍 World domination</h2><p style="font-size:15px">Every country on Earth answers to ${esc(nm(me))}. ${esc(G.player.title + ' ' + G.player.name)} rules the whole world.</p><p class="sub">Achievement unlocked: World Domination. You can keep playing.</p><div class="menu" style="width:auto"><button class="btn gold" data-act="close-modal">Keep ruling</button></div>`);
   $$('[data-act="close-modal"]').forEach(b => b.onclick = () => UI.closeModal());
 }
-// what the Huntington Games launcher's achievements read ('sov.hgach' syncs with the account like a save): best values so far.
+// what the Taco Games launcher's achievements read ('sov.hgach' syncs with the account like a save): best values so far.
 // (Sovereign's own achievements live in 'sov.ach'; this is a separate key so their counts stay right.)
 function sovAch() {
   try {

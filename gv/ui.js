@@ -108,7 +108,7 @@
   // What a brand-new player needs to know, in the order they will wonder about it.
   function explainer() {
     var box = h('div');
-    box.appendChild(h('div', { class: 'hero' }, h('h1', { text: 'Welcome to Huntington Games' }),
+    box.appendChild(h('div', { class: 'hero' }, h('h1', { text: 'Welcome to Taco Games' }),
       h('p', { text: 'Free games that run right in your browser, now with one account for everything.' })));
     box.appendChild(h('div', { class: 'perks' },
       h('div', { class: 'perk' }, h('i', { text: 'Saves' }), h('b', { text: 'Your progress follows you' }), h('span', { text: 'Every game saves to your account. Sign in on another computer and it is all there.' })),
@@ -132,7 +132,7 @@
   function download(name, text) {
     try { var a = document.createElement('a'); a.href = URL.createObjectURL(new Blob([text], { type: 'text/plain' })); a.download = name; document.body.appendChild(a); a.click(); a.remove(); setTimeout(function () { URL.revokeObjectURL(a.href); }, 4000); } catch (e) { toast('Could not make the file. Copy the key instead.', true); }
   }
-  function keyFile(key, name) { return 'Huntington Games / Grapevine recovery key\n' + (name ? 'Account name: ' + name + '\n' : '') + '\n' + key + '\n\nThis key IS your account. Anyone who has it can sign in as you, and nobody can reset it. Keep it private and safe.\n'; }
+  function keyFile(key, name) { return 'Taco Games / Grapevine recovery key\n' + (name ? 'Account name: ' + name + '\n' : '') + '\n' + key + '\n\nThis key IS your account. Anyone who has it can sign in as you, and nobody can reset it. Keep it private and safe.\n'; }
 
   function signedOut() {
     var wrap = h('div', null, gate ? explainer() : null);

@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
 <title>Sports Mix</title>
 <style>
-/* Huntington Minigames: shared look (copied into every minigame by Minigames/build.sh) */
+/* Taco Minigames: shared look (copied into every minigame by Minigames/build.sh) */
 :root { --mg: #38bdf8; --bg: #0b0f1a; --panel: rgba(17, 24, 39, .92); --line: rgba(255,255,255,.12); --text: #e5e7eb; --dim: #94a3b8; }
 * { box-sizing: border-box; }
 html, body { margin: 0; height: 100%; background: radial-gradient(circle at 50% 0%, #1e1b4b 0%, var(--bg) 60%); color: var(--text); font-family: system-ui, -apple-system, 'Segoe UI', sans-serif; overflow: hidden; user-select: none; }
@@ -71,7 +71,7 @@ canvas { display: block; }
 <script type="module">
 // ---- 00-mg.js ----
 // ==========================================
-// HUNTINGTON MINIGAMES: the shared lobby (copied into every minigame by Minigames/build.sh; edit it here).
+// TACO MINIGAMES: the shared lobby (copied into every minigame by Minigames/build.sh; edit it here).
 // Play vs bots right away, or open a room (6-digit code, HGNet = the launcher's multiplayer network) and friends
 // join; the host adds bots to fill seats and starts. The host runs the game (and the bots) and tells everyone.
 // A game calls MG.init({...}) and gets onStart(roster, seed), onMsg(peerId, msg), onLeave(id) back.
@@ -99,7 +99,7 @@ MG.init = function (cfg) {
     MG.cfg = Object.assign({ min: 2, max: 8, bots: 7, defBots: 1, color: '#38bdf8', solo: true }, cfg);
     document.documentElement.style.setProperty('--mg', MG.cfg.color);
     const d = document.createElement('div'); d.id = 'mg-lobby';
-    d.innerHTML = `<div class="mg-card"><div class="mg-kicker">Huntington Minigames</div><h1>${mgEsc(cfg.title)}</h1><p class="mg-sub">${cfg.sub || ''}</p>
+    d.innerHTML = `<div class="mg-card"><div class="mg-kicker">Taco Minigames</div><h1>${mgEsc(cfg.title)}</h1><p class="mg-sub">${cfg.sub || ''}</p>
       <div class="mg-how">${cfg.howto || ''}</div>
       <div class="mg-row">${MG.cfg.solo ? '<button class="mg-btn big" id="mg-solo">Play vs bots</button>' : ''}<button class="mg-btn" id="mg-host">Open a room</button>
         <input id="mg-code" maxlength="7" inputmode="numeric" placeholder="6-digit code" autocomplete="off"><button class="mg-btn" id="mg-join">Join</button></div>
@@ -163,7 +163,7 @@ function mgWire(net) {
 function mgHost() {
     if (MG.net) return; mgSay('Opening a room...');
     mgHG().then(HG => {
-        if (!HG) return mgSay('Playing with friends needs the Huntington Games launcher. "Play vs bots" works anywhere.', true);
+        if (!HG) return mgSay('Playing with friends needs the Taco Games launcher. "Play vs bots" works anywhere.', true);
         MG.name = mgMyName(); const net = MG.net = HG.create({ game: MG.cfg.id }); mgWire(net);
         net.host({ name: MG.name, maxPlayers: MG.cfg.max, accept: () => MG.started ? 'That game has already started.' : true }).then(r => {
             MG.host = true; MG.solo = false; MG.code = r.code; MG.me = 0; mgSay('Room open: share the code, add bots if you like, then Start.'); mgLobbySend(); mgAdvertise();
@@ -174,7 +174,7 @@ function mgJoin(code) {
     code = String(code || '').replace(/\D/g, ''); if (code.length !== 6) return mgSay('Type the 6-digit code.', true);
     if (MG.net) return; mgSay('Joining...');
     mgHG().then(HG => {
-        if (!HG) return mgSay('Playing with friends needs the Huntington Games launcher.', true);
+        if (!HG) return mgSay('Playing with friends needs the Taco Games launcher.', true);
         MG.name = mgMyName(); const net = MG.net = HG.create({ game: MG.cfg.id }); mgWire(net);
         net.join(code, { name: MG.name }).then(r => { MG.host = false; MG.solo = false; MG.code = r.code || code; MG.me = r.id; mgSay('In the room. The host starts the game.'); mgPaint(); },
             e => { MG.net = null; mgSay(e.message || 'Could not join.', true); });
@@ -312,7 +312,7 @@ function smSave() { let s = null; try { s = JSON.parse(mgLs('hgmini_sports') || 
 function smWrite(s) { mgLs('hgmini_sports', JSON.stringify(s)); }
 // ---- the page ----
 document.getElementById('app').innerHTML = `<canvas id="sm-cv"></canvas><div id="sm-hud" class="hidden"></div><div id="sm-msg" class="hidden"></div>
-  <div id="sm-menu"><div class="mg-card sm-card"><div class="mg-kicker">Huntington Games</div><h1>Sports Mix</h1><p class="mg-sub">Eight sports. Play a bot, or open a room and play your friends.</p>
+  <div id="sm-menu"><div class="mg-card sm-card"><div class="mg-kicker">Taco Games</div><h1>Sports Mix</h1><p class="mg-sub">Eight sports. Play a bot, or open a room and play your friends.</p>
   <div id="sm-grid"></div><div class="mg-row"><button class="mg-btn" id="sm-online">🌐 Play friends online</button></div><div id="sm-recs" class="mg-sub"></div></div></div>
   <div id="sm-pick" class="hidden"><div class="mg-card sm-card"><h2 id="sm-pt"></h2><p class="mg-sub" id="sm-pd"></p><div id="sm-po"></div><div class="mg-row"><button class="mg-btn big" id="sm-go">Play ▶</button><button class="mg-btn" id="sm-back">Back</button></div><div class="sm-keys" id="sm-pk"></div></div></div>`;
 const CV = document.getElementById('sm-cv'), G = CV.getContext('2d');

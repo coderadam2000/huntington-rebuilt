@@ -22,7 +22,7 @@ const apiIsMock = () => !!(S.api && S.api.mock);
 // one call: retries once on "Slow down", keeps the clock and the balance in step
 async function call(op, args, opt) {
   opt = opt || {};
-  if (!S.api) throw new Error('Open the casino from the Huntington Games launcher and sign in to play.');
+  if (!S.api) throw new Error('Open the casino from the Taco Games launcher and sign in to play.');
   const src = S.api; let rep;
   try { rep = await src.eco.casino(op, args || {}); }
   catch (e) {

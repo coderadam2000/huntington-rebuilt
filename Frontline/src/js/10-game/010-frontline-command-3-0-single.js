@@ -1,7 +1,7 @@
 
 import * as THREE from 'three';
 // =====================================================================
-//  FRONTLINE: COMMAND 3.0  -  single file RTS for Huntington Games
+//  FRONTLINE: COMMAND 3.0  -  single file RTS for Taco Games
 //  Armies from the 1900s to the far future. Capture flags, hold more than the enemy.
 // =====================================================================
 const VERSION = '3.1';

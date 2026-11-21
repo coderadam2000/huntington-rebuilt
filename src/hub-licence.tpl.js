@@ -1,11 +1,11 @@
-/* ===== Huntington Games licence ===== */
+/* ===== Taco Games licence ===== */
 (function () {
   var H = location.hostname;
   var ok = H === '' || H === 'localhost' || H === '127.0.0.1'
     || /(^|\.)jsbin\.com$/.test(H) || /(^|\.)jsfiddle\.net$/.test(H)
     || /(^|\.)jshell\.net$/.test(H) || /\.github\.io$/.test(H) || !!window.HG_BUNDLE;
   if (ok) return;
-  document.documentElement.innerHTML = '<head><meta name="viewport" content="width=device-width,initial-scale=1"></head><body style="margin:0;min-height:100vh;display:flex;align-items:center;justify-content:center;background:#0b0e13;color:#e6edf3;font:16px \'Segoe UI\',system-ui,sans-serif;text-align:center;padding:24px"><div><div style="font-size:46px">&#128274;</div><div style="font-weight:800;font-size:22px;margin:12px 0 6px">This site is not authorized</div><div style="color:#8b949e;max-width:440px;line-height:1.5">Huntington Games runs only on its official pages. Play the real version instead of this copy.</div></div></body>';
+  document.documentElement.innerHTML = '<head><meta name="viewport" content="width=device-width,initial-scale=1"></head><body style="margin:0;min-height:100vh;display:flex;align-items:center;justify-content:center;background:#0b0e13;color:#e6edf3;font:16px \'Segoe UI\',system-ui,sans-serif;text-align:center;padding:24px"><div><div style="font-size:46px">&#128274;</div><div style="font-weight:800;font-size:22px;margin:12px 0 6px">This site is not authorized</div><div style="color:#8b949e;max-width:440px;line-height:1.5">Taco Games runs only on its official pages. Play the real version instead of this copy.</div></div></body>';
   throw new Error('HG-site');
 })();
 var HG_SECRET = '__SECRET__';

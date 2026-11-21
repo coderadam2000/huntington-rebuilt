@@ -3618,7 +3618,7 @@ function makeNet(HG) { const net = HG.create({ game: GAME_ID, dropMs: DROP_MS })
 function partyCreate(code) {
     if (PARTY.net || PARTY.busy) return; PARTY.busy = true; partyStatus('Opening a party...');
     hgLoad().then(HG => {
-        if (!HG) { PARTY.busy = false; return partyStatus('Parties need the Huntington Games launcher (or a connection to the game servers).', true); }
+        if (!HG) { PARTY.busy = false; return partyStatus('Parties need the Taco Games launcher (or a connection to the game servers).', true); }
         const net = makeNet(HG);
         net.host({ name: myName(), maxPlayers: PARTY_MAX, code, accept: () => true }).then(r => {
             PARTY.host = true; PARTY.code = r.code; PARTY.myId = 0; PARTY.busy = false; PARTY.mem = { 0: { team: 0, ready: true } };
@@ -3630,7 +3630,7 @@ function partyJoin(code, extra) {
     code = String(code || '').replace(/\D/g, ''); if (code.length !== 6) return partyStatus('Type the 6-digit code.', true);
     if (PARTY.net || PARTY.busy) return Promise.resolve(false); PARTY.busy = true; partyStatus('Joining...');
     return hgLoad().then(HG => {
-        if (!HG) { PARTY.busy = false; partyStatus('Parties need the Huntington Games launcher (or a connection to the game servers).', true); return false; }
+        if (!HG) { PARTY.busy = false; partyStatus('Parties need the Taco Games launcher (or a connection to the game servers).', true); return false; }
         const net = makeNet(HG);
         return net.join(code, { name: myName(), info: Object.assign(myInfo(), extra || {}) }).then(r => {
             PARTY.host = false; PARTY.code = r.code || code; PARTY.myId = r.id; PARTY.busy = false; partyStatus(r.rejoined ? 'Back in the party.' : 'In the party.');
@@ -4315,7 +4315,7 @@ Object.assign(UI, {
         const row = p => { const full = p.n >= p.max, mine = p.code === PARTY.code;
             return '<div class="mp-g"><div><b>' + esc(p.host || 'Someone') + '\'s game' + (p.near ? '<span class="bd">SAME WI-FI</span>' : '') + (mine ? '<span class="bd you">YOURS</span>' : '') + '</b><small>' + esc(p.mode || 'Steel Storm') + ' &middot; open ' + mpAge(p.age) + '</small></div>' +
                 '<div class="pc">' + (p.n | 0) + '/' + (p.max | 0) + '<small>PLAYERS</small></div><button class="btn primary" data-pj="' + esc(p.code) + '"' + (full || inP ? ' disabled' : '') + '>' + (mine ? 'Yours' : full ? 'Full' : 'Join') + '</button></div>'; };
-        const empty = { loading: 'Looking for open games...', nolauncher: 'Open games are listed when you play from the Huntington Games launcher.<br>You can still join with a code or host a game.', offline: 'Sign in to the launcher to see open games.', err: 'Could not load the list. Try Refresh.' };
+        const empty = { loading: 'Looking for open games...', nolauncher: 'Open games are listed when you play from the Taco Games launcher.<br>You can still join with a code or host a game.', offline: 'Sign in to the launcher to see open games.', err: 'Could not load the list. Try Refresh.' };
         setH($('#mp-games'), all.length ? all.map(row).join('') : '<div class="mp-empty">' + (empty[st] || 'No open games right now.<br>Host one and it shows up here for everyone.') + '</div>');
         const fr = UIX.fr || [];
         setH($('#mp-friends'), fr.length ? fr.map(f => '<div class="mp-g"><div><b>' + esc(f.name) + (f.code ? '<span class="bd fr">IN A PARTY</span>' : '') + '</b><small>playing ' + esc(f.game || 'a game') + '</small></div><div></div>' + (f.code ? '<button class="btn primary" data-pj="' + esc(f.code) + '"' + (inP ? ' disabled' : '') + '>Join</button>' : '<div></div>') + '</div>').join('') : '<div class="mp-empty">' + (st === 'ok' ? 'None of your friends are playing right now.' : 'Friends who are playing show up here.') + '</div>');

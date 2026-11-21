@@ -92,7 +92,7 @@ async function buildOfflineHtml() {
   var json = JSON.stringify({ version: v, builtAt: Date.now(), files: files, meta: { libs: libs, mods: meta.mods } })
     .replace(/[\u007f-\uffff]/g, function (c) { return '\\u' + ('0000' + c.charCodeAt(0).toString(16)).slice(-4); }).replace(/</g, '\\u003c');
   var tag = '<script>window.HG_VERSION=' + JSON.stringify(v) + ';window.HG_BUNDLE=' + json + ';<\/script>';
-  var html = hubText.replace('<title>Huntington Games Launcher</title>', '<title>Huntington Games Launcher Offline</title>');
+  var html = hubText.replace('<title>Taco Games Launcher</title>', '<title>Taco Games Launcher Offline</title>');
   html = /<head[^>]*>/i.test(html) ? html.replace(/<head[^>]*>/i, function (m) { return m + tag; }) : tag + html;
   return { html: html, missing: missing };
 }
@@ -104,7 +104,7 @@ function showOfflineDialog(title, text, canSave) {
 }
 function saveOffline() {
   if (!offlineUrl) return;
-  try { var a = document.createElement('a'); a.href = offlineUrl; a.download = 'Huntington Games Offline.html'; document.body.appendChild(a); a.click(); a.remove(); } catch (e) {}
+  try { var a = document.createElement('a'); a.href = offlineUrl; a.download = 'Taco Games Offline.html'; document.body.appendChild(a); a.click(); a.remove(); } catch (e) {}
 }
 async function downloadOffline() {
   var btn = document.getElementById('offdl');
@@ -117,7 +117,7 @@ async function downloadOffline() {
     offlineUrl = URL.createObjectURL(blob);
     saveOffline();
     showOfflineDialog('Offline copy ready',
-      '<b>Huntington Games Offline.html</b> (' + (size / 1048576).toFixed(1) + ' MB) should now be in your Downloads folder.' +
+      '<b>Taco Games Offline.html</b> (' + (size / 1048576).toFixed(1) + ' MB) should now be in your Downloads folder.' +
       (res.missing.length ? '<br><br>Not included (could not be downloaded): ' + res.missing.join(', ') + '.' : '') +
       '<br><br>If nothing downloaded (some school browsers block it here), press <b>Open in a new tab</b>, then press <b>Ctrl+S</b> and choose "Webpage, HTML Only".' +
       '<br><br>Keep the file in your Files app and open it any time, with no internet. Online multiplayer (Frontline, Blocky Shooter) still needs internet.', true);

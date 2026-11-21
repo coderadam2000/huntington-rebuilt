@@ -6,9 +6,9 @@ function gate(reason, waiting) {
   const prSw = sw('Practice mode (pretend chips)', false, v => { if (v) boot(true); });
   $('#main').append(h('div', { class: 'gate' }, h('div', { class: 'card' },
     h('div', { class: 'big-ico' }, '🍀🎰'), h('h1', null, 'The Lucky Goon'),
-    h('p', null, reason || 'Open the casino from the Huntington Games launcher and sign in to play.'),
+    h('p', null, reason || 'Open the casino from the Taco Games launcher and sign in to play.'),
     waiting ? h('p', { class: 'small' }, 'Waiting for the Grapevine connection…') : null,
-    h('div', { class: 'warn' }, h('b', null, 'Play money only. '), 'Goons and chips are not worth anything outside Huntington Games: they cannot be bought, sold or cashed out for real money or anything else.'),
+    h('div', { class: 'warn' }, h('b', null, 'Play money only. '), 'Goons and chips are not worth anything outside Taco Games: they cannot be bought, sold or cashed out for real money or anything else.'),
     h('p', { class: 'small' }, 'Want to look around first? Practice mode plays every game with pretend chips and never talks to the server.'),
     h('div', { class: 'mrow center' }, prSw))));
 }
@@ -16,7 +16,7 @@ function welcome() {
   if (store.get('welcomed', false) || S.practice) return;
   modal(h('h2', null, '🍀 Welcome to The Lucky Goon'),
     h('p', null, 'Swap goons for chips at the cage (', h('b', { class: 'gold' }, '1 goon = ' + S.limits.rate + ' chips'), ') and play tables, machines and live games with everyone in the casino.'),
-    h('div', { class: 'warn' }, h('b', null, 'Play money only. '), 'Goons and chips have no real-money value and cannot be bought, sold or cashed out for anything outside Huntington Games.'),
+    h('div', { class: 'warn' }, h('b', null, 'Play money only. '), 'Goons and chips have no real-money value and cannot be bought, sold or cashed out for anything outside Taco Games.'),
     h('p', { class: 'small' }, 'Every game keeps a small house edge (listed on the ? page), so over time the house wins. Play for fun.'),
     h('div', { class: 'mrow end' }, h('button', { class: 'btn', onclick: () => { closeModal(); openOdds(); } }, 'See the odds'), h('button', { class: 'btn gold', onclick: () => { store.set('welcomed', true); closeModal(); } }, 'Let\'s play')));
 }

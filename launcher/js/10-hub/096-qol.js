@@ -246,7 +246,7 @@ function qolPlayerBar() {
         if (!same) lg.n = (lg.n || 0) + 1;
         lg.last = Date.now(); lg.ver = g.name; QOL.cur = { dir: g.dir }; qolLogSave();
       } else QOL.cur = null;
-      document.title = g.name + ' · Huntington Games';
+      document.title = g.name + ' · Taco Games';
       qolPlayerBar();
     } catch (e) {}
     return r;

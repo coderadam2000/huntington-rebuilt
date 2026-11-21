@@ -1,5 +1,5 @@
 // ---- the launcher: invites, Quick Match, open parties ----
-// The Huntington Games launcher hands us a code to join (HG_takeJoin / window.__hgJoin) or asks us to host for a chat
+// The Taco Games launcher hands us a code to join (HG_takeJoin / window.__hgJoin) or asks us to host for a chat
 // or for Quick Match (HG_takeHost / window.__hgHost, then we send the code back with HG_sendInvite). While we host a
 // lobby that has room, it is listed as an open party (HG_partyOpen, every 30 s; HG_partyClose when it ends).
 const LP = () => { try { const p = window.parent; return p && p !== window ? p : null; } catch (e) { return null; } };

@@ -1137,7 +1137,7 @@ const GVLink = (() => {
   // To add one: { id, g (game id), i (icon), n (name), d (how to get it), p (points: 10 / 25 / 50 / 100), t: fn }.
   var AG = { spikes: '100 Levels of Spikes', tetris: 'Tetris Surge', clicker: 'Brown E Clicker', coffee: 'Bean & Brew Tycoon',
     market: 'Market & Life', td: 'Tower Defense', frontline: 'Frontline: Command', blocky: 'Blocky Shooter', neon: 'Neon Dash',
-    sov: 'Sovereign', lumi: 'Last Light', imposter: 'Imposter', elementlab: 'Element Lab', mayhem: 'Mayhem Marathon', hub: 'Huntington Games' };
+    sov: 'Sovereign', lumi: 'Last Light', imposter: 'Imposter', elementlab: 'Element Lab', mayhem: 'Mayhem Marathon', hub: 'Taco Games' };
   function rd(k) { try { var v = localStorage.getItem(k); if (v == null) return null; try { return JSON.parse(v); } catch (e) { return v; } } catch (e) { return null; } }
   function num(v) { v = Number(v); return isFinite(v) ? v : 0; }
   function cnt(x) { return !x ? 0 : Array.isArray(x) ? x.length : typeof x === 'object' ? Object.keys(x).filter(function (k) { return x[k]; }).length : 0; }
@@ -1437,7 +1437,7 @@ const GVLink = (() => {
   // What a brand-new player needs to know, in the order they will wonder about it.
   function explainer() {
     var box = h('div');
-    box.appendChild(h('div', { class: 'hero' }, h('h1', { text: 'Welcome to Huntington Games' }),
+    box.appendChild(h('div', { class: 'hero' }, h('h1', { text: 'Welcome to Taco Games' }),
       h('p', { text: 'Free games that run right in your browser, now with one account for everything.' })));
     box.appendChild(h('div', { class: 'perks' },
       h('div', { class: 'perk' }, h('i', { text: 'Saves' }), h('b', { text: 'Your progress follows you' }), h('span', { text: 'Every game saves to your account. Sign in on another computer and it is all there.' })),
@@ -1461,7 +1461,7 @@ const GVLink = (() => {
   function download(name, text) {
     try { var a = document.createElement('a'); a.href = URL.createObjectURL(new Blob([text], { type: 'text/plain' })); a.download = name; document.body.appendChild(a); a.click(); a.remove(); setTimeout(function () { URL.revokeObjectURL(a.href); }, 4000); } catch (e) { toast('Could not make the file. Copy the key instead.', true); }
   }
-  function keyFile(key, name) { return 'Huntington Games / Grapevine recovery key\n' + (name ? 'Account name: ' + name + '\n' : '') + '\n' + key + '\n\nThis key IS your account. Anyone who has it can sign in as you, and nobody can reset it. Keep it private and safe.\n'; }
+  function keyFile(key, name) { return 'Taco Games / Grapevine recovery key\n' + (name ? 'Account name: ' + name + '\n' : '') + '\n' + key + '\n\nThis key IS your account. Anyone who has it can sign in as you, and nobody can reset it. Keep it private and safe.\n'; }
 
   function signedOut() {
     var wrap = h('div', null, gate ? explainer() : null);

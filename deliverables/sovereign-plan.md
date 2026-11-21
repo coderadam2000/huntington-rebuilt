@@ -5,7 +5,7 @@ Earth, take over its government, and run everything: the economy, the money supp
 spies, foreign deals and wars. Everything happens on a live world map you can zoom from the whole planet down to one
 city, where you can see soldiers marching, crowds protesting, trains moving and people going about their lives.
 
-The title screen says **"A Huntington Games production"**, and Huntington Games is credited on the About/Credits
+The title screen says **"A Taco Games production"**, and Taco Games is credited on the About/Credits
 screen and on the loading screen.
 
 What changed from version 1: full visual map with zoom, real-time with pause, public reactions to everything, real
@@ -373,7 +373,7 @@ Every stat has a **Why?** breakdown, every decision a **preview with a range**, 
 
 ## 12. Screens
 
-Title (globe spinning, "A Huntington Games production") → Country Select → Leader Setup → Main Game.
+Title (globe spinning, "A Taco Games production") → Country Select → Leader Setup → Main Game.
 
 Main game: map fills the screen; top bar (date, speed, approval, GDP, budget, stability, currency); left menu:
 Overview, Economy, Money and Debt, Budget, Laws, Parliament, Courts, Projects, Cabinet, People, Public Opinion, Social

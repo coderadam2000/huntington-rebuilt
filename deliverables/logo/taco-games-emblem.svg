@@ -6,6 +6,6 @@
   <filter id="edotglow" x="-300%" y="-300%" width="700%" height="700%"><feGaussianBlur in="SourceGraphic" stdDeviation="4.55" result="b"/><feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge></filter>
 </defs>
   <polygon points="60,6 107,33 107,87 60,114 13,87 13,33" fill="rgba(255,255,255,.04)" stroke="url(#egrad)" stroke-width="3.5" stroke-linejoin="round" filter="url(#ehexglow)"/>
-  <text x="60" y="60" dy=".35em" text-anchor="middle" font-family="'Segoe UI',system-ui,-apple-system,'Helvetica Neue',Arial,sans-serif" font-weight="900" font-size="40.0" letter-spacing="-.8" fill="url(#etxt)">HG</text>
+  <text x="60" y="60" dy=".35em" text-anchor="middle" font-family="'Segoe UI',system-ui,-apple-system,'Helvetica Neue',Arial,sans-serif" font-weight="900" font-size="40.0" letter-spacing="-.8" fill="url(#etxt)">TG</text>
   <circle cx="60.00" cy="-16.36" r="3.64" fill="#a78bfa" filter="url(#edotglow)"/><circle cx="132.63" cy="36.40" r="3.64" fill="#fb923c" filter="url(#edotglow)"/><circle cx="104.89" cy="121.78" r="3.64" fill="#2dd4bf" filter="url(#edotglow)"/><circle cx="15.11" cy="121.78" r="3.64" fill="#f472b6" filter="url(#edotglow)"/><circle cx="-12.63" cy="36.40" r="3.64" fill="#facc15" filter="url(#edotglow)"/>
 </svg>

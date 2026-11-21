@@ -4436,7 +4436,7 @@ function mpAdvertise() {
 function mpHost() {
     mpSay('Opening a room...');
     mpHG().then(HG => {
-        if (!HG) return mpSay('Multiplayer needs the Huntington Games launcher.', true);
+        if (!HG) return mpSay('Multiplayer needs the Taco Games launcher.', true);
         MPS.name = mpMyName(); const net = HG.create({ game: 'spikes' }); MPS.net = net; mpWire(net);
         net.host({ name: MPS.name, maxPlayers: 10, accept: () => MPS.started ? 'That game has already started.' : (mpHumans().length >= MPS.people ? 'The room is full.' : true) }).then(r => {
             MPS.host = true; MPS.code = r.code; MPS.me = 0; mpSay('Room open. Share the code, or just start with bots.'); mpLobbySend();
@@ -4447,7 +4447,7 @@ function mpJoin(code) {
     code = String(code || '').replace(/\D/g, ''); if (code.length !== 6) return mpSay('Type the 6-digit code.', true);
     mpSay('Joining...');
     mpHG().then(HG => {
-        if (!HG) return mpSay('Multiplayer needs the Huntington Games launcher.', true);
+        if (!HG) return mpSay('Multiplayer needs the Taco Games launcher.', true);
         MPS.name = mpMyName(); const net = HG.create({ game: 'spikes' }); MPS.net = net; mpWire(net);
         net.join(code, { name: MPS.name }).then(r => { MPS.host = false; MPS.code = r.code || code; MPS.me = r.id; mpSay('In the room. Waiting for the host to start.'); mpPaintLobby(); },
             e => { mpSay(e.message || 'Could not join.', true); MPS.net = null; });

@@ -1,7 +1,7 @@
 
 'use strict';
 // =====================================================================
-//  TOWER DEFENSE 3.0  -  Huntington Games
+//  TOWER DEFENSE 3.0  -  Taco Games
 //  One file, no libraries. The world is a fixed 960 x 600 board that is
 //  scaled to fit any window. Logic runs at a fixed 60 ticks a second.
 //  Setting: war from 1900 onward - world wars, modern armies and near-future

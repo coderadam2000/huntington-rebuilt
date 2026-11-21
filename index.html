@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Huntington Games Launcher</title>
+<title>Taco Games Launcher</title>
 <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans:wght@400;500;600&display=swap" rel="stylesheet">
 <style>
 :root {
@@ -727,11 +727,11 @@ body.hubbonked{animation:hbonkshake .5s}
 </style>
 </head>
 <body>
-<div id="boot"><div class="bt-neb"><i></i><i></i><i></i></div><div class="bt-stars"></div><div class="bt-in"><div class="bt-emb"><svg viewBox="0 0 120 120" aria-hidden="true"><defs><linearGradient id="bt-grad" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#a78bfa"/><stop offset=".55" stop-color="#f97316"/><stop offset="1" stop-color="#2dd4bf"/></linearGradient></defs><polygon class="bt-hex" points="60,6 107,33 107,87 60,114 13,87 13,33"/></svg><b>HG</b><span class="bt-orb"><i></i><i></i><i></i><i></i><i></i></span></div><div class="bt-title">HUNTINGTON GAMES</div><div class="bt-bar"><span></span></div><div class="bt-stage" id="msg">Starting</div><div class="bt-tip"></div><div class="bt-welcome">Welcome! Pick a game, make your profile and earn goons.</div></div></div>
+<div id="boot"><div class="bt-neb"><i></i><i></i><i></i></div><div class="bt-stars"></div><div class="bt-in"><div class="bt-emb"><svg viewBox="0 0 120 120" aria-hidden="true"><defs><linearGradient id="bt-grad" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#a78bfa"/><stop offset=".55" stop-color="#f97316"/><stop offset="1" stop-color="#2dd4bf"/></linearGradient></defs><polygon class="bt-hex" points="60,6 107,33 107,87 60,114 13,87 13,33"/></svg><b>TG</b><span class="bt-orb"><i></i><i></i><i></i><i></i><i></i></span></div><div class="bt-title">TACO GAMES</div><div class="bt-bar"><span></span></div><div class="bt-stage" id="msg">Starting</div><div class="bt-tip"></div><div class="bt-welcome">Welcome! Pick a game, make your profile and earn goons.</div></div></div>
 <script>window.HG_BOOT_T0 = Date.now();</script>
 <div id="hub">
   <div id="topbar">
-    <h1>HUNTINGTON GAMES</h1>
+    <h1>TACO GAMES</h1>
     <nav id="tabs"><button class="tab on" id="tab-games">Games</button><button class="tab" id="tab-prof">Profile</button><button class="tab" id="tab-lb">Leaderboards</button><button class="tab" id="tab-mp">Multiplayer</button><button class="tab" id="tab-act">Activity</button><button class="tab" id="tab-chat">Grapevine</button><button class="tab" id="tab-acct">Account</button><button class="tab" id="tab-admin" hidden>&#128737;&#65039; Admin</button></nav>
     <button id="reportBtn" title="Report a player, a message or a bug to the admins">&#128681; Report</button><button id="rulesBtn" title="The rules, and what you can report">&#128220; Rules</button><button id="tourBtn" title="Take the tour (how everything works)">?</button><button id="chip" title="Your profile, goons and the shop"><span class="cdot" id="chip-dot"></span><span id="chip-pfp"></span><span class="nm" id="chip-nm"></span><span id="chip-goons"></span></button>
   </div>
@@ -840,8 +840,8 @@ function banLock(text) {
   try { localStorage.setItem('hgv:ban', JSON.stringify({ text: text || '', at: Date.now() })); } catch (e) {}
   var d = document.getElementById('banwall');
   if (!d) { d = document.createElement('div'); d.id = 'banwall'; (document.body || document.documentElement).appendChild(d); }
-  d.innerHTML = '<div class="bw-in"><div class="bw-ic">&#9940;</div><h1>Banned</h1><p>' + String(text || 'This device is banned from Huntington Games.').replace(/[&<>"]/g, function (c) { return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]; }) +
-    '</p><p class="bw-sub">This device can no longer use Huntington Games: no games, no chat, no accounts.</p></div>';
+  d.innerHTML = '<div class="bw-in"><div class="bw-ic">&#9940;</div><h1>Banned</h1><p>' + String(text || 'This device is banned from Taco Games.').replace(/[&<>"]/g, function (c) { return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]; }) +
+    '</p><p class="bw-sub">This device can no longer use Taco Games: no games, no chat, no accounts.</p></div>';
   document.documentElement.classList.add('banned');
   try { var f = document.getElementById('frame'); if (f) { f.removeAttribute('srcdoc'); f.src = 'about:blank'; } } catch (e) {}
   try { var g = document.getElementById('gvapp'); if (g) { g.removeAttribute('srcdoc'); g.src = 'about:blank'; } } catch (e) {}
@@ -886,7 +886,7 @@ function setVersion(v) { MIRRORS = MIRROR_HOSTS.map(function (m) { return m + RE
 // If GitHub cannot be reached (blocked, or its 60-an-hour limit for one school network), it falls back to '@main'.
 // (A hub cannot swap itself for a newer one in the same page: its scripts have already declared their names. Players get a
 // newer launcher itself through the loader, which pins it; HG_HUB_ID tells which build is running.)
-var HG_HUB_ID = 'a2730531cfe8';      // the build fills in a fingerprint of this file
+var HG_HUB_ID = '8dc06edd9c3f';      // the build fills in a fingerprint of this file
 var HG_SHA_RE = /^[0-9a-f]{40}$/;
 function latestSha() {
   try { var c = JSON.parse(localStorage.getItem('hgv:sha') || 'null'); if (c && HG_SHA_RE.test(c.s) && Date.now() - c.t < 120000) return Promise.resolve(c.s); } catch (e) {}
@@ -907,7 +907,7 @@ function cacheRelease(v) { return v === 'main' ? v + '-' + HG_build() : v; }
 // fingerprint still matches, so a push that changes a game always reaches players (the release label 'main-80' never changed)
 var HASHES = {};
 function hashesFor(v) { return HASHES[v] || (HASHES[v] = fetchHashes(v)); }
-var BUNDLE = window.HG_BUNDLE || null; // only set inside the saved "Huntington Games Offline.html"
+var BUNDLE = window.HG_BUNDLE || null; // only set inside the saved "Taco Games Offline.html"
 var local = !BUNDLE && !window.HG_VERSION && (location.protocol === 'file:' || /github\.io$/.test(location.hostname) || location.hostname === '127.0.0.1' || location.hostname === 'localhost');
 
 var GAMES = [
@@ -920,7 +920,7 @@ var GAMES = [
   { dir: 'Tower Defense 2.0', name: 'Tower Defense 3.0', img: 'td', tags: ['New', 'Strategy'], desc: 'NEW 3.0: pick one of 6 heroes with 2 abilities each, 18 new towers including a whole Alien tab, 7 alien enemies and the Mothership boss. 12 new maps with terrain and stars, boss waves every 10, a Daily Challenge, and a Map Editor with share codes. Still two modes: Tower Mode or Troop Mode, 1900 to the future.' },
   { dir: 'Frontline', chatShift: true, name: 'Frontline: Command 3.1', img: 'frontline', tags: ['New', '3D', 'Multiplayer'], desc: 'NEW 3.1: Resource Farms that grow money (more the longer they stand), and every side now gets 5 Upgrades per battle, so pick them well. 3.0: a second faction, the Iron Legion - 24 units with shields, their own upgrades and AI commander Kael (pick your side online too). 5 new maps, including 2 coastal ones with a Shipyard, Gunboats, Landing Craft and Destroyers. Night battles with rain, fog or snow, and a General perk tree with 18 perks. Plus new achievements and a Field Guide. Still here: Endless War, the 7-battle Campaign and online battles with a 6-digit code.' },
   { dir: 'Imposter', name: 'Imposter: Shades in the Lighthouse', img: 'imposter', tags: ['New', 'Multiplayer', 'Party'], desc: "NEW: one or more Shades hide among the lighthouse keepers. Do your chores, ring the bell, call a gathering and vote them into the fog before the lights go out. Up to 10 players with a 6-digit code (bots fill the empty seats), or play alone against 9 bots, on two maps." },
-  { dir: 'Casino', name: 'The Lucky Goon Casino', img: 'casino', tags: ['New', 'Casino', 'Multiplayer', 'Party'], desc: "NEW: turn goons into chips (1 goon = 100 chips) and play blackjack, roulette, slots, plinko, mines, baccarat, craps, video poker and more. Live tables with everyone who is in: Live Roulette, the Rocket, Horse Racing, The Pot and coin-flip Duels. A free spin every day. Play money only: goons and chips are not worth anything outside Huntington Games." },
+  { dir: 'Casino', name: 'The Lucky Goon Casino', img: 'casino', tags: ['New', 'Casino', 'Multiplayer', 'Party'], desc: "NEW: turn goons into chips (1 goon = 100 chips) and play blackjack, roulette, slots, plinko, mines, baccarat, craps, video poker and more. Live tables with everyone who is in: Live Roulette, the Rocket, Horse Racing, The Pot and coin-flip Duels. A free spin every day. Play money only: goons and chips are not worth anything outside Taco Games." },
   { dir: 'Steel Storm', hero: 'Steel Storm 3.0: five nations of real tanks, planes and warships from WW1 to the Cold War, soldiers with real guns, four maps and 1v1 duels.', name: 'Steel Storm 3.0', img: 'steelstorm', tags: ['New', '3D', 'Multiplayer', 'Party'], desc: "NEW 3.0: FIVE NATIONS - the USA, Germany, the USSR, the UK and Japan, with real vehicles from WW1 to the Cold War (Sherman, Tiger, T-34, Spitfire, Zero, Bismarck, Yamato...). FIGHT ON FOOT as a soldier with real guns, FOUR MAPS (Archipelago, Desert Canyon, Winter Front, Normandy Coast), side and rear armour, first-person and zoom views, and a new 1v1 Duel mode. 2.4: a BOMB SIGHT shows exactly where your bomb will land. 2.3: Training - three hands-on lessons (Basic training, Wings and rotors, Your garage) with practice battles that never count for your stats. 2.2: brand-new menus, a garage that shows your vehicle fighting like a pro while you pick it, and a real multiplayer screen: browse open games, host with every option, and a live party lobby with teams, ready-up and chat. You now respawn in the vehicle you picked. Plus the 2.1 rebalance: every vehicle has a job, missiles lock on, and bots bring better gear on harder settings." },
   { dir: 'Element Lab', name: 'Element Lab 2.2', img: 'elementlab', tags: ['New', 'Sandbox'], desc: "NEW 2.2: 12 more goals to chase (34 in all). 2.0: 300 elements and 1,400 reactions. Wire up batteries, gates and turbines, build a working water-cooled nuclear reactor, pipes, pistons and factories, and watch little humans run your town. Your old saves still load." },
   { dir: 'Coffee Shop NEW', name: 'Bean & Brew Tycoon 2.2', img: 'coffee', tags: ['New', 'Tycoon'], desc: 'Away for 30 minutes pauses progress. NEW 2.1: every city has its own local specials and a local ingredient you can only buy there (Maple Lattes at home, Coconut Iced Coffee at the beach, Nitro Cold Brew downtown, Gold Leaf Hot Chocolate on the slopes...). 2.0: open shops in 5 new cities, invent drinks in the Recipe Lab, train staff with skill trees, and run a franchise chain with managers. Random events with choices, decorations, seasons and holidays, an 8-chapter career story and a latte art mini-game. Build, staff and grow a chain of coffee shops.' },
@@ -1358,7 +1358,7 @@ async function buildOfflineHtml() {
   var json = JSON.stringify({ version: v, builtAt: Date.now(), files: files, meta: { libs: libs, mods: meta.mods } })
     .replace(/[\u007f-\uffff]/g, function (c) { return '\\u' + ('0000' + c.charCodeAt(0).toString(16)).slice(-4); }).replace(/</g, '\\u003c');
   var tag = '<script>window.HG_VERSION=' + JSON.stringify(v) + ';window.HG_BUNDLE=' + json + ';<\/script>';
-  var html = hubText.replace('<title>Huntington Games Launcher</title>', '<title>Huntington Games Launcher Offline</title>');
+  var html = hubText.replace('<title>Taco Games Launcher</title>', '<title>Taco Games Launcher Offline</title>');
   html = /<head[^>]*>/i.test(html) ? html.replace(/<head[^>]*>/i, function (m) { return m + tag; }) : tag + html;
   return { html: html, missing: missing };
 }
@@ -1370,7 +1370,7 @@ function showOfflineDialog(title, text, canSave) {
 }
 function saveOffline() {
   if (!offlineUrl) return;
-  try { var a = document.createElement('a'); a.href = offlineUrl; a.download = 'Huntington Games Offline.html'; document.body.appendChild(a); a.click(); a.remove(); } catch (e) {}
+  try { var a = document.createElement('a'); a.href = offlineUrl; a.download = 'Taco Games Offline.html'; document.body.appendChild(a); a.click(); a.remove(); } catch (e) {}
 }
 async function downloadOffline() {
   var btn = document.getElementById('offdl');
@@ -1383,7 +1383,7 @@ async function downloadOffline() {
     offlineUrl = URL.createObjectURL(blob);
     saveOffline();
     showOfflineDialog('Offline copy ready',
-      '<b>Huntington Games Offline.html</b> (' + (size / 1048576).toFixed(1) + ' MB) should now be in your Downloads folder.' +
+      '<b>Taco Games Offline.html</b> (' + (size / 1048576).toFixed(1) + ' MB) should now be in your Downloads folder.' +
       (res.missing.length ? '<br><br>Not included (could not be downloaded): ' + res.missing.join(', ') + '.' : '') +
       '<br><br>If nothing downloaded (some school browsers block it here), press <b>Open in a new tab</b>, then press <b>Ctrl+S</b> and choose "Webpage, HTML Only".' +
       '<br><br>Keep the file in your Files app and open it any time, with no internet. Online multiplayer (Frontline, Blocky Shooter) still needs internet.', true);
@@ -2386,7 +2386,7 @@ function profExtras(e, c, shop) {
       '<button class="pb buy" data-pex="crate"' + (left ? '' : ' disabled') + '>Open a crate (' + P.crate + ' goons)</button></div></div>' +
     '<div class="pex"><span class="pexi">&#128157;</span><div><b>Give goons to a friend</b><p>A present for a friend, up to ' + P.giftMax + ' goons a day.</p>' +
       (friends.length ? '<div class="prow"><select id="px-friend">' + friends.map(function (n) { return '<option>' + profEsc(n) + '</option>'; }).join('') + '</select><input id="px-n" type="number" min="1" max="' + P.giftMax + '" value="1" style="width:76px"><button class="pb" data-pex="gift">Give</button></div>' : '<p class="pnote">Add a friend in Grapevine first.</p>') + '</div></div>' +
-    '<div class="pex"><span class="pexi">&#127920;</span><div><b>The casino</b><p>Swap goons for chips (1 goon = 100 chips) and play slots, blackjack, roulette and more, or sit at a live table with everyone. Goons are play money: they are not worth anything outside Huntington Games.</p>' +
+    '<div class="pex"><span class="pexi">&#127920;</span><div><b>The casino</b><p>Swap goons for chips (1 goon = 100 chips) and play slots, blackjack, roulette and more, or sit at a live table with everyone. Goons are play money: they are not worth anything outside Taco Games.</p>' +
       '<button class="pb" data-pex="casino">Open the casino</button></div></div></div>';
 }
 function profBoards(c) {
@@ -2444,10 +2444,10 @@ setInterval(function () { if (!document.hidden && Date.now() - (PROF.lbAt || 0) 
 // a podium for the top three, your own place, then everyone else
 function lbView(c) {
   var games = [], count = {};
-  Object.keys(c.boards).forEach(function (k) { var g = c.boards[k].g; if (/^hub:/.test(k)) g = 'Huntington Games'; if (games.indexOf(g) < 0) games.push(g); count[g] = (count[g] || 0) + 1; });
-  games.sort(function (a, b) { return a === 'Huntington Games' ? -1 : b === 'Huntington Games' ? 1 : a.localeCompare(b); });
+  Object.keys(c.boards).forEach(function (k) { var g = c.boards[k].g; if (/^hub:/.test(k)) g = 'Taco Games'; if (games.indexOf(g) < 0) games.push(g); count[g] = (count[g] || 0) + 1; });
+  games.sort(function (a, b) { return a === 'Taco Games' ? -1 : b === 'Taco Games' ? 1 : a.localeCompare(b); });
   if (games.indexOf(PROF.lbGame) < 0) PROF.lbGame = games[0];
-  var gOf = function (k) { return /^hub:/.test(k) ? 'Huntington Games' : c.boards[k].g; };
+  var gOf = function (k) { return /^hub:/.test(k) ? 'Taco Games' : c.boards[k].g; };
   var keys = Object.keys(c.boards).filter(function (k) { return gOf(k) === PROF.lbGame; });
   var main = keys.filter(function (k) { return !/^lumi:lv/.test(k); }), levels = keys.filter(function (k) { return /^lumi:lv/.test(k); });
   if (keys.indexOf(PROF.lbBoard) < 0) PROF.lbBoard = main[0] || keys[0];
@@ -2786,7 +2786,7 @@ function htGv() { try { var f = document.getElementById('gvapp'); return f && f.
 function htSteps() {
   var gvFind = function (fn) { return function () { var d = htGv(); return d ? fn(d) : null; }; };
   return [
-    { title: 'Welcome to Huntington Games', text: 'One account for every game, your profile, and Grapevine chat. Two minutes: we point at things, you press them. Skip any time.', center: true, next: 'Start' },
+    { title: 'Welcome to Taco Games', text: 'One account for every game, your profile, and Grapevine chat. Two minutes: we point at things, you press them. Skip any time.', center: true, next: 'Start' },
     { target: '#grid .game', title: 'Games', text: 'Every card is a game. Press one to play: it saves to your account by itself, on any computer you sign in on.', next: 'Next' },
     { target: '#chip', title: 'Your profile', text: 'This is you: your picture, your goons and your title. Press it.', wait: 'click' },
     { target: '[data-ptab="shop"]', title: 'The Goon Shop', text: '<b>Goons</b> come from playing: every achievement, 15 minutes of play, Blocky waves and ranks, daily top spots. Spend them here on pictures, banners, titles and Blocky skins. Press it.', wait: 'click' },
@@ -3437,7 +3437,7 @@ function qolPlayerBar() {
         if (!same) lg.n = (lg.n || 0) + 1;
         lg.last = Date.now(); lg.ver = g.name; QOL.cur = { dir: g.dir }; qolLogSave();
       } else QOL.cur = null;
-      document.title = g.name + ' · Huntington Games';
+      document.title = g.name + ' · Taco Games';
       qolPlayerBar();
     } catch (e) {}
     return r;
@@ -3734,7 +3734,7 @@ function actPaint() {
   var d = ACT.data, box = document.getElementById('act-home'); if (!d || !box) return;
   var today = d.perDay.filter(function (x) { return x.d === d.today; })[0] || { players: 0, minutes: 0, peak: 0 };
   var tile = function (n, label, sub) { return '<div class="act-tile"><b>' + n + '</b><span>' + label + '</span>' + (sub ? '<em>' + sub + '</em>' : '') + '</div>'; };
-  var h = '<div class="act-head"><h2>Activity</h2><div class="rdesc">Live numbers from everyone playing Huntington Games. Days run midnight to midnight, Eastern time.</div></div>' +
+  var h = '<div class="act-head"><h2>Activity</h2><div class="rdesc">Live numbers from everyone playing Taco Games. Days run midnight to midnight, Eastern time.</div></div>' +
     '<div class="act-tiles">' + tile(d.online, 'online now') + tile(today.players, 'played today') + tile(actFmtMin(today.minutes), 'played today', 'all games together') + tile(today.peak, 'most online at once today') + '</div>';
   // most played: horizontal bars, one hue, values written at the end of each bar
   var games = ACT.span === 'week' ? d.week : d.month, top = games.slice(0, 12), max = Math.max(1, top.reduce(function (m, g) { return Math.max(m, g.minutes); }, 0));
@@ -4282,19 +4282,19 @@ document.getElementById('preport').onclick = function () { reportOpen({}); };
 
 // ===== Rules (2026-11-17): the Terms of Service and "what you can report", inside the launcher =====
 // The 📜 Rules button in the top bar (and the link in the report dialog) opens this. The terms are the same text as the
-// TOS tab of the Huntington Games document; when one changes, change the other (and the date).
+// TOS tab of the Taco Games document; when one changes, change the other (and the date).
 var RULES = { tab: 'report' };
 var RULES_DATE = 'November 17, 2026';
 var RULES_TOS = [
-  ['', ['These terms apply to the Huntington Games Launcher, every game it opens, and all of the code, art, sounds, levels and text in the Huntington Games document. By copying, running or playing any of it, you agree to these terms. If you do not agree, do not use the games.']],
-  ['1. Ownership', ['Huntington Games and its creators own all of the games, the Launcher, and everything in them, including the code, art, sounds, levels, names and ideas.', 'Neon Drift: Shadow Reign and Neon Dash were made by Levi and belong to Levi. These terms cover them too.', 'Bean And Brew Original and Market Life were made by Robbie and belong to Robbie. These terms cover them too.', 'Being allowed to play does not make you an owner of anything, and it does not give you any rights beyond the ones listed in section 2.']],
-  ['2. What you are allowed to do', ['Play every game for free, for your own fun.', 'Copy the code from the Launcher tab and paste it into jsfiddle.net or jsbin.com, as shown in the How to Set Up the Launcher tab.', 'Save your own fiddle or bin that holds the unchanged Launcher code, and bookmark it for yourself.', 'Share the link to the document so other people can set up the Launcher themselves.', 'Use the features built into the games and the Launcher, such as offline copies made with the Download offline copy button, multiplayer codes, level editor share codes and save codes.', 'Take screenshots, record videos or stream yourself playing, as long as you say the games are from Huntington Games.', 'Send ideas and bug reports through the Feedback doc linked in the Information tab, or with the 🚩 Report button.']],
-  ['3. What you are not allowed to do', ['Post, upload or host any game, the Launcher, or any part of their code anywhere else. That includes other websites, Google Sites, other Google Docs or Drive files, GitHub, Replit, CodePen, unblocked games sites, group chats and file sharing services. The only official copy is in the document.', 'Give the code to anyone. Share the link to the document instead.', 'Change, edit, remix, "remaster", translate or add to our code or games, or release anything made from them. This applies even if you give credit and even if you changed a lot of it. (This can be changed if given permission by the creator of the ORIGINAL game.)', 'Say that any of our games, levels, art or code are yours, or remove or change the Huntington Games name or credits.', 'Sell, trade or charge for our games or code, or put them behind ads, paywalls or logins that are not ours.', 'Cheat in multiplayer with edited code or tools, or interfere with other players\' games, saves or connections.', 'Use a loophole to get around these rules. If section 2 does not clearly allow something, it is not allowed unless you ask first and get permission.']],
+  ['', ['These terms apply to the Taco Games Launcher, every game it opens, and all of the code, art, sounds, levels and text in the Taco Games document. By copying, running or playing any of it, you agree to these terms. If you do not agree, do not use the games.']],
+  ['1. Ownership', ['Taco Games and its creators own all of the games, the Launcher, and everything in them, including the code, art, sounds, levels, names and ideas.', 'Neon Drift: Shadow Reign and Neon Dash were made by Levi and belong to Levi. These terms cover them too.', 'Bean And Brew Original and Market Life were made by Robbie and belong to Robbie. These terms cover them too.', 'Being allowed to play does not make you an owner of anything, and it does not give you any rights beyond the ones listed in section 2.']],
+  ['2. What you are allowed to do', ['Play every game for free, for your own fun.', 'Copy the code from the Launcher tab and paste it into jsfiddle.net or jsbin.com, as shown in the How to Set Up the Launcher tab.', 'Save your own fiddle or bin that holds the unchanged Launcher code, and bookmark it for yourself.', 'Share the link to the document so other people can set up the Launcher themselves.', 'Use the features built into the games and the Launcher, such as offline copies made with the Download offline copy button, multiplayer codes, level editor share codes and save codes.', 'Take screenshots, record videos or stream yourself playing, as long as you say the games are from Taco Games.', 'Send ideas and bug reports through the Feedback doc linked in the Information tab, or with the 🚩 Report button.']],
+  ['3. What you are not allowed to do', ['Post, upload or host any game, the Launcher, or any part of their code anywhere else. That includes other websites, Google Sites, other Google Docs or Drive files, GitHub, Replit, CodePen, unblocked games sites, group chats and file sharing services. The only official copy is in the document.', 'Give the code to anyone. Share the link to the document instead.', 'Change, edit, remix, "remaster", translate or add to our code or games, or release anything made from them. This applies even if you give credit and even if you changed a lot of it. (This can be changed if given permission by the creator of the ORIGINAL game.)', 'Say that any of our games, levels, art or code are yours, or remove or change the Taco Games name or credits.', 'Sell, trade or charge for our games or code, or put them behind ads, paywalls or logins that are not ours.', 'Cheat in multiplayer with edited code or tools, or interfere with other players\' games, saves or connections.', 'Use a loophole to get around these rules. If section 2 does not clearly allow something, it is not allowed unless you ask first and get permission.']],
   ['4. Copies from other people', ['Only the code in the document is official. Code from anyone else, or from any other site, is unofficial.', 'Unofficial copies may be outdated, broken, or changed to include harmful code. Do not run them.', 'If you see our games on another site, or someone claiming them as their own, please report it.']],
   ['5. Playing fairly', ['Use player names and messages that are appropriate for school.', 'Only share multiplayer codes with people you want to play with.', 'Follow your school\'s rules for school devices. These terms do not give you permission to break them.', 'If you are caught hacking, you will be banned.', 'One account per person. Alternate accounts (alts) are not allowed and will be banned.', 'Admins can warn, mute or ban you for breaking these rules. Warnings stay on your record, and more of them lead to mutes and bans.']],
-  ['6. Your data', ['Your progress and settings are saved in your own browser. If you make a Grapevine account, your account name, chat messages and cloud saves are kept on the Huntington Games server, so you can chat and keep your progress on other devices. We never ask for your real name, email or password from another site.', 'Clearing your browsing data erases progress that is not saved to an account.', 'The Launcher downloads the games from GitHub and the jsDelivr network, which may keep normal web request logs.', 'Multiplayer connects players through public connection services. As in any online game, the players you connect with and those services can see your network (IP) address.']],
-  ['7. Enforcement', ['If these terms are broken, Huntington Games may shut down the copies involved, change or remove access to any game or account, and ask websites to take down copies that are not allowed.']],
-  ['8. No guarantees', ['The games are free and provided as they are, and they may have bugs.', 'Games, features and saves may change or be removed at any time.', 'Huntington Games is not responsible for lost progress, or for anything caused by unofficial copies.']],
+  ['6. Your data', ['Your progress and settings are saved in your own browser. If you make a Grapevine account, your account name, chat messages and cloud saves are kept on the Taco Games server, so you can chat and keep your progress on other devices. We never ask for your real name, email or password from another site.', 'Clearing your browsing data erases progress that is not saved to an account.', 'The Launcher downloads the games from GitHub and the jsDelivr network, which may keep normal web request logs.', 'Multiplayer connects players through public connection services. As in any online game, the players you connect with and those services can see your network (IP) address.']],
+  ['7. Enforcement', ['If these terms are broken, Taco Games may shut down the copies involved, change or remove access to any game or account, and ask websites to take down copies that are not allowed.']],
+  ['8. No guarantees', ['The games are free and provided as they are, and they may have bugs.', 'Games, features and saves may change or be removed at any time.', 'Taco Games is not responsible for lost progress, or for anything caused by unofficial copies.']],
   ['9. Changes to these terms', ['These terms can change at any time. The newest version is always the one in the TOS tab of the document (and here), and the date at the top shows when it last changed.', 'Using the games after a change means you accept the new terms.']],
   ['10. Downfall', ['We are sponsoring Downfall (owned by Robbie and Levi). If you are caught stealing code from Downfall you will be banned, and rules apply to any affiliated projects.', 'Ultimate Game Storage is fair play as it was made by another person with the same source doc.']],
   ['11. Grapevine and chat', ['Do not say the n-word. It bans you automatically: 1 day, then 3 days, then 7 days, then for good.', 'No slurs, hate speech or sexual content, in messages, names or pictures.', 'Everyday swearing is allowed.', 'No bullying, harassment, threats or spam.', 'No alt accounts. One Grapevine account per person: alts are banned, and so is the main account behind them.', 'Not sure whether something is allowed? Ask an admin or use the Feedback doc before you do it.']]
