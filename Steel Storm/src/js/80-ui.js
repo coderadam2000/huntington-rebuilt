@@ -236,6 +236,7 @@ function drawOverlay() {
             c.stroke(); c.font = 'bold 11px Trebuchet MS,sans-serif'; c.fillStyle = c.strokeStyle; c.fillText(lk ? 'LOCK' : 'LOCKING', x, y + s + 13);
         }
     }
+    drawBombSight(c);      // 2.4: where your bomb will land
     if (ME.alive && Cam.lead) {
         const p = proj(Cam.lead.x, Cam.lead.y, Cam.lead.z);
         if (p) { c.strokeStyle = '#ff5a4a'; c.lineWidth = 2; c.beginPath(); c.moveTo(p[0], p[1] - 9); c.lineTo(p[0] + 9, p[1]); c.lineTo(p[0], p[1] + 9); c.lineTo(p[0] - 9, p[1]); c.closePath(); c.stroke(); }
@@ -250,6 +251,59 @@ function drawOverlay() {
         const f = 400, p = proj(ME.x + Math.sin(ME.yaw) * Math.cos(ME.pitch) * f, ME.y + Math.sin(ME.pitch) * f, ME.z + Math.cos(ME.yaw) * Math.cos(ME.pitch) * f);
         if (p) { c.strokeStyle = '#ffd21f'; c.lineWidth = 2; c.beginPath(); c.arc(p[0], p[1], 8, 0, TAU); c.moveTo(p[0] - 14, p[1]); c.lineTo(p[0] - 8, p[1]); c.moveTo(p[0] + 14, p[1]); c.lineTo(p[0] + 8, p[1]); c.stroke(); }
     }
+}
+// 2.4 bomb sight: while you fly a plane with bombs left, the exact spot your next bomb lands is marked on the ground: the
+// blast ring (its real splash radius), a cross in the middle, the fall line from your plane, and the seconds until impact.
+// It is the same flight the bomb really takes (released from under the plane with the plane's velocity, then gravity, no
+// drag, stopping at the first ground or water it meets). The ring turns red when an enemy on the ground is inside it.
+function bombImpact(e) {
+    const d = e.def, w = d.w3;
+    if (!w || w.k !== 'bomb' || !(e.a3 > 0) || d.ln !== 'a') return null;
+    const m0 = e.mdl ? muzzleWorld(e, e.muz + 1) : e;      // the hardpoint the next bomb really leaves from
+    let x = m0.x, y = m0.y - 1.2, z = m0.z, vx, vy, vz;
+    if (!d.heli) { const cp = Math.cos(e.pitch); vx = Math.sin(e.yaw) * cp * e.speed; vy = Math.sin(e.pitch) * e.speed; vz = Math.cos(e.yaw) * cp * e.speed; }
+    else { vx = e.vx || 0; vy = e.vy || 0; vz = e.vz || 0; }
+    const path = [[x, y, z]], dt = 1 / 30; let step = 0;
+    for (let t = 0; t < w.life; t += dt) {
+        const nx = x + vx * dt, nvy = vy - w.g * dt, ny = y + nvy * dt, nz = z + vz * dt, gh = GHS(nx, nz);
+        if (ny <= gh) {      // where between the two steps it crossed the ground
+            const k = (y - GHS(x, z)) / Math.max(1e-6, (y - GHS(x, z)) - (ny - gh));
+            const ix = x + (nx - x) * k, iz = z + (nz - z) * k;
+            path.push([ix, GHS(ix, iz), iz]);
+            return { x: ix, y: GHS(ix, iz), z: iz, t: t + dt * k, r: w.sp || 10, path };
+        }
+        x = nx; y = ny; z = nz; vy = nvy;
+        if (++step % 4 === 0) path.push([x, y, z]);      // a point every 0.13 s is plenty for the drawn line
+    }
+    return null;
+}
+function drawBombSight(c) {
+    Cam.bomb = null;
+    if (!ME || !ME.alive) return;
+    const b = bombImpact(ME); if (!b) return;
+    let onTarget = false;
+    for (const e of EN.values()) if (e !== ME && e.alive && e.def.ln !== 'a' && foe(e, ME) && !hiddenSub(e) && Math.hypot(e.x - b.x, e.z - b.z) < b.r + 2) { onTarget = true; break; }
+    Cam.bomb = { x: b.x, y: b.y, z: b.z, t: b.t, r: b.r, on: onTarget };
+    const col = onTarget ? '#ff3b30' : '#ffb020';
+    // the fall line (dotted), from just under the plane down to the ground
+    c.save(); c.setLineDash([4, 6]); c.lineWidth = 1.5; c.strokeStyle = col + 'aa'; c.beginPath(); let pen = false;
+    for (let i = 1; i < b.path.length; i++) { const p = proj(b.path[i][0], b.path[i][1], b.path[i][2]); if (!p) { pen = false; continue; } if (pen) c.lineTo(p[0], p[1]); else c.moveTo(p[0], p[1]); pen = true; }
+    c.stroke(); c.setLineDash([]);
+    // the blast ring, laid on the ground (each point at the ground's own height)
+    const N = 40; c.lineWidth = onTarget ? 3 : 2; c.strokeStyle = col; c.fillStyle = col + '22'; c.beginPath(); pen = false; let any = false;
+    for (let i = 0; i <= N; i++) {
+        const a = i / N * TAU, px = b.x + Math.cos(a) * b.r, pz = b.z + Math.sin(a) * b.r, p = proj(px, GHS(px, pz) + .3, pz);
+        if (!p) { pen = false; continue; } any = true; if (pen) c.lineTo(p[0], p[1]); else c.moveTo(p[0], p[1]); pen = true;
+    }
+    if (any) { c.fill(); c.stroke(); }
+    const m = proj(b.x, b.y + .3, b.z);
+    if (m) {
+        c.beginPath(); c.moveTo(m[0] - 9, m[1]); c.lineTo(m[0] + 9, m[1]); c.moveTo(m[0], m[1] - 9); c.lineTo(m[0], m[1] + 9); c.stroke();
+        c.font = 'bold 11px Trebuchet MS,sans-serif'; c.textAlign = 'center'; c.lineWidth = 3; c.strokeStyle = '#000'; c.fillStyle = col;
+        const label = (onTarget ? 'ON TARGET ' : 'BOMB ') + b.t.toFixed(1) + 's';
+        c.strokeText(label, m[0], m[1] + 24); c.fillText(label, m[0], m[1] + 24);
+    }
+    c.restore();
 }
 // ---------- wiring ----------
 function bindUI() {

@@ -267,6 +267,7 @@ window.__steelstorm = {
     step(n, dt) { for (let i = 0; i < n; i++) { simStep(dt || .033); updateParticles(dt || .033); } updateFlagViz(); },
     fire(slot) { if (!ME) return false; ME[slot === 'w1' ? 't1' : slot === 'w2' ? 't2' : 't3'] = 0; return weaponFire(ME, slot, PC); },
     aim() { return ME && ME.alive ? aimRay(ME) : null; },
+    bombSight() { return ME ? bombImpact(ME) : null; }, get bombShown() { return Cam.bomb; }, prs() { return PR.map(p => ({ k: p.k, x: p.x, y: p.y, z: p.z, own: p.own })); },
     perf() { const r = { frames: FS.n, avg: FS.n ? +(FS.sum / FS.n).toFixed(1) : 0, max: +FS.max.toFixed(1), over34: FS.over, render: FS.n ? +(FS.rsum / FS.n).toFixed(1) : 0, res: DRES.k }; FS.n = FS.sum = FS.max = FS.over = FS.rsum = 0; return r; },
     noRender(v) { DBG.noRender = v !== false; }, autoQ(v) { DBG.autoQ = !!v; },
     setQuality(q) { save.settings.quality = q; applyQuality(); return Q; }, setWeather(k) { return applyWeather(k); },
