@@ -1,0 +1,1335 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+<title>Sports Mix</title>
+<style>
+/* Huntington Minigames: shared look (copied into every minigame by Minigames/build.sh) */
+:root { --mg: #38bdf8; --bg: #0b0f1a; --panel: rgba(17, 24, 39, .92); --line: rgba(255,255,255,.12); --text: #e5e7eb; --dim: #94a3b8; }
+* { box-sizing: border-box; }
+html, body { margin: 0; height: 100%; background: radial-gradient(circle at 50% 0%, #1e1b4b 0%, var(--bg) 60%); color: var(--text); font-family: system-ui, -apple-system, 'Segoe UI', sans-serif; overflow: hidden; user-select: none; }
+.hidden { display: none !important; }
+#mg-lobby, #mg-res { position: fixed; inset: 0; z-index: 50; display: flex; align-items: center; justify-content: center; padding: 16px; background: rgba(5, 8, 16, .72); backdrop-filter: blur(4px); }
+.mg-card { background: var(--panel); border: 1px solid var(--line); border-radius: 18px; padding: 24px 28px; max-width: 640px; width: 100%; text-align: center; box-shadow: 0 20px 60px rgba(0,0,0,.5); }
+.mg-kicker { font: 700 11px ui-monospace, monospace; letter-spacing: .3em; text-transform: uppercase; color: var(--mg); }
+.mg-card h1 { margin: 6px 0 4px; font-size: 40px; font-weight: 900; letter-spacing: .01em; text-shadow: 0 0 24px color-mix(in srgb, var(--mg) 50%, transparent); }
+.mg-sub { color: var(--dim); margin: 4px 0 10px; } .mg-how { font-size: 14px; color: #cbd5e1; margin: 8px 0 14px; line-height: 1.5; }
+.mg-row { display: flex; flex-wrap: wrap; gap: 8px; justify-content: center; align-items: center; margin: 10px 0; }
+.mg-btn { background: rgba(255,255,255,.08); color: var(--text); border: 1px solid var(--line); border-radius: 12px; padding: 10px 18px; font: 800 15px system-ui, sans-serif; cursor: pointer; }
+.mg-btn:hover { border-color: var(--mg); } .mg-btn.big { background: var(--mg); color: #06101f; border-color: var(--mg); }
+.mg-btn:disabled { opacity: .45; cursor: default; }
+#mg-code { width: 140px; text-align: center; font: 800 18px system-ui; letter-spacing: .15em; padding: 9px; border-radius: 12px; border: 1px solid var(--line); background: rgba(0,0,0,.35); color: #fff; }
+#mg-st { min-height: 20px; color: #bae6fd; font-size: 14px; } #mg-st.bad { color: #fda4af; }
+.mg-code { font-size: 16px; margin: 8px 0; } .mg-code b { color: var(--mg); font-size: 26px; letter-spacing: .2em; }
+#mg-people { display: flex; flex-wrap: wrap; gap: 6px; justify-content: center; margin: 8px 0; }
+.mg-chip { background: rgba(255,255,255,.07); border-radius: 999px; padding: 4px 10px; font-size: 14px; display: inline-flex; gap: 6px; align-items: center; } .mg-chip i { width: 10px; height: 10px; border-radius: 3px; display: inline-block; } .mg-chip small { color: var(--dim); }
+select { background: rgba(0,0,0,.4); color: #fff; border: 1px solid var(--line); border-radius: 8px; padding: 6px 8px; font: 700 14px system-ui; }
+label { color: var(--dim); font-size: 14px; display: inline-flex; gap: 6px; align-items: center; }
+.mg-res-row { display: flex; justify-content: space-between; padding: 8px 6px; border-bottom: 1px solid var(--line); font-weight: 700; font-size: 17px; } .mg-res-row b { color: var(--mg); }
+.mg-hud { position: fixed; top: 10px; left: 50%; transform: translateX(-50%); z-index: 10; display: flex; gap: 12px; flex-wrap: wrap; justify-content: center; font: 800 14px system-ui; pointer-events: none; }
+.mg-hud span { background: rgba(0,0,0,.45); border: 1px solid var(--line); border-radius: 999px; padding: 4px 12px; }
+canvas { display: block; }
+.mg-btn.sm { padding: 4px 10px; font-size: 13px; border-radius: 9px; vertical-align: middle; }
+#mg-snd { position: fixed; top: 10px; right: 10px; z-index: 70; min-width: 40px; min-height: 36px; font-size: 16px; }
+#mg-name { width: 170px; padding: 7px 10px; border-radius: 10px; border: 1px solid var(--line); background: rgba(0,0,0,.35); color: #fff; font: 700 15px system-ui; user-select: text; }
+#mg-ready { color: #bbf7d0; margin: 2px 0 6px; }
+#mg-confirm { position: fixed; inset: 0; z-index: 60; display: flex; align-items: center; justify-content: center; padding: 16px; background: rgba(5, 8, 16, .72); }
+#mg-confirm .mg-card { max-width: 420px; } #mg-confirm h2 { margin: 4px 0; }
+
+/* Sports Mix */
+#sm-cv { position: fixed; inset: 0; width: 100vw; height: 100vh; }
+#sm-menu, #sm-pick { position: fixed; inset: 0; z-index: 40; display: flex; align-items: center; justify-content: center; padding: 16px; overflow: auto; }
+.sm-card { max-width: 820px; }
+#sm-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; margin: 12px 0; }
+.sm-sport { display: flex; flex-direction: column; align-items: center; gap: 2px; padding: 14px 8px; border-radius: 14px; border: 1px solid var(--line); background: linear-gradient(160deg, rgba(34,197,94,.18), rgba(56,189,248,.1)); color: #fff; cursor: pointer; font: inherit; position: relative; transition: transform .1s, border-color .1s; }
+.sm-sport:hover { transform: translateY(-2px); border-color: var(--mg); } .sm-sport span { font-size: 34px; } .sm-sport b { font-size: 16px; } .sm-sport small { color: var(--dim); font-size: 12px; }
+.sm-sport em { position: absolute; top: 6px; right: 8px; font-style: normal; font-size: 11px; color: #fde68a; }
+.sm-lab { color: var(--dim); font-weight: 800; font-size: 12px; letter-spacing: .1em; text-transform: uppercase; }
+.mg-btn.on { background: var(--mg); color: #06101f; border-color: var(--mg); }
+.sm-keys { color: #cbd5e1; font-size: 13px; margin-top: 8px; }
+#sm-hud { position: fixed; top: 10px; left: 50%; transform: translateX(-50%); z-index: 20; display: flex; gap: 14px; align-items: center; background: rgba(0,0,0,.55); border: 1px solid var(--line); border-radius: 999px; padding: 6px 18px; font: 800 16px system-ui; white-space: nowrap; pointer-events: none; }
+#sm-hud b { font-size: 22px; } #sm-hud em { font-style: normal; color: #cbd5e1; font-size: 13px; } #sm-hud .cur { text-decoration: underline; }
+#sm-hud .dot { display: inline-block; width: 9px; height: 9px; border-radius: 50%; margin: 0 1px; background: rgba(255,255,255,.2); } #sm-hud .dot.on { background: var(--c); }
+.sm-score { border-collapse: collapse; font-size: 12px; } .sm-score th { padding: 0 8px; text-align: left; } .sm-score td { border: 1px solid rgba(255,255,255,.2); min-width: 30px; text-align: center; padding: 1px 3px; }
+.sm-score td small { display: block; color: #cbd5e1; font-size: 10px; min-height: 12px; } .sm-score tr.cur th { text-decoration: underline; }
+#sm-hud:has(.sm-score) { border-radius: 12px; }
+#sm-msg { position: fixed; left: 50%; top: 30%; transform: translateX(-50%); z-index: 25; font: 900 42px system-ui; font-style: italic; color: #fff; text-shadow: 0 3px 0 rgba(0,0,0,.5), 0 0 20px rgba(0,0,0,.4); pointer-events: none; animation: smpop .4s ease-out; white-space: nowrap; }
+@keyframes smpop { from { transform: translateX(-50%) scale(1.6); opacity: 0; } }
+#sm-room { margin: 6px 0; }
+#sm-touch { position: fixed; inset: auto 0 20px 0; z-index: 30; pointer-events: none; } #sm-touch > * { pointer-events: auto; }
+#sm-stick { position: absolute; left: 24px; bottom: 0; width: 110px; height: 110px; border-radius: 50%; background: rgba(255,255,255,.1); border: 2px solid rgba(255,255,255,.3); }
+#sm-stick i { position: absolute; left: 35px; top: 35px; width: 40px; height: 40px; border-radius: 50%; background: rgba(255,255,255,.5); }
+#sm-touch button { position: absolute; bottom: 10px; width: 70px; height: 70px; border-radius: 50%; border: 2px solid rgba(255,255,255,.4); background: rgba(0,0,0,.4); color: #fff; font: 900 20px system-ui; }
+#sm-touch button[data-k=Space] { right: 24px; } #sm-touch button[data-k=ShiftLeft] { right: 110px; bottom: 50px; }
+@media (max-width: 700px) { #sm-grid { grid-template-columns: repeat(2, 1fr); } #sm-hud { font-size: 13px; } }
+
+</style>
+</head>
+<body>
+<div id="app"></div>
+<script type="module">
+// ---- 00-mg.js ----
+// ==========================================
+// HUNTINGTON MINIGAMES: the shared lobby (copied into every minigame by Minigames/build.sh; edit it here).
+// Play vs bots right away, or open a room (6-digit code, HGNet = the launcher's multiplayer network) and friends
+// join; the host adds bots to fill seats and starts. The host runs the game (and the bots) and tells everyone.
+// A game calls MG.init({...}) and gets onStart(roster, seed), onMsg(peerId, msg), onLeave(id) back.
+// ==========================================
+const MG = { cfg: null, net: null, host: false, solo: false, code: '', me: 0, name: '', roster: [], started: false, bots: 1, adT: 0 };
+const MG_BOTS = ['Byte', 'Pixel', 'Turbo', 'Glitch', 'Echo', 'Nova', 'Bolt', 'Rusty', 'Sprocket', 'Zippy'];
+const MG_COLS = ['#38bdf8', '#f472b6', '#facc15', '#4ade80', '#a78bfa', '#fb923c', '#f87171', '#2dd4bf', '#e879f9', '#fde68a'];
+function mgEl(id) { return document.getElementById(id); }
+function mgEsc(s) { return String(s).replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c])); }
+function mgCol(i) { return MG_COLS[i % MG_COLS.length]; }
+function mgHG() {
+    const h = window.HGNet || (() => { try { return window.parent && window.parent.HGNet; } catch (e) { return null; } })();
+    if (h) return Promise.resolve(h);
+    return new Promise(res => { const s = document.createElement('script'); s.src = '../../gv/vendor/hgnet.js'; s.onload = () => res(window.HGNet || null); s.onerror = () => res(null); document.head.appendChild(s); });
+}
+function mgLauncherName() { try { const L = window.parent && window.parent.HGGrapevine, me = L && L.me(); if (me) return me.name; } catch (e) {} return ''; }
+function mgMyName() {
+    const ln = mgLauncherName(); if (ln) return ln;
+    try { let n = localStorage.getItem('hgmini_name'); if (!n) { n = 'Player ' + (100 + Math.floor(Math.random() * 900)); localStorage.setItem('hgmini_name', n); } return n; } catch (e) { return 'Player'; }
+}
+function mgLs(k, v) { try { if (v === undefined) return localStorage.getItem(k); localStorage.setItem(k, v); } catch (e) { return null; } }
+function mgSay(t, bad) { const e = mgEl('mg-st'); if (e) { e.textContent = t; e.className = bad ? 'bad' : ''; } }
+// ---- the lobby screen
+MG.init = function (cfg) {
+    MG.cfg = Object.assign({ min: 2, max: 8, bots: 7, defBots: 1, color: '#38bdf8', solo: true }, cfg);
+    document.documentElement.style.setProperty('--mg', MG.cfg.color);
+    const d = document.createElement('div'); d.id = 'mg-lobby';
+    d.innerHTML = `<div class="mg-card"><div class="mg-kicker">Huntington Minigames</div><h1>${mgEsc(cfg.title)}</h1><p class="mg-sub">${cfg.sub || ''}</p>
+      <div class="mg-how">${cfg.howto || ''}</div>
+      <div class="mg-row">${MG.cfg.solo ? '<button class="mg-btn big" id="mg-solo">Play vs bots</button>' : ''}<button class="mg-btn" id="mg-host">Open a room</button>
+        <input id="mg-code" maxlength="7" inputmode="numeric" placeholder="6-digit code" autocomplete="off"><button class="mg-btn" id="mg-join">Join</button></div>
+      <div class="mg-row hidden" id="mg-namerow"><label>Your name <input id="mg-name" maxlength="16" autocomplete="off"></label></div>
+      <div id="mg-st"></div>
+      <div id="mg-room" class="hidden"><div class="mg-code">Room code <b id="mg-codev"></b> <button class="mg-btn sm" id="mg-copy" title="Copy the room code">Copy</button></div><div id="mg-people"></div>
+        <div class="mg-row" id="mg-hostrow"><label>Bots <select id="mg-bots"></select></label><button class="mg-btn big" id="mg-start" title="Start (Enter)">Start</button></div>
+        <div id="mg-ready" class="mg-sub hidden"></div>
+        <div id="mg-wait" class="mg-sub hidden">Waiting for the host to start...</div></div></div>`;
+    document.body.appendChild(d);
+    const r = document.createElement('div'); r.id = 'mg-res'; r.className = 'hidden'; document.body.appendChild(r);
+    const sel = mgEl('mg-bots'); for (let i = 0; i <= MG.cfg.bots; i++) sel.add(new Option(String(i), i)); sel.value = MG.cfg.defBots;
+    const bk = 'hgmini_bots_' + MG.cfg.id, sb = parseInt(mgLs(bk), 10);     // the bot count you picked last time
+    sel.onchange = () => { MG.bots = +sel.value; mgLs(bk, String(MG.bots)); mgLobbySend(); };
+    MG.bots = sb >= 0 && sb <= MG.cfg.bots ? sb : MG.cfg.defBots; sel.value = MG.bots;
+    if (!mgLauncherName()) {     // not signed in to the launcher: the name can be changed here and is remembered
+        const ni = mgEl('mg-name'); mgEl('mg-namerow').classList.remove('hidden'); ni.value = mgMyName();
+        ni.onkeydown = e => { e.stopPropagation(); if (e.key === 'Enter') ni.blur(); };
+        ni.onchange = () => { const v = ni.value.replace(/\s+/g, ' ').trim().slice(0, 16); if (v) mgLs('hgmini_name', v); ni.value = mgMyName(); };
+    }
+    mgEl('mg-copy').onclick = () => mgCopyCode();
+    mgQolInit();
+    if (mgEl('mg-solo')) mgEl('mg-solo').onclick = () => mgSolo();
+    mgEl('mg-host').onclick = () => mgHost();
+    mgEl('mg-join').onclick = () => mgJoin(mgEl('mg-code').value);
+    mgEl('mg-code').onkeydown = e => { e.stopPropagation(); if (e.key === 'Enter') mgJoin(mgEl('mg-code').value); };
+    mgEl('mg-start').onclick = () => mgStart();
+    // the launcher: invites, open parties, Quick Match
+    window.__hgJoin = c => { mgShowLobby(); mgEl('mg-code').value = c; mgJoin(c); return true; };
+    window.__hgHost = convId => { mgShowLobby(); mgHost(); const iv = setInterval(() => { if (MG.code) { clearInterval(iv); try { window.parent.HG_sendInvite(convId, { game: MG.cfg.id, code: MG.code, max: MG.cfg.max }); } catch (e) {} } }, 300); setTimeout(() => clearInterval(iv), 25000); };
+    setTimeout(() => { try { const p = window.parent; if (!p || p === window) return; const c = p.HG_takeJoin && p.HG_takeJoin(MG.cfg.id); if (c) return window.__hgJoin(c); const h = p.HG_takeHost && p.HG_takeHost(MG.cfg.id); if (h && h.convId) window.__hgHost(h.convId); } catch (e) {} }, 400);
+    window.__mg = MG;
+};
+function mgShowLobby() { mgEl('mg-lobby').classList.remove('hidden'); mgEl('mg-res').classList.add('hidden'); }
+function mgHideLobby() { mgEl('mg-lobby').classList.add('hidden'); mgEl('mg-res').classList.add('hidden'); }
+function mgBotsFor(nHumans, n) { const out = []; for (let i = 0; i < Math.min(n, MG.cfg.max - nHumans); i++) out.push({ id: 100 + i, name: MG_BOTS[i % MG_BOTS.length] + ' (bot)', bot: true }); return out; }
+function mgHumans() {
+    const out = [{ id: 0, name: MG.host ? MG.name : ((MG.roster.find(r => r.id === 0) || {}).name || 'Host') }];
+    if (MG.net && MG.host) for (const p of MG.net.peers()) if (!p.isHost && p.state !== 'left') out.push({ id: p.id, name: String(p.name || 'Player').slice(0, 16) });
+    return out;
+}
+function mgRosterNow() { const h = mgHumans().slice(0, MG.cfg.max); return h.concat(mgBotsFor(h.length, MG.bots)).map((r, i) => Object.assign(r, { col: mgCol(i) })); }
+function mgSolo() {
+    MG.solo = true; MG.host = true; MG.me = 0; MG.name = mgMyName();
+    const bots = Math.max(MG.cfg.min - 1, MG.bots || 1);
+    MG.roster = [{ id: 0, name: MG.name }].concat(mgBotsFor(1, bots)).map((r, i) => Object.assign(r, { col: mgCol(i) }));
+    mgBegin({ roster: MG.roster, seed: (Math.random() * 1e9) | 0 });
+}
+function mgWire(net) {
+    net.on('message', (peer, m) => {
+        if (!m || typeof m !== 'object') return;
+        if (m.t === '_lobby' && !MG.host) { MG.roster = m.roster; MG.bots = m.bots; if (m.room && !MG.started) mgShowLobby(); mgPaint(); return; }
+        if (m.t === '_start' && !MG.host) return mgBegin(m);
+        if (m.t === '_end' && !MG.host) return mgShowEnd(m.html);
+        if (m.t === 'g' && MG.cfg.onMsg) MG.cfg.onMsg(peer.id, m.d);
+    });
+    net.on('join', () => { if (MG.host) mgLobbySend(); });
+    net.on('leave', peer => { if (MG.host) { if (!MG.started) mgLobbySend(); else if (MG.cfg.onLeave) MG.cfg.onLeave(peer.id); } mgPaint(); });
+    net.on('closed', (r, t) => { if (MG.net !== net) return; MG.net = null; MG.code = ''; MG.started = false; mgShowLobby(); mgEl('mg-room').classList.add('hidden'); mgConfirmClose(); mgSay(r === 'host-left' ? 'The host left, so the room closed. Open your own room or play vs bots.' : 'Disconnected' + (t ? ': ' + t : '.'), true); if (MG.cfg.onQuit) MG.cfg.onQuit(); });
+}
+function mgHost() {
+    if (MG.net) return; mgSay('Opening a room...');
+    mgHG().then(HG => {
+        if (!HG) return mgSay('Playing with friends needs the Huntington Games launcher. "Play vs bots" works anywhere.', true);
+        MG.name = mgMyName(); const net = MG.net = HG.create({ game: MG.cfg.id }); mgWire(net);
+        net.host({ name: MG.name, maxPlayers: MG.cfg.max, accept: () => MG.started ? 'That game has already started.' : true }).then(r => {
+            MG.host = true; MG.solo = false; MG.code = r.code; MG.me = 0; mgSay('Room open: share the code, add bots if you like, then Start.'); mgLobbySend(); mgAdvertise();
+        }, e => { MG.net = null; mgSay(e.message || 'Could not open a room.', true); });
+    });
+}
+function mgJoin(code) {
+    code = String(code || '').replace(/\D/g, ''); if (code.length !== 6) return mgSay('Type the 6-digit code.', true);
+    if (MG.net) return; mgSay('Joining...');
+    mgHG().then(HG => {
+        if (!HG) return mgSay('Playing with friends needs the Huntington Games launcher.', true);
+        MG.name = mgMyName(); const net = MG.net = HG.create({ game: MG.cfg.id }); mgWire(net);
+        net.join(code, { name: MG.name }).then(r => { MG.host = false; MG.solo = false; MG.code = r.code || code; MG.me = r.id; mgSay('In the room. The host starts the game.'); mgPaint(); },
+            e => { MG.net = null; mgSay(e.message || 'Could not join.', true); });
+    });
+}
+function mgAdvertise() {
+    clearInterval(MG.adT);
+    const ad = () => { try { const p = window.parent; if (p && p !== window && p.HG_partyOpen && MG.host && MG.net && !MG.started) p.HG_partyOpen({ game: MG.cfg.id, code: MG.code, n: mgHumans().length, max: MG.cfg.max, mode: MG.cfg.title }); } catch (e) {} };
+    ad(); MG.adT = setInterval(ad, 30000);
+}
+function mgLobbySend(room) { if (!MG.host || !MG.net) return; MG.roster = mgRosterNow(); MG.net.send('all', room ? { t: '_lobby', roster: MG.roster, bots: MG.bots, room: 1 } : { t: '_lobby', roster: MG.roster, bots: MG.bots }); mgPaint(); }
+function mgPaint() {
+    const room = mgEl('mg-room'); room.classList.toggle('hidden', !MG.code);
+    if (!MG.code) return;
+    mgEl('mg-codev').textContent = MG.code;
+    const roster = MG.host ? mgRosterNow() : MG.roster;
+    mgEl('mg-people').innerHTML = roster.map(r => `<span class="mg-chip"><i style="background:${r.col}"></i>${mgEsc(r.name)}${r.id === 0 ? ' <small>host</small>' : ''}${r.id === MG.me ? ' <small>you</small>' : ''}</span>`).join('');
+    mgEl('mg-hostrow').classList.toggle('hidden', !MG.host); mgEl('mg-wait').classList.toggle('hidden', MG.host);
+    mgEl('mg-bots').value = MG.bots;
+    const need = MG.cfg.min - roster.length; mgEl('mg-start').disabled = need > 0; mgEl('mg-start').textContent = need > 0 ? 'Need ' + need + ' more (add bots)' : 'Start';
+    const humans = roster.filter(r => !r.bot).length, rd = mgEl('mg-ready');
+    rd.classList.toggle('hidden', !MG.host);
+    rd.textContent = need > 0 ? 'Waiting for players: share the code, or add bots.' : 'Ready! ' + humans + (humans === 1 ? ' player' : ' players') + ' here. Press Start or Enter when everyone has joined.';
+}
+function mgStart() {
+    if (!MG.host) return;
+    MG.roster = mgRosterNow(); if (MG.roster.length < MG.cfg.min) return;
+    const m = { t: '_start', roster: MG.roster, seed: (Math.random() * 1e9) | 0 };
+    if (MG.net) MG.net.send('all', m);
+    mgBegin(m);
+}
+function mgBegin(m) {
+    MG.started = true; MG.roster = m.roster; clearInterval(MG.adT);
+    try { const p = window.parent; if (p && p !== window && p.HG_partyClose && MG.host && MG.code) p.HG_partyClose(MG.code); } catch (e) {}
+    mgHideLobby();
+    MG.cfg.onStart(MG.roster, m.seed);
+}
+// ---- during a game
+MG.isHost = () => MG.host || MG.solo;
+MG.send = (to, d, fast) => { if (MG.net) try { MG.net.send(to === 'host' ? 'host' : to, { t: 'g', d }, fast ? { fast: true } : undefined); } catch (e) {} };
+MG.toAll = (d, fast) => MG.send('all', d, fast);
+MG.toHost = (d, fast) => { if (MG.isHost()) { if (MG.cfg.onMsg) MG.cfg.onMsg(MG.me, d); } else MG.send('host', d, fast); };
+MG.player = id => MG.roster.find(r => r.id === id);
+// the host ends the game for everyone with a results card (html)
+MG.end = html => { if (!MG.isHost()) return; if (MG.net) MG.net.send('all', { t: '_end', html }); mgShowEnd(html); };
+function mgShowEnd(html) {
+    MG.started = false; if (MG.cfg.onEnd) MG.cfg.onEnd();
+    const r = mgEl('mg-res'); r.classList.remove('hidden');
+    const room = !MG.solo && MG.isHost();
+    r.innerHTML = `<div class="mg-card">${html}<div class="mg-row">${MG.isHost() ? '<button class="mg-btn big" id="mg-again" title="Enter or R">Play again</button>' : '<span class="mg-sub">Waiting for the host to start another round...</span>'}${room ? '<button class="mg-btn" id="mg-room-back" title="Change bots or wait for more people">Back to room</button>' : ''}<button class="mg-btn" id="mg-leave">${MG.solo ? 'Menu' : 'Leave'}</button></div>${room ? '<div class="mg-sub">Play again starts a new round for everyone in the room.</div>' : ''}</div>`;
+    const toRoom = () => { r.classList.add('hidden'); mgShowLobby(); mgLobbySend(true); mgAdvertise(); };
+    if (mgEl('mg-again')) mgEl('mg-again').onclick = () => {     // a rematch with the same people in one click
+        if (MG.solo) { r.classList.add('hidden'); mgSolo(); return; }
+        if (mgRosterNow().length >= MG.cfg.min) { r.classList.add('hidden'); mgStart(); } else toRoom();
+    };
+    if (mgEl('mg-room-back')) mgEl('mg-room-back').onclick = toRoom;
+    mgEl('mg-leave').onclick = () => { r.classList.add('hidden'); mgLeave(); };
+}
+function mgLeave() {
+    const net = MG.net; MG.net = null; try { net && net.close(); } catch (e) {}
+    Object.assign(MG, { host: false, solo: false, code: '', started: false, roster: [] }); clearInterval(MG.adT);
+    mgEl('mg-room').classList.add('hidden'); mgSay(''); mgConfirmClose(); mgShowLobby(); if (MG.cfg.onQuit) MG.cfg.onQuit();
+}
+// ---- quality of life: sound toggle (M), copy code, keyboard, leave confirm (Esc)
+function mgCopyCode() {
+    const b = mgEl('mg-copy'), done = ok => { b.textContent = ok ? 'Copied!' : 'Copy failed'; setTimeout(() => { b.textContent = 'Copy'; }, 1500); };
+    const fallback = () => { try { const t = document.createElement('textarea'); t.value = MG.code; document.body.appendChild(t); t.select(); const ok = document.execCommand('copy'); t.remove(); done(ok); } catch (e) { done(false); } };
+    try { if (navigator.clipboard && navigator.clipboard.writeText) navigator.clipboard.writeText(MG.code).then(() => done(true), fallback); else fallback(); } catch (e) { fallback(); }
+}
+function mgPaintSnd() { const b = mgEl('mg-snd'); if (b) { b.textContent = MGS.muted ? '🔇' : '🔊'; b.title = MGS.muted ? 'Sound off (M)' : 'Sound on (M)'; } }
+function mgToggleSnd() { MGS.muted = !MGS.muted; mgLs('hgmini_mute', MGS.muted ? '1' : '0'); mgPaintSnd(); if (!MGS.muted) MGS.blip(); }
+function mgVisible(id) { const e = mgEl(id); return !!e && !e.classList.contains('hidden'); }
+function mgConfirmClose() { const c = mgEl('mg-confirm'); if (c) c.classList.add('hidden'); }
+function mgConfirmLeave() {
+    let c = mgEl('mg-confirm');
+    if (!c) {
+        c = document.createElement('div'); c.id = 'mg-confirm'; c.className = 'hidden';
+        c.innerHTML = '<div class="mg-card"><h2>Leave this match?</h2><p class="mg-sub" id="mg-confirm-t"></p><div class="mg-row"><button class="mg-btn big" id="mg-confirm-stay" title="Esc">Keep playing</button><button class="mg-btn" id="mg-confirm-go" title="Enter">Leave</button></div></div>';
+        document.body.appendChild(c);
+        mgEl('mg-confirm-stay').onclick = mgConfirmClose;
+        mgEl('mg-confirm-go').onclick = () => { mgConfirmClose(); mgLeave(); };
+    }
+    mgEl('mg-confirm-t').textContent = MG.solo ? 'This round ends and you go back to the menu.' : MG.host ? 'You are the host: leaving ends the game for everyone.' : 'You leave the room; the others keep playing.';
+    c.classList.remove('hidden');
+}
+function mgQolInit() {
+    MGS.muted = mgLs('hgmini_mute') === '1';
+    const b = document.createElement('button'); b.id = 'mg-snd'; b.className = 'mg-btn sm'; b.onclick = e => { e.stopPropagation(); mgToggleSnd(); b.blur(); };
+    document.body.appendChild(b); mgPaintSnd();
+    addEventListener('keydown', e => {
+        if (e.ctrlKey || e.metaKey || e.altKey) return;
+        const t = e.target, typing = t && (t.tagName === 'INPUT' || t.tagName === 'TEXTAREA' || t.tagName === 'SELECT');
+        if (mgVisible('mg-confirm')) {     // the leave question takes every key while it is up
+            if (e.code === 'Escape') { e.preventDefault(); e.stopImmediatePropagation(); mgConfirmClose(); }
+            else if (e.code === 'Enter' && !(t && t.tagName === 'BUTTON')) { e.preventDefault(); e.stopImmediatePropagation(); mgConfirmClose(); mgLeave(); }
+            return;
+        }
+        if (typing) return;
+        if (e.code === 'KeyM' && !e.repeat) { mgToggleSnd(); return; }
+        if (mgVisible('mg-res')) {
+            if ((e.code === 'Enter' || e.code === 'KeyR') && !e.repeat && !(t && t.tagName === 'BUTTON' && e.code === 'Enter') && mgEl('mg-again')) { e.preventDefault(); e.stopImmediatePropagation(); mgEl('mg-again').click(); }
+            return;
+        }
+        if (mgVisible('mg-lobby')) {
+            if (e.code === 'Enter' && !e.repeat && MG.host && MG.code && !(t && t.tagName === 'BUTTON') && !mgEl('mg-start').disabled) { e.preventDefault(); e.stopImmediatePropagation(); mgStart(); }
+            return;
+        }
+        if (e.code === 'Escape' && MG.started && !e.repeat) { e.preventDefault(); e.stopImmediatePropagation(); mgConfirmLeave(); }
+    }, true);
+}
+MG.leave = mgLeave;
+// a seeded random (the same on every screen when the host sends the seed)
+function mgRng(a) { return function () { a |= 0; a = a + 0x6D2B79F5 | 0; let t = Math.imul(a ^ a >>> 15, 1 | a); t = t + Math.imul(t ^ t >>> 7, 61 | t) ^ t; return ((t ^ t >>> 14) >>> 0) / 4294967296; }; }
+// tiny sounds
+const MGS = (() => { let ac = null; const c = () => { if (MGS.muted) return null; try { ac = ac || new (window.AudioContext || window.webkitAudioContext)(); if (ac.state === 'suspended') ac.resume(); } catch (e) {} return ac; };
+    const tone = (f, len, type = 'square', vol = 0.06, f2) => { const a = c(); if (!a) return; const o = a.createOscillator(), g = a.createGain(); o.type = type; o.frequency.setValueAtTime(f, a.currentTime); if (f2) o.frequency.exponentialRampToValueAtTime(f2, a.currentTime + len); g.gain.setValueAtTime(vol, a.currentTime); g.gain.exponentialRampToValueAtTime(0.0001, a.currentTime + len); o.connect(g); g.connect(a.destination); o.start(); o.stop(a.currentTime + len + 0.02); };
+    return { blip: () => tone(660, 0.08), hit: () => tone(220, 0.12, 'square', 0.08, 110), win: () => [523, 659, 784, 1046].forEach((f, i) => setTimeout(() => tone(f, 0.18, 'triangle', 0.08), i * 110)), lose: () => [392, 330, 262].forEach((f, i) => setTimeout(() => tone(f, 0.22, 'triangle', 0.07), i * 140)), go: () => tone(880, 0.25, 'sawtooth', 0.07, 1320) }; })();
+
+// ---- 10-core.js ----
+// ==========================================
+// SPORTS MIX: the shared engine. Eight sports, each an object in SPORTS with:
+//   n, ic, max (players), turns (turn-based?), W, H (world size, drawn to fit the screen),
+//   init(players, opts) -> st (plain data: it is sent over the network), step(st, dt, inp, P) (host only),
+//   bot(st, i, dt) -> input, draw(g, st, P) (world units), hud(st, P) -> html, over(st) -> null | { win, text }.
+// An input is { u, d, l, r, a, b } (held) plus ua, ...: pressed this step. The host (or the solo screen) runs the
+// sport; guests send their keys and draw the host's state. Save (synced, prefix hgmini_): hgmini_sports.
+// ==========================================
+const SPORTS = {};
+const TAU = Math.PI * 2;
+const clamp = (v, a, b) => v < a ? a : v > b ? b : v, lerp = (a, b, t) => a + (b - a) * t, rnd = (a, b) => a + Math.random() * (b - a);
+const hyp = Math.hypot, angTo = (ax, ay, bx, by) => Math.atan2(by - ay, bx - ax);
+const SM = { sport: null, id: '', st: null, P: [], me: 0, host: true, inp: {}, prev: {}, acc: 0, sendT: 0, net: false, over: false, opts: {}, evSeen: 0, last: null, t: 0, keys: {} };
+window.__sports = SM;
+function smSave() { let s = null; try { s = JSON.parse(mgLs('hgmini_sports') || 'null'); } catch (e) {} s = s && typeof s === 'object' ? s : {}; s.w = s.w || {}; s.p = s.p || {}; s.best = s.best || {}; return s; }
+function smWrite(s) { mgLs('hgmini_sports', JSON.stringify(s)); }
+// ---- the page ----
+document.getElementById('app').innerHTML = `<canvas id="sm-cv"></canvas><div id="sm-hud" class="hidden"></div><div id="sm-msg" class="hidden"></div>
+  <div id="sm-menu"><div class="mg-card sm-card"><div class="mg-kicker">Huntington Games</div><h1>Sports Mix</h1><p class="mg-sub">Eight sports. Play a bot, or open a room and play your friends.</p>
+  <div id="sm-grid"></div><div class="mg-row"><button class="mg-btn" id="sm-online">🌐 Play friends online</button></div><div id="sm-recs" class="mg-sub"></div></div></div>
+  <div id="sm-pick" class="hidden"><div class="mg-card sm-card"><h2 id="sm-pt"></h2><p class="mg-sub" id="sm-pd"></p><div id="sm-po"></div><div class="mg-row"><button class="mg-btn big" id="sm-go">Play ▶</button><button class="mg-btn" id="sm-back">Back</button></div><div class="sm-keys" id="sm-pk"></div></div></div>`;
+const CV = document.getElementById('sm-cv'), G = CV.getContext('2d');
+function resize() { CV.width = innerWidth * Math.min(2, devicePixelRatio || 1); CV.height = innerHeight * Math.min(2, devicePixelRatio || 1); }
+addEventListener('resize', resize); resize();
+const $ = id => document.getElementById(id);
+function show(id, on) { $(id).classList.toggle('hidden', !on); }
+// ---- the menu ----
+function paintMenu() {
+    const s = smSave();
+    $('sm-grid').innerHTML = Object.keys(SPORTS).map(k => { const S = SPORTS[k]; return `<button class="sm-sport" data-s="${k}"><span>${S.ic}</span><b>${S.n}</b><small>${S.sub}</small>${s.w[k] ? `<em>${s.w[k]} win${s.w[k] > 1 ? 's' : ''}</em>` : ''}</button>`; }).join('');
+    const tot = Object.values(s.w).reduce((a, b) => a + b, 0), played = Object.values(s.p).reduce((a, b) => a + b, 0);
+    $('sm-recs').textContent = played ? `${played} games played, ${tot} won${s.best.bowling ? ' · best bowling ' + s.best.bowling : ''}${s.best.mini ? ' · best mini golf ' + s.best.mini : ''}` : '';
+}
+$('sm-grid').onclick = e => { const b = e.target.closest('[data-s]'); if (b) pick(b.dataset.s); };
+function pick(k) {
+    SM.id = k; const S = SPORTS[k];
+    $('sm-pt').textContent = S.ic + ' ' + S.n; $('sm-pd').textContent = S.desc; $('sm-pk').innerHTML = S.keys;
+    SM.opts = Object.assign({}, S.defOpts || {}, { diff: SM.opts.diff || 1 });
+    paintOpts(); show('sm-menu', false); show('sm-pick', true); MGS.blip();
+}
+function paintOpts() {
+    const S = SPORTS[SM.id], o = SM.opts;
+    let h = `<div class="mg-row"><span class="sm-lab">Bot</span>${['Easy', 'Normal', 'Pro'].map((n, i) => `<button class="mg-btn sm ${o.diff === i ? 'on' : ''}" data-o="diff" data-v="${i}">${n}</button>`).join('')}</div>`;
+    for (const [key, lab, vals] of S.optList || []) h += `<div class="mg-row"><span class="sm-lab">${lab}</span>${vals.map(([v, n]) => `<button class="mg-btn sm ${o[key] === v ? 'on' : ''}" data-o="${key}" data-v="${v}">${n}</button>`).join('')}</div>`;
+    if (S.turns) h += `<div class="mg-row"><span class="sm-lab">Bots</span>${[0, 1, 2, 3].map(n => `<button class="mg-btn sm ${(o.bots ?? 1) === n ? 'on' : ''}" data-o="bots" data-v="${n}">${n}</button>`).join('')}</div>`;
+    $('sm-po').innerHTML = h;
+}
+$('sm-po').onclick = e => { const b = e.target.closest('[data-o]'); if (!b) return; const v = b.dataset.v; SM.opts[b.dataset.o] = isNaN(+v) ? v : +v; paintOpts(); MGS.blip(); };
+$('sm-back').onclick = () => { show('sm-pick', false); show('sm-menu', true); };
+$('sm-go').onclick = () => startSolo();
+$('sm-online').onclick = () => { show('sm-menu', false); MG.cfg.title = 'Sports Mix'; mgShowLobby(); roomPanel(); };
+function startSolo() {
+    const S = SPORTS[SM.id], me = { id: 0, name: mgMyName(), col: '#38bdf8', bot: false }, P = [me];
+    const nb = S.turns ? (SM.opts.bots ?? 1) : S.max - 1;
+    for (let i = 0; i < nb; i++) P.push({ id: 100 + i, name: MG_BOTS[i] + ' (bot)', col: ['#f472b6', '#facc15', '#4ade80'][i % 3], bot: true });
+    SM.net = false; SM.host = true; SM.me = 0; begin(SM.id, P, SM.opts);
+}
+// ---- a game ----
+function begin(id, P, opts) {
+    SM.id = id; SM.sport = SPORTS[id]; SM.P = P; SM.opts = opts; SM.over = false; SM.acc = 0; SM.inp = {}; SM.prev = {}; SM.evSeen = 0;
+    SM.st = SM.sport.init(P, opts); if (!SM.st.ev) { SM.st.ev = []; SM.st.evN = 0; } SM.st.msg = SM.st.msg || '';
+    show('sm-menu', false); show('sm-pick', false); show('sm-hud', true); mgHideLobby(); $('mg-res').classList.add('hidden');
+    SM.playing = true; MGS.go();
+}
+function blankIn() { return { u: 0, d: 0, l: 0, r: 0, a: 0, b: 0 }; }
+function keyIn() { const k = SM.keys; return { u: k.ArrowUp || k.KeyW ? 1 : 0, d: k.ArrowDown || k.KeyS ? 1 : 0, l: k.ArrowLeft || k.KeyA ? 1 : 0, r: k.ArrowRight || k.KeyD ? 1 : 0, a: k.Space || k.Enter ? 1 : 0, b: k.ShiftLeft || k.ShiftRight || k.KeyX ? 1 : 0 }; }
+// events (sounds, flashes) the sport raises; they travel with the state so guests hear them too
+function ev(st, name, text) { if (!st.ev) { st.ev = []; st.evN = 0; } st.evN++; st.ev.push([st.evN, name, text || '']); if (st.ev.length > 8) st.ev.shift(); }
+function playEvents(st) {
+    for (const [n, name, text] of st.ev) { if (n <= SM.evSeen) continue; SM.evSeen = n; SFX(name); if (text) flashMsg(text); }
+}
+function SFX(n) {
+    const t = (f, l, ty, v, f2) => MGS.tone ? MGS.tone(f, l, ty, v, f2) : 0;
+    if (n === 'hit') MGS.hit(); else if (n === 'score') MGS.win(); else if (n === 'lose') MGS.lose(); else if (n === 'go') MGS.go(); else if (n === 'whistle') { MGS.go(); } else MGS.blip();
+}
+let msgT = 0;
+function flashMsg(t) { const m = $('sm-msg'); m.textContent = t; m.classList.remove('hidden'); m.style.animation = 'none'; void m.offsetWidth; m.style.animation = ''; clearTimeout(msgT); msgT = setTimeout(() => m.classList.add('hidden'), 1600); }
+// ---- the loop ----
+let lastT = performance.now();
+function frame(now) {
+    requestAnimationFrame(frame);
+    const dt = Math.min(0.05, (now - lastT) / 1000); lastT = now; SM.t += dt;
+    if (SM.playing && SM.st) {
+        if (SM.host) {
+            SM.acc += dt;
+            while (SM.acc >= 1 / 60) {
+                SM.acc -= 1 / 60;
+                SM.P.forEach((p, i) => {
+                    let x = p.bot ? SM.sport.bot(SM.st, i, 1 / 60) || blankIn() : p.id === SM.me ? keyIn() : (SM.inp[p.id] || blankIn());
+                    const pv = SM.prev[i] || blankIn(); for (const k of ['u', 'd', 'l', 'r', 'a', 'b']) x[k + 'p'] = x[k] && !pv[k] ? 1 : 0; SM.prev[i] = x; SM.cur = SM.cur || []; SM.cur[i] = x;
+                });
+                SM.sport.step(SM.st, 1 / 60, SM.cur, SM.P);
+                const o = SM.sport.over(SM.st); if (o && !SM.over) { SM.over = true; finish(o); break; }
+            }
+            if (SM.net && MG.net && (SM.sendT -= dt) <= 0) { SM.sendT = 1 / 20; MG.toAll({ k: 'st', st: SM.st }, true); }
+        } else if (MG.net && (SM.sendT -= dt) <= 0) { SM.sendT = 1 / 25; const k = keyIn(); MG.send('host', { k: 'in', i: [k.u, k.d, k.l, k.r, k.a, k.b] }, true); }
+        playEvents(SM.st);
+    }
+    draw();
+}
+function draw() {
+    const w = CV.width, h = CV.height; G.setTransform(1, 0, 0, 1, 0, 0);
+    const S = SM.sport && SM.st ? SM.sport : null;
+    if (!S) { const gr = G.createLinearGradient(0, 0, 0, h); gr.addColorStop(0, '#1e1b4b'); gr.addColorStop(1, '#0b0f1a'); G.fillStyle = gr; G.fillRect(0, 0, w, h); return; }
+    G.fillStyle = S.bg || '#0b1a12'; G.fillRect(0, 0, w, h);
+    const pad = 0.06, sc = Math.min(w * (1 - pad * 2) / S.W, h * (1 - pad * 2 - .08) / S.H), ox = (w - S.W * sc) / 2, oy = (h - S.H * sc) / 2 + h * .03;
+    G.setTransform(sc, 0, 0, sc, ox, oy); SM.sc = sc;
+    S.draw(G, SM.st, SM.P);
+    G.setTransform(1, 0, 0, 1, 0, 0);
+    const hud = S.hud(SM.st, SM.P); if (hud !== SM.lastHud) { SM.lastHud = hud; $('sm-hud').innerHTML = hud; }
+}
+// drawing helpers (world units)
+function circ(g, x, y, r, fill, stroke, lw) { g.beginPath(); g.arc(x, y, r, 0, TAU); if (fill) { g.fillStyle = fill; g.fill(); } if (stroke) { g.lineWidth = lw || r * .2; g.strokeStyle = stroke; g.stroke(); } }
+function shadow(g, x, y, r, a) { g.fillStyle = `rgba(0,0,0,${a || .25})`; g.beginPath(); g.ellipse(x + r * .25, y + r * .35, r, r * .6, 0, 0, TAU); g.fill(); }
+function person(g, x, y, r, col, face, label, carry) {
+    shadow(g, x, y, r, .3); circ(g, x, y, r, col, 'rgba(0,0,0,.45)', r * .18);
+    circ(g, x + Math.cos(face) * r * .55, y + Math.sin(face) * r * .55, r * .32, '#f1c27d');
+    if (label) { g.font = `bold ${r * 1.1}px system-ui`; g.textAlign = 'center'; g.fillStyle = '#fff'; g.strokeStyle = 'rgba(0,0,0,.7)'; g.lineWidth = r * .25; g.strokeText(label, x, y - r * 1.7); g.fillText(label, x, y - r * 1.7); }
+}
+function line(g, x1, y1, x2, y2, col, lw) { g.beginPath(); g.moveTo(x1, y1); g.lineTo(x2, y2); g.strokeStyle = col; g.lineWidth = lw; g.stroke(); }
+function nameOf(i) { const p = SM.P[i]; return p ? p.name.replace(' (bot)', '') : '?'; }
+function colOf(i) { const p = SM.P[i]; return p ? p.col : '#fff'; }
+// ---- the end of a game ----
+function finish(o) {
+    if (SM.net && MG.net) MG.toAll({ k: 'fin', o, st: SM.st });
+    showEnd(o);
+}
+function showEnd(o) {
+    SM.playing = false;
+    const me = SM.P.findIndex(p => p.id === SM.me), won = o.win === me, s = smSave();
+    s.p[SM.id] = (s.p[SM.id] || 0) + 1; if (won) s.w[SM.id] = (s.w[SM.id] || 0) + 1;
+    if (o.best) for (const k in o.best) if (o.best[k][me] != null) { const v = o.best[k][me], lowWins = k === 'mini' || k === 'golf'; if (s.best[k] == null || (lowWins ? v < s.best[k] : v > s.best[k])) s.best[k] = v; }
+    smWrite(s);
+    (won ? MGS.win : o.win < 0 ? MGS.blip : MGS.lose)();
+    const host = !SM.net || MG.isHost();
+    const r = $('mg-res'); r.classList.remove('hidden');
+    r.innerHTML = `<div class="mg-card"><div class="mg-kicker">${SPORTS[SM.id].ic} ${SPORTS[SM.id].n}</div><h1>${o.win < 0 ? 'Draw' : won ? 'You win!' : esc(nameOf(o.win)) + ' wins'}</h1><p class="mg-sub">${o.text || ''}</p>
+      <div class="mg-row">${host ? '<button class="mg-btn big" id="sm-again">Play again</button>' : '<span class="mg-sub">Waiting for the host...</span>'}<button class="mg-btn" id="sm-menu-b">${SM.net ? 'Leave' : 'Menu'}</button></div></div>`;
+    if ($('sm-again')) $('sm-again').onclick = () => { r.classList.add('hidden'); if (SM.net) { const st = { k: 'go', id: SM.id, P: SM.P, opts: SM.opts }; MG.toAll(st); begin(SM.id, SM.P, SM.opts); } else startSolo(); };
+    $('sm-menu-b').onclick = () => { r.classList.add('hidden'); if (SM.net) mgLeave(); else toMenu(); };
+}
+function toMenu() { SM.playing = false; SM.st = null; SM.sport = null; show('sm-hud', false); show('sm-msg', false); show('sm-pick', false); show('sm-menu', true); mgHideLobby(); paintMenu(); }
+const esc = s => mgEsc(s);
+// ---- keys ----
+addEventListener('keydown', e => {
+    const t = e.target; if (t && (t.tagName === 'INPUT' || t.tagName === 'SELECT')) return;
+    SM.keys[e.code] = true;
+    if (SM.playing && ['Space', 'ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight'].includes(e.code)) e.preventDefault();
+    if (SM.playing && !SM.net && e.code === 'Escape' && !e.repeat) { toMenu(); }
+});
+addEventListener('keyup', e => { SM.keys[e.code] = false; });
+addEventListener('blur', () => { SM.keys = {}; });
+// touch: a stick on the left, two buttons on the right
+(() => {
+    const T = document.createElement('div'); T.id = 'sm-touch'; T.innerHTML = '<div id="sm-stick"><i></i></div><button data-k="Space">A</button><button data-k="ShiftLeft">B</button>'; document.body.appendChild(T);
+    if (!('ontouchstart' in window)) T.classList.add('hidden');
+    const st = $('sm-stick'), knob = st.firstChild;
+    const set = (dx, dy) => { SM.keys.ArrowLeft = dx < -.3; SM.keys.ArrowRight = dx > .3; SM.keys.ArrowUp = dy < -.3; SM.keys.ArrowDown = dy > .3; knob.style.transform = `translate(${dx * 30}px,${dy * 30}px)`; };
+    const mv = e => { const r = st.getBoundingClientRect(), p = e.touches ? e.touches[0] : e; set(clamp((p.clientX - r.left - r.width / 2) / 40, -1, 1), clamp((p.clientY - r.top - r.height / 2) / 40, -1, 1)); e.preventDefault(); };
+    st.addEventListener('touchstart', mv, { passive: false }); st.addEventListener('touchmove', mv, { passive: false }); st.addEventListener('touchend', () => set(0, 0));
+    T.querySelectorAll('button').forEach(b => { b.addEventListener('touchstart', e => { SM.keys[b.dataset.k] = true; e.preventDefault(); }, { passive: false }); b.addEventListener('touchend', () => { SM.keys[b.dataset.k] = false; }); });
+})();
+// ---- online ----
+function roomPanel() {
+    let d = $('sm-room'); const R = $('mg-room');
+    if (!d) {
+        d = document.createElement('div'); d.id = 'sm-room'; R.insertBefore(d, $('mg-hostrow'));
+        const back = document.createElement('button'); back.className = 'mg-btn'; back.textContent = '← Sports menu'; back.style.marginTop = '8px';
+        back.onclick = () => { if (MG.net) mgLeave(); else toMenu(); }; $('mg-lobby').querySelector('.mg-card').appendChild(back);
+        d.addEventListener('change', e => { if (e.target.id === 'sm-rs') { SM.id = e.target.value; MG.toAll({ k: 'sport', id: SM.id }); paintRoom(); } });
+        setInterval(() => { if (MG.net && MG.isHost() && !MG.started) MG.toAll({ k: 'sport', id: SM.id }); }, 3000);
+        setInterval(() => { if (!$('mg-lobby').classList.contains('hidden') && !d.contains(document.activeElement)) paintRoom(); }, 700);      // host / guest can change after the room opens
+    }
+    if (!SM.id) SM.id = 'soccer';
+    paintRoom();
+}
+function paintRoom() {
+    const d = $('sm-room'); if (!d) return; const S = SPORTS[SM.id], key = SM.id + (MG.isHost() && !MG.solo);
+    if (d._k === key) return; d._k = key;
+    d.innerHTML = MG.isHost() && !MG.solo ? `<label>Sport <select id="sm-rs">${Object.keys(SPORTS).map(k => `<option value="${k}" ${k === SM.id ? 'selected' : ''}>${SPORTS[k].ic} ${SPORTS[k].n}</option>`).join('')}</select></label><div class="mg-sub">${S.turns ? 'Up to 4 players take turns.' : '2 players: the first two in the room play, bots fill in.'}</div>`
+        : `<div class="mg-sub">The host picked: <b>${S.ic} ${S.n}</b></div>`;
+}
+function onlineStart(roster, seed) {
+    SM.net = true; SM.me = MG.me; SM.host = MG.isHost();
+    if (!SM.host) { SM.playing = false; return; }
+    const S = SPORTS[SM.id], humans = roster.filter(r => !r.bot), bots = roster.filter(r => r.bot);
+    let P = humans.slice(0, S.max).concat(bots).slice(0, S.turns ? S.max : 2);
+    while (P.length < (S.turns ? 1 : 2)) P.push({ id: 150 + P.length, name: MG_BOTS[P.length] + ' (bot)', bot: true });
+    P = P.map((p, i) => ({ id: p.id, name: p.name, col: mgCol(i), bot: !!p.bot }));
+    const opts = Object.assign({}, S.defOpts || {}, { diff: 1 });
+    MG.toAll({ k: 'go', id: SM.id, P, opts }); begin(SM.id, P, opts);
+}
+function onNet(from, m) {
+    if (!m || typeof m !== 'object') return;
+    if (m.k === 'in' && SM.host && Array.isArray(m.i)) { const [u, d, l, r, a, b] = m.i.map(v => v ? 1 : 0); SM.inp[from] = { u, d, l, r, a, b }; return; }
+    if (SM.host) return;
+    if (m.k === 'sport' && SPORTS[m.id]) { SM.id = m.id; paintRoom(); }
+    else if (m.k === 'go' && SPORTS[m.id]) { begin(m.id, m.P, m.opts); SM.host = false; }
+    else if (m.k === 'st' && m.st && SM.sport) { SM.st = m.st; }
+    else if (m.k === 'fin' && SM.sport) { if (m.st) SM.st = m.st; playEvents(SM.st); showEnd(m.o); }
+}
+MG.init({ id: 'sports', title: 'Sports Mix', color: '#22c55e', min: 1, max: 4, bots: 3, defBots: 1, solo: false, sub: 'Play your friends online.', howto: 'The host picks the sport below and starts. Bots fill empty seats.',
+    onStart: onlineStart, onMsg: onNet, onLeave: () => {}, onQuit: () => toMenu() });
+mgHideLobby();
+window.__hgJoin = (h => c => { $('sm-online').click(); return h(c); })(window.__hgJoin);
+setTimeout(() => { paintMenu(); requestAnimationFrame(frame); }, 0);
+// tests: run n host steps at once (window.__sports.sim), and start a game directly (window.__sports.start)
+SM.sim = n => {
+    for (let k = 0; k < n && SM.playing && !SM.over; k++) {
+        SM.P.forEach((p, i) => { const x = p.bot ? SM.sport.bot(SM.st, i, 1 / 60) || blankIn() : blankIn(); const pv = SM.prev[i] || blankIn(); for (const q of ['u', 'd', 'l', 'r', 'a', 'b']) x[q + 'p'] = x[q] && !pv[q] ? 1 : 0; SM.prev[i] = x; SM.cur = SM.cur || []; SM.cur[i] = x; });
+        SM.sport.step(SM.st, 1 / 60, SM.cur, SM.P);
+        const o = SM.sport.over(SM.st); if (o) { SM.over = true; SM.result = o; finish(o); }
+    }
+    return SM.over;
+};
+SM.start = (id, P, opts) => { SM.net = false; SM.host = true; SM.me = -1; begin(id, P, Object.assign({ diff: 1 }, SPORTS[id].defOpts || {}, opts || {})); };
+
+// ---- 20-field.js ----
+// ==========================================
+// SOCCER and HOCKEY: one engine. Each side has a player (you or a bot) and a goalkeeper bot. Move with the arrows,
+// get on the ball to dribble, hold SPACE to charge a shot and let go to shoot. Shift sprints.
+// Soccer: 3 minutes or first to 3. Hockey: puck on ice (slides far, bounces off the boards), goals with nets.
+// ==========================================
+function fieldSport(C) {
+    return {
+        n: C.n, ic: C.ic, sub: C.sub, desc: C.desc, max: 2, W: C.W, H: C.H, bg: C.bg,
+        keys: 'Arrows / WASD move · Shift sprint · hold SPACE to charge, release to shoot',
+        init(P, o) {
+            const st = { t: C.time, sc: [0, 0], pl: [], ball: { x: C.W / 2, y: C.H / 2, vx: 0, vy: 0 }, kick: 0, wait: 1.5, diff: o.diff, last: -1, gold: false };
+            for (let s = 0; s < 2; s++) {
+                st.pl.push({ s, x: s ? C.W * .62 : C.W * .38, y: C.H / 2, vx: 0, vy: 0, f: s ? Math.PI : 0, ch: 0, cd: 0, gk: false });
+                st.pl.push({ s, x: s ? C.W - C.gx - 1.2 : C.gx + 1.2, y: C.H / 2, vx: 0, vy: 0, f: s ? Math.PI : 0, ch: 0, cd: 0, gk: true });
+            }
+            return st;
+        },
+        reset(st, toSide) { const b = st.ball; b.x = C.W / 2; b.y = C.H / 2; b.vx = b.vy = 0; st.pl.forEach((p, i) => { p.x = p.gk ? (p.s ? C.W - C.gx - 1.2 : C.gx + 1.2) : p.s ? C.W * (toSide === 1 ? .53 : .62) : C.W * (toSide === 0 ? .47 : .38); p.y = C.H / 2; p.vx = p.vy = 0; p.ch = 0; }); st.wait = 1.2; },
+        step(st, dt, inp) {
+            const b = st.ball;
+            if (st.wait > 0) { st.wait -= dt; if (st.wait <= 0) ev(st, 'go'); return; }
+            st.t -= dt;
+            st.pl.forEach((p, k) => {
+                const i = p.s, I = p.gk ? gkIn(st, p) : inp[i] || blankIn();
+                let mx = I.r - I.l, my = I.d - I.u; const ml = hyp(mx, my); if (ml) { mx /= ml; my /= ml; p.f = Math.atan2(my, mx); }
+                const top = (p.gk ? C.sp * (C.gks || .8) : C.sp) * (I.b && !p.gk ? 1.35 : 1) * (p.ch > 0 ? .75 : 1);
+                p.vx += (mx * top - p.vx) * Math.min(1, dt * C.acc); p.vy += (my * top - p.vy) * Math.min(1, dt * C.acc);
+                p.x = clamp(p.x + p.vx * dt, 1, C.W - 1); p.y = clamp(p.y + p.vy * dt, 1, C.H - 1);
+                if (p.gk) { const lo = C.H / 2 - C.gw / 2 - 1, hi = C.H / 2 + C.gw / 2 + 1; p.y = clamp(p.y, lo, hi); p.x = p.s ? clamp(p.x, C.W - C.gx - 9, C.W - C.gx - .6) : clamp(p.x, C.gx + .6, C.gx + 9); }
+                p.cd -= dt;
+                const d = hyp(b.x - p.x, b.y - p.y);
+                // charge and shoot
+                if (I.a && !p.gk) p.ch = Math.min(1, p.ch + dt * 1.3);
+                const release = (!I.a && p.ch > 0) || (p.gk && d < C.pr + C.br + .4 && p.cd <= 0);
+                if (release) {
+                    if (d < C.pr + C.br + 1.1 && p.cd <= 0) {
+                        const pow = p.gk ? .75 : p.ch, gx2 = p.s ? C.gx : C.W - C.gx, ga = angTo(p.x, p.y, gx2, C.H / 2), hitA = angTo(p.x, p.y, b.x, b.y), off = Math.atan2(Math.sin(ga - hitA), Math.cos(ga - hitA));      // the ball goes where you strike it
+                        const a = p.gk ? angTo(p.x, p.y, C.W / 2, C.H / 2 + rnd(-8, 8)) : Math.abs(off) < .75 ? hitA + off * .75 : (p.x < 4 || p.x > C.W - 4 || p.y < 4 || p.y > C.H - 4) ? angTo(p.x, p.y, C.W / 2 + (p.s ? -8 : 8), C.H / 2) : hitA;      // aim help: a shot roughly at goal bends toward it
+                        const sp = C.ks + C.kp * pow; b.vx = Math.cos(a) * sp + p.vx * .3; b.vy = Math.sin(a) * sp + p.vy * .3;
+                        p.cd = .3; st.last = p.s; ev(st, 'hit');
+                    }
+                    p.ch = 0;
+                }
+                // dribble: the ball sticks a little in front of whoever runs onto it
+                else if (d < C.pr + C.br + .5 && p.cd <= 0 && !p.gk) {
+                    const tx = p.x + Math.cos(p.f) * (C.pr + C.br + .2), ty = p.y + Math.sin(p.f) * (C.pr + C.br + .2);
+                    b.vx += ((tx - b.x) * 12 + p.vx - b.vx) * Math.min(1, dt * C.grip); b.vy += ((ty - b.y) * 12 + p.vy - b.vy) * Math.min(1, dt * C.grip); st.last = p.s;
+                }
+                // bodies push the ball away
+                if (d < C.pr + C.br) { const nx = (b.x - p.x) / (d || 1), ny = (b.y - p.y) / (d || 1); b.x = p.x + nx * (C.pr + C.br); b.y = p.y + ny * (C.pr + C.br); const vn = b.vx * nx + b.vy * ny; if (vn < 0) { b.vx -= vn * nx * 1.6; b.vy -= vn * ny * 1.6; } }
+            });
+            // players bump each other
+            for (let a = 0; a < 4; a++) for (let c = a + 1; c < 4; c++) { const A = st.pl[a], B = st.pl[c], d = hyp(A.x - B.x, A.y - B.y); if (d < C.pr * 2 && d > 0) { const o = (C.pr * 2 - d) / 2, nx = (A.x - B.x) / d, ny = (A.y - B.y) / d; A.x += nx * o; A.y += ny * o; B.x -= nx * o; B.y -= ny * o; } }
+            // the ball
+            const f = Math.exp(-C.fric * dt), px = b.x; b.vx *= f; b.vy *= f; b.x += b.vx * dt; b.y += b.vy * dt;
+            const inMouth = b.y > C.H / 2 - C.gw / 2 && b.y < C.H / 2 + C.gw / 2;
+            if (b.y < C.br) { b.y = C.br; b.vy = Math.abs(b.vy) * C.bnc; } if (b.y > C.H - C.br) { b.y = C.H - C.br; b.vy = -Math.abs(b.vy) * C.bnc; }
+            for (const side of [0, 1]) {      // a goal: the ball crosses the goal line, inside the mouth, from the front
+                const gx = side ? C.W - C.gx : C.gx, inF = side ? px <= gx && b.x > gx : px >= gx && b.x < gx, back = side ? px > gx && b.x <= gx : px < gx && b.x >= gx;
+                if (inF && inMouth) { const sc = 1 - side; st.sc[sc]++; ev(st, 'score', 'GOAL! ' + nameOf(sc)); this.reset(st, side); if (st.gold) st.t = -1; return; }
+                if (back && inMouth) { b.x = side ? gx + .05 : gx - .05; b.vx = -b.vx * .4; }      // the back of the net
+            }
+            if (C.boards) { if (b.x < C.br) { b.x = C.br; b.vx = Math.abs(b.vx) * C.bnc; } if (b.x > C.W - C.br) { b.x = C.W - C.br; b.vx = -Math.abs(b.vx) * C.bnc; } }
+            else if (b.x < 0 || b.x > C.W) { ev(st, 'whistle', 'Out!'); const s = b.x < 0 ? 0 : 1; this.reset(st, s); }
+            // a puck / ball pinned on the boards with both players on it: whistle, face-off
+            const s0 = st.pl[0], s1 = st.pl[2], pinned = (b.x < 3 || b.x > C.W - 3 || b.y < 3 || b.y > C.H - 3) && hyp(s0.x - b.x, s0.y - b.y) < 3 && hyp(s1.x - b.x, s1.y - b.y) < 3;
+            st.stuck = pinned ? (st.stuck || 0) + dt : Math.max(0, (st.stuck || 0) - dt);
+            if (st.stuck > 3.5) { st.stuck = 0; ev(st, 'whistle', C.boards ? 'Face-off' : 'Drop ball'); this.reset(st, -1); return; }
+            if (st.gold) st.gt = (st.gt || 0) + dt;
+            if (st.t <= 0 && st.sc[0] === st.sc[1] && !st.gold) { st.gold = true; st.t = 9999; ev(st, 'whistle', 'Golden goal: next goal wins!'); }
+        },
+        bot(st, i, dt) {
+            const p = st.pl.find(q => q.s === i && !q.gk), b = st.ball, gx = i ? C.gx : C.W - C.gx, gy = C.H / 2, I = blankIn();
+            const toGoal = angTo(b.x, b.y, gx, gy), tx = b.x - Math.cos(toGoal) * (C.pr + C.br + .6), ty = b.y - Math.sin(toGoal) * (C.pr + C.br + .6);
+            const d = hyp(b.x - p.x, b.y - p.y), wall = b.x < 4 || b.x > C.W - 4 || b.y < 4 || b.y > C.H - 4;      // by the boards: just get to it and clear it
+            const behind = wall ? d < C.pr + C.br + .8 : hyp(p.x - tx, p.y - ty) < 1.2;
+            const aimX = wall ? b.x : behind ? gx : tx, aimY = wall ? b.y : behind ? gy : ty, err = [.5, .25, .1][st.diff];
+            const dx = aimX - p.x + rnd(-err, err) * 6, dy = aimY - p.y + rnd(-err, err) * 6;
+            if (Math.abs(dx) > .5) I[dx > 0 ? 'r' : 'l'] = 1; if (Math.abs(dy) > .5) I[dy > 0 ? 'd' : 'u'] = 1;
+            I.b = d > 8 ? 1 : 0;
+            p.bc = (p.bc || 0) - dt;
+            const near = hyp(b.x - gx, b.y - gy);
+            const lined = Math.abs(Math.atan2(Math.sin(toGoal - angTo(p.x, p.y, b.x, b.y)), Math.cos(toGoal - angTo(p.x, p.y, b.x, b.y)))) < .7;
+            if ((behind || lined) && d < C.pr + C.br + 1) { if (p.ch < (wall ? .35 : near < C.W * .35 ? .7 : .3) + rnd(0, .2)) I.a = 1; }
+            else if (p.ch > 0 && d < C.pr + C.br + 1) I.a = 0; else if (p.ch > 0 && d < C.pr + C.br + 3) I.a = 1;      // far from the ball: let the charge go
+            return I;
+        },
+        draw(g, st) {
+            C.drawField(g);
+            const b = st.ball;
+            st.pl.forEach(p => { person(g, p.x, p.y, C.pr, p.gk ? shade(colOf(p.s)) : colOf(p.s), p.f, p.gk ? '' : nameOf(p.s)); if (C.stick) line(g, p.x + Math.cos(p.f) * C.pr * .6, p.y + Math.sin(p.f) * C.pr * .6, p.x + Math.cos(p.f + .4) * C.pr * 2.1, p.y + Math.sin(p.f + .4) * C.pr * 2.1, '#7c5a3a', .25);
+                if (p.ch > 0) { g.beginPath(); g.arc(p.x, p.y, C.pr * 1.5, -Math.PI / 2, -Math.PI / 2 + TAU * p.ch); g.strokeStyle = '#fde047'; g.lineWidth = .3; g.stroke(); } });
+            shadow(g, b.x, b.y, C.br, .35); circ(g, b.x, b.y, C.br, C.ballCol, '#111', C.br * .25);
+            if (st.wait > 0 && st.t === C.time) { g.font = 'bold 4px system-ui'; g.textAlign = 'center'; g.fillStyle = '#fff'; g.fillText('Kick off', C.W / 2, C.H * .3); }
+        },
+        hud(st) { const t = Math.max(0, Math.ceil(st.t)); return `<span style="color:${colOf(0)}">${esc(nameOf(0))}</span><b>${st.sc[0]} - ${st.sc[1]}</b><span style="color:${colOf(1)}">${esc(nameOf(1))}</span><em>${st.gold ? 'GOLDEN GOAL' : Math.floor(t / 60) + ':' + String(t % 60).padStart(2, '0')}</em>`; },
+        over(st) { if (st.gold && st.gt > 90) return { win: -1, text: st.sc[0] + ' - ' + st.sc[1] + ' (no golden goal)' }; const w = st.sc[0] >= C.to ? 0 : st.sc[1] >= C.to ? 1 : st.t <= 0 && st.sc[0] !== st.sc[1] ? (st.sc[0] > st.sc[1] ? 0 : 1) : null; return w === null ? null : { win: w, text: st.sc[0] + ' - ' + st.sc[1] }; }
+    };
+    function gkIn(st, p) {
+        const b = st.ball, gx = p.s ? C.W - C.gx : C.gx, I = blankIn(), dang = (p.s ? b.vx > 2 : b.vx < -2) && Math.abs(b.x - gx) < C.W * .45;
+        const ty = clamp(dang ? b.y + b.vy * (Math.abs(b.x - gx) / Math.max(5, Math.abs(b.vx))) : b.y, C.H / 2 - C.gw / 2, C.H / 2 + C.gw / 2) + (st.diff === 0 ? Math.sin(st.t * 2) * 2 : 0);
+        const tx = Math.abs(b.x - gx) < 8 && Math.abs(b.y - C.H / 2) < C.gw ? b.x : gx + (p.s ? -1.5 : 1.5);
+        if (ty > p.y + .3) I.d = 1; else if (ty < p.y - .3) I.u = 1; if (tx > p.x + .3) I.r = 1; else if (tx < p.x - .3) I.l = 1; return I;
+    }
+}
+function shade(c) { return c + 'aa'; }
+SPORTS.soccer = fieldSport({
+    n: 'Soccer', ic: '⚽', sub: '1v1 + keepers', desc: 'Dribble past them and score. First to 3, or the most goals in 3 minutes (a tie goes to a golden goal).',
+    W: 105, H: 68, gx: 2, gw: 14, gks: .55, time: 180, to: 3, sp: 15, acc: 7, pr: 1.5, br: .9, ks: 18, kp: 34, fric: .9, bnc: .6, grip: 9, bg: '#14532d', ballCol: '#f8fafc',
+    drawField(g) {
+        for (let i = 0; i < 10; i++) { g.fillStyle = i % 2 ? '#3f8f3a' : '#479e41'; g.fillRect(i * 10.5, 0, 10.5, 68); }
+        g.strokeStyle = 'rgba(255,255,255,.85)'; g.lineWidth = .35; g.strokeRect(2, 0, 101, 68); line(g, 52.5, 0, 52.5, 68, 'rgba(255,255,255,.85)', .35);
+        g.beginPath(); g.arc(52.5, 34, 9.15, 0, TAU); g.stroke(); g.strokeRect(2, 13.85, 16.5, 40.3); g.strokeRect(86.5, 13.85, 16.5, 40.3);
+        g.fillStyle = 'rgba(255,255,255,.9)'; g.fillRect(0, 27, 2, 14); g.fillRect(103, 27, 2, 14);
+    }
+});
+SPORTS.hockey = fieldSport({
+    n: 'Hockey', ic: '🏒', sub: 'Ice, puck, boards', desc: 'The puck slides forever and bounces off the boards. Skate, pass yourself off the walls, and beat the goalie. First to 3 or 3 minutes.',
+    W: 60, H: 30, gx: 5, gw: 5.5, gks: .4, time: 180, to: 3, sp: 14, acc: 2.6, pr: .9, br: .45, ks: 16, kp: 30, fric: .22, bnc: .85, grip: 6, boards: true, stick: true, bg: '#0f172a', ballCol: '#111827',
+    drawField(g) {
+        g.fillStyle = '#e8f4fb'; g.beginPath(); g.roundRect(0, 0, 60, 30, 7); g.fill(); g.strokeStyle = '#fde047'; g.lineWidth = .4; g.stroke();
+        line(g, 30, 0, 30, 30, '#dc2626', .4); line(g, 20, 0, 20, 30, '#2563eb', .35); line(g, 40, 0, 40, 30, '#2563eb', .35); line(g, 5, 2, 5, 28, '#dc2626', .15); line(g, 55, 2, 55, 28, '#dc2626', .15);
+        g.beginPath(); g.arc(30, 15, 4.5, 0, TAU); g.strokeStyle = '#2563eb'; g.lineWidth = .15; g.stroke();
+        for (const x of [5, 55]) { g.fillStyle = 'rgba(96,165,250,.35)'; g.beginPath(); g.arc(x, 15, 2, x < 30 ? -Math.PI / 2 : Math.PI / 2, x < 30 ? Math.PI / 2 : Math.PI * 1.5); g.fill(); g.strokeStyle = '#dc2626'; g.lineWidth = .2; g.strokeRect(x < 30 ? x - 1.2 : x, 13, 1.2, 4); }
+    }
+});
+
+// ---- 30-basket.js ----
+// ==========================================
+// BASKETBALL: 1-on-1 on a half court, first to 11 (2 and 3 pointers). Hold SPACE to shoot: the meter climbs and falls,
+// let go in the green. A defender in your face makes it harder; right under the hoop you dunk. Without the ball,
+// SPACE swipes for a steal (Shift sprints). After a basket the other player checks the ball at the top of the key.
+// ==========================================
+SPORTS.basketball = {
+    n: 'Basketball', ic: '🏀', sub: '1-on-1, first to 11', desc: 'Half court, one on one. Drive, shoot from the green part of the meter, block and steal. Threes count 3. First to 11.',
+    max: 2, W: 28, H: 15, bg: '#1c1917', keys: 'Arrows / WASD move · hold SPACE to shoot, release in the green · SPACE without the ball to steal · Shift sprint',
+    HX: 1.6, HY: 7.5,
+    init(P, o) { return { pl: [0, 1].map(s => ({ s, x: 18, y: s ? 4 : 11, f: Math.PI, sh: -1, cd: 0 })), ball: { h: 0, x: 18, y: 11, z: 1, fly: null }, sc: [0, 0], t: 0, diff: o.diff, check: 0, wait: 1, sm: 0 }; },
+    step(st, dt, inp) {
+        const B = st.ball, H = this;
+        if (st.wait > 0) { st.wait -= dt; return; }
+        st.t += dt;
+        if (B.fly) {
+            const F = B.fly; F.t += dt; const u = Math.min(1, F.t / F.dur);
+            B.x = lerp(F.x0, H.HX + .4, u); B.y = lerp(F.y0, H.HY, u); B.z = lerp(2, 3.05, u) + Math.sin(u * Math.PI) * F.arc;
+            if (u >= 1) {
+                B.fly = null;
+                if (F.made) { st.sc[F.by] += F.pts; ev(st, 'score', (F.dunk ? 'DUNK! ' : F.pts === 3 ? 'THREE! ' : 'Bucket! ') + nameOf(F.by)); this.checkBall(st, 1 - F.by); }
+                else { ev(st, 'hit', 'Off the rim'); B.h = -1; B.x = H.HX + rnd(1.5, 5); B.y = H.HY + rnd(-4, 4); B.z = 0; B.vx = rnd(-1, 1); B.vy = rnd(-1, 1); }
+            }
+            return;
+        }
+        st.pl.forEach((p, i) => {
+            const I = inp[i] || blankIn(); let mx = I.r - I.l, my = I.d - I.u; const ml = hyp(mx, my);
+            const has = B.h === i, shooting = p.sh >= 0;
+            if (ml && !shooting) { mx /= ml; my /= ml; p.f = Math.atan2(my, mx); const sp = (has ? 7.5 : 8.5) * (I.b ? 1.3 : 1); p.x = clamp(p.x + mx * sp * dt, .8, 27.2); p.y = clamp(p.y + my * sp * dt, .8, 14.2); }
+            p.cd -= dt;
+            if (has) {
+                if (I.a) { if (p.sh < 0) p.sh = 0; p.sh += dt; }
+                else if (p.sh >= 0) { this.shoot(st, p, i); p.sh = -1; }
+                B.x = p.x + Math.cos(p.f) * .55; B.y = p.y + Math.sin(p.f) * .55; B.z = .6 + Math.abs(Math.sin(st.t * 8)) * .5;
+            } else {
+                p.sh = -1;
+                const o = st.pl[1 - i];
+                if (I.ap && B.h === 1 - i && p.cd <= 0 && hyp(o.x - p.x, o.y - p.y) < 1.6) { p.cd = 1; if (Math.random() < .3) { B.h = i; ev(st, 'hit', 'Stolen!'); st.check = 0; } }
+            }
+        });
+        // a loose ball: whoever gets to it first
+        if (B.h < 0) { B.x += (B.vx || 0) * dt; B.y += (B.vy || 0) * dt; for (const [i, p] of st.pl.entries()) if (hyp(B.x - p.x, B.y - p.y) < .9) { B.h = i; ev(st, 'blip'); break; } }
+        // bodies
+        const a = st.pl[0], b = st.pl[1], d = hyp(a.x - b.x, a.y - b.y); if (d < 1.1 && d > 0) { const o = (1.1 - d) / 2, nx = (a.x - b.x) / d, ny = (a.y - b.y) / d; a.x += nx * o; a.y += ny * o; b.x -= nx * o; b.y -= ny * o; }
+    },
+    meter(sh) { const c = sh % 1.6; return c < .8 ? c / .8 : 2 - c / .8; },      // up and down
+    shoot(st, p, i) {
+        const B = st.ball, D = hyp(p.x - this.HX, p.y - this.HY), m = this.meter(p.sh), o = st.pl[1 - i];
+        const dunk = D < 2.2, three = D > 6.75 && !dunk;
+        const timing = 1 - clamp(Math.abs(m - .82) / .3, 0, 1), base = dunk ? .92 : clamp(.9 - D * .055, .25, .85);
+        const cont = hyp(o.x - p.x, o.y - p.y) < 1.6 && hyp(o.x - this.HX, o.y - this.HY) < D ? .55 : 1;
+        const made = Math.random() < (dunk ? base * cont * 1.05 : base * (.35 + .65 * timing) * cont);
+        B.h = -2; B.fly = { x0: B.x, y0: B.y, t: 0, dur: dunk ? .35 : .6 + D * .04, arc: dunk ? .2 : 1.5 + D * .12, made, by: i, pts: three ? 3 : 2, dunk };
+        ev(st, 'blip');
+    },
+    checkBall(st, to) { const B = st.ball; B.h = to; const p = st.pl[to], o = st.pl[1 - to]; p.x = 17; p.y = 7.5; p.f = Math.PI; o.x = 13; o.y = 7.5; o.f = 0; st.wait = .8; },
+    bot(st, i, dt) {
+        const p = st.pl[i], o = st.pl[1 - i], B = st.ball, I = blankIn(), H = this, D = hyp(p.x - H.HX, p.y - H.HY), skill = [.5, .75, .95][st.diff];
+        const go = (x, y) => { const dx = x - p.x, dy = y - p.y; if (Math.abs(dx) > .3) I[dx > 0 ? 'r' : 'l'] = 1; if (Math.abs(dy) > .3) I[dy > 0 ? 'd' : 'u'] = 1; };
+        if (B.fly) return I;
+        if (B.h === i) {
+            const open = hyp(o.x - p.x, o.y - p.y) > 2.2, want = p.want || (p.want = Math.random() < .35 ? 7.2 : 1.2);
+            if (p.sh >= 0) { const m = H.meter(p.sh); I.a = !(p.sh > .5 && Math.abs(m - .82) < .12 * (1.2 - skill) + rnd(0, .05)) ? 1 : 0; if (p.sh > 1.6) I.a = 0; return I; }
+            p.gt = open ? 0 : (p.gt || 0) + dt;      // guarded too long: take the contested shot, or drive to the rim
+            if ((D < want + .5 && open) || D < 1.8 || (open && D < 7.5 && Math.random() < dt * .4) || (p.gt > 1.6 && D < 8 && Math.random() < dt * 2)) { I.a = 1; p.want = 0; p.gt = 0; return I; }
+            if (p.gt > .9) { p.want = 1.2; go(H.HX + .8, H.HY + (p.y < H.HY ? -1.5 : 1.5)); return I; }
+            go(H.HX + want * .9, H.HY + Math.sin(st.t * 1.3 + i) * 4);
+        } else if (B.h === 1 - i) {      // defend: between the ball and the hoop, try for steals
+            go(lerp(o.x, H.HX, .25), lerp(o.y, H.HY, .25)); if (hyp(o.x - p.x, o.y - p.y) < 1.4 && Math.random() < dt * 2 * skill) I.a = 1;
+        } else go(B.x, B.y);
+        return I;
+    },
+    draw(g, st) {
+        g.fillStyle = '#c8864b'; g.fillRect(0, 0, 28, 15); for (let i = 0; i < 28; i += 1.2) { g.fillStyle = i % 2.4 < 1.2 ? 'rgba(0,0,0,.04)' : 'rgba(255,255,255,.03)'; g.fillRect(i, 0, 1.2, 15); }
+        g.strokeStyle = '#fff'; g.lineWidth = .08; g.strokeRect(0, 0, 28, 15);
+        g.fillStyle = 'rgba(220,38,38,.55)'; g.fillRect(0, 5.05, 5.8, 4.9); g.strokeRect(0, 5.05, 5.8, 4.9);
+        g.beginPath(); g.arc(5.8, 7.5, 1.8, -Math.PI / 2, Math.PI / 2); g.stroke();
+        g.beginPath(); g.moveTo(0, .9); g.lineTo(1.6, .9); g.arc(this.HX, this.HY, 6.75, -Math.asin(6.6 / 6.75), Math.asin(6.6 / 6.75)); g.lineTo(0, 14.1); g.stroke();
+        line(g, 28, 0, 28, 15, '#fff', .15); g.beginPath(); g.arc(28, 7.5, 1.8, Math.PI / 2, Math.PI * 1.5); g.stroke();
+        line(g, .5, 6.6, .5, 8.4, '#e5e7eb', .2); circ(g, this.HX, this.HY, .45, null, '#f97316', .1);
+        const B = st.ball;
+        st.pl.forEach((p, i) => { person(g, p.x, p.y, .55, colOf(i), p.f, nameOf(i)); if (p.sh >= 0) { const m = this.meter(p.sh); g.fillStyle = 'rgba(0,0,0,.6)'; g.fillRect(p.x + .8, p.y - 1, .3, 2); g.fillStyle = '#22c55e'; g.fillRect(p.x + .8, p.y + 1 - 2 * .94, .3, 2 * .24); g.fillStyle = '#fde047'; g.fillRect(p.x + .75, p.y + 1 - 2 * m - .05, .4, .1); } });
+        if (B.h !== -2) shadow(g, B.x, B.y, .25, .3);
+        circ(g, B.x, B.y - (B.z || 0) * .35, .28 + (B.z || 0) * .05, '#ea580c', '#7c2d12', .05);
+    },
+    hud(st) { return `<span style="color:${colOf(0)}">${esc(nameOf(0))}</span><b>${st.sc[0]} - ${st.sc[1]}</b><span style="color:${colOf(1)}">${esc(nameOf(1))}</span><em>first to 11</em>`; },
+    over(st) { for (const i of [0, 1]) if (st.sc[i] >= 11) return { win: i, text: st.sc[0] + ' - ' + st.sc[1] }; return null; }
+};
+
+// ---- 40-tennis.js ----
+// ==========================================
+// TENNIS: you at the bottom, them at the top. Your player swings by itself when the ball comes into reach: hold
+// left / right while it swings to aim, hold SPACE for a hard flat shot (riskier), Shift for a lob. SPACE serves.
+// Real scoring: 15, 30, 40, deuce, advantage; first to 3 games wins (2 games ahead not needed).
+// Court 10.97 x 23.77 m, net in the middle; the ball has height, bounces, can hit the net or land out.
+// ==========================================
+SPORTS.tennis = {
+    n: 'Tennis', ic: '🎾', sub: 'First to 3 games', desc: 'Move into the ball and your player swings on its own. Aim with left and right as you hit, SPACE for power, Shift for a lob. Real 15-30-40 scoring, first to 3 games.',
+    max: 2, W: 17, H: 31, bg: '#1e3a5f', keys: 'Arrows / WASD move · hold ←/→ while hitting to aim · SPACE power shot / serve · Shift lob',
+    CW: 10.97, CL: 23.77, X0: 3, Y0: 3.6,
+    init(P, o) { const st = { pl: [{ x: 8.5, y: 26.5 }, { x: 8.5, y: 4.5 }], ball: null, pts: [0, 0], gm: [0, 0], srv: 0, diff: o.diff, msg: '', wait: 1, last: -1, bounces: 0, side: 0 }; this.place(st); return st; },
+    place(st) { const s = st.srv, n = st.pts[0] + st.pts[1]; st.pl[0] = { x: 8.5 + (n % 2 ? -2 : 2) * (s === 0 ? 1 : -1), y: 27.2 }; st.pl[1] = { x: 8.5 + (n % 2 ? 2 : -2) * (s === 1 ? 1 : -1), y: 3.8 }; st.ball = null; st.serving = true; },
+    toss(st) { const s = st.srv, p = st.pl[s]; st.ball = { x: p.x, y: p.y + (s ? 1 : -1) * .3, z: 2.6, vx: 0, vy: 0, vz: 0 }; st.serving = false; st.last = -1; st.bounces = 0; this.hit(st, s, (Math.random() - .5) * .3, 0, true); },
+    hit(st, i, aim, mode, serve) {      // send the ball toward the other half; aim -1..1 across, mode 0 normal, 1 power, 2 lob
+        const b = st.ball, toY = i === 0 ? this.Y0 + (serve ? this.CL / 2 - 3.2 : rnd(1.5, 6)) : this.Y0 + (serve ? this.CL / 2 + 3.2 : this.CL - rnd(1.5, 6));
+        const midX = this.X0 + this.CW / 2, toX = serve ? midX + (b.x > midX ? -1 : 1) * rnd(.6, 2.6) : midX + aim * this.CW * .42 + rnd(-.6, .6);
+        const dist = hyp(toX - b.x, toY - b.y), T = mode === 1 ? dist / 26 : mode === 2 ? dist / 11 : dist / 18, err = mode === 1 ? 1.4 : .5;
+        b.vx = (toX + rnd(-err, err) - b.x) / T; b.vy = (toY + rnd(-err, err) * (mode === 1 ? 1.5 : 1) - b.y) / T; b.vz = (0 - b.z + 9.8 * T * T / 2) / T; b.spin = mode;
+        st.last = i; st.bounces = 0; ev(st, 'hit');
+    },
+    point(st, w, why) {
+        st.pts[w]++; const [a, b] = st.pts; ev(st, w === 0 ? 'score' : 'lose', why);
+        if ((a >= 4 || b >= 4) && Math.abs(a - b) >= 2) { st.gm[w]++; st.pts = [0, 0]; st.srv = 1 - st.srv; ev(st, 'score', 'Game ' + nameOf(w)); }
+        st.wait = 1.2; this.place(st);
+    },
+    step(st, dt, inp) {
+        if (st.wait > 0) { st.wait -= dt; return; }
+        const C = this;
+        st.pl.forEach((p, i) => { const I = inp[i] || blankIn(); let mx = I.r - I.l, my = I.d - I.u; const ml = hyp(mx, my) || 1; const sp = 6.5; if (!st.serving || i !== st.srv) { p.x = clamp(p.x + mx / ml * sp * dt, .5, 16.5); p.y = clamp(p.y + my / ml * sp * dt, i ? .5 : 16.6, i ? 14.4 : 30.5); } p.I = I; });
+        if (st.serving) { const I = inp[st.srv] || blankIn(); if (I.ap) this.toss(st); return; }
+        const b = st.ball; if (!b) return;
+        b.vz -= 9.8 * dt; b.x += b.vx * dt; b.y += b.vy * dt; b.z += b.vz * dt;
+        const netY = C.Y0 + C.CL / 2;
+        if ((b.py - netY) * (b.y - netY) < 0 && b.z < .95) { this.point(st, 1 - st.last, 'Into the net'); return; }
+        b.py = b.y;
+        if (b.z <= 0) {
+            b.z = 0; b.vz = -b.vz * .62; b.vx *= .85; b.vy *= .85; st.bounces++;
+            const inX = b.x >= C.X0 - .1 && b.x <= C.X0 + C.CW + .1, inY = b.y >= C.Y0 - .1 && b.y <= C.Y0 + C.CL + .1, rightHalf = st.last === 0 ? b.y < netY : b.y > netY;
+            if (st.bounces === 1 && (!inX || !inY || !rightHalf)) { this.point(st, 1 - st.last, 'Out!'); return; }
+            if (st.bounces >= 2) { this.point(st, st.last, 'Winner!'); return; }
+        }
+        // swings: the player not last to hit, ball on their side, in reach and low enough
+        const i = 1 - st.last, p = st.pl[i], I = p.I || blankIn(), mySide = i === 0 ? b.y > netY : b.y < netY;
+        if (mySide && b.z < 2.6 && hyp(b.x - p.x, b.y - p.y) < 1.5 && (st.bounces === 1 || Math.abs(b.y - netY) < 6)) {
+            const aim = (I.r - I.l) * (i === 0 ? 1 : -1) * .9 + (b.x - p.x) * .25, mode = I.a ? 1 : I.b ? 2 : 0;
+            this.hit(st, i, clamp(aim, -1, 1), mode, false);
+        }
+        if (b.y < -4 || b.y > 35) { this.point(st, st.bounces ? st.last : 1 - st.last, st.bounces ? 'Winner!' : 'Out!'); }
+    },
+    bot(st, i, dt) {
+        const p = st.pl[i], b = st.ball, I = blankIn(), skill = [.55, .8, 1][st.diff];
+        if (st.serving) { if (st.srv === i) { p.tt = (p.tt || 0) + dt; if (p.tt > .9) { I.a = 1; p.tt = 0; } } return I; }
+        let tx = 8.5, ty = i ? 3 : 28;
+        if (b && st.last !== i) {      // run to where the ball will be after it bounces
+            const T = (b.vz + Math.sqrt(Math.max(0, b.vz * b.vz + 2 * 9.8 * b.z))) / 9.8, bx = b.x + b.vx * T, by = b.y + b.vy * T, k = st.bounces ? 0 : .35;
+            tx = bx + b.vx * k * .85 + rnd(-1, 1) * (1 - skill) * 2; ty = clamp(by + b.vy * k * .85, i ? .5 : 17, i ? 14 : 30.5);
+        }
+        const dx = tx - p.x, dy = ty - p.y; if (Math.abs(dx) > .25) I[dx > 0 ? 'r' : 'l'] = 1; if (Math.abs(dy) > .25) I[dy > 0 ? 'd' : 'u'] = 1;
+        if (b && hyp(b.x - p.x, b.y - p.y) < 2.5) { const r = Math.random(); if (r < .3) I.l = 1; else if (r < .6) I.r = 1; if (Math.random() < .12 * skill) I.a = 1; else if (Math.random() < .05) I.b = 1; }
+        return I;
+    },
+    draw(g, st) {
+        const C = this; g.fillStyle = '#2563a8'; g.fillRect(0, 0, 17, 31); g.fillStyle = '#3b82c4'; g.fillRect(C.X0, C.Y0, C.CW, C.CL);
+        g.strokeStyle = '#fff'; g.lineWidth = .08; g.strokeRect(C.X0, C.Y0, C.CW, C.CL);
+        const sx = C.X0 + 1.37, sw = C.CW - 2.74, ny = C.Y0 + C.CL / 2; line(g, sx, C.Y0, sx, C.Y0 + C.CL, '#fff', .07); line(g, sx + sw, C.Y0, sx + sw, C.Y0 + C.CL, '#fff', .07);
+        line(g, sx, ny - 6.4, sx + sw, ny - 6.4, '#fff', .07); line(g, sx, ny + 6.4, sx + sw, ny + 6.4, '#fff', .07); line(g, C.X0 + C.CW / 2, ny - 6.4, C.X0 + C.CW / 2, ny + 6.4, '#fff', .07);
+        st.pl.forEach((p, i) => { if (i === 1) person(g, p.x, p.y, .5, colOf(i), Math.PI / 2, nameOf(i)); });
+        line(g, C.X0 - .9, ny, C.X0 + C.CW + .9, ny, '#e5e7eb', .14); for (let x = C.X0 - .9; x < C.X0 + C.CW + .9; x += .5) line(g, x, ny - .12, x, ny + .12, 'rgba(255,255,255,.5)', .03);
+        st.pl.forEach((p, i) => { if (i === 0) person(g, p.x, p.y, .5, colOf(i), -Math.PI / 2, nameOf(i)); });
+        const b = st.ball;
+        if (b) { shadow(g, b.x, b.y, .15, .35); circ(g, b.x, b.y - b.z * .6, .17 + b.z * .02, '#d9f99d', '#65a30d', .03); }
+        else if (st.serving) { const p = st.pl[st.srv]; circ(g, p.x + .5, p.y, .17, '#d9f99d', '#65a30d', .03); g.font = 'bold .8px system-ui'; g.textAlign = 'center'; g.fillStyle = '#fff'; g.fillText(st.srv === SM.P.findIndex(q => q.id === SM.me) ? 'SPACE to serve' : nameOf(st.srv) + ' to serve', 8.5, 15.5 + (st.srv ? -1.5 : 2.2)); }
+    },
+    callPts(st) { const [a, b] = st.pts, N = ['0', '15', '30', '40']; if (a >= 3 && b >= 3) return a === b ? 'Deuce' : 'Advantage ' + nameOf(a > b ? 0 : 1); return N[Math.min(a, 3)] + ' - ' + N[Math.min(b, 3)]; },
+    hud(st) { return `<span style="color:${colOf(0)}">${esc(nameOf(0))}</span><b>${st.gm[0]} - ${st.gm[1]}</b><span style="color:${colOf(1)}">${esc(nameOf(1))}</span><em>${this.callPts(st)}</em>`; },
+    over(st) { for (const i of [0, 1]) if (st.gm[i] >= 3) return { win: i, text: 'Games ' + st.gm[0] + ' - ' + st.gm[1] }; return null; }
+};
+
+// ---- 50-baseball.js ----
+// ==========================================
+// BASEBALL: 3 innings (extra innings on a tie). Batting: move the bat left / right to line it up with the pitch and
+// press SPACE to swing as the ball reaches the plate: perfect timing goes far. Pitching: left / right picks the spot
+// (inside, middle, outside), up = fastball, down = changeup, Shift = curveball, then SPACE throws.
+// Balls, strikes (a foul is a strike until 2), walks, outs, runners advance on hits.
+// ==========================================
+SPORTS.baseball = {
+    n: 'Baseball', ic: '⚾', sub: '3 innings', desc: 'Bat and pitch for three innings. Time your swing as the ball crosses the plate; when pitching, mix fastballs, changeups and curves.',
+    max: 2, W: 60, H: 52, bg: '#14532d', keys: 'Batting: ←/→ line up the bat, SPACE swing · Pitching: ←/→ spot, ↑ fastball, ↓ changeup, Shift curve, SPACE pitch',
+    PL: { x: 30, y: 45 }, MD: { x: 30, y: 31 },
+    init(P, o) { return { inn: 1, top: true, outs: 0, b: 0, s: 0, base: [0, 0, 0], runs: [0, 0], line: [[], []], diff: o.diff, ph: 'ready', pitch: null, bat: 0, spot: 0, kind: 0, hitA: null, wait: 1, msg: '', t: 0, ready: 0 }; },
+    batting(st) { return st.top ? 0 : 1; },      // player 0 bats in the top of each inning
+    step(st, dt, inp) {
+        st.t += dt; if (st.wait > 0) { st.wait -= dt; return; }
+        const bi = this.batting(st), pi = 1 - bi, Ib = inp[bi] || blankIn(), Ip = inp[pi] || blankIn();
+        // the bat slides across the plate
+        st.bat = clamp(st.bat + (Ib.r - Ib.l) * dt * 2.2, -1, 1);
+        if (st.ph === 'ready') {
+            if (Ip.lp) st.spot = Math.max(-1, st.spot - 1); if (Ip.rp) st.spot = Math.min(1, st.spot + 1);
+            if (Ip.up) st.kind = 0; if (Ip.dp) st.kind = 1; if (Ip.bp) st.kind = 2;
+            st.ready += dt;
+            if (Ip.ap && st.ready > .4) {
+                const K = [{ sp: 1.05, br: 0 }, { sp: 1.55, br: 0 }, { sp: 1.35, br: .9 }][st.kind];
+                st.pitch = { t: 0, dur: K.sp * (1 - st.diff * .05), x0: st.spot * .7 + rnd(-.25, .25), br: K.br * (Math.random() < .5 ? 1 : -1), zone: Math.abs(st.spot) < 1 || Math.random() < .5 }; st.ph = 'pitch'; ev(st, 'blip');
+            }
+        } else if (st.ph === 'pitch') {
+            const p = st.pitch; p.t += dt; const u = p.t / p.dur;
+            p.x = p.x0 + p.br * u * u * .6;
+            if (Ib.ap && !p.sw) { p.sw = 1; p.err = p.t - p.dur; p.miss = Math.abs(st.bat - p.x); this.swing(st); return; }
+            if (u >= 1.12) { if (Math.abs(p.x) > 1.05 || !p.zone && Math.abs(p.x) > .8) this.ball(st); else this.strike(st, 'Strike!'); }
+        } else if (st.ph === 'fly') {
+            const h = st.hitA; h.t += dt; if (h.t >= h.dur) { this.resolve(st); }
+        }
+    },
+    swing(st) {
+        const p = st.pitch, e = Math.abs(p.err), m = p.miss, q = (1 - clamp(e / .16, 0, 1)) * (1 - clamp(m / .55, 0, 1));
+        ev(st, 'hit');
+        if (q <= .05) { this.strike(st, 'Swing and a miss!'); return; }
+        if (q < .3) { if (st.s < 2) st.s++; ev(st, 'blip', 'Foul ball'); st.ph = 'ready'; st.ready = 0; st.pitch = null; st.wait = .7; return; }
+        // contact: the better it is, the further and the harder to catch
+        const r = Math.random(), res = q > .85 && r < .55 ? 4 : q > .65 && r < .45 ? (r < .15 ? 3 : 2) : q > .45 && r < .7 ? 1 : 0;
+        const ang = clamp(p.err * -9 + rnd(-.3, .3), -.75, .75) - Math.PI / 2, dist = res === 4 ? 70 : res === 3 ? 44 : res === 2 ? 36 : res === 1 ? 24 : rnd(14, 30);
+        st.hitA = { t: 0, dur: res === 4 ? 1.8 : 1.2, ang, dist, res, fly: res === 0 && Math.random() < .5 }; st.ph = 'fly';
+    },
+    resolve(st) {
+        const h = st.hitA, bi = this.batting(st);
+        if (h.res === 0) { st.outs++; ev(st, 'lose', h.fly ? 'Caught! Out' : 'Grounded out'); }
+        else {
+            let runs = 0; const b = st.base;
+            for (let k = 0; k < h.res; k++) { runs += b[2]; b[2] = b[1]; b[1] = b[0]; b[0] = k === 0 ? 1 : 0; }
+            if (h.res === 4) { runs += b[0] + b[1] + b[2]; b[0] = b[1] = b[2] = 0; runs += 0; }
+            st.runs[bi] += runs; ev(st, 'score', ['', 'Single!', 'Double!', 'Triple!', 'HOME RUN!'][h.res] + (runs ? ' +' + runs : ''));
+        }
+        this.nextBatter(st);
+    },
+    strike(st, why) { st.s++; if (st.s >= 3) { st.outs++; ev(st, 'lose', 'Strike three! Out'); this.nextBatter(st); } else { ev(st, 'blip', why); this.again(st); } },
+    ball(st) { st.b++; if (st.b >= 4) { ev(st, 'blip', 'Ball four: walk'); const b = st.base; if (b[0]) { if (b[1]) { if (b[2]) st.runs[this.batting(st)]++; b[2] = 1; } b[1] = 1; } b[0] = 1; this.nextBatter(st); } else { ev(st, 'blip', 'Ball'); this.again(st); } },
+    again(st) { st.ph = 'ready'; st.ready = 0; st.pitch = null; st.wait = .6; },
+    nextBatter(st) {
+        st.b = st.s = 0; st.pitch = null; st.hitA = null; st.ph = 'ready'; st.ready = 0; st.wait = .9;
+        if (st.outs >= 3) {
+            st.outs = 0; st.base = [0, 0, 0];
+            if (st.top) st.top = false; else { st.top = true; st.inn++; }
+            ev(st, 'whistle', (st.top ? 'Top' : 'Bottom') + ' of inning ' + st.inn); st.wait = 1.5;
+        }
+    },
+    bot(st, i, dt) {
+        const I = blankIn(), skill = [.45, .7, .9][st.diff];
+        if (this.batting(st) === i) {
+            const p = st.pitch; if (!p) return I;
+            const u = p.t / p.dur, px = p.x0 + p.br * .6;
+            if (Math.abs(st.bat - px) > .1) I[px > st.bat ? 'r' : 'l'] = 1;
+            p.bw = p.bw ?? (p.zone || Math.random() < .25 ? p.dur + rnd(-.12, .12) * (1.2 - skill) : 99);
+            if (p.t >= p.bw && !p.sw) I.a = 1;
+        } else if (st.ph === 'ready') {
+            st.bt = (st.bt || 0) + dt; if (st.bt > .8) { st.bt = 0; const k = Math.floor(Math.random() * 3); if (k === 1) I.d = 1; else if (k === 2) I.b = 1; else I.u = 1; I.a = 1; }
+            else if (st.bt < .1) { const r = Math.random(); if (r < .3) I.l = 1; else if (r < .6) I.r = 1; }
+        }
+        return I;
+    },
+    draw(g, st) {
+        const C = this; g.fillStyle = '#2f7d32'; g.fillRect(0, 0, 60, 52);
+        g.fillStyle = '#b07a46'; g.beginPath(); g.moveTo(C.PL.x, C.PL.y + 2); g.lineTo(C.PL.x + 14, C.PL.y - 12); g.lineTo(C.PL.x, C.PL.y - 26); g.lineTo(C.PL.x - 14, C.PL.y - 12); g.closePath(); g.fill();
+        g.fillStyle = '#3f9442'; g.beginPath(); g.moveTo(C.PL.x, C.PL.y - 4); g.lineTo(C.PL.x + 9.5, C.PL.y - 12); g.lineTo(C.PL.x, C.PL.y - 21); g.lineTo(C.PL.x - 9.5, C.PL.y - 12); g.closePath(); g.fill();
+        line(g, C.PL.x, C.PL.y, 2, C.PL.y - 28, '#fff', .2); line(g, C.PL.x, C.PL.y, 58, C.PL.y - 28, '#fff', .2);
+        circ(g, C.MD.x, C.MD.y, 1.6, '#b07a46');
+        const B = [[C.PL.x + 12, C.PL.y - 12], [C.PL.x, C.PL.y - 24], [C.PL.x - 12, C.PL.y - 12]];
+        B.forEach(([x, y], k) => { g.fillStyle = st.base[k] ? '#fde047' : '#f8fafc'; g.fillRect(x - .8, y - .8, 1.6, 1.6); if (st.base[k]) person(g, x + 1.4, y, .8, colOf(this.batting(st)), 0); });
+        g.fillStyle = '#f8fafc'; g.beginPath(); g.moveTo(C.PL.x - .8, C.PL.y - .8); g.lineTo(C.PL.x + .8, C.PL.y - .8); g.lineTo(C.PL.x + .8, C.PL.y); g.lineTo(C.PL.x, C.PL.y + .8); g.lineTo(C.PL.x - .8, C.PL.y); g.fill();
+        const bi = this.batting(st), pi = 1 - bi;
+        person(g, C.MD.x, C.MD.y - .5, 1, colOf(pi), Math.PI / 2, nameOf(pi));
+        person(g, C.PL.x - 2, C.PL.y, 1, colOf(bi), 0, nameOf(bi));
+        // the bat, in front of the plate
+        const bx = C.PL.x + st.bat * 2.2; line(g, bx - 1.6, C.PL.y - 1.4, bx + 1.6, C.PL.y - 1.4, '#a16207', .45);
+        // the strike zone strip: where the bat is vs where the ball comes
+        g.fillStyle = 'rgba(255,255,255,.12)'; g.fillRect(C.PL.x - 2.4, C.PL.y - 1.9, 4.8, 1);
+        if (st.ph === 'ready') { const sx = C.PL.x + st.spot * 1.6; g.strokeStyle = '#fde047'; g.lineWidth = .15; g.strokeRect(sx - .5, C.PL.y - 1.9, 1, 1); }
+        const p = st.pitch;
+        if (p) { const u = Math.min(1.12, p.t / p.dur), x = lerp(C.MD.x, C.PL.x + p.x * 2.2, u), y = lerp(C.MD.y, C.PL.y - 1.4, u); shadow(g, x, y, .35, .3); circ(g, x, y - .4, .45, '#f8fafc', '#dc2626', .08); }
+        const h = st.hitA;
+        if (h) { const u = h.t / h.dur, d = h.dist * u, x = C.PL.x + Math.cos(h.ang) * d * .6, y = C.PL.y + Math.sin(h.ang) * d * .6, z = Math.sin(u * Math.PI) * (h.res === 4 ? 8 : 3); shadow(g, x, y, .35, .3); circ(g, x, y - z, .5 + z * .06, '#f8fafc', '#dc2626', .08); }
+        if (st.ph === 'ready' && pi === SM.P.findIndex(q => q.id === SM.me)) { g.font = 'bold 1.6px system-ui'; g.textAlign = 'center'; g.fillStyle = '#fff'; g.fillText(['Fastball', 'Changeup', 'Curveball'][st.kind] + ' · ' + ['inside', 'middle', 'outside'][st.spot + 1] + ' · SPACE to pitch', 30, 50.6); }
+    },
+    hud(st) { const dots = (n, m, c) => Array.from({ length: m }, (_, k) => `<i class="dot${k < n ? ' on' : ''}" style="--c:${c}"></i>`).join('');
+        return `<span style="color:${colOf(0)}">${esc(nameOf(0))}</span><b>${st.runs[0]} - ${st.runs[1]}</b><span style="color:${colOf(1)}">${esc(nameOf(1))}</span><em>${st.top ? '▲' : '▼'} ${st.inn} · B ${dots(st.b, 4, '#4ade80')} S ${dots(st.s, 3, '#facc15')} O ${dots(st.outs, 3, '#f87171')}</em>`; },
+    over(st) {
+        const [a, b] = st.runs;
+        if (st.inn >= 3 && !st.top && b > a && st.ph !== 'fly') return { win: 1, text: a + ' - ' + b };      // walk-off / home team ahead
+        if (st.inn > 3 && st.top && st.outs === 0 && st.ph === 'ready' && a !== b) return { win: a > b ? 0 : 1, text: a + ' - ' + b + (st.inn > 4 ? ' (extra innings)' : '') };
+        return null;
+    }
+};
+
+// ---- 60-football.js ----
+// ==========================================
+// AMERICAN FOOTBALL: 3-on-3. On offense you are the quarterback: SPACE snaps, then run with the arrows or press SPACE
+// again to throw to the receiver nearest where you point (hold an arrow). Shift sprints. On defense you control the
+// linebacker: catch the ball carrier to tackle. 4 downs to gain 10 yards; touchdown = 7. Each side gets 4 drives.
+// Field 100 yards plus end zones; the offense of side 0 drives to the right, side 1 to the left.
+// ==========================================
+SPORTS.football = {
+    n: 'Football', ic: '🏈', sub: 'American, 3-on-3', desc: 'Quarterback on offense, linebacker on defense. Snap, scramble, throw to an open receiver, and score touchdowns. Four drives each.',
+    max: 2, W: 120, H: 53, bg: '#14532d', keys: 'Offense: SPACE snap, arrows run, SPACE throw toward where you point · Defense: arrows chase, tackle the runner · Shift sprint',
+    init(P, o) { const st = { off: 0, drives: [0, 0], sc: [0, 0], down: 1, los: 25, first: 35, ph: 'pre', diff: o.diff, t: 0, pl: [], ball: null, car: -1, wait: 1 }; this.setup(st); return st; },
+    dirOf(st) { return st.off === 0 ? 1 : -1; },
+    X(st, yd) { return 10 + (st.off === 0 ? yd : 100 - yd); },      // yards from the offense's own goal line -> x
+    setup(st) {
+        const d = this.dirOf(st), x = this.X(st, st.los), o = st.off;
+        st.pl = [
+            { s: o, r: 'qb', x: x - d * 6, y: 26.5 }, { s: o, r: 'wr', x: x - d * .5, y: 9 }, { s: o, r: 'wr', x: x - d * .5, y: 44 },
+            { s: 1 - o, r: 'lb', x: x + d * 6, y: 26.5 }, { s: 1 - o, r: 'cb', x: x + d * 4, y: 11 }, { s: 1 - o, r: 'cb', x: x + d * 4, y: 42 }
+        ];
+        st.pl.forEach(p => { p.vx = p.vy = 0; p.rt = Math.random() < .5 ? 1 : 2; });
+        st.ball = { x: st.pl[0].x, y: st.pl[0].y, fly: null }; st.car = 0; st.ph = 'pre'; st.t = 0; st.wait = .8;
+    },
+    endPlay(st, x, why) {
+        const d = this.dirOf(st), yd = st.off === 0 ? x - 10 : 110 - x;
+        if (yd >= 100) { st.sc[st.off] += 7; ev(st, 'score', 'TOUCHDOWN ' + nameOf(st.off) + '!'); return this.turnover(st, true); }
+        st.los = clamp(Math.round(yd), 1, 99);
+        if (st.los >= st.first) { st.down = 1; st.first = Math.min(100, st.los + 10); ev(st, 'whistle', (why || 'Tackled') + ' · First down!'); }
+        else if (st.down >= 4) { ev(st, 'lose', 'Turnover on downs'); return this.turnover(st, false); }
+        else { st.down++; ev(st, 'blip', why || 'Tackled'); }
+        this.setup(st);
+    },
+    turnover(st, scored, yd) {
+        st.drives[st.off]++; st.off = 1 - st.off; st.down = 1; st.los = scored ? 25 : clamp(100 - (yd || st.los), 5, 80); st.first = st.los + 10; this.setup(st); st.wait = 1.5;
+    },
+    step(st, dt, inp) {
+        if (st.wait > 0) { st.wait -= dt; return; }
+        const d = this.dirOf(st), o = st.off, B = st.ball, qb = st.pl[0];
+        if (st.ph === 'pre') { if ((inp[o] || {}).ap) { st.ph = 'live'; st.t = 0; ev(st, 'whistle', 'Hike!'); } return; }
+        st.t += dt;
+        st.pl.forEach((p, k) => {
+            let I = blankIn();
+            if (k === 0) I = inp[o] || I; else if (k === 3) I = inp[1 - o] || I;
+            let mx, my;
+            if (k === 0 || k === 3) { mx = I.r - I.l; my = I.d - I.u; if (k === 0 && st.car === 0 && (mx || my)) { p.ax = mx; p.ay = my; } }
+            else { const g = this.ai(st, p, k); mx = g[0]; my = g[1]; }
+            const ml = hyp(mx, my) || 1, blocked = k === 3 && st.car === 0 && st.t < 2.2, sp = (p.r === 'wr' ? 9.5 : p.r === 'cb' ? 9.2 : 8.6) * (I.b ? 1.25 : 1) * (k === st.car ? .95 : 1) * (blocked ? .3 : 1);      // the offensive line holds the rush for a couple of seconds
+            const ox = p.x, oy = p.y; p.x = clamp(p.x + mx / ml * sp * dt, 0, 120); p.y = clamp(p.y + my / ml * sp * dt, .5, 52.5); p.vx = (p.x - ox) / dt; p.vy = (p.y - oy) / dt;
+        });
+        // a pass in the air
+        if (B.fly) {
+            const F = B.fly; F.t += dt; const u = Math.min(1, F.t / F.dur); B.x = lerp(F.x0, F.x1, u); B.y = lerp(F.y0, F.y1, u); B.z = Math.sin(u * Math.PI) * F.h;
+            if (u >= 1) {
+                B.fly = null; let best = null, bd = 3, dbest = null, dd0 = 1.3;      // receivers reach 3 m for the ball; a defender has to be right on it to pick it off
+                for (const [k, p] of st.pl.entries()) { if (k === 0) continue; const dd = hyp(p.x - B.x, p.y - B.y); if (p.s === o && dd < bd) { bd = dd; best = k; } if (p.s !== o && dd < dd0) { dd0 = dd; dbest = k; } }
+                if (dbest !== null && (best === null || dd0 < bd * .6)) best = dbest;
+                if (best === null) { ev(st, 'blip', 'Incomplete'); return this.endPlay(st, this.X(st, st.los), 'Incomplete'); }
+                if (st.pl[best].s !== o) { ev(st, 'lose', 'INTERCEPTED!'); const x = st.pl[best].x; return this.turnover(st, false, o === 0 ? x - 10 : 110 - x); }
+                st.car = best; ev(st, 'hit', 'Caught!');
+            }
+            return;
+        }
+        const car = st.pl[st.car]; B.x = car.x; B.y = car.y; B.z = 0;
+        // throw
+        const I = inp[o] || blankIn();
+        if (st.car === 0 && I.ap && st.t > .3) {
+            const ax = qb.ax || d, ay = qb.ay || 0, a = Math.atan2(ay, ax);
+            let best = null, bs = 1e9; for (const k of [1, 2]) { const p = st.pl[k], ang = Math.abs(Math.atan2(p.y - qb.y, p.x - qb.x) - a), s = Math.min(ang, TAU - ang); if (s < bs) { bs = s; best = p; } }
+            const D = hyp(best.x - qb.x, best.y - qb.y), T = .35 + D / 30, lx = clamp(best.x + (best.vx || d * 9) * T * .8, 1, 119), ly = clamp(best.y + (best.vy || 0) * T * .6, 3, 50);      // lead the receiver, but keep it on the field
+            B.fly = { x0: qb.x, y0: qb.y, x1: lx + rnd(-1.5, 1.5), y1: ly + rnd(-1.5, 1.5), t: 0, dur: T, h: 2 + D * .08 }; st.car = -1; ev(st, 'blip'); return;
+        }
+        // tackles and the touchdown
+        for (const [k, p] of st.pl.entries()) if (p.s !== o && hyp(p.x - car.x, p.y - car.y) < 1.4) { if (st.car === 0 && car.x * d < this.X(st, st.los) * d) ev(st, 'lose', 'SACKED!'); return this.endPlay(st, car.x, 'Tackled'); }
+        const yd = o === 0 ? car.x - 10 : 110 - car.x; if (yd >= 100) return this.endPlay(st, car.x);
+        if (car.y <= .6 || car.y >= 52.4) return this.endPlay(st, car.x, 'Out of bounds');
+        if (st.t > 12) return this.endPlay(st, car.x, 'Whistle');
+    },
+    // receivers run routes, defenders cover them or rush; the linebacker (bot) chases the carrier
+    ai(st, p, k) {
+        const d = this.dirOf(st), car = st.pl[st.car] || st.pl[0], B = st.ball, skill = [.75, .9, 1][st.diff];
+        if (p.r === 'wr') {
+            if (st.car === k) return [d, 0];
+            if (B.fly) return [B.fly.x1 - p.x, B.fly.y1 - p.y];
+            const t = st.t; if (p.rt === 1) return t < 1.6 ? [d, 0] : [d * .3, (p.y < 26.5 ? 1 : -1)]; return t < 1.2 ? [d, 0] : t < 2.4 ? [d * .2, (p.y < 26.5 ? -1 : 1) * .6] : [d, 0];
+        }
+        if (p.r === 'cb') { const m = st.pl[k === 4 ? 1 : 2]; const tx = B.fly ? B.fly.x1 : st.car > 0 ? car.x : m.x + d * 1.5, ty = B.fly ? B.fly.y1 : st.car > 0 ? car.y : m.y; return [(tx - p.x) * skill, ty - p.y]; }
+        return [car.x - p.x, car.y - p.y];
+    },
+    bot(st, i, dt) {
+        const I = blankIn(), o = st.off, d = this.dirOf(st);
+        if (i === o) {
+            if (st.ph === 'pre') { st.bt = (st.bt || 0) + dt; if (st.bt > .8) { st.bt = 0; I.a = 1; } return I; }
+            const qb = st.pl[0];
+            if (st.car === 0) {
+                const sep = r => Math.min(...[4, 5, 3].map(c => hyp(st.pl[c].x - r.x, st.pl[c].y - r.y))), rs = [1, 2].map(k => st.pl[k]).filter(r => (r.x - qb.x) * d > 2).sort((a, b) => sep(b) - sep(a));
+                const open = rs.find(r => sep(r) > 3) || (st.t > 1.7 ? rs[0] : null);      // the most open receiver; after a moment, the best one even if covered
+                const press = hyp(st.pl[3].x - qb.x, st.pl[3].y - qb.y) < 4;
+                if (open && st.t > .9) { I[open.y < qb.y ? 'u' : 'd'] = 1; I[d > 0 ? 'r' : 'l'] = 1; I.a = st.t > 1.1 ? 1 : 0; }
+                else if (press || st.t > 3.5) { I[d > 0 ? 'r' : 'l'] = 1; I[qb.y < st.pl[3].y ? 'u' : 'd'] = 1; I.b = 1; }
+                else I[d > 0 ? 'l' : 'r'] = st.t < .6 ? 1 : 0;
+            }
+        } else {
+            const lb = st.pl[3], car = st.pl[st.car] || st.pl[0], skill = [.6, .85, 1][st.diff];
+            const tx = st.ball.fly ? st.ball.fly.x1 : car.x, ty = st.ball.fly ? st.ball.fly.y1 : car.y;
+            if (Math.abs(tx - lb.x) > .4) I[tx > lb.x ? 'r' : 'l'] = 1; if (Math.abs(ty - lb.y) > .4) I[ty > lb.y ? 'd' : 'u'] = 1; I.b = Math.random() < skill ? 1 : 0;
+        }
+        return I;
+    },
+    draw(g, st) {
+        for (let i = 0; i < 12; i++) { g.fillStyle = i % 2 ? '#3f8f3a' : '#479e41'; g.fillRect(i * 10, 0, 10, 53); }
+        g.fillStyle = 'rgba(59,130,246,.45)'; g.fillRect(0, 0, 10, 53); g.fillStyle = 'rgba(239,68,68,.45)'; g.fillRect(110, 0, 10, 53);
+        g.font = 'bold 2.4px system-ui'; g.textAlign = 'center'; g.fillStyle = 'rgba(255,255,255,.55)';
+        for (let yd = 10; yd < 100; yd += 10) { line(g, 10 + yd, 0, 10 + yd, 53, 'rgba(255,255,255,.7)', .2); g.fillText(String(yd <= 50 ? yd : 100 - yd), 10 + yd, 6); g.fillText(String(yd <= 50 ? yd : 100 - yd), 10 + yd, 49); }
+        line(g, 10, 0, 10, 53, '#fff', .3); line(g, 110, 0, 110, 53, '#fff', .3);
+        line(g, this.X(st, st.los), 0, this.X(st, st.los), 53, '#60a5fa', .35); line(g, this.X(st, Math.min(100, st.first)), 0, this.X(st, Math.min(100, st.first)), 53, '#fde047', .35);
+        st.pl.forEach((p, k) => person(g, p.x, p.y, .9, colOf(p.s), p.s === st.off ? (this.dirOf(st) > 0 ? 0 : Math.PI) : (this.dirOf(st) > 0 ? Math.PI : 0), k === 0 || k === 3 ? nameOf(p.s) : ''));
+        const B = st.ball; if (B) { shadow(g, B.x, B.y, .4, .3); g.save(); g.translate(B.x, B.y - (B.z || 0) * .5); g.rotate(SM.t * (B.fly ? 10 : 0)); g.fillStyle = '#8b4513'; g.beginPath(); g.ellipse(0, 0, .65, .4, 0, 0, TAU); g.fill(); g.restore(); }
+        if (st.ph === 'pre') { g.font = 'bold 2.6px system-ui'; g.fillStyle = '#fff'; g.fillText(nameOf(st.off) + ': SPACE to snap', 60, 27); }
+    },
+    hud(st) { const D = ['', '1st', '2nd', '3rd', '4th'][st.down]; return `<span style="color:${colOf(0)}">${esc(nameOf(0))}</span><b>${st.sc[0]} - ${st.sc[1]}</b><span style="color:${colOf(1)}">${esc(nameOf(1))}</span><em>${D} & ${Math.max(1, st.first - st.los)} · ball on ${st.los <= 50 ? 'own ' + st.los : 'their ' + (100 - st.los)} · drive ${Math.min(4, st.drives[st.off] + 1)}/4 ${esc(nameOf(st.off))}</em>`; },
+    over(st) { if (st.drives[0] >= 4 && st.drives[1] >= 4) { const [a, b] = st.sc; return { win: a > b ? 0 : b > a ? 1 : -1, text: a + ' - ' + b }; } return null; }
+};
+
+// ---- 70-bowling.js ----
+// ==========================================
+// BOWLING: 10 frames, real scoring (strikes, spares, 10th-frame bonus balls), up to 4 players taking turns.
+// Left / right to stand, SPACE to start the aim (the arrow swings), SPACE to lock it, SPACE again to lock the power.
+// Hold left or right while the ball rolls to hook it. Pins knock each other over (circle physics); gutters are gutters.
+// Lane 1.06 m wide, 18.3 m to the head pin; drawn top-down, foul line at the bottom.
+// ==========================================
+SPORTS.bowling = {
+    n: 'Bowling', ic: '🎳', sub: '10 frames, up to 4', desc: 'Pick your spot, lock the angle and the power, hook it with left or right as it rolls. Real scoring with strikes and spares.',
+    max: 4, turns: true, W: 6, H: 22, bg: '#111827', keys: '←/→ move · SPACE aim, SPACE angle, SPACE power · hold ←/→ while rolling to hook',
+    LW: 1.06, LX: 2.47, PY: 2.2, BR: .109, PR: .06,
+    pins0() { const P = [], s = .305; let k = 0; for (let r = 0; r < 4; r++) for (let c = 0; c <= r; c++) P.push({ x: this.LX + this.LW / 2 + (c - r / 2) * s, y: this.PY - r * s * .866, vx: 0, vy: 0, up: 1 }); return P; },
+    init(P, o) { return { n: P.length, cur: 0, fr: P.map(() => []), frame: 0, roll: 0, ph: 'pos', bx: this.LX + this.LW / 2, aim: 0, pow: 0, osc: 0, ball: null, pins: this.pins0(), settle: 0, diff: o.diff, wait: .8, standing: 10 }; },
+    step(st, dt, inp) {
+        if (st.wait > 0) { st.wait -= dt; return; }
+        const I = inp[st.cur] || blankIn(), C = this;
+        if (st.ph === 'pos') { st.bx = clamp(st.bx + (I.r - I.l) * dt * .8, C.LX + .15, C.LX + C.LW - .15); if (I.ap) { st.ph = 'aim'; st.osc = 0; } }
+        else if (st.ph === 'aim') { st.osc += dt * 2.2; st.aim = Math.sin(st.osc) * .09; if (I.ap) { st.ph = 'pow'; st.osc = 0; } }
+        else if (st.ph === 'pow') { st.osc += dt * 1.8; st.pow = (1 - Math.cos(st.osc)) / 2; if (I.ap) { const v = 6 + st.pow * 4.5; st.ball = { x: st.bx, y: 20.5, vx: Math.sin(st.aim) * v, vy: -Math.cos(st.aim) * v, gut: false }; st.ph = 'roll'; st.settle = 0; ev(st, 'blip'); } }
+        else if (st.ph === 'roll') {
+            const b = st.ball;
+            if (b && !b.gut) { b.vx += (I.r - I.l) * dt * .55 * (b.y < 12 ? 1.3 : .6); if (b.x < C.LX + C.BR || b.x > C.LX + C.LW - C.BR) { b.gut = true; b.x = b.x < C.LX + .5 ? C.LX - .09 : C.LX + C.LW + .09; b.vx = 0; ev(st, 'blip', 'Gutter!'); } }
+            const sub = 4, h = dt / sub;
+            for (let s = 0; s < sub; s++) {
+                if (b) { b.x += b.vx * h; b.y += b.vy * h; }
+                for (const p of st.pins) { if (!p.on && p.on !== undefined) continue; p.x += p.vx * h; p.y += p.vy * h; const f = Math.exp(-3 * h); p.vx *= f; p.vy *= f; }
+                if (b && !b.gut) for (const p of st.pins) this.collide(b, p, C.BR + C.PR, 7.3, 1.5, st);
+                for (let a = 0; a < 10; a++) for (let c = a + 1; c < 10; c++) this.collide(st.pins[a], st.pins[c], C.PR * 2, 1.5, 1.5, st);
+            }
+            for (const p of st.pins) { if (p.up && (hyp(p.vx, p.vy) > .25 || p.hit)) { p.up = 0; } if (p.x < C.LX - .05 || p.x > C.LX + C.LW + .05) p.up = 0; }
+            if (b && b.y < -.6) st.ball = null;
+            st.settle += dt;
+            if ((!st.ball || st.settle > 6) && st.pins.every(p => hyp(p.vx, p.vy) < .05) || st.settle > 7) this.scoreRoll(st);
+        }
+    },
+    collide(a, b, R, ma, mb, st) {
+        const dx = b.x - a.x, dy = b.y - a.y, d = hyp(dx, dy); if (d >= R || d === 0) return;
+        const nx = dx / d, ny = dy / d, o = R - d; a.x -= nx * o * mb / (ma + mb); a.y -= ny * o * mb / (ma + mb); b.x += nx * o * ma / (ma + mb); b.y += ny * o * ma / (ma + mb);
+        const rv = (b.vx - a.vx) * nx + (b.vy - a.vy) * ny; if (rv > 0) return;
+        const j = -(1 + .6) * rv / (1 / ma + 1 / mb); a.vx -= j * nx / ma; a.vy -= j * ny / ma; b.vx += j * nx / mb; b.vy += j * ny / mb;
+        if (b.up !== undefined) b.hit = 1; if (a.up !== undefined) a.hit = 1; if (st && Math.abs(rv) > 1) ev(st, 'hit');
+    },
+    scoreRoll(st) {
+        const down = st.pins.filter(p => !p.up && !p.gone).length, F = st.fr[st.cur][st.frame] = st.fr[st.cur][st.frame] || [];
+        F.push(down); st.pins.forEach(p => { if (!p.up) p.gone = 1; });
+        const tenth = st.frame === 9, first = F.length === 1;
+        let next = false;
+        if (!tenth) { if (F[0] === 10) { ev(st, 'score', 'STRIKE!'); next = true; } else if (F.length === 2) { if (F[0] + F[1] === 10) ev(st, 'score', 'Spare!'); next = true; } }
+        else {
+            if (F[0] === 10 && F.length === 1) ev(st, 'score', 'STRIKE!');
+            const tot = F.reduce((a, b) => a + b, 0);
+            if (F.length === 3 || (F.length === 2 && F[0] + F[1] < 10)) next = true;
+            if (F.length === 2 && F[0] + F[1] === 10 && F[0] !== 10) ev(st, 'score', 'Spare!');
+            if (F.length >= 1 && (F.length === 1 ? F[0] === 10 : F.length === 2 && (F[0] === 10 ? F[1] === 10 : F[0] + F[1] === 10))) { st.pins = this.pins0(); }
+        }
+        st.ball = null; st.ph = 'pos'; st.bx = this.LX + this.LW / 2; st.wait = 1.1;
+        if (next) { st.pins = this.pins0(); st.cur++; if (st.cur >= st.n) { st.cur = 0; st.frame++; } }
+        else { st.pins = st.pins.map(p => p.gone && !(tenth && st.pins.every(q => q.gone)) ? Object.assign(p, { x: -10, y: -10, vx: 0, vy: 0 }) : Object.assign(p, { vx: 0, vy: 0, hit: 0 })); }
+        st.pins.forEach(p => { p.hit = 0; });
+    },
+    total(rolls) {      // standard scoring from a list of frames
+        const r = []; rolls.forEach(f => r.push(...f)); let s = 0, i = 0; const out = [];
+        for (let f = 0; f < 10 && i < r.length; f++) {
+            if (r[i] === 10) { if (r[i + 2] === undefined) break; s += 10 + r[i + 1] + r[i + 2]; i++; }
+            else if (r[i + 1] === undefined) break; else if (r[i] + r[i + 1] === 10) { if (r[i + 2] === undefined) break; s += 10 + r[i + 2]; i += 2; } else { s += r[i] + r[i + 1]; i += 2; }
+            out.push(s);
+        }
+        return out;
+    },
+    bot(st, i, dt) {
+        const I = blankIn(); if (st.cur !== i) return I; const skill = [.55, .78, .93][st.diff];
+        st.bot = st.bot || {}; const B = st.bot;
+        if (st.ph === 'pos') { B.spot = B.spot ?? this.LX + this.LW / 2 + .12 + rnd(-.1, .1) * (1 - skill); if (Math.abs(st.bx - B.spot) > .02) I[B.spot > st.bx ? 'r' : 'l'] = 1; else I.a = 1; }
+        else if (st.ph === 'aim') { if (Math.abs(st.aim + .012) < .02 * (1.3 - skill) && st.osc > .5) I.a = 1; }
+        else if (st.ph === 'pow') { if (st.pow > .72 + rnd(-.1, .1) && st.osc > .3) I.a = 1; }
+        else if (st.ph === 'roll' && st.ball && st.ball.y < 13 && st.ball.x > this.LX + this.LW / 2 + .02) I.l = Math.random() < skill ? 1 : 0;
+        if (st.ph !== 'pos') B.spot = null;
+        return I;
+    },
+    draw(g, st) {
+        const C = this; g.fillStyle = '#1f2937'; g.fillRect(0, 0, 6, 22);
+        g.fillStyle = '#374151'; g.fillRect(C.LX - .2, 0, .18, 21); g.fillRect(C.LX + C.LW + .02, 0, .18, 21);
+        const gr = g.createLinearGradient(C.LX, 0, C.LX + C.LW, 0); gr.addColorStop(0, '#d9a066'); gr.addColorStop(.5, '#e8b77c'); gr.addColorStop(1, '#d9a066'); g.fillStyle = gr; g.fillRect(C.LX, 0, C.LW, 21);
+        for (let x = C.LX; x < C.LX + C.LW; x += .027 * 4) line(g, x, 0, x, 21, 'rgba(120,70,30,.12)', .006);
+        line(g, C.LX, 20.2, C.LX + C.LW, 20.2, '#7f1d1d', .03);
+        for (let k = 0; k < 7; k++) { const x = C.LX + C.LW * (k + 1) / 8, y = 15; g.fillStyle = '#7c2d12'; g.beginPath(); g.moveTo(x, y - .12); g.lineTo(x + .03, y); g.lineTo(x - .03, y); g.fill(); }
+        for (const p of st.pins) { if (p.x < 0) continue; if (p.up) { shadow(g, p.x, p.y, C.PR, .3); circ(g, p.x, p.y, C.PR, '#f8fafc', '#dc2626', .012); } else { g.save(); g.translate(p.x, p.y); g.rotate(Math.atan2(p.vy || .1, p.vx || .1)); g.fillStyle = 'rgba(248,250,252,.85)'; g.fillRect(-.19, -.05, .38, .1); g.restore(); } }
+        const b = st.ball, bx = b ? b.x : st.bx, by = b ? b.y : 20.5;
+        shadow(g, bx, by, C.BR, .35); circ(g, bx, by, C.BR, colOf(st.cur), '#111', .015);
+        if (st.ph === 'aim' || st.ph === 'pow') { line(g, st.bx, 20.4, st.bx + Math.sin(st.aim) * 4, 20.4 - Math.cos(st.aim) * 4, 'rgba(253,224,71,.9)', .04); }
+        if (st.ph === 'pow') { g.fillStyle = 'rgba(0,0,0,.6)'; g.fillRect(4.3, 14, .35, 6); g.fillStyle = st.pow > .8 ? '#ef4444' : '#22c55e'; g.fillRect(4.3, 20 - 6 * st.pow, .35, 6 * st.pow); }
+        g.font = 'bold .55px system-ui'; g.textAlign = 'center'; g.fillStyle = '#fff';
+        if (st.ph !== 'roll') g.fillText(nameOf(st.cur) + ': ' + { pos: '←/→ to stand, SPACE to aim', aim: 'SPACE to lock the angle', pow: 'SPACE to lock the power' }[st.ph], 3, 21.6);
+    },
+    hud(st) {
+        const rows = SM.P.map((p, i) => { const fr = st.fr[i] || [], tot = this.total(fr); const cell = f => { const F = fr[f]; if (!F) return ''; return F.map((v, k) => v === 10 && (f === 9 || k === 0) ? 'X' : k > 0 && f < 9 && F[k - 1] + v === 10 ? '/' : k === 1 && f === 9 && F[0] !== 10 && F[0] + v === 10 ? '/' : v === 0 ? '-' : v).join(' '); };
+            return `<tr class="${i === st.cur ? 'cur' : ''}"><th style="color:${p.col}">${esc(nameOf(i))}</th>${Array.from({ length: 10 }, (_, f) => `<td><small>${cell(f)}</small><b>${tot[f] ?? ''}</b></td>`).join('')}</tr>`; }).join('');
+        return `<table class="sm-score">${rows}</table>`;
+    },
+    over(st) {
+        if (st.frame < 10) return null;
+        const t = SM.P.map((p, i) => { const a = this.total(st.fr[i] || []); return a[a.length - 1] || 0; }), best = Math.max(...t), w = t.filter(x => x === best).length > 1 ? -1 : t.indexOf(best);
+        return { win: w, text: SM.P.map((p, i) => esc(nameOf(i)) + ' ' + t[i]).join(' · '), best: { bowling: t } };
+    }
+};
+
+// ---- 80-golf.js ----
+// ==========================================
+// GOLF, two ways (pick in the options): MINI GOLF, 9 holes with walls, bumpers and a windmill; REGULAR GOLF, 6 holes
+// with fairway, rough, sand, water, trees and wind, and four clubs. Players take turns, lowest total wins.
+// Left / right aims, up / down picks the club (regular golf), SPACE starts the swing, SPACE again sets the power.
+// Water costs a stroke (the ball comes back); a hole stops at 8 strokes (mini) or 10 (regular).
+// ==========================================
+const MINI = [      // world 40 x 26. walls: [x1,y1,x2,y2]; bump: [x,y,r]; mill: [x,y] (a turning blade)
+    { par: 2, tee: [6, 13], cup: [34, 13], walls: [] },
+    { par: 2, tee: [6, 6], cup: [34, 20], walls: [[20, 0, 20, 17]] },
+    { par: 3, tee: [6, 20], cup: [34, 20], walls: [[14, 8, 14, 26], [26, 0, 26, 18]] },
+    { par: 2, tee: [6, 13], cup: [34, 13], walls: [], bump: [[20, 13, 2.2], [27, 8, 1.6], [27, 18, 1.6]] },
+    { par: 3, tee: [5, 5], cup: [35, 21], walls: [[12, 0, 12, 18], [20, 8, 20, 26], [28, 0, 28, 18]] },
+    { par: 2, tee: [6, 13], cup: [34, 13], walls: [[18, 0, 18, 9], [18, 17, 18, 26]], mill: [18, 13] },
+    { par: 3, tee: [20, 22], cup: [20, 4], walls: [[8, 13, 32, 13]], bump: [[4, 13, 1.5], [36, 13, 1.5]] },
+    { par: 2, tee: [6, 20], cup: [34, 6], walls: [[0, 9, 26, 9], [14, 17, 40, 17]] },
+    { par: 3, tee: [6, 13], cup: [36, 13], walls: [[14, 4, 14, 22], [24, 0, 24, 9], [24, 17, 24, 26]], bump: [[30, 13, 1.8]], mill: [19, 13] }
+];
+// regular golf: world 300 x 130 metres (scaled), features [kind, x, y, rx, ry]: fair (fairway ellipse), sand, water, green, tree
+const LINKS = [
+    { par: 4, tee: [20, 65], cup: [262, 60], f: [['fair', 140, 65, 125, 28], ['sand', 210, 92, 12, 8], ['water', 120, 25, 22, 12], ['green', 262, 60, 16, 13], ['tree', 80, 100, 7], ['tree', 180, 30, 8]] },
+    { par: 3, tee: [30, 70], cup: [190, 60], f: [['water', 110, 65, 30, 50], ['green', 190, 60, 16, 14], ['sand', 210, 75, 8, 6], ['sand', 172, 44, 8, 6]] },
+    { par: 5, tee: [15, 110], cup: [282, 22], f: [['fair', 90, 95, 75, 22], ['fair', 200, 45, 90, 22], ['water', 150, 80, 18, 18], ['sand', 255, 35, 10, 7], ['green', 282, 22, 14, 12], ['tree', 130, 40, 9], ['tree', 60, 60, 8], ['tree', 230, 95, 9]] },
+    { par: 4, tee: [20, 20], cup: [250, 100], f: [['fair', 120, 55, 110, 25], ['sand', 160, 80, 12, 7], ['sand', 230, 80, 9, 6], ['green', 250, 100, 15, 13], ['tree', 200, 40, 10], ['water', 90, 105, 30, 12]] },
+    { par: 3, tee: [40, 65], cup: [210, 65], f: [['fair', 150, 65, 45, 18], ['sand', 195, 50, 9, 6], ['sand', 195, 80, 9, 6], ['green', 210, 65, 15, 12], ['water', 230, 65, 6, 40]] },
+    { par: 4, tee: [20, 65], cup: [270, 65], f: [['fair', 150, 65, 130, 24], ['water', 160, 65, 14, 30], ['tree', 220, 40, 8], ['tree', 220, 92, 8], ['sand', 255, 50, 8, 6], ['green', 270, 65, 15, 13]] }
+];
+const CLUBS = [{ n: 'Driver', d: 230 }, { n: '5 iron', d: 165 }, { n: 'Wedge', d: 95 }, { n: 'Putter', d: 30 }];
+SPORTS.golf = {
+    n: 'Golf', ic: '⛳', sub: 'Mini golf or the real thing', desc: 'Mini golf: 9 holes with walls, bumpers and windmills. Regular golf: 6 holes with fairways, sand, water, trees, wind and four clubs. Lowest score wins.',
+    max: 4, turns: true, keys: '←/→ aim · ↑/↓ club (regular golf) · SPACE swing, SPACE power', defOpts: { mode: 'mini' }, optList: [['mode', 'Course', [['mini', 'Mini golf'], ['links', 'Regular golf']]]],
+    get W() { return SM.st && SM.st.mode === 'links' ? 300 : 40; }, get H() { return SM.st && SM.st.mode === 'links' ? 130 : 26; }, bg: '#0f2a18',
+    init(P, o) { const st = { mode: o.mode || 'mini', n: P.length, hole: 0, cur: 0, strokes: P.map(() => []), diff: o.diff, ph: 'aim', ang: 0, pow: 0, osc: 0, club: 0, ball: null, pos: [], done: [], wind: [0, 0], wait: .8, mill: 0 }; this.startHole(st); return st; },
+    holes(st) { return st.mode === 'links' ? LINKS : MINI; },
+    startHole(st) {
+        const H = this.holes(st)[st.hole]; st.pos = SM.P.map(() => ({ x: H.tee[0], y: H.tee[1], lie: 'tee' })); st.done = SM.P.map(() => false); st.strokes.forEach(s => s[st.hole] = 0);
+        st.cur = 0; st.ph = 'aim'; st.ball = null; st.wind = st.mode === 'links' ? [rnd(-1, 1) * 6, rnd(-1, 1) * 4] : [0, 0]; this.aimAt(st); st.wait = 1;
+        ev(st, 'whistle', 'Hole ' + (st.hole + 1) + ' · par ' + H.par);
+    },
+    aimAt(st) { const H = this.holes(st)[st.hole], p = st.pos[st.cur]; st.ang = angTo(p.x, p.y, H.cup[0], H.cup[1]); st.club = st.mode === 'links' ? this.pickClub(st) : 3; },
+    pickClub(st) { const H = this.holes(st)[st.hole], p = st.pos[st.cur], D = hyp(H.cup[0] - p.x, H.cup[1] - p.y); if (p.lie === 'green' || D < 25) return 3; return D > 180 ? 0 : D > 110 ? 1 : 2; },
+    lieAt(st, x, y) {
+        const H = this.holes(st)[st.hole]; let lie = 'rough';
+        for (const f of H.f || []) { const [k, fx, fy, rx, ry] = f; const inside = k === 'tree' ? hyp(x - fx, y - fy) < rx : ((x - fx) / rx) ** 2 + ((y - fy) / ry) ** 2 < 1; if (inside && k !== 'tree') lie = k; }
+        if (x < 0 || x > 300 || y < 0 || y > 130) lie = 'out';
+        return lie;
+    },
+    step(st, dt, inp) {
+        st.mill += dt;
+        if (st.wait > 0) { st.wait -= dt; return; }
+        const I = inp[st.cur] || blankIn(), H = this.holes(st)[st.hole], links = st.mode === 'links';
+        if (st.ph === 'aim') {
+            st.ang += (I.r - I.l) * dt * (links && st.club < 3 ? .5 : 1.1);
+            if (links) { if (I.up) st.club = Math.max(0, st.club - 1); if (I.dp) st.club = Math.min(3, st.club + 1); }
+            if (I.ap) { st.ph = 'pow'; st.osc = 0; }
+        } else if (st.ph === 'pow') {
+            st.osc += dt * 1.6; st.pow = (1 - Math.cos(st.osc)) / 2;
+            if (I.ap) this.shoot(st);
+        } else if (st.ph === 'roll') this.roll(st, dt);
+    },
+    shoot(st) {
+        const p = st.pos[st.cur], links = st.mode === 'links'; st.strokes[st.cur][st.hole]++; ev(st, 'hit');
+        if (!links) { const v = 4 + st.pow * 26; st.ball = { x: p.x, y: p.y, vx: Math.cos(st.ang) * v, vy: Math.sin(st.ang) * v, z: 0, vz: 0, air: false }; }
+        else {
+            const C = CLUBS[st.club], lieK = { tee: 1, fair: 1, green: 1, rough: .8, sand: .55 }[p.lie] || .8, D = C.d * st.pow * lieK * (st.club === 3 ? 1 : rnd(.94, 1.04));
+            if (st.club === 3) { const v = 3 + st.pow * 26; st.ball = { x: p.x, y: p.y, vx: Math.cos(st.ang) * v, vy: Math.sin(st.ang) * v, z: 0, vz: 0, air: false }; }
+            else { const T = 1.2 + D / 120, wx = st.wind[0] * T * .6, wy = st.wind[1] * T * .6, a = st.ang + rnd(-1, 1) * (st.pow > .92 ? .08 : .02); st.ball = { x: p.x, y: p.y, fx: p.x + Math.cos(a) * D + wx, fy: p.y + Math.sin(a) * D + wy, t: 0, T, air: true, x0: p.x, y0: p.y, roll: D * .12 }; }
+        }
+        st.ph = 'roll';
+    },
+    roll(st, dt) {
+        const b = st.ball, H = this.holes(st)[st.hole], links = st.mode === 'links';
+        if (b.air) {      // regular golf: a flight, then a short roll
+            b.t += dt; const u = Math.min(1, b.t / b.T); b.x = lerp(b.x0, b.fx, u); b.y = lerp(b.y0, b.fy, u); b.z = Math.sin(u * Math.PI) * (12 + b.T * 6);
+            if (u >= 1) { const lie = this.lieAt(st, b.x, b.y), a = Math.atan2(b.fy - b.y0, b.fx - b.x0), k = lie === 'fair' || lie === 'green' ? 1 : lie === 'rough' ? .4 : 0; b.air = false; b.z = 0; b.vx = Math.cos(a) * b.roll * k; b.vy = Math.sin(a) * b.roll * k; for (const f of H.f) if (f[0] === 'tree' && hyp(b.x - f[1], b.y - f[2]) < f[3]) { b.vx *= -.2; b.vy *= -.2; ev(st, 'hit', 'Off the trees!'); } }
+            return;
+        }
+        const lie = links ? this.lieAt(st, b.x, b.y) : 'mini', fr = { mini: 1.1, green: .9, fair: 2.2, rough: 4, sand: 8, tee: 2.2, water: 9, out: 9 }[lie] || 2;
+        const sub = 3, h = dt / sub;
+        for (let s = 0; s < sub; s++) {
+            b.x += b.vx * h; b.y += b.vy * h; const f = Math.exp(-fr * h); b.vx *= f; b.vy *= f;
+            if (!links) this.miniCollide(st, b);
+            const d = hyp(b.x - H.cup[0], b.y - H.cup[1]), sp = hyp(b.vx, b.vy);
+            if (d < (links ? 1.2 : .55) && sp < (links ? 9 : 11)) { this.holed(st); return; }
+        }
+        if (hyp(b.vx, b.vy) < .25) this.stopped(st);
+    },
+    miniCollide(st, b) {
+        const H = this.holes(st)[st.hole], R = .35, walls = H.walls.concat([[0, 0, 40, 0], [40, 0, 40, 26], [40, 26, 0, 26], [0, 26, 0, 0]]);
+        if (H.mill) { const a = st.mill * 1.6; walls.push([H.mill[0] + Math.cos(a) * 4, H.mill[1] + Math.sin(a) * 4, H.mill[0] - Math.cos(a) * 4, H.mill[1] - Math.sin(a) * 4]); }
+        for (const [x1, y1, x2, y2] of walls) {
+            const dx = x2 - x1, dy = y2 - y1, L2 = dx * dx + dy * dy, t = clamp(((b.x - x1) * dx + (b.y - y1) * dy) / L2, 0, 1), px = x1 + dx * t, py = y1 + dy * t, d = hyp(b.x - px, b.y - py);
+            if (d < R) { const nx = (b.x - px) / (d || 1), ny = (b.y - py) / (d || 1), vn = b.vx * nx + b.vy * ny; b.x = px + nx * R; b.y = py + ny * R; if (vn < 0) { b.vx -= 1.85 * vn * nx; b.vy -= 1.85 * vn * ny; if (vn < -3) ev(st, 'blip'); } }
+        }
+        for (const [x, y, r] of H.bump || []) { const d = hyp(b.x - x, b.y - y); if (d < r + R) { const nx = (b.x - x) / d, ny = (b.y - y) / d, vn = b.vx * nx + b.vy * ny; b.x = x + nx * (r + R); b.y = y + ny * (r + R); if (vn < 0) { b.vx -= 2.3 * vn * nx; b.vy -= 2.3 * vn * ny; ev(st, 'hit'); } } }
+    },
+    holed(st) {
+        const H = this.holes(st)[st.hole], n = st.strokes[st.cur][st.hole], d = n - H.par;
+        ev(st, 'score', n === 1 ? 'HOLE IN ONE!' : d <= -2 ? 'Eagle!' : d === -1 ? 'Birdie!' : d === 0 ? 'Par' : d === 1 ? 'Bogey' : '+' + d);
+        st.done[st.cur] = true; st.pos[st.cur] = { x: H.cup[0], y: H.cup[1], lie: 'cup' }; st.ball = null; this.next(st);
+    },
+    stopped(st) {
+        const b = st.ball, links = st.mode === 'links', p = st.pos[st.cur]; let lie = links ? this.lieAt(st, b.x, b.y) : 'mini';
+        if (lie === 'water' || lie === 'out') { st.strokes[st.cur][st.hole]++; ev(st, 'lose', lie === 'water' ? 'Splash! +1 stroke' : 'Out of bounds! +1'); }
+        else st.pos[st.cur] = { x: b.x, y: b.y, lie: links ? lie : 'mini' };
+        const max = links ? 10 : 8; if (st.strokes[st.cur][st.hole] >= max) { st.done[st.cur] = true; ev(st, 'blip', 'Picked up'); }
+        st.ball = null; this.next(st);
+    },
+    next(st) {
+        // whoever is furthest from the cup and not done goes next
+        const H = this.holes(st)[st.hole]; let best = -1, bd = -1;
+        st.pos.forEach((p, i) => { if (st.done[i]) return; const d = hyp(p.x - H.cup[0], p.y - H.cup[1]); if (d > bd) { bd = d; best = i; } });
+        st.wait = .9;
+        if (best < 0) { st.hole++; if (st.hole < this.holes(st).length) this.startHole(st); return; }
+        st.cur = best; st.ph = 'aim'; this.aimAt(st);
+    },
+    bot(st, i, dt) {
+        const I = blankIn(); if (st.cur !== i || st.wait > 0) return I;
+        const H = this.holes(st)[st.hole], p = st.pos[i], skill = [.6, .8, .95][st.diff], links = st.mode === 'links';
+        st.bt = st.bt || {}; const B = st.bt;
+        if (st.ph === 'aim') {
+            if (B.key !== st.hole * 100 + st.strokes[i][st.hole]) { B.key = st.hole * 100 + st.strokes[i][st.hole]; B.t = 0; B.tgt = this.botAim(st, p, H) + rnd(-1, 1) * .08 * (1.1 - skill); B.pw = this.botPow(st, p, H) * rnd(1 - .12 * (1.1 - skill), 1 + .12 * (1.1 - skill)); }
+            const d = Math.atan2(Math.sin(B.tgt - st.ang), Math.cos(B.tgt - st.ang)); if (Math.abs(d) > .02) I[d > 0 ? 'r' : 'l'] = 1; else if ((B.t += dt) > .4) I.a = 1;
+        } else if (st.ph === 'pow') { if (st.pow >= clamp(B.pw, .05, .98) && st.osc < Math.PI) I.a = 1; }
+        return I;
+    },
+    botAim(st, p, H) {
+        if (st.mode === 'links') return angTo(p.x, p.y, H.cup[0] - st.wind[0] * .5, H.cup[1] - st.wind[1] * .5);
+        // mini golf: aim straight if nothing is in the way, otherwise at a point beside the first wall (a gap) or off a wall
+        const direct = angTo(p.x, p.y, H.cup[0], H.cup[1]); if (!H.walls.some(w => this.cross(p, { x: H.cup[0], y: H.cup[1] }, w))) return direct;
+        const gaps = []; for (let x = 2; x < 40; x += 2) for (let y = 2; y < 26; y += 2) { const q = { x, y }; if (!H.walls.some(w => this.cross(p, q, w)) && !H.walls.some(w => this.cross(q, { x: H.cup[0], y: H.cup[1] }, w))) gaps.push(q); }
+        if (gaps.length) { gaps.sort((a, b) => (hyp(a.x - p.x, a.y - p.y) + hyp(a.x - H.cup[0], a.y - H.cup[1])) - (hyp(b.x - p.x, b.y - p.y) + hyp(b.x - H.cup[0], b.y - H.cup[1]))); p.via = gaps[0]; return angTo(p.x, p.y, gaps[0].x, gaps[0].y); }
+        p.via = null; return direct + rnd(-.6, .6);
+    },
+    botPow(st, p, H) {
+        if (st.mode === 'links') { if (st.club === 3) return clamp((hyp(H.cup[0] - p.x, H.cup[1] - p.y) * .9 * 1.12 - 3) / 26, .04, 1); return clamp(hyp(H.cup[0] - p.x, H.cup[1] - p.y) / CLUBS[st.club].d, .2, .95); }
+        const D = p.via ? hyp(p.via.x - p.x, p.via.y - p.y) + hyp(H.cup[0] - p.via.x, H.cup[1] - p.via.y) * .8 : hyp(H.cup[0] - p.x, H.cup[1] - p.y);
+        return clamp((D * 1.1 * 1.12 - 4) / 26, .03, 1);      // the ball rolls v / friction: aim a little past the cup
+    },
+    cross(a, b, w) { const [x1, y1, x2, y2] = w, d = (b.x - a.x) * (y2 - y1) - (b.y - a.y) * (x2 - x1); if (Math.abs(d) < 1e-6) return false; const t = ((x1 - a.x) * (y2 - y1) - (y1 - a.y) * (x2 - x1)) / d, u = ((x1 - a.x) * (b.y - a.y) - (y1 - a.y) * (b.x - a.x)) / d; return t > 0 && t < 1 && u > -0.05 && u < 1.05; },
+    draw(g, st) {
+        const H = this.holes(st)[st.hole], links = st.mode === 'links';
+        if (!H) return;
+        if (!links) {
+            g.fillStyle = '#16a34a'; g.fillRect(0, 0, 40, 26); for (let i = 0; i < 40; i += 2) { g.fillStyle = 'rgba(255,255,255,.04)'; g.fillRect(i, 0, 1, 26); }
+            g.strokeStyle = '#92400e'; g.lineWidth = .6; g.strokeRect(0, 0, 40, 26);
+            for (const [x1, y1, x2, y2] of H.walls) line(g, x1, y1, x2, y2, '#a16207', .6);
+            for (const [x, y, r] of H.bump || []) { circ(g, x, y, r, '#f472b6', '#9d174d', .25); }
+            if (H.mill) { const a = st.mill * 1.6; circ(g, H.mill[0], H.mill[1], 1.2, '#7c2d12'); line(g, H.mill[0] + Math.cos(a) * 4, H.mill[1] + Math.sin(a) * 4, H.mill[0] - Math.cos(a) * 4, H.mill[1] - Math.sin(a) * 4, '#f8fafc', .5); }
+        } else {
+            g.fillStyle = '#3f7d34'; g.fillRect(0, 0, 300, 130);
+            const order = ['fair', 'water', 'sand', 'green', 'tree'];
+            for (const k of order) for (const f of H.f.filter(x => x[0] === k)) { const [, x, y, rx, ry] = f;
+                if (k === 'tree') { shadow(g, x, y, rx, .3); circ(g, x, y, rx, '#14532d', '#052e16', .8); circ(g, x - rx * .3, y - rx * .3, rx * .45, '#166534'); continue; }
+                g.fillStyle = { fair: '#5cb85c', water: '#3b82f6', sand: '#e8d49a', green: '#86efac' }[k]; g.beginPath(); g.ellipse(x, y, rx, ry, 0, 0, TAU); g.fill(); }
+            g.fillStyle = '#a3e635'; g.fillRect(H.tee[0] - 3, H.tee[1] - 2, 6, 4);
+        }
+        circ(g, H.cup[0], H.cup[1], links ? 1.1 : .55, '#111');
+        line(g, H.cup[0], H.cup[1], H.cup[0], H.cup[1] - (links ? 9 : 3), '#e5e7eb', links ? .4 : .12); g.fillStyle = '#ef4444'; g.beginPath(); g.moveTo(H.cup[0], H.cup[1] - (links ? 9 : 3)); g.lineTo(H.cup[0] + (links ? 5 : 1.6), H.cup[1] - (links ? 7.5 : 2.5)); g.lineTo(H.cup[0], H.cup[1] - (links ? 6 : 2)); g.fill();
+        const R = links ? 1 : .35;
+        st.pos.forEach((p, i) => { if (st.done[i] || (st.ball && i === st.cur)) return; shadow(g, p.x, p.y, R, .3); circ(g, p.x, p.y, R, colOf(i), '#fff', R * .25); });
+        const b = st.ball; if (b) { shadow(g, b.x, b.y, R, .3); circ(g, b.x, b.y - (b.z || 0) * .3, R + (b.z || 0) * .02, colOf(st.cur), '#fff', R * .25); }
+        if (st.ph === 'aim' || st.ph === 'pow') {
+            const p = st.pos[st.cur], L = links ? (st.club === 3 ? 25 : CLUBS[st.club].d * .6) : 8;
+            g.setLineDash([R * 1.2, R]); line(g, p.x, p.y, p.x + Math.cos(st.ang) * L, p.y + Math.sin(st.ang) * L, 'rgba(255,255,255,.85)', R * .4); g.setLineDash([]);
+            if (st.ph === 'pow') { const x = links ? 280 : 37.5, y = links ? 20 : 4, h = links ? 90 : 18, w = links ? 6 : 1.2; g.fillStyle = 'rgba(0,0,0,.6)'; g.fillRect(x, y, w, h); g.fillStyle = st.pow > .9 ? '#ef4444' : '#22c55e'; g.fillRect(x, y + h * (1 - st.pow), w, h * st.pow); }
+        }
+        if (links) { g.font = 'bold 5px system-ui'; g.textAlign = 'left'; g.fillStyle = '#fff'; g.fillText('Wind ' + Math.round(hyp(...st.wind)) + ' ' + ['→', '↘', '↓', '↙', '←', '↖', '↑', '↗'][((Math.round(Math.atan2(st.wind[1], st.wind[0]) / (Math.PI / 4)) % 8) + 8) % 8] + '   ' + CLUBS[st.club].n + (st.pos[st.cur] ? ' · ' + st.pos[st.cur].lie : ''), 6, 124); }
+    },
+    hud(st) {
+        const Hs = this.holes(st); if (!Hs[st.hole] && st.hole < Hs.length) return '';
+        const tot = i => st.strokes[i].reduce((a, b) => a + (b || 0), 0), par = Hs.slice(0, st.hole + 1).reduce((a, h) => a + h.par, 0);
+        return `<em>${st.mode === 'links' ? 'Regular golf' : 'Mini golf'} · hole ${Math.min(st.hole + 1, Hs.length)}/${Hs.length} · par ${(Hs[st.hole] || Hs[Hs.length - 1]).par}</em>` + SM.P.map((p, i) => `<span class="${i === st.cur ? 'cur' : ''}" style="color:${p.col}">${esc(nameOf(i))} <b>${tot(i)}</b></span>`).join('');
+    },
+    over(st) {
+        if (st.hole < this.holes(st).length) return null;
+        const t = SM.P.map((p, i) => st.strokes[i].reduce((a, b) => a + (b || 0), 0)), best = Math.min(...t), w = t.filter(x => x === best).length > 1 ? -1 : t.indexOf(best), par = this.holes(st).reduce((a, h) => a + h.par, 0);
+        return { win: SM.P.length === 1 ? 0 : w, text: SM.P.map((p, i) => esc(nameOf(i)) + ' ' + t[i] + ' (' + (t[i] - par >= 0 ? '+' : '') + (t[i] - par) + ')').join(' · '), best: { [st.mode === 'links' ? 'golf' : 'mini']: t } };
+    }
+};
+
+</script>
+</body>
+</html>

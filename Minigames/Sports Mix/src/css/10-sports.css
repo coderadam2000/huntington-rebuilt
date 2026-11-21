@@ -1,0 +1,26 @@
+/* Sports Mix */
+#sm-cv { position: fixed; inset: 0; width: 100vw; height: 100vh; }
+#sm-menu, #sm-pick { position: fixed; inset: 0; z-index: 40; display: flex; align-items: center; justify-content: center; padding: 16px; overflow: auto; }
+.sm-card { max-width: 820px; }
+#sm-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; margin: 12px 0; }
+.sm-sport { display: flex; flex-direction: column; align-items: center; gap: 2px; padding: 14px 8px; border-radius: 14px; border: 1px solid var(--line); background: linear-gradient(160deg, rgba(34,197,94,.18), rgba(56,189,248,.1)); color: #fff; cursor: pointer; font: inherit; position: relative; transition: transform .1s, border-color .1s; }
+.sm-sport:hover { transform: translateY(-2px); border-color: var(--mg); } .sm-sport span { font-size: 34px; } .sm-sport b { font-size: 16px; } .sm-sport small { color: var(--dim); font-size: 12px; }
+.sm-sport em { position: absolute; top: 6px; right: 8px; font-style: normal; font-size: 11px; color: #fde68a; }
+.sm-lab { color: var(--dim); font-weight: 800; font-size: 12px; letter-spacing: .1em; text-transform: uppercase; }
+.mg-btn.on { background: var(--mg); color: #06101f; border-color: var(--mg); }
+.sm-keys { color: #cbd5e1; font-size: 13px; margin-top: 8px; }
+#sm-hud { position: fixed; top: 10px; left: 50%; transform: translateX(-50%); z-index: 20; display: flex; gap: 14px; align-items: center; background: rgba(0,0,0,.55); border: 1px solid var(--line); border-radius: 999px; padding: 6px 18px; font: 800 16px system-ui; white-space: nowrap; pointer-events: none; }
+#sm-hud b { font-size: 22px; } #sm-hud em { font-style: normal; color: #cbd5e1; font-size: 13px; } #sm-hud .cur { text-decoration: underline; }
+#sm-hud .dot { display: inline-block; width: 9px; height: 9px; border-radius: 50%; margin: 0 1px; background: rgba(255,255,255,.2); } #sm-hud .dot.on { background: var(--c); }
+.sm-score { border-collapse: collapse; font-size: 12px; } .sm-score th { padding: 0 8px; text-align: left; } .sm-score td { border: 1px solid rgba(255,255,255,.2); min-width: 30px; text-align: center; padding: 1px 3px; }
+.sm-score td small { display: block; color: #cbd5e1; font-size: 10px; min-height: 12px; } .sm-score tr.cur th { text-decoration: underline; }
+#sm-hud:has(.sm-score) { border-radius: 12px; }
+#sm-msg { position: fixed; left: 50%; top: 30%; transform: translateX(-50%); z-index: 25; font: 900 42px system-ui; font-style: italic; color: #fff; text-shadow: 0 3px 0 rgba(0,0,0,.5), 0 0 20px rgba(0,0,0,.4); pointer-events: none; animation: smpop .4s ease-out; white-space: nowrap; }
+@keyframes smpop { from { transform: translateX(-50%) scale(1.6); opacity: 0; } }
+#sm-room { margin: 6px 0; }
+#sm-touch { position: fixed; inset: auto 0 20px 0; z-index: 30; pointer-events: none; } #sm-touch > * { pointer-events: auto; }
+#sm-stick { position: absolute; left: 24px; bottom: 0; width: 110px; height: 110px; border-radius: 50%; background: rgba(255,255,255,.1); border: 2px solid rgba(255,255,255,.3); }
+#sm-stick i { position: absolute; left: 35px; top: 35px; width: 40px; height: 40px; border-radius: 50%; background: rgba(255,255,255,.5); }
+#sm-touch button { position: absolute; bottom: 10px; width: 70px; height: 70px; border-radius: 50%; border: 2px solid rgba(255,255,255,.4); background: rgba(0,0,0,.4); color: #fff; font: 900 20px system-ui; }
+#sm-touch button[data-k=Space] { right: 24px; } #sm-touch button[data-k=ShiftLeft] { right: 110px; bottom: 50px; }
+@media (max-width: 700px) { #sm-grid { grid-template-columns: repeat(2, 1fr); } #sm-hud { font-size: 13px; } }
