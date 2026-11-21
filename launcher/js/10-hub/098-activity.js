@@ -33,6 +33,14 @@ function actPaint() {
       '<path d="M' + bx + ',' + H + ' V' + (H - hh + 4) + ' q0,-4 4,-4 h' + Math.max(0, w - 8) + ' q4,0 4,4 V' + H + ' Z" class="' + (x.d === d.today ? 'today' : '') + '"/></g>'; }).join('');
   h += '<div class="act-card"><div class="act-ct"><b>Players per day</b><span class="rdesc">since ' + actDay(d.since) + ' · busiest: ' + pmax + '</span></div>' +
     (pd.length ? '<div class="act-chart"><svg viewBox="0 0 ' + W + ' ' + H + '" preserveAspectRatio="none" role="img" aria-label="Players per day">' + bars + '</svg><div class="act-axis"><span>' + actDay(pd[0].d) + '</span><span>today</span></div><div class="act-tip" hidden></div></div>' : '<div class="act-empty">No days counted yet.</div>') + '</div>';
+  // hours played per day, everyone together (2026-11-20)
+  var hmax = Math.max(1, pd.reduce(function (m, x) { return Math.max(m, x.minutes); }, 0)), tot = pd.reduce(function (n, x) { return n + x.minutes; }, 0);
+  var hfmt = function (m) { var hrs = m / 60; return (hrs >= 10 ? Math.round(hrs) : Math.round(hrs * 10) / 10) + ' h'; };
+  var hbars = pd.map(function (x, i) { var hh = Math.max(2, Math.round((H - 24) * x.minutes / hmax)), bx = i * bw + 1, w = Math.max(2, bw - 2);
+    return '<g class="act-bar" data-tip="' + profEsc(actDay(x.d) + ': ' + hfmt(x.minutes) + ' played by ' + x.players + ' player' + (x.players === 1 ? '' : 's')) + '"><rect x="' + bx + '" y="0" width="' + w + '" height="' + H + '" fill="transparent"/>' +
+      '<path d="M' + bx + ',' + H + ' V' + (H - hh + 4) + ' q0,-4 4,-4 h' + Math.max(0, w - 8) + ' q4,0 4,4 V' + H + ' Z" class="hrs' + (x.d === d.today ? ' today' : '') + '"/></g>'; }).join('');
+  h += '<div class="act-card"><div class="act-ct"><b>Hours played per day</b><span class="rdesc">all players together · ' + hfmt(tot) + ' in these ' + pd.length + ' days · busiest: ' + hfmt(hmax) + '</span></div>' +
+    (pd.length ? '<div class="act-chart"><svg viewBox="0 0 ' + W + ' ' + H + '" preserveAspectRatio="none" role="img" aria-label="Hours played per day">' + hbars + '</svg><div class="act-axis"><span>' + actDay(pd[0].d) + '</span><span>today</span></div><div class="act-tip" hidden></div></div>' : '<div class="act-empty">No days counted yet.</div>') + '</div>';
   // right now
   h += '<div class="act-card"><div class="act-ct"><b>Playing right now</b></div>' + (d.playingNow.length ? '<div class="act-now">' + d.playingNow.map(function (g) {
     return '<span class="act-chip"><i></i>' + profEsc(g.name) + ' <b>' + g.n + '</b></span>'; }).join('') + '</div>' : '<div class="act-empty">Nobody is in a game this minute.</div>') + '</div>';
@@ -43,8 +51,10 @@ document.addEventListener('click', function (e) {
   ACT.span = b.dataset.actSpan; actPaint();
 });
 document.addEventListener('mousemove', function (e) {
-  var g = e.target.closest && e.target.closest('.act-bar'), tip = document.querySelector('#act-home .act-tip'); if (!tip) return;
-  if (!g) { tip.hidden = true; return; }
+  var g = e.target.closest && e.target.closest('.act-bar'), tips = document.querySelectorAll('#act-home .act-tip'); if (!tips.length) return;
+  var tip = g && g.closest('.act-chart') ? g.closest('.act-chart').querySelector('.act-tip') : null;
+  for (var k = 0; k < tips.length; k++) if (tips[k] !== tip) tips[k].hidden = true;
+  if (!g || !tip) return;
   var c = tip.parentNode.getBoundingClientRect(); tip.hidden = false; tip.textContent = g.dataset.tip;
   tip.style.left = Math.min(c.width - tip.offsetWidth, Math.max(0, e.clientX - c.left - tip.offsetWidth / 2)) + 'px';
 });

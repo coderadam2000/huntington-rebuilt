@@ -619,7 +619,7 @@ body.hubbonked{animation:hbonkshake .5s}
 .act-track { height: 12px; } .act-track i { display: block; height: 100%; border-radius: 0 4px 4px 0; background: #8b5cf6; }
 .act-val { text-align: right; color: var(--dim); font-variant-numeric: tabular-nums; }
 .act-chart { position: relative; } .act-chart svg { display: block; width: 100%; height: 170px; }
-.act-bar path { fill: #8b5cf6; opacity: .85; } .act-bar path.today { fill: #f97316; opacity: 1; } .act-bar:hover path { opacity: 1; }
+.act-bar path { fill: #8b5cf6; opacity: .85; } .act-bar path.today { fill: #f97316; opacity: 1; } .act-bar:hover path { opacity: 1; } .act-bar path.hrs { fill: #14b8a6; } .act-bar path.hrs.today { fill: #f97316; }
 .act-axis { display: flex; justify-content: space-between; margin-top: 6px; font-size: 11.5px; color: var(--dimmer, #6b7280); }
 .act-tip { position: absolute; top: -6px; padding: 5px 9px; border-radius: 8px; background: #0b0f17; border: 1px solid var(--line2, #3b4456); color: var(--text, #fff); font-size: 12px; white-space: nowrap; pointer-events: none; transform: translateY(-100%); }
 .act-now { display: flex; flex-wrap: wrap; gap: 8px; }
