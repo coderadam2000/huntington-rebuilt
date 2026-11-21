@@ -5,6 +5,7 @@ const UIS = { rs: null, gs: null, rln: 'g', gt: 'all', screen: 'menu', selDead: 
 const OPTS = [
     ['size', 'Team size', [[3, '3v3'], [5, '5v5'], [8, '8v8']]],
     ['len', 'Length', [[5, '5 min'], [10, '10 min'], [15, '15 min']]],
+    ['lay', 'Map', [['isles', 'Archipelago'], ['desert', 'Desert'], ['winter', 'Winter'], ['coast', 'Normandy'], ['random', '?']]],
     ['map', 'Map size', [['small', 'Small'], ['normal', 'Normal'], ['large', 'Large']]],
     ['wx', 'Weather', [['noon', 'Noon'], ['evening', 'Evening'], ['overcast', 'Rain'], ['night', 'Night'], ['random', '?']]],
     ['bots', 'Bots', [['off', 'Off'], ['match', 'Match me'], ['mixed', 'Mixed']]],

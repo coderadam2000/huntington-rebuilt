@@ -30,7 +30,7 @@ function defaultSave() {
     return {
         v: SAVE_V, name: '', credits: 800, freeRp: 0, rp: {}, researched: {}, owned: {}, target: null,
         lineup: ['g1a', 'a1a', 'n1a'], sel: 0, mode: 'tdm', size: 5, split: 0, bots: 'match', diff: 'normal',
-        mods: {}, opts: { len: 10, map: 'normal', ff: 0, wx: 'noon', pub: 1 },
+        mods: {}, opts: { len: 10, map: 'normal', lay: 'isles', ff: 0, wx: 'noon', pub: 1 },
         settings: { quality: 'med', sens: 1, vol: 0.7, invertY: false, show: true },
         stats: { matches: 0, wins: 0, kills: 0, deaths: 0, caps: 0, flags: 0, mvp: 0 }, seenHow: false, seenNew: '',
         tut: {}, tutOffer: 0      // 2.3 training: lessons done { basic: 1, air: 1, garage: 1 }, the first-visit offer was shown
@@ -77,7 +77,7 @@ function fixSave(s) {      // tier I is always owned; drop unknown ids; keep a u
     if (!['tdm', 'conq', 'ctf', 'ffa', 'duel'].includes(s.mode)) s.mode = 'tdm';
     s.size = [3, 5, 8].includes(s.size) ? s.size : 5;
     const o = s.opts; o.len = [5, 10, 15].includes(o.len) ? o.len : 10; if (!['small', 'normal', 'large'].includes(o.map)) o.map = 'normal';
-    o.ff = o.ff ? 1 : 0; if (!['noon', 'evening', 'overcast', 'night', 'random'].includes(o.wx)) o.wx = 'noon';
+    o.ff = o.ff ? 1 : 0; if (!['isles', 'desert', 'winter', 'coast', 'random'].includes(o.lay)) o.lay = 'isles'; if (!['noon', 'evening', 'overcast', 'night', 'random'].includes(o.wx)) o.wx = 'noon';
     if (!['off', 'match', 'mixed'].includes(s.bots)) s.bots = 'match';
     if (!['low', 'med', 'high'].includes(s.settings.quality)) s.settings.quality = 'med';
     s.settings.show = s.settings.show !== false; o.pub = o.pub === 0 ? 0 : 1;

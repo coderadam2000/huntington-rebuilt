@@ -43,7 +43,8 @@ function makeConfig(players, opts) {
     opts = opts || {};
     let mode0 = MODES[opts.mode || save.mode] ? opts.mode || save.mode : 'tdm'; const duel = mode0 === 'duel';      // 3.0: a duel is a 1v1 team deathmatch to 5
     const so = save.opts, mode = duel ? 'tdm' : mode0, size = duel ? 1 : opts.size || save.size, split = opts.split !== undefined ? opts.split : save.split, ffa = mode === 'ffa';
-    const cfg = { duel, mode, size, players: [], bots: [], seed: Date.now() & 0xffffff, limit: {}, ff: opts.ff !== undefined ? +opts.ff : so.ff, map: opts.map || so.map, wx: opts.wx || so.wx, len: opts.len || so.len };
+    const cfg = { duel, mode, size, players: [], bots: [], seed: Date.now() & 0xffffff, limit: {}, ff: opts.ff !== undefined ? +opts.ff : so.ff, map: opts.map || so.map, lay: opts.lay || so.lay || 'isles', wx: opts.wx || so.wx, len: opts.len || so.len };
+    if (cfg.lay === 'random' || !LAYOUTS[cfg.lay]) cfg.lay = MAP_IDS[Math.floor(Math.random() * MAP_IDS.length)];
     if (cfg.wx === 'random' || !WX[cfg.wx]) cfg.wx = Object.keys(WX)[Math.floor(Math.random() * 4)];
     const teams = [[], []];
     players.forEach((p, i) => { const team = ffa ? i : duel ? i % 2 : (p.team === 0 || p.team === 1) ? p.team : split ? i % 2 : 0; cfg.players.push({ id: p.id, name: p.name, veh: p.veh, mm: p.mm | 0, team }); if (!ffa) teams[team].push(p); });
@@ -60,6 +61,7 @@ function makeConfig(players, opts) {
 }
 function beginMatch(cfg, meId, isHost) {
     Show.stop(); clearMatch();
+    useMap(cfg.lay || 'isles');      // 3.0: build the chosen map first (spawns, points and flags depend on it)
     const ffa = cfg.mode === 'ffa', nt = ffa ? 0 : 2;
     M = { mode: cfg.mode, cfg, t: 0, state: 'play', limit: cfg.limit, kills: [0, 0], tickets: [cfg.limit.tickets || 0, cfg.limit.tickets || 0], caps: [0, 0], pts: PTS.map(() => ({ own: -1, prog: 0 })),
         flags: [0, 1].map(t => ({ t, st: 'home', x: FLAG_HOME[t].x, z: FLAG_HOME[t].z, by: -1, dt: 0 })), R: MAPR[cfg.map] || MAPR.normal,
@@ -124,7 +126,9 @@ function hostDamage(by, tgId, dmg, pk, slot, trusted) {
         if (D > (w.v || 500) * (w.life || 1) * 1.3 + v.def.r + 40) return;
         a.budget -= dmg;
     }
-    let eff = dmg / (1 + Math.max(0, v.def.ar * (1 - pk)) / 100);
+    // 3.0: armour is thickest in front. Hits on a tank's side count 70% of its armour, from behind 45%
+    let arK = 1; if (v.def.ln === 'g') { const rel = Math.abs(angDiff(v.yaw, Math.atan2(a.x - v.x, a.z - v.z))); arK = rel < .9 ? 1 : rel < 2.2 ? .7 : .45; }
+    let eff = dmg / (1 + Math.max(0, v.def.ar * arK * (1 - pk)) / 100);
     const aw = a.def[slot] || a.def.w1;
     if (aw && aw.sa && v.def.ln !== 'i' && v.def.ar >= 8) eff *= .06;      // 3.0: rifles and machine pistols barely scratch armour
     if (a.ai) eff *= aiDiff(a).dmg * (a.def.ln === 'a' ? 1.4 : 1);      // jet guns do tiny damage per bullet and miss a lot; bots get a little help there

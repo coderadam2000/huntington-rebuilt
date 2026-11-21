@@ -274,10 +274,14 @@ function qolPlayerBar() {
   };
 })();
 // --- what's new: once after an update, on the Games page ---
-var WHATSNEW = { id: 'r79', items: [
-  ['Rules, right here', 'Press 📜 Rules in the top bar for the terms and what you can report: slurs and sexual content, yes; everyday swearing is allowed. When an admin answers your report, you get a note back.'],
-  ['A fairer casino', 'Blackjack now wins about as often as it loses: a tie on 21 wins, a tie on 20 wins half, and 💡 Tip shows the best move. Every other game pays back more too.'],
-  ['Away for 30 minutes?', 'After 30 minutes with no input, play time, goons and idle earnings (Brown E Clicker, Bean & Brew, Market & Life) pause until you come back. Days and times now follow Eastern time.']
+var WHATSNEW = { id: 'u2026-11-21', items: [
+  ['🏎️ New game: Zoom', '3D kart and bike racing: 12 tracks in 3 cups, 15 items, drifting with mini-turbos, a garage full of parts, six modes (Grand Prix, Time Trial, Knockout, Coin Rush, Balloon Battle and more) and online races with your friends.'],
+  ['⚽ New: Sports Mix', 'Soccer, basketball, tennis, baseball, hockey, American football, bowling and golf (mini golf or the real thing) in one minigame. Play a bot or your friends.'],
+  ['♟️ New: Chess and Checkers', 'Play a friend or one of 8 rated bots. Every game is ranked with Elo, from Rookie to Unreal.'],
+  ['🪖 Steel Storm 3.0', 'Five nations with real vehicles from WW1 to the Cold War, fight on foot with real guns, four maps, first-person and zoom views, side and rear armour, and a 1v1 Duel mode.'],
+  ['🪐 Sovereign 1.7', 'Win any victory and unlock Sovereign Interplanetary: lead a planet or dwarf planet, trade, ally and fight across a solar system that really orbits.'],
+  ['🎮 More updates', 'Last Light: the LINEAR Run. 100 Levels of Spikes: Victor places, auto respawn and a bored cube. Element Lab: 12 new goals. Blocky Shooter: no more stuck white screen. Sovereign: Antarctica is whole again.'],
+  ['🕒 In the launcher', 'The clock and date in the top bar, tabs that always fit, an hours-played-per-day chart in Activity, and staff names in colour: the owner in yellow, admins in blue.']
 ] };
 function qolNews(force) {
   var box = document.getElementById('whatsnew'); if (!box) return;

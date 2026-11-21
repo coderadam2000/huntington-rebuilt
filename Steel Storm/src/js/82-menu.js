@@ -95,7 +95,7 @@ function researchCard(v) {
 function modeCards(dis, src) { const cur = optVal('mode', src); return Object.keys(MODES).map(k => '<button class="mcard' + (cur === k ? ' on' : '') + '" data-opt="mode" data-v="' + k + '"' + (dis ? ' disabled' : '') + '><span class="mi">' + MODES[k].short + '</span><b>' + MODES[k].name + '</b><small>' + esc(MODES[k].desc) + '</small></button>').join(''); }
 function optSummary(src) {
     const g = k => optVal(k, src), s = g('size'), lab = (k, v) => { const o = OPTS.find(x => x[0] === k); const x = o && o[2].find(y => String(y[0]) === String(v)); return x ? x[1] : v; };
-    return (g('mode') === 'ffa' ? Math.min(12, s * 2) + ' players' : s + 'v' + s) + ' &middot; ' + lab('map', g('map')) + ' map &middot; ' + g('len') + ' min &middot; ' + lab('wx', g('wx')) + ' &middot; bots ' + lab('bots', g('bots')).toLowerCase() + (+g('ff') ? ' &middot; friendly fire' : '');
+    return (g('mode') === 'ffa' ? Math.min(12, s * 2) + ' players' : s + 'v' + s) + ' &middot; ' + lab('lay', g('lay') || 'isles') + ' (' + lab('map', g('map')).toLowerCase() + ') &middot; ' + g('len') + ' min &middot; ' + lab('wx', g('wx')) + ' &middot; bots ' + lab('bots', g('bots')).toLowerCase() + (+g('ff') ? ' &middot; friendly fire' : '');
 }
 // which vehicle the showcase films, and whether it runs
 function focusVeh() { return UIS.screen === 'garage' && UIS.gs && isOwned(UIS.gs) ? UIS.gs : myVeh(); }

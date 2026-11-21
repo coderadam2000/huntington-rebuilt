@@ -11,7 +11,7 @@ function trainMatch(id, o) {
     if (M) return false;
     if (PARTY.code || PARTY.net) { toast('Leave your party first: training is a solo practice match'); return false; }
     const veh = o.veh || myVeh();
-    const cfg = makeConfig([{ id: 0, name: myName(), veh, mm: o.mm !== undefined ? o.mm : modMask(veh) }], { mode: o.mode, size: 3, bots: o.bots || 'match', diff: 'easy', map: 'small', len: 15, wx: 'noon', ff: 0 });
+    const cfg = makeConfig([{ id: 0, name: myName(), veh, mm: o.mm !== undefined ? o.mm : modMask(veh) }], { mode: o.mode, size: 3, bots: o.bots || 'match', diff: 'easy', map: 'small', lay: 'isles', len: 15, wx: 'noon', ff: 0 });
     cfg.bots = cfg.bots.filter(b => b.team === 1).slice(0, o.foes || 2);      // a few easy enemies; nobody on your side takes your captures
     cfg.tut = id;
     TRN.prev = UIS.screen; TRN.want = o.keep || null;

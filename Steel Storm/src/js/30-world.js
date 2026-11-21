@@ -18,6 +18,56 @@ const FLAG_HOME = [{ x: -455, z: 10 }, { x: 455, z: -10 }];      // capture the 
 const CAP_R = 48;
 const ROADS = [[[-600, -40], [-470, -32], [-400, -30], [-250, -20], [-120, 0], [0, 10], [120, 15], [250, 20], [400, 30], [470, 34], [600, 40]], [[-250, -20], [-330, 60], [-470, 185]], [[250, 20], [330, -60], [470, -185]], [[0, 10], [-60, -60], [-120, -135]], [[0, 10], [60, 80], [120, 135]]];
 const STRIPS = [[-600, -430, -78], [430, 600, 78]];      // airstrips [x0, x1, z]
+// 3.0: MAPS. The arrays above are the Archipelago; every map swaps their contents (in place: the match code keeps references to
+// PTS and FLAG_HOME) and the world is rebuilt. Every map keeps the same frame so spawns work: one land front from x = -610 to 610
+// across the middle, open sea north and south (|z| > 430) for ships, airstrips near both ends.
+// pal: grass / sand colours (textured tier), lo (vertex colours for the Low tier), snow line, tree density and pine share, house colours
+const copyL = () => ({ isl: ISL.map(o => Object.assign({}, o)), hills: HILLS.map(h => h.slice()), towns: TOWNS.map(o => Object.assign({}, o)), pts: PTS.map(o => Object.assign({}, o)), flags: FLAG_HOME.map(o => Object.assign({}, o)), roads: ROADS.map(r => r.map(p => p.slice())), strips: STRIPS.map(x => x.slice()) });
+const LAYOUTS = {
+    isles: Object.assign(copyL(), { n: 'Archipelago', d: 'Green islands, beaches and three towns', pal: { grass: [78, 122, 52], sand: [214, 196, 146], lo: [0x6aa44a, 0x4d8a3c], snow: 30.5, trees: 1, pine: .35, water: null, houses: [0xe4d9bd, 0xc9b896, 0xd8a48a, 0xd9d4c7, 0xaab3bd, 0xcfae7a] } }),
+    desert: { n: 'Desert Canyon', d: 'Open sand, tall mesas and a dry town in every valley',
+        isl: [{ x: -340, z: 0, r: 300, h: 16, c: 0 }, { x: 340, z: 0, r: 300, h: 16, c: 0 }, { x: 0, z: 0, r: 260, h: 14, c: 0 }, { x: 0, z: -430, r: 70, h: 8, c: 1 }, { x: 0, z: 430, r: 70, h: 8, c: 2 }],
+        hills: [[-160, -150, 60, 26], [160, 150, 60, 26], [0, -110, 46, 20], [-120, 120, 44, 18], [120, -120, 44, 18], [-300, 180, 50, 16], [300, -180, 50, 16], [60, 40, 30, 10]],
+        towns: [{ x: -230, z: 40, n: 12, p: 0 }, { x: 0, z: 10, n: 12, p: 1 }, { x: 230, z: -40, n: 12, p: 2 }, { x: -430, z: -170, n: 7 }, { x: 430, z: 170, n: 7 }],
+        pts: [{ x: -230, z: 40, name: 'A' }, { x: 0, z: 10, name: 'B' }, { x: 230, z: -40, name: 'C' }], flags: [{ x: -455, z: 10 }, { x: 455, z: -10 }],
+        roads: [[[-600, 0], [-430, 10], [-230, 40], [-100, 30], [0, 10], [100, -20], [230, -40], [430, -10], [600, 0]], [[-230, 40], [-330, -80], [-430, -170]], [[230, -40], [330, 80], [430, 170]]],
+        strips: [[-600, -430, -78], [430, 600, 78]],
+        pal: { grass: [176, 150, 98], sand: [224, 204, 156], lo: [0xc8ad74, 0xb39860], snow: 999, trees: .12, pine: 0, water: 0x2a8fa8, houses: [0xe8d6b0, 0xdcc49a, 0xcfb487, 0xe4dccb] } },
+    winter: { n: 'Winter Front', d: 'Deep snow, pine forest and frozen hills',
+        isl: [{ x: -330, z: 0, r: 280, h: 22, c: 0 }, { x: 330, z: 0, r: 280, h: 22, c: 0 }, { x: 0, z: 0, r: 230, h: 20, c: 0 }, { x: 0, z: -410, r: 90, h: 14, c: 1 }, { x: 0, z: 410, r: 90, h: 14, c: 2 }, { x: -450, z: -380, r: 50, h: 9, c: 3 }, { x: 450, z: 380, r: 50, h: 9, c: 4 }],
+        hills: [[-420, -150, 60, 18], [-180, 160, 70, 20], [180, -160, 70, 20], [420, 150, 60, 18], [0, 120, 50, 16], [0, -120, 50, 16], [-260, -170, 40, 12], [260, 170, 40, 12]],
+        towns: [{ x: -250, z: 30, n: 13, p: 0 }, { x: 0, z: -10, n: 11, p: 1 }, { x: 250, z: -30, n: 13, p: 2 }, { x: -460, z: 170, n: 8 }, { x: 460, z: -170, n: 8 }],
+        pts: [{ x: -250, z: 30, name: 'A' }, { x: 0, z: -10, name: 'B' }, { x: 250, z: -30, name: 'C' }], flags: [{ x: -455, z: 10 }, { x: 455, z: -10 }],
+        roads: [[[-600, 0], [-450, 10], [-250, 30], [-120, 10], [0, -10], [120, -20], [250, -30], [450, -10], [600, 0]], [[-250, 30], [-360, 110], [-460, 170]], [[250, -30], [360, -110], [460, -170]]],
+        strips: [[-600, -430, -78], [430, 600, 78]],
+        pal: { grass: [228, 234, 242], sand: [200, 204, 210], lo: [0xe6ebf0, 0xd3dbe3], snow: 2, trees: 1.3, pine: 1, water: 0x335b78, houses: [0xb8a48a, 0x9c8a74, 0xc9b8a2, 0x8a7a68] } },
+    coast: { n: 'Normandy Coast', d: 'Flat farmland behind long beaches, hedgerows and many villages',
+        isl: [{ x: -340, z: 0, r: 285, h: 13, c: 0 }, { x: 340, z: 0, r: 285, h: 13, c: 0 }, { x: 0, z: 0, r: 240, h: 12, c: 0 }, { x: -200, z: -380, r: 60, h: 7, c: 1 }, { x: 200, z: 380, r: 60, h: 7, c: 2 }],
+        hills: [[-300, -120, 40, 6], [-120, 140, 40, 6], [120, -140, 40, 6], [300, 120, 40, 6], [-40, -60, 30, 5], [40, 60, 30, 5], [-420, 100, 30, 6], [420, -100, 30, 6], [-200, -40, 26, 4], [200, 40, 26, 4]],
+        towns: [{ x: -260, z: -30, n: 12, p: 0 }, { x: 0, z: 0, n: 13, p: 1 }, { x: 260, z: 30, n: 12, p: 2 }, { x: -400, z: 160, n: 8 }, { x: 400, z: -160, n: 8 }, { x: -140, z: -170, n: 7 }, { x: 140, z: 170, n: 7 }, { x: -120, z: 110, n: 5 }, { x: 120, z: -110, n: 5 }],
+        pts: [{ x: -260, z: -30, name: 'A' }, { x: 0, z: 0, name: 'B' }, { x: 260, z: 30, name: 'C' }], flags: [{ x: -455, z: 10 }, { x: 455, z: -10 }],
+        roads: [[[-600, -20], [-440, -20], [-260, -30], [-130, -10], [0, 0], [130, 10], [260, 30], [440, 20], [600, 20]], [[-260, -30], [-140, -170]], [[260, 30], [140, 170]], [[0, 0], [-120, 110]], [[0, 0], [120, -110]], [[-260, -30], [-400, 160]], [[260, 30], [400, -160]]],
+        strips: [[-600, -430, -78], [430, 600, 78]],
+        pal: { grass: [86, 132, 58], sand: [218, 202, 160], lo: [0x76b050, 0x5a963f], snow: 999, trees: .8, pine: .1, water: 0x3e7f9c, houses: [0xd8cdb8, 0xc4b59c, 0xb8a58a, 0xe0d8c8, 0x9a9488] } }
+};
+let MAP_ID = 'isles', PAL = LAYOUTS.isles.pal;
+const MAP_IDS = Object.keys(LAYOUTS);
+function setLayout(id) {
+    const L = LAYOUTS[id] || LAYOUTS.isles; MAP_ID = LAYOUTS[id] ? id : 'isles'; PAL = L.pal;
+    const fill = (a, b) => { a.length = 0; b.forEach(x => a.push(Array.isArray(x) ? x.map(y => Array.isArray(y) ? y.slice() : y) : Object.assign({}, x))); };
+    fill(ISL, L.isl); fill(HILLS, L.hills); fill(TOWNS, L.towns); fill(ROADS, L.roads); fill(STRIPS, L.strips);
+    L.pts.forEach((p, i) => { PTS[i].x = p.x; PTS[i].z = p.z; PTS[i].name = p.name; }); L.flags.forEach((f, i) => { FLAG_HOME[i].x = f.x; FLAG_HOME[i].z = f.z; });
+}
+// throw the old world away and build the chosen map (the sky, sun and lights stay)
+let WORLD_OBJS = [];
+function useMap(id) {
+    if (!LAYOUTS[id]) id = 'isles';
+    if (id === MAP_ID && terrain) return;
+    for (const o of WORLD_OBJS) { scene.remove(o); o.traverse(c => { if (c.geometry) c.geometry.dispose(); }); }
+    WORLD_OBJS = []; BLD.length = 0; ptViz = []; flagViz = []; treeChunks = []; FLARES.length = 0; rain = null;
+    for (const k of ['grass', 'sand', 'rock', 'snow', 'road', 'mask', 'waterN']) if (TT[k]) TT[k].dispose();
+    setLayout(id); buildWorld(); applyQuality.t = false; applyQuality(); applyWeather(WXK || 'noon');
+}
 function wob(x, z) { return Math.sin(x * 0.045 + 1.3) * Math.cos(z * 0.037 + .7) * 0.5 + Math.sin(x * 0.11 + z * 0.09) * 0.25 + Math.sin(z * 0.2 - x * 0.13) * 0.12; }
 function H(x, z) {
     let b = -24;
@@ -135,8 +185,8 @@ function buildRain() {
 function terrainTex(seed, fn) { const n = fbm(seed, 4, 4), d = vnoise(seed + 7, 64); return cvTex(256, (x, S) => pixels(x, S, S, (u, v) => fn(n(u, v), d(u, v), u, v))); }
 const TT = {};
 function initTerrainTextures() {
-    TT.grass = terrainTex(3, (n, d) => { const k = .75 + n * .5 + (d - .5) * .25; return [78 * k, 122 * k, 52 * k]; });
-    TT.sand = terrainTex(13, (n, d, u, v) => { const k = .9 + n * .18 + Math.sin((u + n * .2) * TAU * 12) * .03 + (d - .5) * .12; return [214 * k, 196 * k, 146 * k]; });
+    const G0 = PAL.grass, S0 = PAL.sand; TT.grass = terrainTex(3, (n, d) => { const k = .75 + n * .5 + (d - .5) * .25; return [G0[0] * k, G0[1] * k, G0[2] * k]; });
+    TT.sand = terrainTex(13, (n, d, u, v) => { const k = .9 + n * .18 + Math.sin((u + n * .2) * TAU * 12) * .03 + (d - .5) * .12; return [S0[0] * k, S0[1] * k, S0[2] * k]; });
     const rk = fbm(23, 4, 5);
     TT.rock = terrainTex(23, (n, d, u, v) => { const r = Math.abs(rk(u, v) - .5) * 2, k = .55 + r * .5 + (d - .5) * .2; return [128 * k, 122 * k, 112 * k]; });
     TT.snow = terrainTex(33, (n, d) => { const k = .92 + n * .1 + (d - .5) * .06; return [236 * k, 240 * k, 248 * k]; });
@@ -161,15 +211,15 @@ let terrainHi = null, waterHi = null, waterLo = null, waterU = { uTime: { value:
 function makeTerrainHi() {
     const m = new THREE.MeshLambertMaterial({ color: 0xffffff });
     m.onBeforeCompile = sh => {
-        Object.assign(sh.uniforms, { tGrass: { value: TT.grass }, tSand: { value: TT.sand }, tRock: { value: TT.rock }, tSnow: { value: TT.snow }, tRoad: { value: TT.road }, tMask: { value: TT.mask } });
+        Object.assign(sh.uniforms, { uSnow: { value: PAL.snow }, tGrass: { value: TT.grass }, tSand: { value: TT.sand }, tRock: { value: TT.rock }, tSnow: { value: TT.snow }, tRoad: { value: TT.road }, tMask: { value: TT.mask } });
         sh.vertexShader = 'varying vec3 vTW; varying vec3 vTN;\n' + sh.vertexShader.replace('#include <begin_vertex>', '#include <begin_vertex>\n vTW = (modelMatrix * vec4(transformed, 1.0)).xyz; vTN = normalize(mat3(modelMatrix) * objectNormal);');
-        sh.fragmentShader = 'uniform sampler2D tGrass, tSand, tRock, tSnow, tRoad, tMask; varying vec3 vTW; varying vec3 vTN;\n' + sh.fragmentShader.replace('#include <map_fragment>', `
+        sh.fragmentShader = 'uniform float uSnow; uniform sampler2D tGrass, tSand, tRock, tSnow, tRoad, tMask; varying vec3 vTW; varying vec3 vTN;\n' + sh.fragmentShader.replace('#include <map_fragment>', `
             vec2 wuv = vTW.xz; float hgt = vTW.y, slope = 1.0 - clamp(vTN.y, 0.0, 1.0);
             float det = texture2D(tRock, wuv * 0.55).r;
             vec3 grass = mix(texture2D(tGrass, wuv * 0.11).rgb, texture2D(tGrass, wuv * 0.017).rgb * vec3(1.1, 1.05, 0.8), 0.4);
             float wSand = 1.0 - smoothstep(1.3, 3.2, hgt + det * 0.8);
             float wRock = smoothstep(0.17, 0.32, slope + max(hgt - 24.0, 0.0) * 0.03);
-            float wSnow = smoothstep(30.5, 34.0, hgt + det * 2.5) * (1.0 - smoothstep(0.4, 0.55, slope));
+            float wSnow = smoothstep(uSnow, uSnow + 3.5, hgt + det * 2.5) * (1.0 - smoothstep(0.4, 0.55, slope));
             // a texture is read only where it shows (most of the ground is plain grass: 4 reads a pixel instead of 8)
             vec3 col = grass;
             if (wSand > 0.002) col = mix(col, texture2D(tSand, wuv * 0.09).rgb, wSand);
@@ -181,7 +231,7 @@ function makeTerrainHi() {
             col *= 0.84 + det * 0.32;
             diffuseColor.rgb *= col;`);
     };
-    m.customProgramCacheKey = () => 'terrain3';
+    m.customProgramCacheKey = () => 'terrain4';
     return m;
 }
 function makeWaterHi() {
@@ -225,7 +275,7 @@ function applyWeather(k) {
     scene.fog.color.setHex(W0.fog); scene.background.setHex(W0.fog); renderer.setClearColor(W0.fog);
     sun.color.setHex(W0.sun); sun.intensity = W0.sunI; hemi.color.setHex(W0.hs); hemi.groundColor.setHex(W0.hg); hemi.intensity = W0.hI;
     renderer.toneMappingExposure = W0.exp;
-    if (waterHi) { waterHi.color.setHex(W0.water); waterLo.color.setHex(W0.water); waterU.uSky.value.setHex(W0.hor); }
+    if (waterHi) { waterHi.color.setHex(PAL.water || W0.water); waterLo.color.setHex(PAL.water || W0.water); waterU.uSky.value.setHex(W0.hor); }
     if (cloudMesh) { cloudMesh.material.color.setHex(W0.cloud); cloudMesh.material.opacity = W0.cO; }
     if (rain) rain.visible = !!W0.rain;
     applyFog(); if (save) { setFlashCount(Q.lights + (W0.flares && Q.lights ? 2 : 0)); assignFlareLights(); }
@@ -234,10 +284,11 @@ function applyWeather(k) {
 function assignFlareLights() { FLARES.forEach((f, i) => { f.l = W0.flares && FLASH.length > Q.lights + i ? FLASH[Q.lights + i].l : null; if (f.l) { f.l.color.setHex(0xffe6b0); f.l.distance = 320; } }); }
 let terrain, waterMesh, miniCv, cloudMesh, ptViz = [], flagViz = [], treeChunks = [];
 function buildWorld() {
+    const before = new Set(scene.children);
     initTerrainTextures(); terrainHi = makeTerrainHi(); waterHi = makeWaterHi(); waterLo = new THREE.MeshLambertMaterial({ color: 0x2f7fb0, transparent: true, opacity: .84, depthWrite: false });
     const rng = mulberry(20241031);
     // terrain: smooth normals, vertex colours for the low tier
-    const N = 150, SZ = EXT * 2 + 120, g = new THREE.PlaneGeometry(SZ, SZ, N, N); g.rotateX(-PI / 2);
+    const N = Q.hi ? 210 : 150, SZ = EXT * 2 + 120, g = new THREE.PlaneGeometry(SZ, SZ, N, N); g.rotateX(-PI / 2);
     const p = g.attributes.position, col = new Float32Array(p.count * 3), c = new THREE.Color();
     for (let i = 0; i < p.count; i++) p.setY(i, H(p.getX(i), p.getZ(i)));
     g.computeVertexNormals();
@@ -246,7 +297,8 @@ function buildWorld() {
         const h = p.getY(i), ny = nrm.getY(i), j = (rng() - .5) * .06;
         if (h < -8) c.setHex(0x2c6a8f); else if (h < -1) c.setHex(0x5aa4b8); else if (h < 1.6) c.setHex(0xd6c58a);
         else if (ny < 0.8 && h > 6) c.setHex(0x84806f);
-        else if (h < 20) c.setHex(0x6aa44a).lerp(new THREE.Color(0x4d8a3c), (h - 1.6) / 18);
+        else if (h > PAL.snow) c.setHex(0xe8ecef);
+        else if (h < 20) c.setHex(PAL.lo[0]).lerp(new THREE.Color(PAL.lo[1]), (h - 1.6) / 18);
         else if (h < 30) c.setHex(0x8a8f6c); else c.setHex(0xe8ecef);
         c.offsetHSL(0, 0, j); col[i * 3] = c.r; col[i * 3 + 1] = c.g; col[i * 3 + 2] = c.b;
     }
@@ -255,7 +307,7 @@ function buildWorld() {
     waterMesh = new THREE.Mesh(new THREE.PlaneGeometry(6000, 6000).rotateX(-PI / 2), Q.hi ? waterHi : waterLo);
     waterMesh.renderOrder = 1; waterMesh.receiveShadow = false; scene.add(waterMesh);
     // houses: walls with a window texture, gable roofs, hangars by the airstrips
-    const places = [], palette = [0xe4d9bd, 0xc9b896, 0xd8a48a, 0xd9d4c7, 0xaab3bd, 0xcfae7a];
+    const places = [], palette = PAL.houses;
     const okSpot = (x0, z0, w, d) => {
         const hs = [H(x0, z0), H(x0 + w, z0), H(x0, z0 + d), H(x0 + w, z0 + d), H(x0 + w / 2, z0 + d / 2)];
         if (Math.min(...hs) < 2.5 || Math.max(...hs) - Math.min(...hs) > 2.2) return false;
@@ -286,18 +338,18 @@ function buildWorld() {
     for (const s of STRIPS) for (let k = 0; k < 2; k++) { const x = s[0] + 30 + k * 34, z = s[2] + 24 * Math.sign(s[2]), y = H(x, z) - .5; hm.setMatrixAt(hi++, mt.compose(v1.set(x, y, z), q0, v2.set(14, 9, 22))); }
     hm.castShadow = hm.receiveShadow = true; scene.add(hm);
     // trees: two kinds (pine, broadleaf), instanced in a 4 x 4 grid of chunks so the frustum culls them
-    const T1 = []; cy(T1, .3, .42, 2.4, 5, 0, 1.2, 0, 0x6b4a2b); cy(T1, 0, 2.3, 3.6, 7, 0, 3.6, 0, 0x2f6e38); cy(T1, 0, 1.7, 2.8, 7, 0, 5.4, 0, 0x3a8044); cy(T1, 0, 1.1, 2, 6, 0, 6.9, 0, 0x46904e);
-    const T2 = []; cy(T2, .32, .45, 2.6, 5, 0, 1.3, 0, 0x6b4a2b); sph(T2, 2.3, 0, 4.2, 0, 0x4f8a3a, 1, .85, 1); sph(T2, 1.6, .9, 5.2, .4, 0x5c9a42, 1, .8, 1);
+    const snowy = PAL.snow < 10, T1 = []; cy(T1, .3, .42, 2.4, 5, 0, 1.2, 0, 0x6b4a2b); cy(T1, 0, 2.3, 3.6, 7, 0, 3.6, 0, 0x2f6e38); cy(T1, 0, 1.7, 2.8, 7, 0, 5.4, 0, snowy ? 0xdfe8ee : 0x3a8044); cy(T1, 0, 1.1, 2, 6, 0, 6.9, 0, snowy ? 0xf4f8fb : 0x46904e);
+    const dry = PAL.snow > 900 && PAL.trees < .3, T2 = []; cy(T2, .32, .45, 2.6, 5, 0, 1.3, 0, 0x6b4a2b); sph(T2, 2.3, 0, 4.2, 0, dry ? 0x8a8a4a : 0x4f8a3a, 1, dry ? .5 : .85, 1); sph(T2, 1.6, .9, 5.2, .4, dry ? 0x9a9452 : 0x5c9a42, 1, .8, 1);
     const toRGB = gg => { const a = gg.attributes.color, n = a.count, o = new Float32Array(n * 3); for (let i = 0; i < n; i++) { o[i * 3] = a.getX(i); o[i * 3 + 1] = a.getY(i); o[i * 3 + 2] = a.getZ(i); } gg.setAttribute('color', new THREE.BufferAttribute(o, 3)); gg.deleteAttribute('uv'); return gg; };
     const tg = [toRGB(merge(T1)), toRGB(merge(T2))], spots = [[], []];
-    for (let k = 0; k < 9000 && spots[0].length + spots[1].length < 900; k++) {
+    for (let k = 0; k < 12000 && spots[0].length + spots[1].length < 900 * PAL.trees; k++) {
         const x1 = (rng() * 2 - 1) * (EXT - 40), z1 = (rng() * 2 - 1) * (EXT - 40), h = H(x1, z1);
-        if (h < 3 || h > 28) continue;
+        if (h < 3 || h > (PAL.snow < 10 ? 40 : 28)) continue;
         let bad = false; for (const b of BLD) if (x1 > b.x0 - 3 && x1 < b.x1 + 3 && z1 > b.z0 - 3 && z1 < b.z1 + 3) { bad = true; break; }
         for (const q of PTS) if (Math.hypot(x1 - q.x, z1 - q.z) < 30) bad = true;
         if (Math.abs(x1) > 400 && Math.abs(z1) < 90) bad = true;      // keep the base areas open
         if (Math.abs(x1) > 420 && Math.abs(z1 - Math.sign(x1) * 78) < 22) bad = true;      // airstrips
-        if (!bad) spots[h > 14 || rng() < .35 ? 0 : 1].push([x1, h, z1, 0.5 + rng() * 0.45, rng() * TAU]);
+        if (!bad) spots[h > 14 || rng() < PAL.pine ? 0 : 1].push([x1, h, z1, 0.5 + rng() * 0.45, rng() * TAU]);
     }
     const tmat = new THREE.MeshLambertMaterial({ vertexColors: true });
     for (let kind = 0; kind < 2; kind++) for (let cx = 0; cx < 4; cx++) for (let cz = 0; cz < 4; cz++) {
@@ -347,12 +399,13 @@ function buildWorld() {
     const mx = miniCv.getContext('2d'), im = mx.createImageData(180, 180);
     for (let py = 0; py < 180; py++) for (let px = 0; px < 180; px++) {
         const h = H((px / 180 - .5) * EXT * 2, (py / 180 - .5) * EXT * 2), o = (py * 180 + px) * 4; let r, gg, b;
-        if (h < -6) { r = 22; gg = 66; b = 104; } else if (h < 0) { r = 40; gg = 100; b = 140; } else if (h < 2) { r = 190; gg = 176; b = 120; } else if (h < 24) { const k = h / 24; r = 100 - k * 30; gg = 150 - k * 40; b = 70; } else { r = 150; gg = 150; b = 140; }
+        if (h < -6) { r = 22; gg = 66; b = 104; } else if (h < 0) { r = 40; gg = 100; b = 140; } else if (h < 2) { r = 190; gg = 176; b = 120; } else if (h < 24) { const k = 1 - h / 24 * .3, L0 = PAL.lo[0]; r = ((L0 >> 16) & 255) * k; gg = ((L0 >> 8) & 255) * k; b = (L0 & 255) * k; } else { r = 150; gg = 150; b = 140; }
         im.data[o] = r; im.data[o + 1] = gg; im.data[o + 2] = b; im.data[o + 3] = 255;
     }
     mx.putImageData(im, 0, 0);
     mx.strokeStyle = 'rgba(60,60,60,.7)'; mx.lineWidth = 1.5; const k = 180 / (EXT * 2);
     for (const r of ROADS) { mx.beginPath(); r.forEach((p2, i) => i ? mx.lineTo((p2[0] + EXT) * k, (p2[1] + EXT) * k) : mx.moveTo((p2[0] + EXT) * k, (p2[1] + EXT) * k)); mx.stroke(); }
+    WORLD_OBJS = scene.children.filter(o => !before.has(o));
 }
 function setPointsVisible(v) { ptViz.forEach(p => p.grp.visible = v); }
 function setFlagsVisible(v) { flagViz.forEach(f => { f.grp.visible = v; f.pad.visible = v; }); }

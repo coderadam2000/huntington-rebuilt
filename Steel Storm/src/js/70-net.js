@@ -16,7 +16,7 @@ const LP = () => { try { const p = window.parent; return p && p !== window ? p :
 const myVeh = () => save.lineup[save.sel] || 'g1a';
 const myInfo = () => ({ veh: myVeh(), mm: modMask(myVeh()), line: save.lineup.map(id => [id, brOf(vdef(id, modMask(id)))]) });
 function partyStatus(t, bad) { PARTY.status = t; PARTY.bad = !!bad; UI.paintParty(); }
-function lobbyOpts() { const o = save.opts; return { mode: save.mode, size: save.size, bots: save.bots, diff: save.diff, len: o.len, map: o.map, ff: o.ff, wx: o.wx }; }
+function lobbyOpts() { const o = save.opts; return { mode: save.mode, size: save.size, bots: save.bots, diff: save.diff, len: o.len, map: o.map, lay: o.lay, ff: o.ff, wx: o.wx }; }
 function rosterNow() {      // [{id,name,veh,mm,team,ready,line,ping,st}] of everyone in the lobby
     if (!PARTY.net) return [Object.assign({ id: 0, name: myName(), team: 0, ready: true, ping: 0, st: 'connected' }, myInfo())];
     return PARTY.roster;
