@@ -52,6 +52,13 @@ var LB_FEED = [
       if (feedNum(r.w) > 0 && feedHasBoard('mini:' + g + '-wins')) out.push(['mini:' + g + '-wins', feedNum(r.w), { lost: feedNum(r.l), drawn: feedNum(r.d) }]); });
     return out;
   }],
+  // Zoom (2026-11-21): race wins and Grand Prix trophies. Sent only once the server lists the boards.
+  ['zoom:*', function () {
+    var st = ((feedRd('hgmini_zoom') || {}).stats) || {}, out = [];
+    if (feedNum(st.wins) > 0 && feedHasBoard('zoom:wins')) out.push(['zoom:wins', feedNum(st.wins), { races: feedNum(st.races), podiums: feedNum(st.podiums) }]);
+    if (feedNum(st.trophies) > 0 && feedHasBoard('zoom:trophies')) out.push(['zoom:trophies', feedNum(st.trophies), { gold: feedNum(st.gold) }]);
+    return out;
+  }],
   ['spikes:endless', function () { var s = feedRd('spikes100_progress') || {}; return [feedNum(s.bestEndless)]; }],
   // Tetris Surge keeps its top 5 per mode in best[mode] = [{ s: score, l: lines, t: ms, ... }] (sprint is sorted by time)
   ['tetris:score', function () { var t = feedRd('huntingtonTetrisSurge1') || {}, b = 0, m = '', bl = 0; for (var k in (t.best || {})) if (k !== 'sprint') (Array.isArray(t.best[k]) ? t.best[k] : []).forEach(function (e) { if (e && feedNum(e.s) > b) { b = feedNum(e.s); m = k; bl = feedNum(e.l); } }); b = Math.max(b, feedNum(feedRd('tetrisHighScore'))); return [b, m ? { mode: m, lines: bl } : null]; }],
