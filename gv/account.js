@@ -1649,7 +1649,23 @@ const GVLink = (() => {
         L.sync.restore(list.map(function (x) { return x.k; })).then(function () { toast('Put back ' + list.length + ' save(s) and saved them to your account. Reopen the games to see them.'); }, function (e) { toast(e.message || 'Could not save them to your account yet.', true); });
       } }));
     } });
-    box.appendChild(h('div', { style: 'margin-top:12px' }, b, d, rb));
+    var dl = h('button', { class: 'mbtn', id: 'gl-saves-export', style: 'margin-left:8px', title: 'Download everything in your account as one file', text: 'Download all my data', onclick: function () {
+      dl.disabled = true; var me = L.me();
+      L.sync.inspect().then(function (r) {
+        var saves = {}; (r.local || []).forEach(function (x) { try { saves[x.k] = localStorage.getItem(x.k); } catch (e) {} });
+        var data = {
+          app: 'Huntington Games', kind: 'player-data-export', version: 1, exportedAt: new Date().toISOString(),
+          account: me ? { name: me.name, userId: me.userId, pub: me.pub } : null,   // the recovery key is NOT here: keep it with "Download key"
+          wallet: L.eco.state(), owned: L.eco.buys(), friends: L.friends(), metInGames: L.recent(),
+          saves: saves, savesInAccount: r.cloud || null, olderBackups: L.sync.backups()
+        };
+        var nm = (me && me.name ? me.name.replace(/[^\w.-]+/g, '_') : 'account');
+        download('huntington-data-' + nm + '-' + new Date().toISOString().slice(0, 10) + '.json', JSON.stringify(data, null, 2));
+        toast('Downloaded ' + Object.keys(saves).length + ' save(s) and your account data.');
+      }, function (e) { toast('Could not read your saves: ' + (e && e.message || e), true); }).then(function () { dl.disabled = false; });
+    } });
+    box.appendChild(h('div', { style: 'margin-top:12px' }, b, d, rb, dl));
+    box.appendChild(h('p', { class: 'hint', text: 'Download all my data gives you one file with your saves, goons, items, friends and who you have met. Your recovery key is not in it; keep that with Download key above.' }));
     box.appendChild(det);
     return box;
   }
