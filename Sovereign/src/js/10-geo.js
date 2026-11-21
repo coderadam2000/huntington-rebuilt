@@ -49,7 +49,7 @@ function decodeTopo(topo) {
     const parts = g.type === 'Polygon' ? [g.arcs] : g.type === 'MultiPolygon' ? g.arcs : [];
     const f = { c, name: g.n || '', territory: !!g.n, polys: [], arcIds: [] };
     for (const p of parts) {
-      const rings = p.map(ring).filter(r => r.length >= 6);
+      const rings = polarFix(p.map(ring).filter(r => r.length >= 6));
       if (!rings.length) continue;
       const poly = { c, f, rings, bbox: ringBox(rings[0]), area: ringArea(rings[0]) };
       f.polys.push(poly); polys.push(poly);
@@ -58,6 +58,30 @@ function decodeTopo(topo) {
     feats.push(f);
   }
   return { arcs, feats, polys, grid: buildGrid(polys) };
+}
+// 1.6: Antarctica. A coast that runs all the way round the globe has no inside in lon/lat until it is closed over the pole:
+// the detailed map had it as an empty ring along the pole with the real coast as its "hole" (no mainland at all), and the
+// simple map's coast stopped short of the pole (a hole in the middle). Rings that sit entirely on a pole are dropped and a
+// round-the-globe coast gets the pole added: down the date line to the pole, along it, and back up.
+function polarFix(rings) {
+  const onPole = r => { for (let i = 1; i < r.length; i += 2) if (Math.abs(r[i]) < 89.9) return false; return true; };
+  const kept = rings.filter(r => !onPole(r));
+  if (!kept.length || kept.length === rings.length && !kept.some(r => { const b = ringBox(r); return b[2] - b[0] >= 359; })) return rings;
+  const out = kept.map(r => {
+    const b = ringBox(r);
+    if (b[2] - b[0] < 359) return r;
+    const P = b[1] + b[3] < 0 ? -90 : 90, pts = Array.from(r);
+    let seam = -1;      // where the coast jumps across the date line (or, if it never does, between the last point and the first)
+    for (let i = 0; i + 2 < pts.length; i += 2) if (Math.abs(pts[i + 2] - pts[i]) > 180) { seam = i; break; }
+    const at = seam < 0 ? pts.length : seam + 2, ax = pts[at - 2], ay = pts[at - 1], bx = seam < 0 ? pts[0] : pts[at], by = seam < 0 ? pts[1] : pts[at + 1];
+    const ea = ax > 0 ? 180 : -180, lat = (ay + by) / 2;
+    pts.splice(at, 0, ea, lat, ea, P, -ea, P, -ea, lat);
+    const closed = new Float32Array(pts);
+    closed.polar = { P, coast: r };      // buildLand draws it from the plain coast, seen from above the pole
+    return closed;
+  });
+  out.sort((x, y) => ringArea(y) - ringArea(x));      // the biggest ring is the outside
+  return out;
 }
 function ringBox(r) {
   let x0 = 1e9, y0 = 1e9, x1 = -1e9, y1 = -1e9;
@@ -143,7 +167,10 @@ function computeLabels(m) {
 // country index per vertex (colours come from a lookup texture, so map modes never rebuild geometry).
 function* buildLand(m, maxEdge) {
   const pos = [], cid = [], v = new THREE.Vector3();
-  const push = (x, y, c) => { ll2v(x, y, 1, v); pos.push(v.x, v.y, v.z); cid.push(c); };
+  // polar: x/y are a map seen from above the pole (distance from the pole in degrees), not lon/lat (1.6, Antarctica)
+  let polar = 0;
+  const toLL = (x, y) => polar < 0 ? [Math.atan2(x, y) / DEG, Math.hypot(x, y) - 90] : [Math.atan2(x, y) / DEG, 90 - Math.hypot(x, y)];
+  const push = (x, y, c) => { if (polar) [x, y] = toLL(x, y); ll2v(x, y, 1, v); pos.push(v.x, v.y, v.z); cid.push(c); };
   const tri = (ax, ay, bx, by, cx, cy, c, d) => {
     const ab = Math.hypot(ax - bx, ay - by), bc = Math.hypot(bx - cx, by - cy), ca = Math.hypot(cx - ax, cy - ay);
     const mx = Math.max(ab, bc, ca);
@@ -153,16 +180,24 @@ function* buildLand(m, maxEdge) {
     else { const x = (cx + ax) / 2, y = (cy + ay) / 2; tri(ax, ay, bx, by, x, y, c, d + 1); tri(x, y, bx, by, cx, cy, c, d + 1); }
   };
   let k = 0;
+  const va = new THREE.Vector3(), vb = new THREE.Vector3(), vc = new THREE.Vector3();
   for (const p of m.polys) {
-    const toV2 = r => { const a = []; for (let i = 0; i < r.length; i += 2) a.push(new THREE.Vector2(r[i], r[i + 1])); return a; };
-    const outer = toV2(p.rings[0]), holes = p.rings.slice(1).map(toV2), all = outer.concat(...holes);
+    const pol = p.rings[0].polar;
+    polar = pol ? pol.P : 0;
+    const toV2 = r => { const a = []; for (let i = 0; i < r.length; i += 2) { const lon = r[i] * DEG, d = polar < 0 ? r[i + 1] + 90 : 90 - r[i + 1];
+      a.push(polar ? new THREE.Vector2(d * Math.sin(lon), d * Math.cos(lon)) : new THREE.Vector2(r[i], r[i + 1])); } return a; };
+    const outer = toV2(pol ? pol.coast : p.rings[0]), holes = p.rings.slice(1).map(toV2), all = outer.concat(...holes);
     let faces;
     try { faces = THREE.ShapeUtils.triangulateShape(outer, holes); } catch (e) { faces = []; }
     for (const f of faces) {
       let [a, b, c] = f.map(i => all[i]);
-      if ((b.x - a.x) * (c.y - a.y) - (b.y - a.y) * (c.x - a.x) < 0) [b, c] = [c, b]; // counter-clockwise seen from outside
+      if (polar) {      // counter-clockwise seen from outside, checked on the sphere itself
+        ll2v(...toLL(a.x, a.y), 1, va); ll2v(...toLL(b.x, b.y), 1, vb); ll2v(...toLL(c.x, c.y), 1, vc);
+        if (vb.sub(va).cross(vc.sub(va)).dot(va) < 0) [b, c] = [c, b];
+      } else if ((b.x - a.x) * (c.y - a.y) - (b.y - a.y) * (c.x - a.x) < 0) [b, c] = [c, b]; // counter-clockwise seen from outside
       tri(a.x, a.y, b.x, b.y, c.x, c.y, p.c, 0);
     }
+    polar = 0;
     if (++k % 40 === 0) yield k / m.polys.length;
   }
   const g = new THREE.BufferGeometry();

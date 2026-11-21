@@ -32,7 +32,27 @@ input { font: inherit; color: var(--text); }
 #load-text { color: var(--dim); font-size: 13px; min-height: 1.4em; }
 
 /* title */
-#title .title-box { position: absolute; left: 6vw; top: 50%; transform: translateY(-50%); }
+/* 1.6: the title menu always fits: the box spans the screen height and centres what it can (never spilling off the top),
+   shorter screens get a smaller logo and tighter gaps, and under 640px tall the buttons go in two columns */
+#title .title-box { position: absolute; left: 6vw; top: 0; bottom: 0; display: flex; flex-direction: column; justify-content: safe center; padding: 14px 0 34px; max-width: 88vw; }
+#title .title-box .menu { pointer-events: auto; overflow-y: auto; min-height: 0; padding-right: 4px; }
+@media (max-height: 780px) {
+  #title .logo.big { font-size: clamp(40px, 7vw, 76px); }
+  #title .tagline { margin-bottom: 16px; }
+  #title .menu { gap: 7px; }
+  #title .menu .btn { padding-top: 9px; padding-bottom: 9px; }
+}
+@media (max-height: 640px) {
+  #title .logo.big { font-size: clamp(36px, 6vw, 60px); }
+  #title .tagline { margin-bottom: 10px; font-size: 15px; }
+  #title .menu { display: grid; grid-template-columns: 1fr 1fr; width: min(540px, 86vw); gap: 6px; }
+  #title .menu .btn { padding: 8px 12px; font-size: 14px; }
+}
+@media (max-height: 440px) {
+  #title .logo.big { font-size: 34px; }
+  #title .tagline { display: none; }
+  #title .title-box { padding: 8px 0 26px; }
+}
 .tagline { color: var(--dim); font-size: 18px; letter-spacing: .08em; margin: 4px 0 30px 4px; }
 .menu { display: flex; flex-direction: column; gap: 10px; width: 260px; }
 .btn { background: var(--panel2); border: 1px solid var(--line); border-radius: 8px; padding: 11px 18px; text-align: left; font-size: 16px; transition: background .15s, border-color .15s, transform .1s; }

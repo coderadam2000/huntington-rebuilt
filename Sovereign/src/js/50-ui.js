@@ -210,6 +210,8 @@ const UI = {
   },
   whatsNew() {
     const items = [
+      ['🧊', 'Antarctica is whole again (1.6)', 'The hole at the South Pole is filled in: the detailed map had lost the Antarctic mainland and the simple one stopped short of the pole. You can click anywhere on it now.'],
+      ['📐', 'The title menu fits (1.6)', 'On smaller or shorter screens the title menu no longer runs off the top or bottom: it shrinks to fit, and on short screens the buttons sit in two columns.'],
       ['🎓', 'Training (new in 1.5)', 'Four hands-on lessons on the title screen: your first year (in a practice game that is thrown away afterwards), war and peace, the World Council and crises, and playing online. Practice games never save and never count for achievements or leaderboards.'],
       ['🕊', 'The World Council', 'Every four months the whole world votes: sanctions, peacekeepers and world laws on climate, arms, tax, aid, trade, AI and space. Propose your own resolutions, lobby with political capital or aid money, and watch out for vetoes. Break a world law and the world will notice. (Council, in the menu.)'],
       ['🦠', 'Global crises', 'Pandemics, a world financial panic, a food crisis, a solar superstorm, a cyber plague and, very rarely, an asteroid. Every country pledges to a world fund; the fuller it is, the less everyone suffers.'],
