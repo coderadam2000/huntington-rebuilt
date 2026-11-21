@@ -9,7 +9,8 @@ function setVersion(v) { MIRRORS = MIRROR_HOSTS.map(function (m) { return m + RE
 // 2026-11-21: always load the newest push. jsDelivr can keep serving an older commit under '@main' for hours, so the hub
 // asks GitHub which commit main is on and loads every file pinned to that commit (a pinned address is never stale).
 // If GitHub cannot be reached (blocked, or its 60-an-hour limit for one school network), it falls back to '@main'.
-// A hub that a loader fetched from '@main' also checks that it IS the newest launcher, and swaps itself if not.
+// (A hub cannot swap itself for a newer one in the same page: its scripts have already declared their names. Players get a
+// newer launcher itself through the loader, which pins it; HG_HUB_ID tells which build is running.)
 var HG_HUB_ID = '__BUILD_HASH__';      // the build fills in a fingerprint of this file
 var HG_SHA_RE = /^[0-9a-f]{40}$/;
 function latestSha() {
@@ -20,26 +21,11 @@ function latestSha() {
     .then(function (s) { s = (s || '').trim(); if (!HG_SHA_RE.test(s)) return null; try { localStorage.setItem('hgv:sha', JSON.stringify({ s: s, t: Date.now() })); } catch (e) {} return s; })
     .catch(function () { clearTimeout(t); return null; });
 }
-// the hub a loader fetched from '@main' may be old: if the newest commit's launcher is a different build, run that one
-function newerHub(sha) {
-  var url = 'https://cdn.jsdelivr.net/gh/' + REPO_NAME + '@' + sha + '/index.html';
-  var ctl = window.AbortController ? new AbortController() : null, t = setTimeout(function () { if (ctl) ctl.abort(); }, 5000);
-  return fetch(url, { signal: ctl ? ctl.signal : undefined }).then(function (r) { clearTimeout(t); return r.ok ? r.text() : null; }).then(function (h) {
-    var m = h && /HG_HUB_ID = '([0-9a-f]{12})'/.exec(h);
-    if (!m || m[1] === HG_HUB_ID || /__BUILD/.test(HG_HUB_ID)) return false;
-    var tag = '<script>window.HG_VERSION = ' + JSON.stringify(sha) + '; window.HG_LOAD_P = .8;<\/script>';
-    h = /<head[^>]*>/i.test(h) ? h.replace(/<head[^>]*>/i, function (x) { return x + tag; }) : tag + h;
-    document.open(); document.write(h); document.close(); return true;
-  }).catch(function () { clearTimeout(t); return false; });
-}
 var versionReady = (function () {
   var v = window.HG_VERSION, lh = location.hostname;
   if (v && v !== 'main') return Promise.resolve(v);                           // a loader already picked the commit
   if (window.HG_BUNDLE || (!v && (location.protocol === 'file:' || /github\.io$/.test(lh) || lh === '127.0.0.1' || lh === 'localhost'))) return Promise.resolve(v || 'main');
-  return latestSha().then(function (sha) {
-    if (!sha) return 'main';
-    return newerHub(sha).then(function (swapped) { return swapped ? new Promise(function () {}) : sha; });     // swapped: this page is gone
-  });
+  return latestSha().then(function (sha) { return sha || 'main'; });
 })();
 function cacheRelease(v) { return v === 'main' ? v + '-' + HG_build() : v; }
 // per-file fingerprints of a version (jsDelivr's data API), fetched once per visit: a saved game is reused only when its
