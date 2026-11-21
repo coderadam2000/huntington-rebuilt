@@ -90,7 +90,7 @@ function qolDecorate() {
 // The page used to be one tall column of big cards, which stopped working past twenty games. Now: a banner, a shelf
 // per kind of game (each scrolls sideways, so a shelf never gets longer), then every game as a small tile. A tile's
 // description shows when you rest on it (qolPeek). NEW_NOW names what this release added or changed.
-var NEW_NOW = ['Casino', 'Brown E Clicker', 'Coffee Shop NEW', 'Market Life 1.9'];
+var NEW_NOW = ['Zoom', 'Minigames/Sports Mix', 'Steel Storm', 'Sovereign', 'Minigames/Chess and Checkers', 'Last Light', '50 Levels Of Spikes 1.2', 'Element Lab', 'Blocky Shooter V2'];      // the 2026-11-21 update
 var FEATURED_PIN = ['Beat Lab'];      // always first in Featured, whatever the release (the owner's ask, 2026-11-16)
 var SHELF_OF = { '3D': 'action', Shooter: 'action', Strategy: 'think', Tycoon: 'think', Sim: 'think', Clicker: 'think', Platformer: 'run', Puzzle: 'run', Arcade: 'run', Party: 'party', Minigame: 'party', Casino: 'party', Sandbox: 'make' };
 var SHELVES = [['fav', '\u2605 Your favourites'], ['new', 'New and updated'], ['mp', 'Play with friends'], ['action', 'Action and shooters'], ['think', 'Strategy, tycoon and idle'], ['run', 'Platformers, puzzles and arcade'], ['party', 'Party games and minigames'], ['make', 'Sandbox and the rest']];

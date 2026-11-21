@@ -24,9 +24,15 @@ def get(url, tries=3):
             time.sleep(3)
 
 def want(f): return hashlib.sha1(subprocess.run(['git', 'show', f'{SHA}:{f}'], capture_output=True).stdout).hexdigest()
-def live(f):
-    b = get(f'https://cdn.jsdelivr.net/gh/{REPO}@main/{q(f)}')
-    return hashlib.sha1(b).hexdigest() if b is not None else None
+# cdn.jsdelivr.net is a mix of CDNs picked by where you are (a GitHub runner lands on Fastly, a school in another place on
+# Cloudflare), so every network is checked by name: a file is live only when all of them serve the new copy.
+HOSTS = ['cdn', 'fastly', 'gcore', 'testingcf']
+def stale(f, sha):
+    out = []
+    for h in HOSTS:
+        b = get(f'https://{h}.jsdelivr.net/gh/{REPO}@main/{q(f)}')
+        if b is None or hashlib.sha1(b).hexdigest() != sha: out.append(h)
+    return out
 
 throttle = {}          # file -> time when it can be purged again
 def purge(f):
@@ -49,7 +55,8 @@ pending = {f: want(f) for f in files}
 while pending and time.time() < LIMIT:
     time.sleep(45)
     for f in list(pending):
-        if live(f) == pending[f]: print(f'live     {f}'); pending.pop(f)
-        else: purge(f)
-for f in pending: print(f'::warning::still the old copy of {f} after the time limit: it goes live when jsDelivr\'s cache runs out (up to 12 h)')
+        bad = stale(f, pending[f])
+        if not bad: print(f'live     {f}'); pending.pop(f)
+        else: print(f'  old on {",".join(bad)}: {f}'); purge(f)
+for f in pending: print(f'::warning::still the old copy of {f} on {",".join(stale(f, pending[f]))} after the time limit: it goes live when jsDelivr\'s cache runs out (up to 12 h)')
 print(f'{len(files) - len(pending)} of {len(files)} files live')

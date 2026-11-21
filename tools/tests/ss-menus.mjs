@@ -31,7 +31,7 @@ const info = p => S(p, () => __steelstorm.show.info());
 // ---------- 1. one page: menus, showcase, respawn ----------
 const A = await page('A');
 ok(/^\d+\.\d+$/.test(await S(A, () => __steelstorm.version)), 'a version is shown');
-await A.waitForTimeout(1500); await S(A, () => { const n = document.getElementById('s-new'); if (n) n.classList.add('hidden'); });      // the What's new sheet of whatever version this is
+await A.waitForTimeout(1500); if (await S(A, () => !document.getElementById('s-new').classList.contains('hidden'))) await A.click('#s-new [data-close]');      // close the What's new sheet of whatever version this is (the real button, so the showcase resumes)
 ok(await S(A, () => __steelstorm.state) === 'menu', 'starts on the home menu');
 const s0 = await until(async () => { const i = await info(A); return i.on && i.frames > 4 && i; }, 15000);
 ok(!!s0, 'showcase runs on the home menu', s0 && { n: s0.n, shot: s0.shot, hero: s0.hero });
