@@ -344,7 +344,11 @@ function draw() {
     ctx.globalAlpha = 1.0;
 
 
-    if (gameState !== 'DEAD') {
+    const idle = idlePose(performance.now());      // 2.3 (076-idle-respawn.js): every frame, so moving, dying or a menu resets the clock
+    if (gameState !== 'DEAD' && (idle.sx !== 1 || idle.sy !== 1 || idle.eyeX !== null || idle.eyeY || idle.eyesShut || idle.zzz || idle.hop)) {
+        if (typeof mpDrawOthers === 'function') mpDrawOthers(ctx);
+        drawIdlePlayer(ctx, idle);
+    } else if (gameState !== 'DEAD') {
         if (typeof mpDrawOthers === 'function') mpDrawOthers(ctx);
         const g = player.grav;
         ctx.fillStyle = '#38bdf8';

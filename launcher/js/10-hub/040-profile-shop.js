@@ -143,15 +143,28 @@ function profBoards(c) {
   h += '<table class="plb"><tr><th>#</th><th>Player</th><th>' + profEsc(def.lo ? 'Time' : 'Score') + '</th><th>Rank</th><th>How</th><th>When</th></tr>' + d.rows.map(function (r) {
     var cs = window.HGGrapevine.eco.cos([])[r.u] || (window.HGGrapevine.eco.cos([r.u]))[r.u] || {};
     var how = r.d ? Object.keys(r.d).slice(0, 4).map(function (k) { return profEsc(k) + ': ' + profEsc(r.d[k]); }).join(', ') : '';
-    return '<tr class="' + (r.me ? 'me' : '') + (r.pos === 1 ? ' first' : '') + '"><td>' + (r.pos === 1 ? '👑' : r.pos) + '</td><td>' + profPfp(cs.p, 22, cs.img) + ' ' + lbWho(r.n, cs) + (r.pos === 1 ? ' <span class="ptag rec">Record Holder</span>' : '') +
+    return '<tr class="' + (r.me ? 'me' : '') + (r.pos === 1 ? ' first' : '') + '"><td>' + (r.pos === 1 ? '👑' : r.pos) + '</td><td>' + profPfp(cs.p, 22, cs.img) + ' ' + lbWho(r.n, cs) + lbVicTag(r) + (r.pos === 1 ? ' <span class="ptag rec">Record Holder</span>' : '') +
       '</td><td><b>' + profFmt(r.s, def.f) + '</b></td><td><span class="ptag rank t' + r.tier + '">R' + r.tier + '</span></td><td class="how">' + how + '</td><td class="when">' + new Date(r.at).toLocaleDateString() + '</td></tr>';
   }).join('') + '</table>';
   return h;
+}
+// 100 LOS 2.3: on its level and one-life boards, victors (beat the game / beat it in one life) go above everyone else at the same score
+function lbVictors(m) {
+  if (!m || !/^spikes:(level|onelife)$/.test(m.board) || !Array.isArray(m.rows)) return m;
+  var vic = function (r) { return r.d && r.d.victor ? 1 : 0; };
+  m.rows = m.rows.slice().sort(function (a, b) { return (b.s - a.s) || (vic(b) - vic(a)) || (a.pos - b.pos); });
+  m.rows.forEach(function (r, i) { r.pos = i + 1; if (r.me && m.me) m.me.pos = r.pos; });
+  return m;
+}
+function lbVicTag(r) {
+  if (!r.d || !r.d.victor || !/^spikes:(level|onelife)$/.test(PROF.lbBoard)) return '';
+  return PROF.lbBoard === 'spikes:onelife' ? ' <span class="ptag vic1">&#9733; One-Life Victor</span>' : ' <span class="ptag vic">&#127942; Victor</span>';
 }
 function profLoadBoard(k, quiet) {
   PROF.lbAt = Date.now();
   window.HGGrapevine.eco.lbGet(k).then(function (m) {
     if (m.board !== PROF.lbBoard) return;
+    m = lbVictors(m);
     var same = quiet && PROF.lbData && JSON.stringify(PROF.lbData.rows) === JSON.stringify(m.rows);
     PROF.lbData = m; PROF.lbErr = ''; if (!same) { profRender(); lbRender(); }
   }, function (e) { if (!quiet) { PROF.lbErr = k; lbRender(); profRender(); } });
@@ -194,12 +207,12 @@ function lbView(c) {
   var how = function (r) { return r.d ? Object.keys(r.d).slice(0, 4).map(function (k) { var v = r.d[k]; return profEsc(k) + ': ' + profEsc(typeof v === 'number' ? profFmt(v, v >= 1e6 ? 'big' : 'int') : v); }).join(', ') : ''; };
   var top = d.rows.slice(0, 3), order = [1, 0, 2];
   h += '<div class="lbpod">' + order.filter(function (i) { return top[i]; }).map(function (i) { var r = top[i], cs = cosOfU(r.u);
-    return '<div class="lbp p' + (i + 1) + (r.me ? ' me' : '') + '"><div class="lbm">' + ['👑', '🥈', '🥉'][i] + '</div>' + cosPet(cosFrame(profPfp(cs.p, i ? 46 : 60, cs.img), cs.fr), cs.pt, i ? 46 : 60) + '<b>' + lbWho(r.n, cs) + '</b><span class="lbs">' + profFmt(r.s, def.f) + '</span>' + (how(r) ? '<small>' + how(r) + '</small>' : '') + '<div class="lbstep"></div></div>'; }).join('') + '</div>';
+    return '<div class="lbp p' + (i + 1) + (r.me ? ' me' : '') + '"><div class="lbm">' + ['👑', '🥈', '🥉'][i] + '</div>' + cosPet(cosFrame(profPfp(cs.p, i ? 46 : 60, cs.img), cs.fr), cs.pt, i ? 46 : 60) + '<b>' + lbWho(r.n, cs) + lbVicTag(r) + '</b><span class="lbs">' + profFmt(r.s, def.f) + '</span>' + (how(r) ? '<small>' + how(r) + '</small>' : '') + '<div class="lbstep"></div></div>'; }).join('') + '</div>';
   h += '<div class="lbme">' + (d.me ? 'You: <b>#' + d.me.pos + '</b> of ' + d.n + ' · ' + profFmt(d.me.s, def.f) + ' · <span class="ptag rank t' + d.me.tier + '">R' + d.me.tier + '</span>' : 'You are not on this board yet: play to get on it.') + ' <span class="dimtxt">' + d.n + ' on this board</span> <button class="lbre" data-lbretry="1" title="Refresh this board">⟳ Refresh</button>' +
     (d.rows.length > 6 ? '<input id="lb-find" class="lbfind" type="search" placeholder="Find a player..." autocomplete="off" spellcheck="false">' : '') + '</div>';
   var rest = d.rows.slice(3);
   if (rest.length) h += '<table class="plb"><tr><th>#</th><th>Player</th><th>' + profEsc(def.lo ? 'Time' : 'Score') + '</th><th>Rank</th><th>How</th><th>When</th></tr>' + rest.map(function (r) { var cs = cosOfU(r.u);
-    return '<tr class="' + (r.me ? 'me' : '') + '"><td>' + r.pos + '</td><td>' + profPfp(cs.p, 22, cs.img) + ' ' + lbWho(r.n, cs) + '</td><td><b>' + profFmt(r.s, def.f) + '</b></td><td><span class="ptag rank t' + r.tier + '">R' + r.tier + '</span></td><td class="how">' + how(r) + '</td><td class="when">' + new Date(r.at).toLocaleDateString() + '</td></tr>'; }).join('') + '</table>';
+    return '<tr class="' + (r.me ? 'me' : '') + '"><td>' + r.pos + '</td><td>' + profPfp(cs.p, 22, cs.img) + ' ' + lbWho(r.n, cs) + lbVicTag(r) + '</td><td><b>' + profFmt(r.s, def.f) + '</b></td><td><span class="ptag rank t' + r.tier + '">R' + r.tier + '</span></td><td class="how">' + how(r) + '</td><td class="when">' + new Date(r.at).toLocaleDateString() + '</td></tr>'; }).join('') + '</table>';
   return '<div class="lbwrap">' + side + h + '</div></div>';
 }
 document.addEventListener('click', function (e) {

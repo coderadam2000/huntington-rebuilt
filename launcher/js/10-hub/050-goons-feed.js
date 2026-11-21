@@ -39,8 +39,9 @@ function blockyXP(l) { var per = 0; for (var r = 1; r < 50; r++) per += 600 + 20
 function blockyRanks(l) { var x = feedNum(l.xp), r = 1; while (r < 50 && x >= 600 + 200 * r) { x -= 600 + 200 * r; r++; } return feedNum(l.prestige) * 49 + (r - 1); }
 // board -> [value, details] from the saves (0 / nothing = not on the board yet)
 var LB_FEED = [
-  ['spikes:level', function () { var s = feedRd('spikes100_progress') || {}; return [feedNum(s.unlocked)]; }],
-  ['spikes:onelife', function () { var s = feedRd('spikes100_progress') || {}; return [feedNum(s.bestOneLife)]; }],
+  // 100 LOS 2.3: beating the game (and beating it in one life) is sent along, so the board puts victors above everyone else at 100
+  ['spikes:level', function () { var s = feedRd('spikes100_progress') || {}; return [feedNum(s.unlocked), s.beaten ? { victor: 'beat all 100' } : null]; }],
+  ['spikes:onelife', function () { var s = feedRd('spikes100_progress') || {}; return [feedNum(s.bestOneLife), feedNum(s.bestOneLife) >= 100 ? { victor: 'all 100 in one life' } : null]; }],
   ['spikes:endless', function () { var s = feedRd('spikes100_progress') || {}; return [feedNum(s.bestEndless)]; }],
   // Tetris Surge keeps its top 5 per mode in best[mode] = [{ s: score, l: lines, t: ms, ... }] (sprint is sorted by time)
   ['tetris:score', function () { var t = feedRd('huntingtonTetrisSurge1') || {}, b = 0, m = '', bl = 0; for (var k in (t.best || {})) if (k !== 'sprint') (Array.isArray(t.best[k]) ? t.best[k] : []).forEach(function (e) { if (e && feedNum(e.s) > b) { b = feedNum(e.s); m = k; bl = feedNum(e.l); } }); b = Math.max(b, feedNum(feedRd('tetrisHighScore'))); return [b, m ? { mode: m, lines: bl } : null]; }],

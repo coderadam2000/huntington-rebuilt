@@ -236,7 +236,7 @@ body.chat { overflow: hidden; }
 .ptag.big { font-size: 13px; padding: 7px 10px; } .ptag.dim { opacity: .55; }
 .ptag.r-uncommon { color: #86efac; border-color: #4ade8066; } .ptag.r-rare { color: #93c5fd; border-color: #60a5fa66; } .ptag.r-epic { color: #d8b4fe; border-color: #c084fc66; }
 .ptag.r-legendary { color: #fde68a; border-color: #fbbf2466; } .ptag.r-secret { color: #fbcfe8; border-color: #f472b688; background: linear-gradient(90deg,#f472b633,#fbbf2433); }
-.ptag.rec { color: #fde68a; border-color: #fbbf2488; } .ptag.rank { font-weight: 700; } .ptag.rank.t1 { color: #fde68a; border-color: #fbbf2488; } .ptag.rank.t4, .ptag.rank.t5 { opacity: .75; }
+.ptag.rec { color: #fde68a; border-color: #fbbf2488; } .ptag.vic { color: #fcd34d; border-color: #f59e0b; background: #f59e0b22; font-weight: 700; } .ptag.vic1 { color: #fff; border-color: #e879f9; background: linear-gradient(90deg, #a855f7aa, #ec4899aa); font-weight: 800; box-shadow: 0 0 8px #e879f988; } .ptag.rank { font-weight: 700; } .ptag.rank.t1 { color: #fde68a; border-color: #fbbf2488; } .ptag.rank.t4, .ptag.rank.t5 { opacity: .75; }
 .psub, .pcats, .pgrps { display: flex; flex-wrap: wrap; gap: 6px; margin: 14px 0 8px; }
 .psub button, .pcats button, .pgrps button { background: var(--raise); border: 1px solid var(--line2); color: var(--text); border-radius: 999px; padding: 7px 14px; cursor: pointer; font: inherit; font-size: 13px; }
 .psub button { font-weight: 800; font-size: 14px; } .pgrps button { padding: 4px 10px; font-size: 12px; }

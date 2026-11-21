@@ -280,7 +280,8 @@ function continueGame() {
 
 
 // The game has opinions about how you died. Roasts get meaner the more times you die on the same level; never the same
-// one twice in a row. {n} = deaths on this level, {lv} = the level.
+// one twice in a row. {n} = the death count on the HUD (so the two always agree), {lv} = the level you died on.
+// 2.3: roasts come out of a shuffled bag per pool: every roast in a pool shows once before any repeats.
 const INSULTS = {
     first: [
         "You hit a spike. A stationary spike. It did not move.",
@@ -328,7 +329,7 @@ const INSULTS = {
         "This level is not hard. You are just very consistent.",
         "You have died more times than a phone battery.",
         "Respawning is not a strategy. Well, technically it is. A bad one.",
-        "{n} deaths on level {lv}. Legendary. Not in a good way.",
+        "{n} deaths, and level {lv} is where it got personal. Legendary. Not in a good way.",
         "The spikes are getting bored of winning.",
         "Somewhere a speedrunner felt that and winced.",
         "Plot twist: the spike was the main character all along.",
@@ -383,37 +384,48 @@ const INSULTS = {
     ]
 };
 let insultLevelKey = '', insultDeaths = 0, lastInsult = '';
-function deathInsult() {
-    const key = playMode + ':' + (playMode === 'campaign' ? currentLevel : (customLevel ? customLevel.name : ''));
+const insultBags = {};
+function bagPick(name) {
+    let bag = insultBags[name];
+    if (!bag || !bag.length) {
+        bag = insultBags[name] = INSULTS[name].slice();
+        for (let i = bag.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [bag[i], bag[j]] = [bag[j], bag[i]]; }
+        if (bag.length > 1 && bag[bag.length - 1] === lastInsult) [bag[0], bag[bag.length - 1]] = [bag[bag.length - 1], bag[0]];   // a fresh bag never repeats the last roast
+    }
+    return bag.pop();
+}
+// lv = the level you died on (One Life sends you back to 1 straight after); n = the count the HUD shows
+function deathInsult(lv, n) {
+    const key = playMode + ':' + (playMode === 'campaign' ? lv : (customLevel ? customLevel.name : ''));
     if (key !== insultLevelKey) { insultLevelKey = key; insultDeaths = 0; }
     insultDeaths++;
-    const pool = insultDeaths <= 1 ? INSULTS.first : insultDeaths <= 6 ? INSULTS.again : INSULTS.many;
-    let line = lastInsult;
-    for (let i = 0; i < 8 && line === lastInsult; i++) line = pool[Math.floor(Math.random() * pool.length)];
-    lastInsult = line;
-    return line.replace(/\{n\}/g, insultDeaths).replace(/\{lv\}/g, playMode === 'campaign' ? currentLevel : 'this');
+    const line = lastInsult = bagPick(insultDeaths <= 1 ? 'first' : insultDeaths <= 6 ? 'again' : 'many');
+    return line.replace(/\{n\}/g, n).replace(/\{lv\}/g, playMode === 'campaign' ? lv : 'this');
 }
 
 function triggerDeath() {
     gameState = 'DEAD';
     if (playMode === 'campaign') totalDeaths++; else customDeaths++;
-    deathDisplay.textContent = `Deaths: ${playMode === 'campaign' ? totalDeaths : customDeaths}`;
+    const shownDeaths = playMode === 'campaign' ? totalDeaths : customDeaths, diedOn = currentLevel;
+    deathDisplay.textContent = `Deaths: ${shownDeaths}`;
+    const roast = deathInsult(diedOn, shownDeaths);      // 2.3: picked before One Life resets the level, with the HUD's number
     createParticles(player.x + player.w/2, player.y + player.h/2, 30, '#38bdf8');
 
     if (playMode === 'campaign' && isOneLife) {
         if (currentLevel - 1 > progress.bestOneLife) { progress.bestOneLife = currentLevel - 1; saveProgress(); }
         currentLevel = 1;
         document.getElementById('deathHeader').textContent = "LIFE LOST";
-        document.getElementById('deathMessage').textContent = "One Life Mode: Progress reset to Level 1. " + deathInsult();
+        document.getElementById('deathMessage').textContent = "One Life Mode: Progress reset to Level 1. " + roast;
         document.getElementById('retryBtn').textContent = "Restart Journey";
     } else {
         document.getElementById('deathHeader').textContent = "You Died";
-        document.getElementById('deathMessage').textContent = deathInsult();
+        document.getElementById('deathMessage').textContent = roast;
         document.getElementById('retryBtn').textContent = "Try Again";
     }
     document.getElementById('deathBackBtn').textContent = backLabel();
 
     const token = ++deathToken;
+    if (autoRespawnDeath(roast, token)) return;      // 2.3: auto respawn (076-idle-respawn.js)
     setTimeout(() => { if (gameState === 'DEAD' && token === deathToken) deathScreen.classList.remove('hidden'); }, 500);
 }
 

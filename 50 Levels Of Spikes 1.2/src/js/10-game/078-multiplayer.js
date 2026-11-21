@@ -61,8 +61,8 @@ function mpStep() {
 }
 function mpDie() {
     createParticles(player.x + player.w / 2, player.y + player.h / 2, 30, '#38bdf8');
-    if (typeof deathInsult === 'function') showToast(deathInsult());
     MPS.deadT = 36; totalDeaths++; deathDisplay.textContent = 'Deaths: ' + totalDeaths;
+    if (typeof deathInsult === 'function') showToast(deathInsult(MPS.level || currentLevel, totalDeaths));   // 2.3: same number as the HUD
     if (MPS.mode === 'coop') { if (MPS.host) { MPS.teamDeaths++; mpBoard(); } else MPS.net.send('host', { t: 'died' }); }
 }
 function mpRespawn() {

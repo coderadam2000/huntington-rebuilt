@@ -243,7 +243,7 @@ body.chat { overflow: hidden; }
 .ptag.big { font-size: 13px; padding: 7px 10px; } .ptag.dim { opacity: .55; }
 .ptag.r-uncommon { color: #86efac; border-color: #4ade8066; } .ptag.r-rare { color: #93c5fd; border-color: #60a5fa66; } .ptag.r-epic { color: #d8b4fe; border-color: #c084fc66; }
 .ptag.r-legendary { color: #fde68a; border-color: #fbbf2466; } .ptag.r-secret { color: #fbcfe8; border-color: #f472b688; background: linear-gradient(90deg,#f472b633,#fbbf2433); }
-.ptag.rec { color: #fde68a; border-color: #fbbf2488; } .ptag.rank { font-weight: 700; } .ptag.rank.t1 { color: #fde68a; border-color: #fbbf2488; } .ptag.rank.t4, .ptag.rank.t5 { opacity: .75; }
+.ptag.rec { color: #fde68a; border-color: #fbbf2488; } .ptag.vic { color: #fcd34d; border-color: #f59e0b; background: #f59e0b22; font-weight: 700; } .ptag.vic1 { color: #fff; border-color: #e879f9; background: linear-gradient(90deg, #a855f7aa, #ec4899aa); font-weight: 800; box-shadow: 0 0 8px #e879f988; } .ptag.rank { font-weight: 700; } .ptag.rank.t1 { color: #fde68a; border-color: #fbbf2488; } .ptag.rank.t4, .ptag.rank.t5 { opacity: .75; }
 .psub, .pcats, .pgrps { display: flex; flex-wrap: wrap; gap: 6px; margin: 14px 0 8px; }
 .psub button, .pcats button, .pgrps button { background: var(--raise); border: 1px solid var(--line2); color: var(--text); border-radius: 999px; padding: 7px 14px; cursor: pointer; font: inherit; font-size: 13px; }
 .psub button { font-weight: 800; font-size: 14px; } .pgrps button { padding: 4px 10px; font-size: 12px; }
@@ -2345,15 +2345,28 @@ function profBoards(c) {
   h += '<table class="plb"><tr><th>#</th><th>Player</th><th>' + profEsc(def.lo ? 'Time' : 'Score') + '</th><th>Rank</th><th>How</th><th>When</th></tr>' + d.rows.map(function (r) {
     var cs = window.HGGrapevine.eco.cos([])[r.u] || (window.HGGrapevine.eco.cos([r.u]))[r.u] || {};
     var how = r.d ? Object.keys(r.d).slice(0, 4).map(function (k) { return profEsc(k) + ': ' + profEsc(r.d[k]); }).join(', ') : '';
-    return '<tr class="' + (r.me ? 'me' : '') + (r.pos === 1 ? ' first' : '') + '"><td>' + (r.pos === 1 ? '👑' : r.pos) + '</td><td>' + profPfp(cs.p, 22, cs.img) + ' ' + lbWho(r.n, cs) + (r.pos === 1 ? ' <span class="ptag rec">Record Holder</span>' : '') +
+    return '<tr class="' + (r.me ? 'me' : '') + (r.pos === 1 ? ' first' : '') + '"><td>' + (r.pos === 1 ? '👑' : r.pos) + '</td><td>' + profPfp(cs.p, 22, cs.img) + ' ' + lbWho(r.n, cs) + lbVicTag(r) + (r.pos === 1 ? ' <span class="ptag rec">Record Holder</span>' : '') +
       '</td><td><b>' + profFmt(r.s, def.f) + '</b></td><td><span class="ptag rank t' + r.tier + '">R' + r.tier + '</span></td><td class="how">' + how + '</td><td class="when">' + new Date(r.at).toLocaleDateString() + '</td></tr>';
   }).join('') + '</table>';
   return h;
+}
+// 100 LOS 2.3: on its level and one-life boards, victors (beat the game / beat it in one life) go above everyone else at the same score
+function lbVictors(m) {
+  if (!m || !/^spikes:(level|onelife)$/.test(m.board) || !Array.isArray(m.rows)) return m;
+  var vic = function (r) { return r.d && r.d.victor ? 1 : 0; };
+  m.rows = m.rows.slice().sort(function (a, b) { return (b.s - a.s) || (vic(b) - vic(a)) || (a.pos - b.pos); });
+  m.rows.forEach(function (r, i) { r.pos = i + 1; if (r.me && m.me) m.me.pos = r.pos; });
+  return m;
+}
+function lbVicTag(r) {
+  if (!r.d || !r.d.victor || !/^spikes:(level|onelife)$/.test(PROF.lbBoard)) return '';
+  return PROF.lbBoard === 'spikes:onelife' ? ' <span class="ptag vic1">&#9733; One-Life Victor</span>' : ' <span class="ptag vic">&#127942; Victor</span>';
 }
 function profLoadBoard(k, quiet) {
   PROF.lbAt = Date.now();
   window.HGGrapevine.eco.lbGet(k).then(function (m) {
     if (m.board !== PROF.lbBoard) return;
+    m = lbVictors(m);
     var same = quiet && PROF.lbData && JSON.stringify(PROF.lbData.rows) === JSON.stringify(m.rows);
     PROF.lbData = m; PROF.lbErr = ''; if (!same) { profRender(); lbRender(); }
   }, function (e) { if (!quiet) { PROF.lbErr = k; lbRender(); profRender(); } });
@@ -2396,12 +2409,12 @@ function lbView(c) {
   var how = function (r) { return r.d ? Object.keys(r.d).slice(0, 4).map(function (k) { var v = r.d[k]; return profEsc(k) + ': ' + profEsc(typeof v === 'number' ? profFmt(v, v >= 1e6 ? 'big' : 'int') : v); }).join(', ') : ''; };
   var top = d.rows.slice(0, 3), order = [1, 0, 2];
   h += '<div class="lbpod">' + order.filter(function (i) { return top[i]; }).map(function (i) { var r = top[i], cs = cosOfU(r.u);
-    return '<div class="lbp p' + (i + 1) + (r.me ? ' me' : '') + '"><div class="lbm">' + ['👑', '🥈', '🥉'][i] + '</div>' + cosPet(cosFrame(profPfp(cs.p, i ? 46 : 60, cs.img), cs.fr), cs.pt, i ? 46 : 60) + '<b>' + lbWho(r.n, cs) + '</b><span class="lbs">' + profFmt(r.s, def.f) + '</span>' + (how(r) ? '<small>' + how(r) + '</small>' : '') + '<div class="lbstep"></div></div>'; }).join('') + '</div>';
+    return '<div class="lbp p' + (i + 1) + (r.me ? ' me' : '') + '"><div class="lbm">' + ['👑', '🥈', '🥉'][i] + '</div>' + cosPet(cosFrame(profPfp(cs.p, i ? 46 : 60, cs.img), cs.fr), cs.pt, i ? 46 : 60) + '<b>' + lbWho(r.n, cs) + lbVicTag(r) + '</b><span class="lbs">' + profFmt(r.s, def.f) + '</span>' + (how(r) ? '<small>' + how(r) + '</small>' : '') + '<div class="lbstep"></div></div>'; }).join('') + '</div>';
   h += '<div class="lbme">' + (d.me ? 'You: <b>#' + d.me.pos + '</b> of ' + d.n + ' · ' + profFmt(d.me.s, def.f) + ' · <span class="ptag rank t' + d.me.tier + '">R' + d.me.tier + '</span>' : 'You are not on this board yet: play to get on it.') + ' <span class="dimtxt">' + d.n + ' on this board</span> <button class="lbre" data-lbretry="1" title="Refresh this board">⟳ Refresh</button>' +
     (d.rows.length > 6 ? '<input id="lb-find" class="lbfind" type="search" placeholder="Find a player..." autocomplete="off" spellcheck="false">' : '') + '</div>';
   var rest = d.rows.slice(3);
   if (rest.length) h += '<table class="plb"><tr><th>#</th><th>Player</th><th>' + profEsc(def.lo ? 'Time' : 'Score') + '</th><th>Rank</th><th>How</th><th>When</th></tr>' + rest.map(function (r) { var cs = cosOfU(r.u);
-    return '<tr class="' + (r.me ? 'me' : '') + '"><td>' + r.pos + '</td><td>' + profPfp(cs.p, 22, cs.img) + ' ' + lbWho(r.n, cs) + '</td><td><b>' + profFmt(r.s, def.f) + '</b></td><td><span class="ptag rank t' + r.tier + '">R' + r.tier + '</span></td><td class="how">' + how(r) + '</td><td class="when">' + new Date(r.at).toLocaleDateString() + '</td></tr>'; }).join('') + '</table>';
+    return '<tr class="' + (r.me ? 'me' : '') + '"><td>' + r.pos + '</td><td>' + profPfp(cs.p, 22, cs.img) + ' ' + lbWho(r.n, cs) + lbVicTag(r) + '</td><td><b>' + profFmt(r.s, def.f) + '</b></td><td><span class="ptag rank t' + r.tier + '">R' + r.tier + '</span></td><td class="how">' + how(r) + '</td><td class="when">' + new Date(r.at).toLocaleDateString() + '</td></tr>'; }).join('') + '</table>';
   return '<div class="lbwrap">' + side + h + '</div></div>';
 }
 document.addEventListener('click', function (e) {
@@ -2571,8 +2584,9 @@ function blockyXP(l) { var per = 0; for (var r = 1; r < 50; r++) per += 600 + 20
 function blockyRanks(l) { var x = feedNum(l.xp), r = 1; while (r < 50 && x >= 600 + 200 * r) { x -= 600 + 200 * r; r++; } return feedNum(l.prestige) * 49 + (r - 1); }
 // board -> [value, details] from the saves (0 / nothing = not on the board yet)
 var LB_FEED = [
-  ['spikes:level', function () { var s = feedRd('spikes100_progress') || {}; return [feedNum(s.unlocked)]; }],
-  ['spikes:onelife', function () { var s = feedRd('spikes100_progress') || {}; return [feedNum(s.bestOneLife)]; }],
+  // 100 LOS 2.3: beating the game (and beating it in one life) is sent along, so the board puts victors above everyone else at 100
+  ['spikes:level', function () { var s = feedRd('spikes100_progress') || {}; return [feedNum(s.unlocked), s.beaten ? { victor: 'beat all 100' } : null]; }],
+  ['spikes:onelife', function () { var s = feedRd('spikes100_progress') || {}; return [feedNum(s.bestOneLife), feedNum(s.bestOneLife) >= 100 ? { victor: 'all 100 in one life' } : null]; }],
   ['spikes:endless', function () { var s = feedRd('spikes100_progress') || {}; return [feedNum(s.bestEndless)]; }],
   // Tetris Surge keeps its top 5 per mode in best[mode] = [{ s: score, l: lines, t: ms, ... }] (sprint is sorted by time)
   ['tetris:score', function () { var t = feedRd('huntingtonTetrisSurge1') || {}, b = 0, m = '', bl = 0; for (var k in (t.best || {})) if (k !== 'sprint') (Array.isArray(t.best[k]) ? t.best[k] : []).forEach(function (e) { if (e && feedNum(e.s) > b) { b = feedNum(e.s); m = k; bl = feedNum(e.l); } }); b = Math.max(b, feedNum(feedRd('tetrisHighScore'))); return [b, m ? { mode: m, lines: bl } : null]; }],
