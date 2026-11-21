@@ -1,0 +1,71 @@
+# Release on push: anything pushed to main is live (the loader downloads @main through jsDelivr).
+# This makes it show up straight away instead of after jsDelivr's 12-hour cache:
+#   1. purge jsDelivr for every served file the push changed (all mirrors share one purge)
+#   2. tag rN when latest.json names a release that has no tag yet (tools/release.sh waits for that tag)
+#   3. check that every built game matches its sources (a red run means something was pushed unbuilt)
+name: release
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+    inputs:
+      all:
+        description: 'Purge every served file, not only the changed ones'
+        type: boolean
+        default: false
+permissions:
+  contents: write
+concurrency:
+  group: release
+  cancel-in-progress: false
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: Files that changed
+        id: files
+        run: |
+          before="${{ github.event.before }}"
+          if [ "${{ github.event_name }}" = "workflow_dispatch" ] && [ "${{ inputs.all }}" = "true" ]; then
+            git ls-files > changed.txt
+          elif [ -z "$before" ] || [ "$before" = "0000000000000000000000000000000000000000" ] || ! git cat-file -e "$before^{commit}" 2>/dev/null; then
+            git ls-files > changed.txt          # first push or a rewritten history: purge everything
+          else
+            git diff --name-only "$before" "${{ github.sha }}" > changed.txt
+          fi
+          # only what players download: not sources, tools, docs or this folder
+          grep -vE '(^|/)src/|^tools/|^\.github/|^deliverables/|\.md$|(^|/)\.|^loader\.html$' changed.txt | grep -E '\.(html|js|css|json|jpg|jpeg|png|svg|gif|webp|mp3|ogg|wav|woff2?)$' > purge.txt || true
+          echo "count=$(wc -l < purge.txt | tr -d ' ')" >> "$GITHUB_OUTPUT"
+          echo "Files to purge:"; cat purge.txt
+      - name: Purge jsDelivr
+        if: steps.files.outputs.count != '0'
+        run: |
+          fail=0
+          while IFS= read -r f; do
+            enc=$(python3 -c 'import sys, urllib.parse; print(urllib.parse.quote(sys.argv[1]))' "$f")
+            url="https://purge.jsdelivr.net/gh/${{ github.repository }}@main/$enc"
+            for try in 1 2 3; do
+              out=$(curl -s --max-time 30 "$url" || true)
+              if echo "$out" | grep -q '"status": *"finished"'; then echo "purged  $f"; break; fi
+              if [ "$try" = 3 ]; then echo "::warning::could not purge $f: $(echo "$out" | head -c 200)"; fail=1; fi
+              sleep 5
+            done
+            sleep 1                             # stay well under jsDelivr's purge rate limit
+          done < purge.txt
+          [ "$fail" = 0 ] || echo "Some files were not purged: they go live when jsDelivr's cache runs out (up to 12 hours)."
+      - name: Tag the release
+        run: |
+          n=$(python3 -c 'import json; print(int(json.load(open("latest.json"))["release"]))' 2>/dev/null || echo "")
+          if [ -n "$n" ] && ! git rev-parse -q --verify "refs/tags/r$n" >/dev/null; then
+            git tag "r$n" "${{ github.sha }}" && git push origin "r$n" && echo "tagged r$n"
+          else
+            echo "no new release number in latest.json (r$n already tagged)"
+          fi
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - name: Built files match their sources
+        run: node tools/check.js
