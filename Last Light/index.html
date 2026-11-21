@@ -257,10 +257,31 @@ kbd { display: inline-block; min-width: 26px; padding: 1px 7px; margin: 0 2px; b
 .look.locked canvas { filter: grayscale(1) brightness(.45); } .look.locked span { opacity: .55; }
 .newlist p { text-align: left; line-height: 1.45; margin: 8px 0; }
 /* 1.5: ten buttons on the title: Play on its own row, the rest two by two (one column on a narrow phone) */
-#s-title .menu { display: grid; grid-template-columns: repeat(2, auto); justify-content: center; margin-top: 4vh; }
-#s-title .menu .btn.big { grid-column: 1 / -1; justify-self: center; }
-#s-title .menu .btn { margin: 5px; }
-@media (max-width: 480px) { #s-title .menu { grid-template-columns: auto; } }
+/* 1.7: the friendlier home screen: big Play, mode cards, small pills; fits a 600px-tall Chromebook window */
+#s-title { padding-top: min(9vh, 70px); }
+#s-title .logo .l2 { font-size: clamp(54px, min(11vw, 16vh), 150px); }
+#s-title .menu { display: flex; flex-direction: column; align-items: center; margin-top: min(3.5vh, 30px); gap: 10px; width: min(860px, 94vw); }
+#s-title .menu .btn.big { min-width: 280px; }
+#t-where { font-size: 13px; color: #ffe2b0; opacity: .9; margin-top: -4px; min-height: 16px; text-align: center; text-shadow: 0 1px 6px rgba(0,0,0,.6); }
+#s-title .modes { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 10px; width: 100%; }
+#s-title .mode { position: relative; font: inherit; text-align: left; cursor: pointer; color: #eef0ff; border-radius: 14px; padding: 10px 12px 11px 46px; min-height: 64px;
+  background: linear-gradient(180deg, rgba(36, 30, 70, .82), rgba(20, 18, 44, .88)); border: 1px solid rgba(255, 214, 150, .28); box-shadow: 0 6px 18px rgba(0,0,0,.35); transition: transform .12s, border-color .12s, background .12s; }
+#s-title .mode:hover, #s-title .mode:focus-visible { transform: translateY(-2px); border-color: #ffd27a; background: linear-gradient(180deg, rgba(58, 44, 92, .9), rgba(28, 22, 56, .92)); outline: none; }
+#s-title .mode i { position: absolute; left: 12px; top: 11px; font-style: normal; font-size: 22px; width: 26px; text-align: center; color: #ffcf73; filter: drop-shadow(0 0 6px rgba(255, 190, 90, .6)); }
+#s-title .mode b { display: block; font-size: 15px; font-weight: 800; letter-spacing: .02em; color: #fff3d6; }
+#s-title .mode small { display: block; margin-top: 3px; font-size: 12px; line-height: 1.3; color: #c7cdf3; }
+#s-title .mode.locked { opacity: .62; }
+#s-title .mode.locked i::after { content: '\1F512'; position: absolute; left: 12px; top: 18px; font-size: 12px; }
+#s-title .mode .lnew { position: absolute; right: 8px; top: 8px; font-size: 10px; font-weight: 800; text-transform: uppercase; color: #ffd27a; border: 1px solid #ffd27a77; border-radius: 6px; padding: 1px 5px; }
+#s-title .mode .lnew:hover { background: #ffd27a; color: #2b1a05; }
+#s-title .pills { display: flex; flex-wrap: wrap; justify-content: center; gap: 7px; }
+#s-title .pill { font: inherit; font-size: 13px; font-weight: 700; cursor: pointer; color: #eef0ff; background: rgba(12, 12, 30, .55); border: 1px solid rgba(255, 255, 255, .16); border-radius: 999px; padding: 6px 13px; transition: background .12s, border-color .12s; }
+#s-title .pill:hover, #s-title .pill:focus-visible { background: rgba(255, 210, 122, .18); border-color: #ffd27a; outline: none; }
+#s-title .ver { bottom: 30px; }
+#s-title .foot { bottom: 8px; }
+@media (max-width: 760px) { #s-title .modes { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+@media (max-height: 640px) { #s-title .tag { display: none; } #s-title .mode small { font-size: 11px; } #s-title .mode { min-height: 56px; padding-top: 8px; padding-bottom: 8px; } #s-title .menu { gap: 8px; } #s-title .btn.big { padding: 10px 26px; } }
+@media (max-height: 520px) { #s-title .mode small { display: none; } #s-title .mode { min-height: 0; } #s-title .ver { display: none; } }
 
 /* ---- Training (88-tutor.js): Beat Lab's lesson look. Spotlight hole + click shields in menus, a compact banner + ring in battle */
 #hgt { position: fixed; inset: 0; pointer-events: none; font-family: system-ui, "Segoe UI", Roboto, Arial, sans-serif; }
@@ -342,21 +363,28 @@ kbd { display: inline-block; min-width: 26px; padding: 1px 7px; margin: 0 2px; b
 <div id="s-title" class="screen">
   <div class="logo"><span class="l1">Last</span><span class="l2">Light</span></div>
   <div class="tag">The dark took everything. Take it back.</div>
+  <!-- 1.7: a friendlier home: one big Play (it says where you are), the ways to play as cards, everything else as small pills -->
   <div class="menu">
     <button class="btn big" id="t-play">Play</button>
-    <button class="btn" id="t-settings">Settings</button>
-    <button class="btn" id="t-trials">Trials <span class="newtag">new</span></button>
-    <button class="btn" id="t-onelife">One Life run</button>
-    <button class="btn" id="t-mp">Play together</button>
-    <button class="btn" id="t-saves">Save files</button>
-    <button class="btn" id="t-stats-btn">Stats</button>
-    <button class="btn" id="t-lore-btn">People</button>
-    <button class="btn" id="t-look">Your light</button>
-    <button class="btn" id="t-how">How to play</button>
-    <button class="btn" id="t-train">Training <span class="newtag" id="t-train-new">new</span></button>
+    <div id="t-where"></div>
+    <div class="modes">
+      <button class="mode" id="t-trials"><i>&#9201;</i><b>Trials</b><small>Beat the clock on levels you have cleared. Win medals.</small></button>
+      <button class="mode" id="t-onelife"><i>&#10084;</i><b>One Life</b><small>As many levels as you can. One fall ends it.</small></button>
+      <button class="mode" id="t-linear"><i>&#10140;</i><b>LINEAR Run <span class="newtag">new</span></b><small id="t-linear-sub">Beat The Gloom to unlock</small><span class="lnew hidden" id="t-linear-new">New run</span></button>
+      <button class="mode" id="t-mp"><i>&#9734;</i><b>Play together</b><small>Race friends or play co-op, up to 6 lights.</small></button>
+    </div>
+    <div class="pills">
+      <button class="pill" id="t-train">&#127891; Training <span class="newtag" id="t-train-new">new</span></button>
+      <button class="pill" id="t-how">&#10067; How to play</button>
+      <button class="pill" id="t-look">&#10024; Your light</button>
+      <button class="pill" id="t-stats-btn">&#128202; Stats</button>
+      <button class="pill" id="t-lore-btn">&#128101; People</button>
+      <button class="pill" id="t-saves">&#128190; Save files</button>
+      <button class="pill" id="t-settings">&#9881; Settings</button>
+    </div>
   </div>
   <div class="foot" id="t-stats"></div>
-  <button class="ver" id="t-ver" title="What's new in 1.6">Version 1.6 · Training: a practice room for every move you have learned · Frostveil · Trials with medals · <u>What's new</u></button>
+  <button class="ver" id="t-ver" title="What's new in 1.7">Version 1.7 · LINEAR Run · a friendlier home screen · <u>What's new</u></button>
 </div>
 
 <!-- world map -->
@@ -460,8 +488,13 @@ kbd { display: inline-block; min-width: 26px; padding: 1px 7px; margin: 0 2px; b
 <!-- 1.5: what's new -->
 <div id="s-new" class="screen dim hidden">
   <div class="card wide">
-    <h2>What's new in 1.6</h2>
+    <h2>What's new in 1.7</h2>
     <div class="how newlist">
+      <p><b>LINEAR Run</b> (1.7, unlocks when you beat The Gloom): every main-game level in order, on one clock. You can only play the level you are on:
+      no going back to an earlier one until the one in front of you is beaten. Falls and retries all count on the clock. Leave whenever you like,
+      Continue picks the run up where you were. Your best run goes on the LINEAR leaderboard.</p>
+      <p><b>A friendlier home screen</b> (1.7): one big Play button that tells you which level is next, the ways to play as cards that say what
+      they are, and everything else as small buttons underneath. It fits short Chromebook screens too.</p>
       <p><b>Training</b> (1.6, on the title screen): three short hands-on lessons. A practice room for every move you have earned
       (run, jump, double jump, wall jump, dash, glide), Trials, medals and ghosts, and your light, the people you met and playing together.
       Practice never records times or stats.</p>
@@ -3185,6 +3218,7 @@ const G = {
         // 1.6: idx can be a level def of its own (the Training practice room): no records, no stats, no play time
         const prac = idx && typeof idx === 'object' ? idx : null, def = prac || LEVELS[idx]; if (!def) return;
         if (prac) { PRAC = PRAC || {}; this.run = null; this.trial = null; } else PRAC = null;
+        if (prac || this.run || this.trial || this.mp) this.linear = false;      // 1.7: LINEAR is its own mode
         this.idx = idx; this.L = parseLevel(def); this.world = def.world; this.levelKey = def.id + ':' + Date.now();
         this.p = makePlayer(this.L.start.x, this.L.start.y); this.p.hearts = this.maxHearts();
         if (!this.mp) applyLook(this.p);                    // 1.5: the light you chose (multiplayer gives everyone their own)
@@ -3211,6 +3245,7 @@ const G = {
         $('#h-trial').classList.add('hidden');
         if (this.trial) trialBegin(this);
         else if (prac) UI.banner('Training', def.name);
+        else if (this.linear) linBanner();
         else UI.banner(def.world === 4 ? 'Final' : WORLDS[def.world].name + ' · ' + def.id, def.name);
     },
     update(dt) {
@@ -3272,6 +3307,7 @@ const G = {
         ST('clears'); if (flawNew) ST('flawless'); if (def.world === 4) ST('bossKills');
         SAVE.d.levels[def.id] = rec; SAVE.write(); lookCheck();
         this.p.vx = 0;
+        if (this.linear) { linFinish(this); return; }      // 1.7: LINEAR Run (93-linear.js)
         // One Life run: no results screen, straight on to the next level (the run ends at the first fall)
         if (this.run) {
             this.run.cleared++; SAVE.d.runs = SAVE.d.runs || {}; SAVE.d.runs.onelife = Math.max(SAVE.d.runs.onelife || 0, this.run.cleared); SAVE.write();
@@ -3452,7 +3488,7 @@ UI.stats = function () {
     const rows = [['sec', 'Progress'], ['Time played', tp], ['Levels cleared', done.length + ' / ' + LEVELS.length], ['Stars', moths + ' / ' + allMoths], ['Sparks collected', SAVE.d.sparks],
         ['Stories heard', talkCount() + ' / ' + TALK_N], ['Guardians freed', Object.keys(SAVE.d.guards || {}).filter(k => GUARDS[k]).length + ' / ' + Object.keys(GUARDS).length], ['Lost lanterns found', Object.keys(SAVE.d.secrets || {}).length + ' / ' + LEVELS.filter(l => l.map.some(r => r.includes('z'))).length],
         ['Levels done flawless', flawlessCount() + ' / ' + LEVELS.length], ['Bosses beaten', n('bossKills')], ['All best times', total == null ? 'clear every level' : fmtTime(total)],
-        ['Frozen lanterns', frozenFound() + ' / 11'], ['Trial medals', medalCount(1) + ' won · ' + medalCount(3) + ' gold · ' + medalPoints() + ' points'],
+        ['Frozen lanterns', frozenFound() + ' / 11'], ['Trial medals', medalCount(1) + ' won · ' + medalCount(3) + ' gold · ' + medalPoints() + ' points'], ['LINEAR best run', SAVE.d.linear && SAVE.d.linear.best != null ? fmtTime(SAVE.d.linear.best) + ' · ' + (SAVE.d.linear.bestFalls | 0) + ' falls · ' + (SAVE.d.linear.runs | 0) + ' run' + ((SAVE.d.linear.runs | 0) === 1 ? '' : 's') : 'not finished yet'],
         ['sec', 'Falls'], ['Total', SAVE.d.deaths], ['Into pits', n('death_pit')], ['On spikes', n('death_spike')], ['In lava', n('death_lava')], ['To enemies', enemy], ['Hits taken', n('hits')],
         ['sec', 'Moves'], ['Jumps', n('jumps')], ['Double jumps', n('djumps')], ['Wall jumps', n('walljumps')], ['Dashes', n('dashes')], ['Time gliding', Math.round(S.glide || 0) + ' s'], ['Enemies defeated', n('kills')], ['Lanterns lit', n('lanterns')],
         ['Distance', n('dist').toLocaleString() + ' tiles']];
@@ -6188,7 +6224,7 @@ function titleStats() {
     const done = Object.keys(SAVE.d.levels).length, moths = Object.values(SAVE.d.levels).reduce((n, r) => n + (r.moths || []).filter(Boolean).length, 0);
     $('#t-stats').textContent = done ? `${done} of ${LEVELS.length} levels · ${moths} stars · ${SAVE.d.sparks} sparks` : 'The last light in a dark world';
     $('#t-play').textContent = done ? 'Continue' : 'Play';
-    try { const m = svMeta(); $('#t-saves').textContent = 'Save files · ' + m.names[m.active]; } catch (e) {}
+    try { const m = svMeta(); $('#t-saves').textContent = '\u{1F4BE} Save files · ' + m.names[m.active]; } catch (e) {}
 }
 titleStats();
 mpBind();
@@ -6609,6 +6645,116 @@ window.__lumi.tut = {
     get lessons() { return Tutor.list.map(l => ({ id: l.id, title: l.title, steps: l.steps.length, done: Tutor.done(l.id) })); },
     get prac() { return PRAC; }, get inRoom() { return inRoom(); }, ROOM
 };
+
+// ---- 93-linear.js ----
+// ==========================================
+// 1.7: LINEAR RUN. Unlocks once you have beaten the main game (The Gloom). Every main-game level (worlds 1-4) in order, on
+// one clock. You can only play the level you are on: there is no going back to an earlier level until the one in front of
+// you is beaten, and beating it moves the run on. Leave any time: the run (where you are, its clock, its falls) is kept in
+// the save and Continue picks it up at the start of that level. The clock counts every attempt, falls included.
+// Records: SAVE.d.linear = { at, t, cur, falls, runs, best, bestFalls, splits: [], bestSplits: [] }  (seconds; only adds)
+// ==========================================
+const LIN_LEVELS = () => LEVELS.filter(l => l.world <= 4);
+function linBeatGame() { const L = LIN_LEVELS(), last = L[L.length - 1]; return !!(last && SAVE.d.levels[last.id] && SAVE.d.levels[last.id].best != null); }
+function linSave() {
+    const d = SAVE.d.linear = SAVE.d.linear && typeof SAVE.d.linear === 'object' ? SAVE.d.linear : {};
+    d.at = Math.max(0, Math.min(LIN_LEVELS().length - 1, d.at | 0)); d.t = +d.t || 0; d.cur = +d.cur || 0; d.falls = d.falls | 0; d.runs = d.runs | 0;
+    if (!Array.isArray(d.splits)) d.splits = [];
+    return d;
+}
+const linInRun = () => { const d = SAVE.d.linear; return !!(d && (d.at > 0 || d.t > 0 || d.cur > 0)); };
+const linIdx = () => LEVELS.indexOf(LIN_LEVELS()[linSave().at]);
+function linStart() {
+    if (!linBeatGame()) { G.toast('Beat The Gloom to unlock the LINEAR Run'); return; }
+    linSave(); G.run = null; G.trial = null; G.linear = true;
+    fadeTo(() => G.start(linIdx()));
+}
+function linBanner() {
+    const d = linSave(), N = LIN_LEVELS().length, def = LIN_LEVELS()[d.at];
+    UI.banner('LINEAR · ' + (d.at + 1) + ' / ' + N, def.name, 'Run clock ' + fmtTime(d.t + d.cur) + (d.falls ? ' · ' + d.falls + ' fall' + (d.falls === 1 ? '' : 's') : ''));
+}
+// time spent on an attempt that did not finish (a fall, a restart, leaving) still counts
+function linBank() { if (!G.linear || !G.L || G.done) return; const d = linSave(); d.cur += G.time || 0; G.time = 0; SAVE.write(); }
+function linLeave() {
+    linBank(); G.linear = false; G.state = 'title'; Input.clear();
+    $('#hud').classList.add('hidden'); $('#touch').classList.add('hidden'); UI.show('title'); titleStats();
+}
+function linNewRun() { const d = linSave(); d.at = 0; d.t = 0; d.cur = 0; d.falls = 0; d.splits = []; SAVE.write(); }
+// G.finish() calls this once the level's normal records are saved
+function linFinish(g) {
+    const d = linSave(), N = LIN_LEVELS().length, lvT = d.cur + g.time, def = g.L.def;
+    d.splits[d.at] = +lvT.toFixed(2); d.t += lvT; d.cur = 0; d.falls += g.stats.deaths || 0;
+    const last = d.at >= N - 1;
+    let newBest = false, runT = d.t, runF = d.falls;
+    if (last) {
+        newBest = d.best == null || runT < d.best;
+        if (newBest) { d.best = +runT.toFixed(2); d.bestFalls = runF; d.bestSplits = d.splits.slice(); }
+        d.runs++; d.at = 0; d.t = 0; d.falls = 0; d.splits = [];
+    } else d.at++;
+    SAVE.write();
+    const pb = d.bestSplits && d.bestSplits[last ? N - 1 : d.at - 1];
+    setTimeout(() => {
+        if (!G.linear) return;
+        g.state = 'done';
+        const rows = [['Level', def.id + ' · ' + def.name], ['Level time', fmtTime(lvT) + (pb != null && !newBest ? ' <small style="opacity:.7">(best run: ' + fmtTime(pb) + ')</small>' : '')],
+            ['Run clock', fmtTime(runT) + (newBest ? '<span class="new">NEW BEST</span>' : '')], ['Falls this run', runF],
+            ['Levels done', (last ? N : d.at) + ' / ' + N]];
+        if (last && d.best != null) rows.push(['Best LINEAR run', fmtTime(d.best) + ' · ' + (d.bestFalls | 0) + ' falls']);
+        $('#d-title').textContent = last ? 'LINEAR Run complete!' : 'LINEAR: level cleared';
+        $('#d-rows').innerHTML = rows.map(([a, b]) => `<div class="drow"><span>${a}</span><b>${b}</b></div>`).join('');
+        $('#d-unlock').textContent = last ? (newBest ? 'A new best run! It goes on the LINEAR leaderboard.' : 'Run again to beat your best.') : 'Next up: ' + LIN_LEVELS()[d.at].name + '. No going back until it is beaten.';
+        $('#d-retry').classList.add('hidden');
+        $('#d-next').classList.remove('hidden'); $('#d-next').textContent = last ? 'Start a new run' : 'Next level';
+        $('#d-map').textContent = 'Main menu';
+        $('#hud').classList.add('hidden');
+        UI.show('done');
+    }, 1500);
+}
+// ---- wiring: the buttons that lead out of a level know about the run ----
+(function () {
+    const wrap = (id, fn) => { const el = $(id); if (!el) return; const prev = el.onclick; el.onclick = (e) => { if (G.linear) { Sound.play('click'); fn(e); } else if (prev) prev.call(el, e); }; };
+    wrap('d-next', () => fadeTo(() => G.start(linIdx())));
+    wrap('d-map', () => linLeave());
+    wrap('dd-map', () => linLeave());
+    wrap('p-map', () => linLeave());
+    wrap('dd-restart', () => { linBank(); fadeTo(() => G.start(linIdx())); });
+    wrap('p-restart', () => { linBank(); fadeTo(() => G.start(linIdx())); });
+    // the results screen's buttons go back to normal for every other mode
+    const showDone = UI.show.bind(UI);
+    UI.show = function (s) { if (s === 'done' && !G.linear) { $('#d-retry').classList.remove('hidden'); $('#d-map').textContent = 'Level map'; } return showDone(s); };
+    const retry = UI.retry.bind(UI);
+    UI.retry = function () { if (G.linear && G.state === 'dead') { linBank(); fadeTo(() => G.start(linIdx())); return; } return retry(); };
+    const died = UI.died.bind(UI);
+    UI.died = function () { const r = died(); if (G.linear) { $('#dd-cause').textContent += '  LINEAR Run: level ' + (linSave().at + 1) + ', run clock ' + fmtTime(linSave().t + linSave().cur + (G.time || 0)) + '.'; $('#dd-map').textContent = 'Main menu'; } else $('#dd-map').textContent = 'Level map'; return r; };
+    // any other way into a level (the map, trials, One Life, multiplayer) ends LINEAR mode (the run itself is kept)
+    const pause = UI.pause.bind(UI);
+    UI.pause = function (...a) { const r = pause(...a); $('#p-map').textContent = G.linear ? 'Main menu (run is kept)' : 'Level map'; return r; };
+    const map = UI.map.bind(UI);
+    UI.map = function (...a) { if (G.linear) linBank(); G.linear = false; return map(...a); };
+    for (const id of ['t-onelife', 't-mp', 't-train']) { const el = $(id); if (el) el.addEventListener('click', () => { G.linear = false; }, true); }
+    const lb = $('t-linear');
+    if (lb) lb.onclick = () => { Sound.init(); Sound.play('click'); linStart(); };
+    const nr = $('t-linear-new');
+    if (nr) nr.onclick = (e) => { e.stopPropagation(); Sound.play('click'); if (nr.dataset.sure) { delete nr.dataset.sure; linNewRun(); titleStats(); G.toast('New LINEAR run: back to level 1'); } else { nr.dataset.sure = '1'; nr.textContent = 'Sure? Tap again'; setTimeout(() => { delete nr.dataset.sure; titleStats(); }, 3000); } };
+})();
+// the title button: locked, a fresh run, or where your run is
+function linTitle() {
+    const b = $('t-linear'), sub = $('t-linear-sub'), nr = $('t-linear-new'); if (!b || !sub) return;
+    const open = linBeatGame(); b.classList.toggle('locked', !open);
+    if (!open) { sub.textContent = 'Beat The Gloom to unlock'; if (nr) nr.classList.add('hidden'); return; }
+    const d = linSave(), N = LIN_LEVELS().length;
+    if (linInRun()) { sub.textContent = 'Continue: level ' + (d.at + 1) + ' / ' + N + ' · ' + fmtTime(d.t + d.cur); if (nr) { nr.classList.remove('hidden'); if (!nr.dataset.sure) nr.textContent = 'New run'; } }
+    else { sub.textContent = d.best != null ? 'Best run ' + fmtTime(d.best) + ' · go again' : 'Every level in order, one clock'; if (nr) nr.classList.add('hidden'); }
+}
+// the line under Play: the next level the story has for you
+function homeWhere() {
+    const el = $('t-where'); if (!el) return;
+    let i = LEVELS.findIndex((l, k) => !SAVE.d.levels[l.id] && UI.unlocked(k) && l.world <= 5);
+    el.textContent = i < 0 ? (Object.keys(SAVE.d.levels).length ? 'Every level cleared. Try Trials or a LINEAR Run!' : '') : (i === 0 && !Object.keys(SAVE.d.levels).length ? 'Start your journey: ' : 'Next: ') + LEVELS[i].id + ' · ' + LEVELS[i].name;
+}
+(function () { const ts = titleStats; titleStats = function () { ts(); try { linTitle(); homeWhere(); } catch (e) {} }; })();
+titleStats();
+window.__lumi.linear = { start: linStart, leave: linLeave, save: () => linSave(), beat: linBeatGame, newRun: linNewRun, levels: () => LIN_LEVELS().map(l => l.id), get on() { return !!G.linear; } };
 
 </script>
 </body>

@@ -34,21 +34,28 @@
 <div id="s-title" class="screen">
   <div class="logo"><span class="l1">Last</span><span class="l2">Light</span></div>
   <div class="tag">The dark took everything. Take it back.</div>
+  <!-- 1.7: a friendlier home: one big Play (it says where you are), the ways to play as cards, everything else as small pills -->
   <div class="menu">
     <button class="btn big" id="t-play">Play</button>
-    <button class="btn" id="t-settings">Settings</button>
-    <button class="btn" id="t-trials">Trials <span class="newtag">new</span></button>
-    <button class="btn" id="t-onelife">One Life run</button>
-    <button class="btn" id="t-mp">Play together</button>
-    <button class="btn" id="t-saves">Save files</button>
-    <button class="btn" id="t-stats-btn">Stats</button>
-    <button class="btn" id="t-lore-btn">People</button>
-    <button class="btn" id="t-look">Your light</button>
-    <button class="btn" id="t-how">How to play</button>
-    <button class="btn" id="t-train">Training <span class="newtag" id="t-train-new">new</span></button>
+    <div id="t-where"></div>
+    <div class="modes">
+      <button class="mode" id="t-trials"><i>&#9201;</i><b>Trials</b><small>Beat the clock on levels you have cleared. Win medals.</small></button>
+      <button class="mode" id="t-onelife"><i>&#10084;</i><b>One Life</b><small>As many levels as you can. One fall ends it.</small></button>
+      <button class="mode" id="t-linear"><i>&#10140;</i><b>LINEAR Run <span class="newtag">new</span></b><small id="t-linear-sub">Beat The Gloom to unlock</small><span class="lnew hidden" id="t-linear-new">New run</span></button>
+      <button class="mode" id="t-mp"><i>&#9734;</i><b>Play together</b><small>Race friends or play co-op, up to 6 lights.</small></button>
+    </div>
+    <div class="pills">
+      <button class="pill" id="t-train">&#127891; Training <span class="newtag" id="t-train-new">new</span></button>
+      <button class="pill" id="t-how">&#10067; How to play</button>
+      <button class="pill" id="t-look">&#10024; Your light</button>
+      <button class="pill" id="t-stats-btn">&#128202; Stats</button>
+      <button class="pill" id="t-lore-btn">&#128101; People</button>
+      <button class="pill" id="t-saves">&#128190; Save files</button>
+      <button class="pill" id="t-settings">&#9881; Settings</button>
+    </div>
   </div>
   <div class="foot" id="t-stats"></div>
-  <button class="ver" id="t-ver" title="What's new in 1.6">Version 1.6 · Training: a practice room for every move you have learned · Frostveil · Trials with medals · <u>What's new</u></button>
+  <button class="ver" id="t-ver" title="What's new in 1.7">Version 1.7 · LINEAR Run · a friendlier home screen · <u>What's new</u></button>
 </div>
 
 <!-- world map -->
@@ -152,8 +159,13 @@
 <!-- 1.5: what's new -->
 <div id="s-new" class="screen dim hidden">
   <div class="card wide">
-    <h2>What's new in 1.6</h2>
+    <h2>What's new in 1.7</h2>
     <div class="how newlist">
+      <p><b>LINEAR Run</b> (1.7, unlocks when you beat The Gloom): every main-game level in order, on one clock. You can only play the level you are on:
+      no going back to an earlier one until the one in front of you is beaten. Falls and retries all count on the clock. Leave whenever you like,
+      Continue picks the run up where you were. Your best run goes on the LINEAR leaderboard.</p>
+      <p><b>A friendlier home screen</b> (1.7): one big Play button that tells you which level is next, the ways to play as cards that say what
+      they are, and everything else as small buttons underneath. It fits short Chromebook screens too.</p>
       <p><b>Training</b> (1.6, on the title screen): three short hands-on lessons. A practice room for every move you have earned
       (run, jump, double jump, wall jump, dash, glide), Trials, medals and ghosts, and your light, the people you met and playing together.
       Practice never records times or stats.</p>

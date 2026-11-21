@@ -12,6 +12,8 @@ function hgIdle() { return Date.now() - FEED.lastInput >= HG_IDLE_MS; }
 (function () { var mk = function () { FEED.lastInput = Date.now(); }; ['keydown', 'pointerdown', 'touchstart', 'wheel'].forEach(function (t) { document.addEventListener(t, mk, { passive: true, capture: true }); }); var n = 0; document.addEventListener('mousemove', function () { if (++n % 20 === 0) mk(); }, { passive: true, capture: true }); })();
 try { localStorage.removeItem('hgv:lbsent'); localStorage.removeItem('hgv:claimed'); } catch (e) {}      // (the old per-device memory: it made a second account, or a refused frame, never send)
 function feedRd(k) { try { var v = localStorage.getItem(k); if (v == null) return null; try { return JSON.parse(v); } catch (e) { return v; } } catch (e) { return null; } }
+// a board the server does not know yet is never sent (new boards ship in the game first, then on the server)
+function feedHasBoard(k) { try { var c = window.HGGrapevine && window.HGGrapevine.eco && window.HGGrapevine.eco.catalog(); return !!(c && c.boards && c.boards[k]); } catch (e) { return false; } }
 function feedNum(v) { v = Number(v); return isFinite(v) ? v : 0; }
 // you are playing when you press, click or tap in the game (its page is ours, so we can listen to it)
 function feedWatch() {
@@ -81,6 +83,8 @@ var LB_FEED = [
     if (done === ids.length) out.push(['lumi:full', +sum.toFixed(2), { levels: 41 }]);
     for (var f = 1; f <= 11; f++) { var fb = lv['6-' + f] && feedNum(lv['6-' + f].best); if (fb > 0) out.push(['lumi:lv6-' + f, fb]); }
     if (lr.runs && feedNum(lr.runs.onelife) > 0) out.push(['lumi:onelife', feedNum(lr.runs.onelife)]);
+    // Last Light 1.7: the best LINEAR Run (seconds, lower is better). Sent only once the server lists the board.
+    if (lr.linear && feedNum(lr.linear.best) > 0 && feedHasBoard('lumi:linear')) out.push(['lumi:linear', +feedNum(lr.linear.best).toFixed(2), { falls: feedNum(lr.linear.bestFalls), runs: feedNum(lr.linear.runs) }]);
     var fl = 0; ids.forEach(function (id) { if (lv[id] && lv[id].perfect === true) fl++; });
     if (fl > 0) out.push(['lumi:flawless', Math.min(fl, 41), { of: 41 }]);
     var tr = lr.trials && typeof lr.trials === 'object' ? lr.trials : {}, pts = 0, gold = 0;

@@ -12,6 +12,7 @@ const G = {
         // 1.6: idx can be a level def of its own (the Training practice room): no records, no stats, no play time
         const prac = idx && typeof idx === 'object' ? idx : null, def = prac || LEVELS[idx]; if (!def) return;
         if (prac) { PRAC = PRAC || {}; this.run = null; this.trial = null; } else PRAC = null;
+        if (prac || this.run || this.trial || this.mp) this.linear = false;      // 1.7: LINEAR is its own mode
         this.idx = idx; this.L = parseLevel(def); this.world = def.world; this.levelKey = def.id + ':' + Date.now();
         this.p = makePlayer(this.L.start.x, this.L.start.y); this.p.hearts = this.maxHearts();
         if (!this.mp) applyLook(this.p);                    // 1.5: the light you chose (multiplayer gives everyone their own)
@@ -38,6 +39,7 @@ const G = {
         $('#h-trial').classList.add('hidden');
         if (this.trial) trialBegin(this);
         else if (prac) UI.banner('Training', def.name);
+        else if (this.linear) linBanner();
         else UI.banner(def.world === 4 ? 'Final' : WORLDS[def.world].name + ' · ' + def.id, def.name);
     },
     update(dt) {
@@ -99,6 +101,7 @@ const G = {
         ST('clears'); if (flawNew) ST('flawless'); if (def.world === 4) ST('bossKills');
         SAVE.d.levels[def.id] = rec; SAVE.write(); lookCheck();
         this.p.vx = 0;
+        if (this.linear) { linFinish(this); return; }      // 1.7: LINEAR Run (93-linear.js)
         // One Life run: no results screen, straight on to the next level (the run ends at the first fall)
         if (this.run) {
             this.run.cleared++; SAVE.d.runs = SAVE.d.runs || {}; SAVE.d.runs.onelife = Math.max(SAVE.d.runs.onelife || 0, this.run.cleared); SAVE.write();
