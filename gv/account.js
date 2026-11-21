@@ -1250,7 +1250,7 @@ const GVLink = (() => {
     // Element Lab
     { id: 'el1', g: 'elementlab', i: '🧪', n: 'Mad Scientist', d: 'Finish a challenge in Element Lab.', p: 10, t: function () { return EL() >= 1; } },
     { id: 'el6', g: 'elementlab', i: '⚗️', n: 'Lab Partner', d: 'Finish 6 Element Lab challenges.', p: 25, t: function () { return EL() >= 6; } },
-    { id: 'elall', g: 'elementlab', i: '🔬', n: 'Nobel Prize', d: 'Finish every Element Lab challenge.', p: 50, t: function () { return EL() >= 13; } },
+    { id: 'elall', g: 'elementlab', i: '🔬', n: 'Nobel Prize', d: 'Finish every Element Lab challenge (all 34).', p: 50, t: function () { return EL() >= 34; } },
     // Mayhem Marathon (mayhem_save: stats + rp = per-round { p played, q qualified/survived, w won })
     { id: 'mm1', g: 'mayhem', i: '🤸', n: 'Wobbly Debut', d: 'Play a Mayhem Marathon show.', p: 10, t: function () { return num(MMS().shows) >= 1; } },
     { id: 'mmcrown', g: 'mayhem', i: '👑', n: 'Crowned', d: 'Win a Mayhem Marathon show.', p: 25, t: function () { return num(MMS().crowns) >= 1; } },

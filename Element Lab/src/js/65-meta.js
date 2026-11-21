@@ -24,7 +24,20 @@ const CHALLENGES = [
     { id: 'crystal', name: 'Grow crystals', hint: 'Dissolve copper sulfate in water, then boil the water away.', test: () => STAT.crystal >= 15 },
     { id: 'town', name: 'Populate a town', hint: 'Have 15 people living in your lab at once.', test: () => CNT[ID.human] >= 15 },
     { id: 'bake', name: 'Bake bread', hint: 'Mix flour and water into dough, then heat it.', test: () => MADE[ID.bread] },
-    { id: 'piston', name: 'Heavy lifting', hint: 'Power a piston so it pushes something.', test: () => STAT.pushed >= 3 }
+    { id: 'piston', name: 'Heavy lifting', hint: 'Power a piston so it pushes something.', test: () => STAT.pushed >= 3 },
+    // 2.2: twelve more
+    { id: 'cheese', name: 'Make cheese', hint: 'Pour vinegar into milk so it curdles.', test: () => MADE[ID.cheese] },
+    { id: 'soap', name: 'Make soap', hint: 'Mix lye with oil.', test: () => MADE[ID.soap] },
+    { id: 'toothpaste', name: 'Elephant toothpaste', hint: 'Pour hydrogen peroxide onto yeast and watch the foam.', test: () => MADE[ID.bubble] },
+    { id: 'volcano', name: 'Baking soda volcano', hint: 'Pour vinegar (or acid) onto baking soda: it fizzes into carbon dioxide.', test: () => MADE[ID.co2] },
+    { id: 'plating', name: 'Copper from blue water', hint: 'Dissolve copper sulfate in water, then drop iron, zinc or aluminium in. Copper comes out of the solution.', test: () => MADE[ID.copper] },
+    { id: 'smelt', name: 'Smelt ore', hint: 'Heat iron ore (or copper ore) together with coal or charcoal.', test: () => MADE[ID.molten_iron] || MADE[ID.molten_copper] },
+    { id: 'patina', name: 'Statue green', hint: 'Leave copper in water or salt water until it turns green.', test: () => MADE[ID.patina] },
+    { id: 'fertilizer', name: 'Make fertilizer', hint: 'Mix acid with ammonia.', test: () => MADE[ID.fertilizer] },
+    { id: 'toxic', name: 'Never mix these', hint: 'Bleach and ammonia make poison gas. (Only in the lab!)', test: () => MADE[ID.poisongas] },
+    { id: 'notgate', name: 'Not gate', hint: 'Wire a NOT gate to something: it switches on while its input has no power.', test: () => STAT.notOn > 0 },
+    { id: 'pressure', name: 'Under pressure', hint: 'Trap gas in a glass or wooden box and heat it until the box bursts.', test: () => STAT.burst >= 1 },
+    { id: 'pumped', name: 'Plumber', hint: 'Power a pump (a battery next to it) and pump 500 cells of liquid through pipes. Pumps push the way they face.', test: () => STAT.pumped >= 500 }
 ];
 const DONE = LS.get('elementlab_challenges', {}) || {};
 let onChallenge = null;
