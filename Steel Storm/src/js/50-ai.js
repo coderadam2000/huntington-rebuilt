@@ -49,6 +49,7 @@ function aiPickTarget(e) {
         const d = d3(e, o), ol = o.def.ln; let lim, pref = 1;
         if (cls === 'spaa') { if (ol === 'a') { lim = 520; pref = .4; } else { lim = 260; pref = 1.5; } }
         else if (cls === 'arty') { if (ol === 'a') continue; lim = ol === 'n' ? 800 : 1100; }
+        else if (ln === 'i') { if (ol === 'n' || (ol === 'a' && !o.def.heli)) continue; lim = 360; pref = ol === 'i' ? 1 : e.def.w3 ? .6 : 2.2; }      // soldiers: rifles for soldiers, launchers for tanks
         else if (ln === 'g') { if (ol === 'a') { lim = 280; pref = 1.8; } else if (ol === 'n') lim = 380; else lim = compOf(o.x, o.z) === mc ? 1000 : 400; }
         else if (ln === 'n') { if (e.def.sub && ol !== 'n') continue; lim = ol === 'a' ? 260 : 650; if (ol === 'n') pref = .8; }
         else if (e.def.heli) { if (ol === 'a' && !o.def.heli) { lim = 300; pref = 1.6; } else lim = 600; }
@@ -154,6 +155,29 @@ function aiSurface(e, dt, c) {
     a.sT -= dt; if (a.sT <= 0) { a.sT = 1.5; if (Math.hypot(e.x - a.lx, e.z - a.lz) < 1.5 && c.thr > .5) { a.rev = 1.3; a.side = -a.side; } a.lx = e.x; a.lz = e.z; }
     if (a.rev > 0) a.rev -= dt;
 }
+// soldiers (3.0): close in to their gun's range, then strafe while shooting; grenades up close, launchers / AT rifles at armour
+function aiInf(e, dt, c) {
+    const a = e.ai, d = e.def, t = a.tgt && a.tgt.alive ? a.tgt : null, DD = aiDiff(e);
+    let D = 1e9; c.aimYaw = e.tur; c.aimPitch = 0;
+    a.losT = (a.losT || 0) - dt; if (t && a.losT <= 0) { a.losT = .3; a.los = hasLOS(e, t); }
+    if (t) {
+        D = aiAim(e, c, t, dt, false);
+        const armour = t.def.ln !== 'i' && t.def.ar >= 8, rng = { rif: 260, mg: 200, at: 140, smg: 110 }[d.cls] * DD.rng / .72;
+        const aligned = Math.abs(angDiff(e.tur, c.aimYaw)) < .06 + (1 - a.skill) * .05;
+        if (a.los && D < rng && !armour && aiTrigger(e, dt, d.w1.rl, true, aligned)) c.f1 = true;
+        if (d.w3 && e.a3 > 0 && a.los && armour && D < 170 && a.react <= 0 && aligned) c.f3 = true;
+        a.gT = (a.gT || 0) - dt; if (e.a2 > 0 && a.los && D > 10 && D < 30 && t.def.ln !== 'a' && a.gT <= 0) { a.gT = rnd(4, 9); c.f2 = true; }
+    }
+    let gx, gz, mv = 1;
+    if (t && t.def.ln !== 'a' && D < 450) { gx = t.x; gz = t.z; if (a.los && D < { smg: 35, at: 80, mg: 110, rif: 140 }[d.cls]) mv = 0; }
+    else { const tp = aiObjective(e); gx = tp.x; gz = tp.z; if (Math.hypot(gx - e.x, gz - e.z) < 14) mv = 0; }
+    const want = Math.atan2(gx - e.x, gz - e.z);
+    if (!t) { c.aimYaw = want; c.aimPitch = 0; }
+    const rel = angDiff(c.aimYaw, want); c.thr = Math.cos(rel) * mv; c.side = Math.sin(rel) * mv;
+    if (t && mv === 0) { a.stT = (a.stT || 0) - dt; if (a.stT <= 0) { a.stT = rnd(1.2, 2.6); a.strafe = rnd(-1, 1) > 0 ? .8 : -.8; } c.side = a.strafe; c.thr = 0; }
+    c.sprint = !t && Math.hypot(gx - e.x, gz - e.z) > 60;
+    a.sT -= dt; if (a.sT <= 0) { a.sT = 1.2; if (Math.hypot(e.x - a.lx, e.z - a.lz) < .6 && (Math.abs(c.thr) + Math.abs(c.side)) > .5) { c.up = 1; a.wp = null; a.strafe = -(a.strafe || .8); } a.lx = e.x; a.lz = e.z; }
+}
 function compatLand(e, t) { return t.def.ln === 'a' || compOf(e.x, e.z) === compOf(t.x, t.z) || Math.hypot(e.x - t.x, e.z - t.z) < 350; }
 function aiAir(e, dt, c) {
     const a = e.ai, d = e.def, t = a.tgt && a.tgt.alive ? a.tgt : null, w = d.w1, bomber = !!d.w3 && d.w3.k === 'bomb', R = battleR();
@@ -237,7 +261,7 @@ function aiStep(e, dt) {
     }
     e.turnK = aiDiff(e).turn;      // easier bots also bank a little slower
     const c = e.ctl; c.thr = 0; c.steer = 0; c.side = 0; c.up = 0; c.aimYaw = e.tur; c.aimPitch = 0; c.f1 = c.f2 = c.f3 = false; c.tgt = -1; c.bodyYaw = undefined;
-    if (e.def.heli) aiHeli(e, dt, c); else if (e.def.ln === 'a') aiAir(e, dt, c); else aiSurface(e, dt, c);
+    if (e.def.ln === 'i') aiInf(e, dt, c); else if (e.def.heli) aiHeli(e, dt, c); else if (e.def.ln === 'a') aiAir(e, dt, c); else aiSurface(e, dt, c);
     if (a.mute) c.f1 = c.f2 = c.f3 = false;
     stepVehicle(e, c, dt);
 }

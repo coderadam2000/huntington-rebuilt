@@ -287,6 +287,12 @@ function buildAir(m, team) {
         wing(B, root, tip, half - fr * .6, delta ? L * .45 : Math.tan(sw) * half, .2 * (prop ? 1.4 : 1), s * fr * .6, wy, wz, c1, s, prop || k === 'bomber' ? .04 : f.high ? -.03 : .02);
         roundel(s * half * .72, wy + .14 + half * .72 * (prop ? .04 : .02), wz - Math.tan(sw) * half * .72 * (delta ? 1.6 : 1), Math.min(.9, root * .25), 0, 0);
         roundel(s * (fr + .02), 0, -L * .2, fr * .45, 0, s * PI / 2);
+        // 3.0: biplanes and triplanes (WW1): more wings stacked above, joined by struts
+        for (let k2 = 1; k2 <= (f.tri ? 2 : f.bi ? 1 : 0); k2++) {
+            const uy = wy + fr * 1.9 * k2, uz = wz + L * .03 * k2;
+            wing(B, root * (f.tri ? .85 : 1), tip, half - fr * .3, Math.tan(sw) * half, .18, s * fr * .2, uy, uz, c1, s, .01);
+            for (const sx of [.35, .8]) cy(BF, .06, .06, fr * 1.9, 4, s * half * sx, uy - fr * .95, uz - Math.tan(sw) * half * sx, MTL);
+        }
         if (f.tip) cy(B, .32, .32, 2.2, 8, s * half, wy, wz - Math.tan(sw) * half, c2, PI / 2);
         if (f.canard) wing(B, L * .1, L * .03, fr * 2.2, L * .04, .1, s * fr * .7, fr * .2, L * .28, c1, s, 0);
         // tail
@@ -425,11 +431,33 @@ function buildSub(m, team) {
     const turs = m.tur.map(([z, s, nb]) => { const t = shipTurret(s, nb, c1, c2); return { geo: t.geo, pos: [0, r * 1.02, z + len * .12], muz: t.muz }; });
     return { body: merge2(B, BF, 8), turs, kitB: merge2(K, null, 8), len, w, sub: true, dec: [[w * .17, r * 2, len * .1, .6]] };
 }
+// ---------- soldiers (3.0): uniform and helmet by nation, an armband in the team colour, the gun by class ----------
+function buildSoldier(m, team) {
+    const U = UNIFORM[m.nat] || UNIFORM.cx, [cU, cT, cH] = U.c.map(c => tint(c, .28)), tc = teamCol(team), SKIN = 0xd6a47a, BOOT = 0x2a241e, WOOD = 0x6b4a2a, STEEL = 0x34373c;
+    const T = flatList(), LL = flatList(), LR = flatList(), A = flatList();
+    bx(T, .46, .56, .26, 0, 1.2, 0, cU); bx(T, .48, .12, .28, 0, .95, 0, 0x3a3226);      // torso, belt
+    bx(T, .3, .36, .16, 0, 1.22, -.2, cT);                                                  // backpack
+    sph(T, .13, 0, 1.62, .02, SKIN, 1, 1.1, 1);                                              // head
+    if (U.helm === 'flare') { sph(T, .17, 0, 1.68, 0, cH, 1, .9, 1.05, true); cy(T, .2, .23, .06, 10, 0, 1.64, 0, cH); }
+    else if (U.helm === 'brodie') { sph(T, .14, 0, 1.69, 0, cH, 1, .8, 1, true); cy(T, .27, .27, .03, 12, 0, 1.69, 0, cH); }
+    else sph(T, .16, 0, 1.67, 0, cH, 1, .95, 1.05, true);
+    for (const sx of [-1, 1]) bx(T, .07, .14, .27, sx * .25, 1.32, 0, tc);                  // armbands: which team
+    for (const [L, sx] of [[LL, -1], [LR, 1]]) { bx(L, .17, .78, .2, 0, -.42, 0, cT); bx(L, .18, .14, .3, 0, -.86, .05, BOOT); }
+    // arms reach forward to the gun; the gun points along +Z from the shoulders
+    bx(A, .13, .13, .5, -.2, -.12, .2, cU, -.35); bx(A, .13, .13, .5, .2, -.12, .2, cU, -.35);
+    const c = m.cls; let len = .9;
+    if (c === 'at' && (m.launch || m.nat === 'us' || m.nat === 'de' || m.nat === 'uk' || m.nat === 'cx')) { cy(A, .08, .08, 1.25, 10, .16, .06, .25, 0x4d5a3a, PI / 2); len = .9; }
+    else if (c === 'at') { bx(A, .07, .08, 1.7, .06, -.05, .55, STEEL); bx(A, .05, .1, .3, .06, -.15, .1, WOOD); len = 1.4; }
+    else if (c === 'smg') { bx(A, .07, .1, .6, .06, -.1, .32, STEEL); bx(A, .04, .22, .06, .06, -.24, .38, STEEL); bx(A, .06, .1, .22, .06, -.12, -.02, WOOD); len = .62; }
+    else if (c === 'mg') { bx(A, .09, .12, 1.1, .06, -.08, .45, STEEL); bx(A, .08, .12, .26, .06, -.1, -.08, WOOD); bx(A, .14, .14, .14, .06, -.2, .22, STEEL); len = 1; }
+    else { bx(A, .06, .08, 1.1, .06, -.08, .42, WOOD); bx(A, .03, .03, .5, .06, -.04, .78, STEEL); len = 1.03; }
+    return { inf: 1, body: merge(T), legL: merge(LL), legR: merge(LR), arms: merge(A), muz: [[.06, -.06, len]], gpos: [0, 1.42, 0], dec: [] };
+}
 const PARTS = {};
 function getParts(def, team) {
     const b = def.base || def, key = b.id + '|' + (team | 0);
     if (PARTS[key]) return PARTS[key];
-    const P = b.ln === 'g' ? buildTank(b.m, team | 0) : b.ln === 'a' ? (b.heli ? buildHeli(b.m, team | 0) : buildAir(b.m, team | 0)) : buildShip(b.m, team | 0);
+    const P = b.ln === 'i' ? buildSoldier(b.m, team | 0) : b.ln === 'g' ? buildTank(b.m, team | 0) : b.ln === 'a' ? (b.heli ? buildHeli(b.m, team | 0) : buildAir(b.m, team | 0)) : buildShip(b.m, team | 0);
     return PARTS[key] = P;
 }
 // two-digit decal quads (hull / turret / tail numbers), one small geometry per vehicle
@@ -453,11 +481,18 @@ function decalGeo(list, num) {      // list entries [x, y, z, size] on the +X si
 // ---- build a live model for an entity ----
 function makeModel(def, team, num) {
     const b = def.base || def, P = getParts(def, team), root = new THREE.Group(), o = { root, team, muzzles: [], turs: [], props: [], tur: null, gun: null, kit: [], disposables: [] };
-    const mat = MAT.veh[b.ln + ((team | 0) & 1)];
+    const mat = MAT.veh[(b.ln === 'i' ? 'g' : b.ln) + ((team | 0) & 1)];
     const add = (geo, m, parent, pos) => { const me = new THREE.Mesh(geo, m); if (pos) me.position.set(pos[0], pos[1], pos[2]); me.castShadow = true; me.receiveShadow = b.ln === 'n'; (parent || root).add(me); return me; };
     o.body = add(P.body, mat);
     const nm = num === undefined ? 10 + Math.floor(Math.random() * 89) : num;
     if (P.dec && P.dec.length) { const g = decalGeo(P.dec, nm); o.disposables.push(g); const d = add(g, MAT.decal); d.castShadow = false; }
+    if (P.inf) {      // a soldier: legs swing from the hips, arms + gun pitch from the shoulders
+        o.legs = [-1, 1].map((sx, k) => { const g = new THREE.Group(); g.position.set(sx * .12, .95, 0); root.add(g); add(k ? P.legR : P.legL, mat, g); return g; });
+        const tg = new THREE.Group(); root.add(tg); o.tur = tg;
+        const gg = new THREE.Group(); gg.position.set(P.gpos[0], P.gpos[1], P.gpos[2]); tg.add(gg); o.gun = gg; add(P.arms, mat, gg);
+        const mz = new THREE.Object3D(); mz.position.set(P.muz[0][0], P.muz[0][1], P.muz[0][2]); gg.add(mz); o.muzzles.push(mz);
+        root.rotation.order = 'YXZ'; return o;
+    }
     if (P.kitB) { const kb = add(P.kitB, mat); kb.visible = b.ln === 'n' ? !!def.radar : !!def.kit; o.kit.push(kb); }
     if (b.ln === 'g') {
         const tex = TEX.track.clone(); tex.needsUpdate = true; o.trMat = MAT.track.clone(); o.trMat.map = tex; o.disposables.push(tex, o.trMat);

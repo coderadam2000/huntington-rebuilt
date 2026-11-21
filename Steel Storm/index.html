@@ -282,6 +282,14 @@ svg.i{width:20px;height:20px;fill:currentColor;flex:none;vertical-align:middle}
   .vpanel{max-height:none}.g-list{max-height:none}}
 @media (max-width:440px){.mtop .wallet .w-pill:nth-child(2){display:none}.logo{font-size:17px}.play{font-size:24px}}
 
+/* 3.0 nations */
+.natb { display: inline-block; margin-left: 4px; padding: 0 4px; border-radius: 4px; font: 800 9px/14px system-ui; letter-spacing: .04em; color: #fff; background: linear-gradient(90deg, var(--n1) 0 55%, var(--n2) 55%); text-shadow: 0 1px 1px #000; vertical-align: middle; }
+#rs-nat { display: flex; flex-wrap: wrap; gap: 6px; align-items: center; margin: 6px 0 10px; }
+#rs-nat button { display: inline-flex; align-items: center; gap: 6px; padding: 5px 10px; border-radius: 8px; border: 1px solid rgba(255,255,255,.15); background: rgba(255,255,255,.06); color: inherit; font: 700 13px system-ui; cursor: pointer; }
+#rs-nat button i { width: 14px; height: 10px; border-radius: 2px; background: linear-gradient(90deg, var(--n1) 0 55%, var(--n2) 55%); }
+#rs-nat button.on { border-color: #f5b942; background: rgba(245,185,66,.15); }
+#rs-nat .note { flex-basis: 100%; opacity: .75; font-size: 12px; }
+
 #hud{position:fixed;inset:0;z-index:5;pointer-events:none}
 #h-score{position:absolute;top:8px;left:50%;transform:translateX(-50%);display:flex;align-items:center;gap:10px;font-weight:900;font-size:22px;text-shadow:0 2px 4px #000}
 #h-score .tm{min-width:70px;padding:3px 14px;text-align:center;border-radius:5px;background:#000a}#h-score .t0{color:var(--t0);border-bottom:3px solid var(--t0)}#h-score .t1{color:var(--t1);border-bottom:3px solid var(--t1)}
@@ -463,7 +471,7 @@ table.board{width:100%;font-size:12px;border-collapse:collapse;margin-top:8px}ta
   <!-- garage: your vehicles, the inspected one large behind, its card with modules, the lineup -->
   <section id="v-garage" class="view hidden">
     <div class="sheet g-list">
-      <div class="sheet-h"><h2>Garage</h2><div class="tabs" id="g-tabs"><button data-gt="all">All</button><button data-gt="g">Ground</button><button data-gt="a">Air</button><button data-gt="n">Naval</button></div></div>
+      <div class="sheet-h"><h2>Garage</h2><div class="tabs" id="g-tabs"><button data-gt="all">All</button><button data-gt="g">Ground</button><button data-gt="i">Infantry</button><button data-gt="a">Air</button><button data-gt="n">Naval</button></div></div>
       <div id="g-owned" class="vgrid"></div>
     </div>
     <aside class="vpanel" id="g-info"></aside>
@@ -473,7 +481,7 @@ table.board{width:100%;font-size:12px;border-collapse:collapse;margin-top:8px}ta
   <!-- research tree -->
   <section id="v-research" class="view hidden">
     <div class="sheet rs-wrap">
-      <div class="sheet-h"><h2>Research</h2><div class="tabs" id="rs-tabs"><button data-ln="g">Ground</button><button data-ln="a">Air</button><button data-ln="n">Naval</button></div><span class="note" id="rs-now"></span></div>
+      <div class="sheet-h"><h2>Research</h2><div class="tabs" id="rs-tabs"><button data-ln="g">Ground</button><button data-ln="i">Infantry</button><button data-ln="a">Air</button><button data-ln="n">Naval</button></div><span class="note" id="rs-now"></span></div>
       <div id="tree"></div>
     </div>
     <aside class="vpanel" id="rs-info"></aside>
@@ -547,8 +555,14 @@ table.board{width:100%;font-size:12px;border-collapse:collapse;margin-top:8px}ta
 </div>
 <div id="s-new" class="scr dim hidden">
   <div class="card wide">
-    <div class="card-h"><h2>Steel Storm 2.4: what's new</h2><button class="x" data-close title="Close">&times;</button></div>
+    <div class="card-h"><h2>Steel Storm 3.0: what's new</h2><button class="x" data-close title="Close">&times;</button></div>
     <div class="how"><div>
+      <h4>Five nations, real vehicles</h4><p>The <b>United States</b>, <b>Germany</b>, the <b>Soviet Union</b>, the <b>United Kingdom</b> and <b>Japan</b> each have their own research tree of real vehicles, from World War I (tier I) through World War II to the Cold War (tier V): the M4 Sherman, Tiger I, T-34, Churchill, Chi-Ha, Fokker Dr.I triplane, Spitfire, Zero, Me 262, MiG-21, Bismarck, Yamato, Iowa and more than 90 others. Pick a nation at the top of <b>Research</b>. Every tier I vehicle is already yours. Your old vehicles are still here as the <b>Coalition</b>.</p>
+      <h4>Fight on foot</h4><p>New <b>Infantry</b> line: riflemen, assault troops, machine gunners and anti-tank soldiers for every nation, with their real guns (M1 Garand, Kar98k, MP 40, PPSh-41, MG 42, Bren, Bazooka, Panzerschreck, PIAT, anti-tank rifles...). WASD walk, Shift sprint, Space jump, left mouse fire, right mouse aim down the sights, R reload, G grenade, F launcher. Rifles barely scratch armour: bring a launcher, or a tank. Tanks run soldiers over.</p>
+      <h4>Camera views</h4><p><b>V</b> switches between third person, first person (your soldier's eyes, the gunner's sight, the cockpit, the bridge) and a far view. <b>Z</b> zooms in through binoculars or a rifle scope.</p>
+      <h4>Duel</h4><p>New mode: one on one, first to 5 kills. Against a friend online, or a bot if you play alone.</p>
+      <h4>Your team, your nation</h4><p>Bots on your side fight for your vehicle's nation; the enemy fields its historic rival.</p>
+      <h4 class="old">Steel Storm 2.4</h4>
       <h4>Bomb sight</h4><p>Flying a plane with bombs? The spot your next bomb will land is now marked on the ground: the blast ring (its real size), a cross in the middle, the line it falls along and the seconds until it hits. The ring turns red and says <b>ON TARGET</b> when an enemy on the ground is inside it.</p>
       <h4 class="old">Steel Storm 2.3</h4>
       <h4>Training</h4><p>New <b>Training</b> button in the menu: three hands-on lessons where you do each step yourself. <b>Basic training</b> (drive, aim, fire, destroy, capture, respawn), <b>Wings and rotors</b> (planes and helicopters) and <b>Your garage</b> (research, buying, modules, the lineup and multiplayer). The practice battles never count for your stats or the leaderboards.</p>
@@ -626,7 +640,7 @@ function mulberry(seed) { return function () { seed |= 0; seed = seed + 0x6D2B79
 const TEAM_COL = [0x3b9bff, 0xff4d4d, 0x4cd964, 0xffd21f, 0xc77dff, 0xff9d3a, 0x3ae0d0, 0xff6ac1, 0xa0e85a, 0xe8e8e8, 0x7a8cff, 0xd08a5a, 0x5ad0ff, 0xffb0b0, 0x9a9a9a, 0xb0ff6a, 0xffe08a, 0x8affd8];
 const teamCol = t => TEAM_COL[((t | 0) % TEAM_COL.length + TEAM_COL.length) % TEAM_COL.length];
 const teamHex = t => '#' + teamCol(t).toString(16).padStart(6, '0');
-const VERSION = '2.4';
+const VERSION = '3.0';
 let toastT = 0;
 function toast(t) { const e = $('#toast'); e.textContent = t; e.classList.add('on'); clearTimeout(toastT); toastT = setTimeout(() => e.classList.remove('on'), 2600); }
 
@@ -683,7 +697,7 @@ function fixSave(s) {      // tier I is always owned; drop unknown ids; keep a u
     if (s.target && !(VBY[s.target] ? !s.researched[s.target] : MODBY[s.target] && !s.mods[s.target])) s.target = null;
     if (!(s.credits >= 0)) s.credits = 0;
     if (!(s.freeRp >= 0)) s.freeRp = 0;
-    if (!['tdm', 'conq', 'ctf', 'ffa'].includes(s.mode)) s.mode = 'tdm';
+    if (!['tdm', 'conq', 'ctf', 'ffa', 'duel'].includes(s.mode)) s.mode = 'tdm';
     s.size = [3, 5, 8].includes(s.size) ? s.size : 5;
     const o = s.opts; o.len = [5, 10, 15].includes(o.len) ? o.len : 10; if (!['small', 'normal', 'large'].includes(o.map)) o.map = 'normal';
     o.ff = o.ff ? 1 : 0; if (!['noon', 'evening', 'overcast', 'night', 'random'].includes(o.wx)) o.wx = 'noon';
@@ -737,6 +751,8 @@ const SFX = {
     cannon: c => { const t = c.currentTime; noiseBurst(c, 0.35, 0.9, 1400, 150, 'lowpass', t); tone(c, 'sine', 130, 35, 0.3, 0.9, t); },
     heavy: c => { const t = c.currentTime; noiseBurst(c, 0.7, 1, 900, 80, 'lowpass', t); tone(c, 'sine', 90, 25, 0.6, 1, t); },
     mg: c => { const t = c.currentTime; noiseBurst(c, 0.06, 0.35, 3500, 1200, 'bandpass', t); },
+    rifle: c => { const t = c.currentTime; noiseBurst(c, 0.12, 0.55, 5000, 700, 'bandpass', t); tone(c, 'square', 220, 80, 0.06, 0.25, t); },
+    reload: c => { const t = c.currentTime; tone(c, 'square', 900, 700, 0.03, 0.12, t); tone(c, 'square', 600, 500, 0.04, 0.12, t + 0.18); },
     gun: c => { const t = c.currentTime; noiseBurst(c, 0.07, 0.4, 2500, 700, 'bandpass', t); tone(c, 'square', 220, 110, 0.05, 0.08, t); },
     rocket: c => { const t = c.currentTime; noiseBurst(c, 0.7, 0.5, 500, 3000, 'bandpass', t); },
     bomb: c => { const t = c.currentTime; tone(c, 'sine', 900, 250, 0.9, 0.12, t); },
@@ -932,6 +948,218 @@ NV({ id: 'n3f', t: 3, cls: 'ss', n: 'Narwhal', req: 'n2e', hp: 420, ar: 14, sp: 
 NV({ id: 'n4e', t: 4, cls: 'ss', n: 'Kraken', req: 'n3f', hp: 560, ar: 20, sp: 14, tn: .48, dmg: 45, rl: 2.2, salvo: 1, v: 260, tp: [6, 380], w2: null, m: { k: 'sub', len: 30, w: 3.6, tur: [[6, .8, 1]], c: [0x30373f, 0x20252b] }, desc: 'Fast attack submarine.' });
 NV({ id: 'n5d', t: 5, cls: 'ss', n: 'Abyss', req: 'n4e', hp: 720, ar: 28, sp: 15, tn: .46, dmg: 50, rl: 2.2, salvo: 1, v: 270, tp: [8, 440], w2: null, m: { k: 'sub', len: 36, w: 4.2, tur: [], c: [0x262b31, 0x181c20] }, w1: { n: 'Sub missiles', k: 'missile', dmg: 160, rl: 4, v: 175, life: 8, turn: 2, g: 0, sp: 6, sea: 1 }, desc: 'Nuclear submarine: 8 torpedoes and guided missiles (surfaced).' });
 // ===================== BALANCE (2.1) =====================
+
+// ---- 11-nations.js ----
+// ============================================================
+// NATIONS (3.0): the United States, Germany, the Soviet Union, the United Kingdom and Japan, each with its own tree of REAL
+// vehicles (tier I = World War I, II = early WW2, III = mid WW2, IV = late WW2, V = the Cold War) and its own soldiers with real
+// guns. The original Steel Storm vehicles stay as the "Coalition" (modern prototypes), so every save keeps what it owns.
+// Strength still comes from the class/tier BALANCE table (12-balance.js); these rows give the looks, names and history.
+// New vehicles are added after the old ones, so the network index (def.i) of every 2.x vehicle is unchanged.
+// ============================================================
+const NATIONS = {
+    cx: { n: 'Coalition', short: 'CX', cols: ['#4b5563', '#9ca3af'], desc: 'The original Steel Storm tree: modern prototype tanks, jets and warships.' },
+    us: { n: 'United States', short: 'USA', cols: ['#1d4ed8', '#dc2626'], desc: 'Shermans and Pershings, Mustangs and Sabres, Fletchers and the Iowa. Plenty of everything.' },
+    de: { n: 'Germany', short: 'GER', cols: ['#111827', '#d4a017'], desc: 'Tigers and Panthers, the Stuka and the first jet fighter, U-boats and the Bismarck.' },
+    su: { n: 'Soviet Union', short: 'USSR', cols: ['#b91c1c', '#facc15'], desc: 'The T-34 and the IS-2, the Sturmovik and the MiG, Katyushas and huge numbers.' },
+    uk: { n: 'United Kingdom', short: 'UK', cols: ['#1e3a8a', '#ef4444'], desc: 'The first tank ever, the Spitfire and the Lancaster, the Dreadnought and the Centurion.' },
+    jp: { n: 'Japan', short: 'JPN', cols: ['#f8fafc', '#dc2626'], desc: 'The Zero and the Yamato, nimble tanks and long-range submarines.' }
+};
+const NAT_IDS = Object.keys(NATIONS);
+VEHS.forEach(v => { v.nat = 'cx'; });
+// ---- the infantry line ----
+LINES.i = { name: 'Infantry', tag: 'SOLDIERS', col: '#e0b25c' };
+BRANCHES.i = [['rif', 'Riflemen'], ['smg', 'Assault'], ['mg', 'Machine gunners'], ['at', 'Anti-tank']];
+Object.assign(CLS_NAME, { rif: 'Rifleman', smg: 'Assault', mg: 'Machine gunner', at: 'Anti-tank' });
+// small arms: dmg per hit (a soldier has 100), rounds per minute, muzzle velocity, magazine, reload seconds, spread, auto?
+const SA = (n, dmg, rpm, v, mag, reload, sprd, auto) => ({ n, k: 'bullet', dmg, rl: 60 / rpm, v, life: 1.8, g: 4, sprd, mag, reload, auto: !!auto, sa: 1 });
+const GREN = (n, dmg) => ({ n: n || 'Grenades', k: 'bomb', dmg: dmg || 150, cnt: 2, rel: 26, rl: .9, v: 17, g: 13, life: 3.2, sp: 6.5, pierce: .3, lob: .35 });
+const ATL = (n, dmg, v, cnt) => ({ n, k: 'rocket', dmg, cnt: cnt || 3, rel: 22, rl: 1.4, v, life: 4, g: 4, sp: 3, pierce: .75, at: 1 });
+const ATR = (n, dmg, cnt) => ({ n, k: 'bullet', dmg, cnt: cnt || 5, rel: 14, rl: 1.6, v: 1000, life: 2, g: 2, sprd: .002, pierce: .7, at: 1 });
+// nation uniforms (soldier models): uniform, trousers, helmet colour and shape
+const UNIFORM = {
+    cx: { c: [0x4b5563, 0x374151, 0x2b3038], helm: 'round' }, us: { c: [0x6b6a3e, 0x5c5a3a, 0x4f5638], helm: 'round' },
+    de: { c: [0x5d6352, 0x4d5246, 0x4a4f46], helm: 'flare' }, su: { c: [0x8a7f55, 0x6e6544, 0x4f5d38], helm: 'round' },
+    uk: { c: [0x7a6a44, 0x6a5a3a, 0x58603a], helm: 'brodie' }, jp: { c: [0x8a7a45, 0x7a6a3c, 0x6b6a3e], helm: 'round' }
+};
+const INF_SP = { rif: 5.2, smg: 5.6, mg: 4.6, at: 4.8 };
+function IV(o) {
+    const v = Object.assign({ ln: 'i', r: .55, cd: 4.2, el: 1.25, tt: 9, tn: 6, hp: 100, ar: 0, sp: INF_SP[o.cls], m: { inf: 1, nat: o.nat, cls: o.cls } }, o);
+    v.w2 = v.w2 || GREN(o.gren); VEHS.push(v);
+}
+// a real vehicle row, shaped like an existing model (tpl) with changes (o.m) and the nation's paint
+const TPL = id => VEHS.find(v => v.id === id).m;
+const GDEF = { lt: [40, 1.5, 300], mt: [80, 2.4, 330], ht: [120, 3.2, 320], td: [140, 3.4, 380], spaa: [9, .12, 520], arty: [200, 7, 170] };
+function RV(nat, ln, k, row) {
+    const [cls, t, n, year, tpl, req, mo, desc, extra] = row, id = nat + '_' + ln + k, m = Object.assign(JSON.parse(JSON.stringify(TPL(tpl))), mo || {});
+    const o = Object.assign({ id, t, cls, n, year, nat, req: req ? nat + '_' + ln + req : null, desc: desc + ' (' + year + ')', m }, extra || {});
+    if (ln === 'g') { const g = GDEF[cls]; GV(Object.assign({ hp: 1, ar: 1, sp: 1, tt: cls === 'td' ? 1.6 : cls === 'ht' ? 1.8 : 2.4, dmg: g[0], rl: g[1], v: g[2], prox: cls === 'spaa' ? 5 : undefined }, o)); }
+    else if (ln === 'a') {
+        const base = { ftr: { minSp: 42, sp: 90, turn: 1.7, gd: 4, grl: .06 }, atk: { minSp: 38, sp: 75, turn: 1.3, gd: 3.5, grl: .08, rk: [4, 60], bm: [2, 180, 14] }, bmb: { minSp: 38, sp: 70, turn: 1, gd: 4, grl: .09, bm: [4, 220, 16] }, heli: { minSp: 0, sp: 55, turn: 1.4, gd: 4, grl: .08, ms: [4, 160] } }[cls];
+        AV(Object.assign({ hp: 1, ar: 1 }, base, o));
+    } else {
+        const base = { pb: { tn: .8, dmg: 30, rl: 1.6, salvo: 1, v: 240 }, dd: { tn: .42, dmg: 80, rl: 2.8, salvo: 2, v: 270, tp: [2, 260] }, cl: { tn: .32, dmg: 110, rl: 3.2, salvo: 3, v: 290 }, bb: { tn: .26, dmg: 200, rl: 5, salvo: 3, v: 310 }, ss: { tn: .5, dmg: 30, rl: 2, salvo: 1, v: 240, tp: [4, 280], w2: null } }[cls];
+        NV(Object.assign({ hp: 1, ar: 1, sp: 1 }, base, o));
+    }
+}
+const C = (a, b) => ({ c: [a, b] });
+// ---- the five nations' trees. Row: [class, tier, name, year, model template, required (index in this list), model changes, description, extra]
+const ROSTER = {
+    us: {
+        g: [['lt', 1, 'M1917', 1918, 'g1a', null, { ...C(0x5b6b3a, 0x6f7d48), hull: [2.6, .9, 4.6], tur: [1.5, .9, 1.7], gun: [1.4, .1, 1], f: 'cup' }, 'American copy of the Renault FT: the first tank with a turret that turns all the way round'],
+            ['lt', 2, 'M3 Stuart', 1941, 'g2a', 1, C(0x5b6b3a, 0x6f7d48), 'Fast, reliable light tank the British nicknamed "Honey"'],
+            ['mt', 3, 'M4 Sherman', 1942, 'g1b', 2, { ...C(0x5b6b3a, 0x6f7d48), hull: [3.6, 1.45, 6], tur: [2.4, 1.05, 2.8] }, 'The most famous American tank: tough, simple, built by the tens of thousands'],
+            ['td', 3, 'M10 Wolverine', 1942, 'g2c', 2, C(0x5b6b3a, 0x6f7d48), 'Open-topped tank destroyer with a 3-inch gun'],
+            ['spaa', 3, 'M16 MGMC', 1943, 'g2f', 2, { ...C(0x5b6b3a, 0x6f7d48), f: 'wl', wh: 3, gun: [2, .07, 4] }, 'Half-track with four .50 calibre machine guns: the "meat chopper"'],
+            ['arty', 4, 'M7 Priest', 1942, 'g3f', 3, C(0x5b6b3a, 0x6f7d48), 'Self-propelled 105 mm howitzer on a Sherman chassis'],
+            ['ht', 4, 'M26 Pershing', 1945, 'g3b', 3, C(0x4f5d38, 0x6f7d48), 'Heavy tank with a 90 mm gun, built to match the Tiger'],
+            ['td', 4, 'M18 Hellcat', 1943, 'g3c', 4, { ...C(0x5b6b3a, 0x6f7d48), hull: [3.2, 1, 6.4] }, 'The fastest tracked vehicle of the war'],
+            ['mt', 5, 'M48 Patton', 1953, 'g3d', 7, C(0x4f5d38, 0x5b6b3a), 'Cold War main battle tank with a big rounded turret']],
+        a: [['ftr', 1, 'SPAD S.XIII', 1918, 'a1a', null, { ...C(0xa8a070, 0x6b6a3e), f: 'low bi' }, 'Fast, sturdy biplane flown by the American aces of 1918'],
+            ['ftr', 2, 'P-40 Warhawk', 1941, 'a2a', 1, C(0x6b6a3e, 0x9aa3ad), 'Shark-mouthed fighter of the Flying Tigers'],
+            ['atk', 3, 'P-47 Thunderbolt', 1943, 'a2d', 2, C(0x8a929c, 0x5b6b3a), 'The "Jug": huge, rugged, rockets and bombs for tank busting'],
+            ['ftr', 3, 'P-51D Mustang', 1944, 'a2a', 2, { ...C(0xb8c0c8, 0x1d4ed8), len: 9, f: 'low bubble long' }, 'Long-range escort fighter, one of the best of the war'],
+            ['bmb', 3, 'B-25 Mitchell', 1941, 'a2c', 2, C(0x6b6a3e, 0x9aa3ad), 'Twin-engine bomber of the Doolittle Raid'],
+            ['bmb', 4, 'B-17 Flying Fortress', 1943, 'a2c', 5, { ...C(0xb8c0c8, 0x6b6a3e), len: 16, span: 22, f: 'mid glassnose eng4' }, 'Four-engine heavy bomber bristling with guns'],
+            ['ftr', 4, 'P-80 Shooting Star', 1945, 'a2b', 4, C(0xc8ced6, 0x1d4ed8), 'America\'s first operational jet fighter'],
+            ['ftr', 5, 'F-86 Sabre', 1949, 'a3a', 7, C(0xc8ced6, 0x1d4ed8), 'Swept-wing jet that fought MiGs over Korea'],
+            ['heli', 5, 'UH-1 Huey', 1959, 'a2e', 7, C(0x4f5638, 0x3f4630), 'The iconic helicopter of the Vietnam era, here with missiles']],
+        n: [['pb', 1, 'Elco PT boat', 1918, 'n2d', null, C(0x55636e, 0x3f4a52), 'Plywood torpedo boat: tiny, fast and deadly'],
+            ['dd', 2, 'Clemson-class', 1919, 'n2b', 1, { fun: 4 }, 'Four-stacker destroyer from the end of World War I'],
+            ['ss', 3, 'Gato-class', 1941, 'n3f', 2, null, 'Long-range submarine that fought across the Pacific'],
+            ['dd', 3, 'Fletcher-class', 1942, 'n3e', 2, null, 'The workhorse destroyer of the Pacific war'],
+            ['cl', 4, 'Cleveland-class', 1942, 'n4d', 4, null, 'Light cruiser bristling with 6-inch guns'],
+            ['bb', 5, 'Iowa-class', 1943, 'n5c', 5, null, 'The fastest battleships ever built, nine 16-inch guns']],
+        i: [['rif', 1, 'Rifleman', 1942, SA('M1 Garand', 48, 160, 850, 8, 2.2, .004)], ['smg', 2, 'Assault', 1942, SA('Thompson M1A1', 22, 700, 285, 30, 2.4, .03, 1)],
+            ['mg', 3, 'Machine gunner', 1942, SA('BAR M1918', 34, 550, 820, 20, 2.6, .018, 1)], ['at', 4, 'Anti-tank', 1943, SA('M1 Carbine', 30, 300, 600, 15, 2, .01), ATL('M1 Bazooka', 270, 85)]]
+    },
+    de: {
+        g: [['mt', 1, 'A7V', 1918, 'g2e', null, { ...C(0x6b6a5a, 0x4a4a3a), hull: [3.2, 1.6, 7.2], tur: [1.6, .6, 1.6], gun: [1.6, .2, 1], f: 'exh' }, 'Germany\'s only tank of World War I: a steel box with 18 men inside'],
+            ['lt', 2, 'Panzer II', 1937, 'g1a', 1, { ...C(0x5a5f63, 0x474c50), hull: [2.8, .9, 4.8] }, 'Light tank of the early Blitzkrieg'],
+            ['mt', 2, 'Panzer III', 1939, 'g2b', 1, C(0x5a5f63, 0x474c50), 'Medium tank with a crew of five and a radio in every tank'],
+            ['mt', 3, 'Panzer IV', 1942, 'g2b', 3, { ...C(0xb59a5a, 0x5f6b3a), gun: [5, .18, 1], f: 'sk cup mz bins exh' }, 'The backbone of the Panzer divisions, made all through the war'],
+            ['ht', 3, 'Tiger I', 1942, 'g2e', 3, { ...C(0xb59a5a, 0x7a5a3a), hull: [4.6, 1.6, 6.6], tur: [3.4, 1.3, 3.6], gun: [5.2, .26, 1], f: 'cup mz exh bins' }, 'The feared heavy tank with the 88 mm gun'],
+            ['spaa', 3, 'Wirbelwind', 1944, 'g3e', 3, C(0xb59a5a, 0x5f6b3a), 'Panzer IV with four 20 mm flak cannons in an open turret'],
+            ['arty', 3, 'Wespe', 1943, 'g3f', 2, C(0xb59a5a, 0x5f6b3a), 'Light 105 mm self-propelled howitzer'],
+            ['mt', 4, 'Panther', 1943, 'g4b', 4, { ...C(0xb59a5a, 0x5f6b3a), f: 'sk mz bins exh', ty: 'wedge' }, 'Sloped armour and a long 75 mm gun: one of the best tanks of the war'],
+            ['ht', 4, 'Tiger II', 1944, 'g4a', 5, C(0xb59a5a, 0x5f6b3a), 'The King Tiger: the heaviest armour of any tank in the war'],
+            ['td', 4, 'Jagdpanther', 1944, 'g4d', 8, C(0xb59a5a, 0x7a5a3a), 'Tank destroyer on the Panther chassis with an 88 mm gun'],
+            ['mt', 5, 'Leopard 1', 1965, 'g5b', 8, C(0x4f5d38, 0x3a3f30), 'West Germany\'s fast Cold War main battle tank']],
+        a: [['ftr', 1, 'Fokker Dr.I', 1917, 'a1a', null, { ...C(0xb91c1c, 0x7f1d1d), len: 6, span: 7, f: 'low tri' }, 'The Red Baron\'s triplane: slow but turns on a dime'],
+            ['ftr', 2, 'Bf 109 E', 1939, 'a2a', 1, C(0x7d8a6e, 0x9aa7b5), 'The main German fighter of the Battle of Britain'],
+            ['atk', 2, 'Ju 87 Stuka', 1937, 'a1b', 1, { ...C(0x5f6b3a, 0x9aa7b5), f: 'low framed gear belly' }, 'Dive bomber with a screaming siren'],
+            ['ftr', 3, 'Fw 190 A', 1942, 'a2a', 2, C(0x7d8a6e, 0x9aa7b5), 'Rugged radial-engine fighter with heavy cannons'],
+            ['bmb', 3, 'He 111', 1937, 'a2c', 3, C(0x5f6b3a, 0x9aa7b5), 'The glass-nosed medium bomber of the Blitz'],
+            ['ftr', 4, 'Me 262', 1944, 'a2b', 4, { ...C(0x9aa7b5, 0x5f6b3a), f: 'mid tip side twin' }, 'The world\'s first operational jet fighter'],
+            ['ftr', 5, 'F-104G Starfighter', 1960, 'a3c', 6, C(0xb8c0c8, 0x6b7280), 'West German Mach 2 fighter, a missile with a man in it']],
+        n: [['pb', 1, 'V25 torpedo boat', 1914, 'n1b', null, null, 'Imperial German Navy torpedo boat of World War I'],
+            ['ss', 2, 'U-boat Type VII', 1936, 'n2e', 1, null, 'The most common U-boat of the Battle of the Atlantic'],
+            ['dd', 3, 'Z1 Leberecht Maass', 1937, 'n3a', 1, null, 'First of Germany\'s new destroyers'],
+            ['cl', 4, 'Admiral Hipper', 1939, 'n3c', 3, null, 'Heavy cruiser of the Kriegsmarine'],
+            ['bb', 4, 'Bismarck', 1940, 'n4b', 3, null, 'The legendary battleship that sank HMS Hood']],
+        i: [['rif', 1, 'Rifleman', 1939, SA('Kar98k', 62, 55, 760, 5, 2.8, .002)], ['smg', 2, 'Assault', 1940, SA('MP 40', 20, 550, 400, 32, 2.4, .025, 1)],
+            ['mg', 3, 'Machine gunner', 1942, SA('MG 42', 26, 1100, 740, 50, 4.5, .03, 1)], ['at', 4, 'Anti-tank', 1943, SA('Walther P38', 28, 220, 350, 8, 1.6, .012), ATL('Panzerschreck', 300, 105)]]
+    },
+    su: {
+        g: [['lt', 1, 'MS-1', 1928, 'g1a', null, { ...C(0x4f5d38, 0x3f4a2c), hull: [2.6, .9, 4.4], tur: [1.5, .9, 1.6], gun: [1.3, .1, 1] }, 'The first Soviet-built tank, based on the Renault FT'],
+            ['lt', 2, 'BT-7', 1935, 'g2a', 1, C(0x4f5d38, 0x3f4a2c), 'Very fast light tank that could run on wheels or tracks'],
+            ['mt', 3, 'T-34', 1941, 'g4b', 2, { ...C(0x4f5d38, 0x3f4a2c), tur: [2.4, 1, 2.8], gun: [4.2, .19, 1], f: 'exh' }, 'Sloped armour, wide tracks: the tank that changed the war'],
+            ['ht', 3, 'KV-1', 1940, 'g2e', 2, C(0x4f5d38, 0x3f4a2c), 'Heavy tank almost nothing could penetrate in 1941'],
+            ['td', 3, 'SU-85', 1943, 'g2c', 3, C(0x4f5d38, 0x3f4a2c), 'T-34 chassis with an 85 mm gun in a fixed casemate'],
+            ['spaa', 4, 'ZSU-37', 1945, 'g3e', 3, C(0x4f5d38, 0x3f4a2c), 'Self-propelled 37 mm anti-aircraft gun'],
+            ['arty', 4, 'BM-13 Katyusha', 1941, 'g4f', 3, { ...C(0x4f5d38, 0x3f4a2c), f: 'wl', wh: 3 }, 'Truck-mounted rocket launcher: "Stalin\'s organ"'],
+            ['mt', 4, 'T-34-85', 1944, 'g3d', 3, C(0x4f5d38, 0x3f4a2c), 'The T-34 with a bigger turret and an 85 mm gun'],
+            ['ht', 4, 'IS-2', 1944, 'g3b', 4, { ...C(0x4f5d38, 0x3f4a2c), gun: [5.4, .3, 1] }, 'Heavy breakthrough tank with a massive 122 mm gun'],
+            ['td', 4, 'SU-100', 1944, 'g3c', 5, C(0x4f5d38, 0x3f4a2c), 'Tank destroyer with a 100 mm gun'],
+            ['mt', 5, 'T-55', 1958, 'g5b', 8, C(0x4f5d38, 0x3f4a2c), 'The most-produced tank in history']],
+        a: [['ftr', 1, 'Polikarpov I-5', 1930, 'a1a', null, { ...C(0x5f6b3a, 0xb91c1c), f: 'low bi' }, 'Soviet biplane fighter of the early 1930s'],
+            ['ftr', 2, 'Polikarpov I-16', 1934, 'a1a', 1, C(0x5f6b3a, 0x9aa7b5), 'Stubby, fast monoplane: the first with retractable gear'],
+            ['atk', 3, 'Il-2 Sturmovik', 1941, 'a2d', 2, C(0x5f6b3a, 0x9aa7b5), 'Armoured ground attacker, the most-built military plane ever'],
+            ['ftr', 3, 'Yak-9', 1942, 'a2a', 2, C(0x6b7280, 0x9aa7b5), 'Light and nimble fighter flown by many Soviet aces'],
+            ['bmb', 3, 'Pe-2', 1941, 'a2c', 2, C(0x5f6b3a, 0x9aa7b5), 'Fast twin-engine dive bomber'],
+            ['ftr', 4, 'MiG-15', 1949, 'a3a', 4, C(0xc8ced6, 0xb91c1c), 'Swept-wing jet that shocked the West over Korea'],
+            ['ftr', 5, 'MiG-21', 1959, 'a3c', 6, C(0xc8ced6, 0xb91c1c), 'Delta-wing Mach 2 fighter flown by 50 countries'],
+            ['heli', 5, 'Mi-24 Hind', 1972, 'a4f', 6, C(0x5f6b3a, 0x8a7f55), 'The flying tank: a gunship that carries troops']],
+        n: [['pb', 1, 'G-5 torpedo boat', 1933, 'n2d', null, null, 'Fast aluminium torpedo boat'],
+            ['dd', 2, 'Gnevny-class', 1938, 'n2b', 1, null, 'Destroyers of the Soviet fleet in World War II'],
+            ['ss', 2, 'Shchuka-class', 1933, 'n2e', 1, null, 'Medium submarine, named the "pike"'],
+            ['bb', 3, 'Gangut-class', 1914, 'n2c', 2, { k: 'bb', len: 46, w: 7.4, tur: [[14, 1.8, 3], [5, 1.8, 3], [-5, 1.8, 3], [-14, 1.8, 3]], br: [8, 2.6], fun: 2 }, 'Dreadnought battleship from the Tsar\'s navy'],
+            ['cl', 4, 'Kirov-class', 1938, 'n3b', 2, null, 'Fast cruiser with 180 mm guns']],
+        i: [['rif', 1, 'Rifleman', 1941, SA('Mosin-Nagant', 62, 50, 860, 5, 3, .002)], ['smg', 2, 'Assault', 1941, SA('PPSh-41', 16, 1000, 490, 71, 3.2, .035, 1)],
+            ['mg', 3, 'Machine gunner', 1942, SA('DP-28', 30, 550, 840, 47, 3.8, .022, 1)], ['at', 4, 'Anti-tank', 1942, SA('TT-33 pistol', 28, 240, 420, 8, 1.6, .012), ATR('PTRS-41 anti-tank rifle', 95, 5)]]
+    },
+    uk: {
+        g: [['mt', 1, 'Mark IV', 1917, 'g1b', null, { ...C(0x6b6a45, 0x55543a), hull: [3.6, 1.6, 7.6], tur: [1.2, .5, 1.2], gun: [1.8, .16, 1], ty: 'box', f: 'exh' }, 'The rhomboid tank of the Western Front: the first tanks in history'],
+            ['lt', 2, 'Crusader', 1941, 'g2a', 1, C(0xc2ad74, 0x8a7a55), 'Fast cruiser tank of the desert war'],
+            ['ht', 2, 'Matilda II', 1939, 'g2e', 1, C(0xc2ad74, 0x6b6a45), 'Slow infantry tank, "Queen of the Desert" in 1940'],
+            ['mt', 3, 'Cromwell', 1944, 'g2b', 2, C(0x5b6b3a, 0x4f5638), 'The fastest British tank of the war'],
+            ['ht', 3, 'Churchill', 1941, 'g3b', 3, { ...C(0x5b6b3a, 0x4f5638), hull: [4.2, 1.5, 7.6] }, 'Long, slow, very heavily armoured infantry tank'],
+            ['td', 3, 'Achilles', 1944, 'g2c', 2, C(0x5b6b3a, 0x4f5638), 'Tank destroyer with the powerful 17-pounder'],
+            ['spaa', 3, 'Crusader AA', 1943, 'g2f', 2, C(0x5b6b3a, 0x4f5638), 'Crusader with twin 20 mm Oerlikons'],
+            ['arty', 4, 'Sexton', 1943, 'g3f', 4, C(0x5b6b3a, 0x4f5638), 'Self-propelled 25-pounder'],
+            ['mt', 4, 'Comet', 1944, 'g3d', 4, C(0x5b6b3a, 0x4f5638), 'Fast cruiser tank with a 77 mm gun'],
+            ['mt', 5, 'Centurion', 1945, 'g5b', 9, C(0x4f5638, 0x3f4630), 'One of the most successful tank designs ever'],
+            ['ht', 5, 'Chieftain', 1966, 'g5c', 5, C(0x4f5638, 0x3f4630), 'Heavily armoured Cold War tank with a 120 mm gun']],
+        a: [['ftr', 1, 'Sopwith Camel', 1917, 'a1a', null, { ...C(0x6b6a3e, 0xc2ad74), f: 'low bi' }, 'The biplane that shot down more aircraft than any other in WW1'],
+            ['ftr', 2, 'Hawker Hurricane', 1937, 'a2a', 1, C(0x5f6b3a, 0x8a7a55), 'Fighter that downed most enemy planes in the Battle of Britain'],
+            ['ftr', 3, 'Spitfire Mk IX', 1942, 'a2a', 2, { ...C(0x6b7280, 0x5f6b3a), len: 8.8 }, 'The elliptical-winged legend'],
+            ['atk', 3, 'Hawker Typhoon', 1942, 'a2d', 2, C(0x6b7280, 0x5f6b3a), 'Rocket-firing tank buster of Normandy'],
+            ['bmb', 4, 'Avro Lancaster', 1942, 'a2c', 4, { ...C(0x3f4630, 0x111827), len: 16, span: 22, f: 'mid glassnose twintail eng4' }, 'Four-engine heavy bomber of the Dambusters'],
+            ['ftr', 4, 'Gloster Meteor', 1944, 'a2b', 3, { ...C(0xb8c0c8, 0x5f6b3a), f: 'mid tip side twin' }, 'The Allies\' first jet fighter'],
+            ['ftr', 5, 'Hawker Hunter', 1954, 'a3a', 6, C(0x6b7280, 0x5f6b3a), 'Graceful transonic jet fighter'],
+            ['bmb', 5, 'Avro Vulcan', 1956, 'a5c', 5, C(0xe2e8f0, 0x9aa3ad), 'Huge delta-wing V-bomber']],
+        n: [['pb', 1, 'Coastal Motor Boat', 1916, 'n2d', null, null, 'Fast torpedo skimmer of World War I'],
+            ['bb', 2, 'HMS Dreadnought', 1906, 'n2c', 1, { k: 'bb', len: 44, w: 7, tur: [[13, 1.8, 2], [3, 1.8, 2], [-7, 1.8, 2], [-14, 1.8, 2]], br: [7, 2.6], fun: 2 }, 'The battleship that made every other battleship obsolete'],
+            ['dd', 2, 'V and W-class', 1917, 'n2b', 1, null, 'Destroyers from WW1 that served all through WW2'],
+            ['ss', 3, 'T-class', 1938, 'n3f', 3, null, 'Ocean-going patrol submarine'],
+            ['dd', 3, 'Tribal-class', 1938, 'n3a', 3, null, 'Big, heavily armed destroyers'],
+            ['cl', 4, 'Town-class', 1937, 'n4d', 5, null, 'Light cruiser with four triple 6-inch turrets'],
+            ['bb', 5, 'King George V-class', 1940, 'n4b', 2, null, 'Battleship that hunted down the Bismarck']],
+        i: [['rif', 1, 'Rifleman', 1941, SA('Lee-Enfield No.4', 56, 90, 740, 10, 3, .003)], ['smg', 2, 'Assault', 1941, SA('Sten Mk II', 19, 550, 365, 32, 2.4, .03, 1)],
+            ['mg', 3, 'Machine gunner', 1940, SA('Bren', 32, 500, 740, 30, 2.8, .014, 1)], ['at', 4, 'Anti-tank', 1943, SA('Webley revolver', 32, 160, 200, 6, 2.2, .012), ATL('PIAT', 260, 75)]]
+    },
+    jp: {
+        g: [['lt', 1, 'Renault Ko-Gata', 1919, 'g1a', null, { ...C(0x7a7044, 0x5f5a36), hull: [2.6, .9, 4.6], tur: [1.5, .9, 1.7], gun: [1.3, .1, 1] }, 'Japan\'s first tanks, bought from France'],
+            ['lt', 2, 'Type 95 Ha-Go', 1935, 'g2a', 1, C(0x7a7044, 0x5f6b3a), 'Light tank that fought from Manchuria to the Pacific islands'],
+            ['mt', 2, 'Type 97 Chi-Ha', 1938, 'g1b', 1, C(0x7a7044, 0x5f6b3a), 'The most common Japanese medium tank'],
+            ['mt', 3, 'Type 1 Chi-He', 1942, 'g2b', 3, C(0x7a7044, 0x5f6b3a), 'Improved medium tank with welded armour'],
+            ['td', 3, 'Type 1 Ho-Ni', 1942, 'g2c', 3, C(0x7a7044, 0x5f6b3a), 'Tank destroyer with a 75 mm field gun'],
+            ['spaa', 3, 'Type 98 Ta-Se', 1941, 'g2f', 2, C(0x7a7044, 0x5f6b3a), 'Light anti-aircraft tank with a 20 mm cannon'],
+            ['arty', 4, 'Type 4 Ho-Ro', 1944, 'g3f', 4, C(0x7a7044, 0x5f6b3a), 'Self-propelled 150 mm howitzer'],
+            ['mt', 4, 'Type 4 Chi-To', 1944, 'g3d', 4, C(0x7a7044, 0x5f6b3a), 'Japan\'s best tank of the war, with a 75 mm gun'],
+            ['ht', 4, 'Type 5 Chi-Ri', 1945, 'g3b', 4, C(0x7a7044, 0x5f6b3a), 'The biggest Japanese tank, never used in battle'],
+            ['mt', 5, 'Type 61', 1961, 'g5b', 8, C(0x4f5638, 0x3f4630), 'Japan\'s first post-war main battle tank']],
+        a: [['ftr', 1, 'Nakajima Ko-4', 1923, 'a1a', null, { ...C(0x8a929c, 0xdc2626), f: 'low bi' }, 'Licence-built French fighter biplane'],
+            ['ftr', 2, 'A6M2 Zero', 1940, 'a2a', 1, C(0xe2e0d0, 0x5f6b3a), 'The long-range, very nimble navy fighter'],
+            ['atk', 2, 'Aichi D3A "Val"', 1940, 'a1b', 1, C(0x5f6b3a, 0xe2e0d0), 'Dive bomber of Pearl Harbor'],
+            ['ftr', 3, 'Ki-84 Hayate', 1944, 'a2a', 2, C(0x5f6b3a, 0x9aa3ad), 'Fast, powerful army fighter'],
+            ['bmb', 3, 'G4M "Betty"', 1941, 'a2c', 3, C(0x5f6b3a, 0x9aa3ad), 'Long-range twin-engine bomber'],
+            ['ftr', 4, 'Nakajima Kikka', 1945, 'a2b', 4, { ...C(0x5f6b3a, 0x9aa3ad), f: 'mid tip side twin' }, 'Japan\'s first jet, inspired by the Me 262'],
+            ['ftr', 5, 'F-86F Sabre', 1955, 'a3a', 6, C(0xc8ced6, 0xdc2626), 'Sabres flown by the Japan Air Self-Defense Force']],
+        n: [['pb', 1, 'Shirakumo', 1902, 'n1b', null, null, 'Early torpedo boat destroyer'],
+            ['dd', 2, 'Fubuki-class', 1928, 'n2b', 1, null, 'The "special type" destroyers that outgunned everyone'],
+            ['ss', 3, 'I-400-class', 1944, 'n4e', 2, null, 'The largest submarines of the war'],
+            ['cl', 3, 'Mogami-class', 1935, 'n3c', 2, null, 'Cruiser with five triple turrets'],
+            ['bb', 4, 'Nagato-class', 1920, 'n4a', 2, null, 'The first battleship with 16-inch guns'],
+            ['bb', 5, 'Yamato-class', 1941, 'n5c', 5, null, 'The largest battleship ever built: nine 18-inch guns']],
+        i: [['rif', 1, 'Rifleman', 1941, SA('Arisaka Type 99', 60, 55, 730, 5, 3, .002)], ['smg', 2, 'Assault', 1942, SA('Type 100 SMG', 18, 800, 335, 30, 2.6, .03, 1)],
+            ['mg', 3, 'Machine gunner', 1941, SA('Type 99 LMG', 31, 800, 715, 30, 2.8, .02, 1)], ['at', 4, 'Anti-tank', 1941, SA('Nambu pistol', 26, 220, 330, 8, 1.6, .012), ATR('Type 97 20 mm AT rifle', 90, 7)]]
+    }
+};
+// the Coalition's soldiers (modern kit), so every nation, including the old tree, can fight on foot
+ROSTER.cx = { i: [['rif', 1, 'Rifleman', 1990, SA('Battle rifle', 45, 300, 850, 20, 2.4, .006, 1)], ['smg', 2, 'Assault', 1990, SA('Carbine', 26, 700, 880, 30, 2.4, .02, 1)],
+    ['mg', 3, 'Machine gunner', 1990, SA('Light machine gun', 28, 800, 900, 100, 5, .025, 1)], ['at', 4, 'Anti-tank', 1990, SA('Pistol', 30, 300, 400, 15, 1.6, .012), ATL('Rocket launcher', 290, 120)]] };
+for (const nat of NAT_IDS) {
+    const R = ROSTER[nat]; if (!R) continue;
+    for (const ln of ['g', 'a', 'n']) if (R[ln]) R[ln].forEach((row, k) => RV(nat, ln, k + 1, row));
+    if (R.i) R.i.forEach(([cls, t, n, year, w1, w3], k) => IV({ id: nat + '_i' + (k + 1), t, cls, n, nat, year, req: k ? nat + '_i' + k : null, w1, w3,
+        desc: NATIONS[nat].n + ' ' + n.toLowerCase() + ' with the ' + w1.n + (w3 ? ' and the ' + w3.n : '') + '. Left mouse fire, G grenade' + (w3 ? ', F ' + w3.n : '') + ', R reload, Shift sprint, Space jump.' }));
+}
+
+// ---- 12-balance.js ----
+// ============================================================
+// BALANCE (moved out of 10-data.js in 3.0 so 11-nations.js can add its vehicles first): class/tier stats, battle ratings, modules.
+// ============================================================
 // The numbers above give each vehicle its looks and character; its strength comes from here.
 // BALANCE: one row per class, one column per tier (index = tier I..V): hit points, armour, top speed and the main weapon's damage per
 // second. Every tier is a clear step up (about +30% hp and dps, more armour). The class rows give each branch its job:
@@ -939,6 +1167,7 @@ NV({ id: 'n5d', t: 5, cls: 'ss', n: 'Abyss', req: 'n4e', hp: 720, ar: 28, sp: 15
 //   guns, anti-air shreds aircraft, artillery hits from far away; fighters win air fights, attackers kill tanks, bombers delete ground
 //   targets, helicopters hover and fire guided missiles; patrol boats are quick, destroyers/cruisers/battleships scale up guns and
 //   hit points, submarines ambush with torpedoes.
+const INF_ROLE = { rif: 'Long-range rifle: few, deadly shots', smg: 'Close quarters: a hail of bullets', mg: 'Holds ground: a long belt of fire', at: 'Kills tanks with a launcher or anti-tank rifle' };
 const BALANCE = {
     lt:   { hp: [0, 220, 300, 400, 520, 680],   ar: [0, 8, 14, 24, 36, 50],    sp: [0, 17, 18.5, 20, 21.5, 23],  dps: [0, 24, 31, 40, 52, 68] },
     mt:   { hp: [0, 320, 420, 550, 720, 940],   ar: [0, 20, 34, 50, 70, 95],   sp: [0, 12, 13.5, 15, 16.5, 18],  dps: [0, 24, 31, 41, 54, 70] },
@@ -979,6 +1208,7 @@ const ROLE = { lt: 'Fast scout: spots and flanks, thin armour', mt: 'All-rounder
     cl: 'More guns and armour than a destroyer', bb: 'The biggest guns and the most hit points at sea', ss: 'Dives to hide, ambushes with torpedoes' };
 function ordKind(w) { return w.k === 'missile' ? (w.air ? (w.n === 'SAM' ? 'sam' : 'aam') : w.sea ? 'ashm' : 'atgm') : w.k === 'torp' ? 'torp' : w.k; }
 VEHS.forEach(v => {
+    if (v.ln === 'i') { v.role = INF_ROLE[v.cls]; v.pw = 1; return; }      // soldiers carry real guns with their own numbers
     const B = BALANCE[v.cls], t = v.t, c = CHAR[v.id] || {}, w = v.w1, k = n => c[n] || 1;
     const sp0 = v.sp; v.hp = Math.round(B.hp[t] * k('hp')); v.ar = Math.round(B.ar[t] * k('ar')); v.sp = Math.round(B.sp[t] * k('sp') * 10) / 10;
     if (v.minSp) v.minSp = Math.round(v.minSp * v.sp / sp0);
@@ -994,8 +1224,9 @@ function calcDps(v) { let dps = 0; for (const k of ['w1', 'w2', 'w3']) { const w
 VEHS.forEach((v, i) => {
     v.i = i; VBY[v.id] = v;
     const idx = VEHS.filter(o => o.ln === v.ln && o.t === v.t).indexOf(v);
-    v.rp = v.t === 1 ? 0 : Math.round(RP_COST[v.t] * (1 + idx * 0.04) / 10) * 10;
-    v.cost = v.t === 1 ? 0 : Math.round(CR_COST[v.t] * (1 + idx * 0.04) / 50) * 50;
+    const cheap = v.ln === 'i' ? .35 : 1;      // soldiers cost about a third of a vehicle of the same tier
+    v.rp = v.t === 1 ? 0 : Math.round(RP_COST[v.t] * cheap * (1 + idx * 0.04) / 10) * 10;
+    v.cost = v.t === 1 ? 0 : Math.round(CR_COST[v.t] * cheap * (1 + idx * 0.04) / 50) * 50;
     v.br = Math.round((v.t + (BR_ADJ[v.cls] || 0) + clamp((v.pw - 1) * 1.5, -.2, .3)) * 10) / 10;      // battle rating follows strength
     v.maxDps = calcDps(v);      // top damage per second, used by the host to sanity-check hits
 });
@@ -1005,6 +1236,7 @@ const MAX_TIER = 5;
 const MOD_DEFS = {
     g: [['eng', 'Engine', '+15% top speed, quicker turns'], ['arm', 'Armour kit', '+25% armour, +8% hit points (skirts + plates)'], ['gun', 'Gun upgrade', '+12% main weapon damage'], ['ammo', 'AP ammunition', 'Main weapon ignores 30% more armour'], ['stab', 'Stabiliser', 'Turret +25% faster, 60% tighter spread']],
     a: [['eng', 'Engine', '+10% top speed, +8% turn rate'], ['arm', 'Armour plates', '+12% hit points, +4 armour'], ['gun', 'Gun pods', '+15% gun damage'], ['ord', 'Ordnance racks', '+50% rockets / bombs / missiles'], ['cm', 'Countermeasures', 'Flares (F) that decoy missiles']],
+    i: [['eng', 'Fitness', '+12% running speed'], ['arm', 'Body armour', '+8% hit points'], ['gun', 'Hot loads', '+12% damage per shot'], ['ammo', 'Armour-piercing rounds', 'Shots ignore 30% more armour'], ['stab', 'Marksmanship', 'Much tighter spread']],
     n: [['eng', 'Turbines', '+12% top speed'], ['arm', 'Belt armour', '+20% armour, +8% hit points'], ['gun', 'Fire control', '-12% main gun reload'], ['ammo', 'AP shells', 'Main guns ignore 30% more armour'], ['radar', 'Radar', '+25% turret speed, spots dived submarines']]
 };
 const MODS = [], MODBY = {};
@@ -1026,7 +1258,7 @@ function vdef(id, mask) {
     if (has('arm')) { if (b.ln === 'a') { d.hp = Math.round(d.hp * 1.12); d.ar += 4; } else { d.ar = Math.round(d.ar * (b.ln === 'g' ? 1.25 : 1.2)); d.hp = Math.round(d.hp * 1.08); } d.kit = true; }
     if (has('gun')) { if (b.ln === 'n') d.w1.rl *= .88; else d.w1.dmg = Math.round(d.w1.dmg * (b.ln === 'a' ? 1.15 : 1.12) * 10) / 10; }
     if (has('ammo')) d.w1.pierce = (d.w1.pierce || 0) + .3;
-    if (has('stab')) { d.tt *= 1.25; d.w1.spread = (d.w1.spread || .004) * .4; d.stab = true; }
+    if (has('stab')) { d.tt *= 1.25; d.w1.spread = (d.w1.spread || .004) * .4; if (d.w1.sprd) d.w1.sprd *= .5; d.stab = true; }
     if (has('ord')) for (const s of ['w2', 'w3']) if (d[s] && d[s].cnt) d[s].cnt = Math.ceil(d[s].cnt * 1.5);
     if (has('cm')) d.flares = true;
     if (has('radar')) { d.tt *= 1.25; d.radar = true; }
@@ -1376,6 +1608,12 @@ function buildAir(m, team) {
         wing(B, root, tip, half - fr * .6, delta ? L * .45 : Math.tan(sw) * half, .2 * (prop ? 1.4 : 1), s * fr * .6, wy, wz, c1, s, prop || k === 'bomber' ? .04 : f.high ? -.03 : .02);
         roundel(s * half * .72, wy + .14 + half * .72 * (prop ? .04 : .02), wz - Math.tan(sw) * half * .72 * (delta ? 1.6 : 1), Math.min(.9, root * .25), 0, 0);
         roundel(s * (fr + .02), 0, -L * .2, fr * .45, 0, s * PI / 2);
+        // 3.0: biplanes and triplanes (WW1): more wings stacked above, joined by struts
+        for (let k2 = 1; k2 <= (f.tri ? 2 : f.bi ? 1 : 0); k2++) {
+            const uy = wy + fr * 1.9 * k2, uz = wz + L * .03 * k2;
+            wing(B, root * (f.tri ? .85 : 1), tip, half - fr * .3, Math.tan(sw) * half, .18, s * fr * .2, uy, uz, c1, s, .01);
+            for (const sx of [.35, .8]) cy(BF, .06, .06, fr * 1.9, 4, s * half * sx, uy - fr * .95, uz - Math.tan(sw) * half * sx, MTL);
+        }
         if (f.tip) cy(B, .32, .32, 2.2, 8, s * half, wy, wz - Math.tan(sw) * half, c2, PI / 2);
         if (f.canard) wing(B, L * .1, L * .03, fr * 2.2, L * .04, .1, s * fr * .7, fr * .2, L * .28, c1, s, 0);
         // tail
@@ -1514,11 +1752,33 @@ function buildSub(m, team) {
     const turs = m.tur.map(([z, s, nb]) => { const t = shipTurret(s, nb, c1, c2); return { geo: t.geo, pos: [0, r * 1.02, z + len * .12], muz: t.muz }; });
     return { body: merge2(B, BF, 8), turs, kitB: merge2(K, null, 8), len, w, sub: true, dec: [[w * .17, r * 2, len * .1, .6]] };
 }
+// ---------- soldiers (3.0): uniform and helmet by nation, an armband in the team colour, the gun by class ----------
+function buildSoldier(m, team) {
+    const U = UNIFORM[m.nat] || UNIFORM.cx, [cU, cT, cH] = U.c.map(c => tint(c, .28)), tc = teamCol(team), SKIN = 0xd6a47a, BOOT = 0x2a241e, WOOD = 0x6b4a2a, STEEL = 0x34373c;
+    const T = flatList(), LL = flatList(), LR = flatList(), A = flatList();
+    bx(T, .46, .56, .26, 0, 1.2, 0, cU); bx(T, .48, .12, .28, 0, .95, 0, 0x3a3226);      // torso, belt
+    bx(T, .3, .36, .16, 0, 1.22, -.2, cT);                                                  // backpack
+    sph(T, .13, 0, 1.62, .02, SKIN, 1, 1.1, 1);                                              // head
+    if (U.helm === 'flare') { sph(T, .17, 0, 1.68, 0, cH, 1, .9, 1.05, true); cy(T, .2, .23, .06, 10, 0, 1.64, 0, cH); }
+    else if (U.helm === 'brodie') { sph(T, .14, 0, 1.69, 0, cH, 1, .8, 1, true); cy(T, .27, .27, .03, 12, 0, 1.69, 0, cH); }
+    else sph(T, .16, 0, 1.67, 0, cH, 1, .95, 1.05, true);
+    for (const sx of [-1, 1]) bx(T, .07, .14, .27, sx * .25, 1.32, 0, tc);                  // armbands: which team
+    for (const [L, sx] of [[LL, -1], [LR, 1]]) { bx(L, .17, .78, .2, 0, -.42, 0, cT); bx(L, .18, .14, .3, 0, -.86, .05, BOOT); }
+    // arms reach forward to the gun; the gun points along +Z from the shoulders
+    bx(A, .13, .13, .5, -.2, -.12, .2, cU, -.35); bx(A, .13, .13, .5, .2, -.12, .2, cU, -.35);
+    const c = m.cls; let len = .9;
+    if (c === 'at' && (m.launch || m.nat === 'us' || m.nat === 'de' || m.nat === 'uk' || m.nat === 'cx')) { cy(A, .08, .08, 1.25, 10, .16, .06, .25, 0x4d5a3a, PI / 2); len = .9; }
+    else if (c === 'at') { bx(A, .07, .08, 1.7, .06, -.05, .55, STEEL); bx(A, .05, .1, .3, .06, -.15, .1, WOOD); len = 1.4; }
+    else if (c === 'smg') { bx(A, .07, .1, .6, .06, -.1, .32, STEEL); bx(A, .04, .22, .06, .06, -.24, .38, STEEL); bx(A, .06, .1, .22, .06, -.12, -.02, WOOD); len = .62; }
+    else if (c === 'mg') { bx(A, .09, .12, 1.1, .06, -.08, .45, STEEL); bx(A, .08, .12, .26, .06, -.1, -.08, WOOD); bx(A, .14, .14, .14, .06, -.2, .22, STEEL); len = 1; }
+    else { bx(A, .06, .08, 1.1, .06, -.08, .42, WOOD); bx(A, .03, .03, .5, .06, -.04, .78, STEEL); len = 1.03; }
+    return { inf: 1, body: merge(T), legL: merge(LL), legR: merge(LR), arms: merge(A), muz: [[.06, -.06, len]], gpos: [0, 1.42, 0], dec: [] };
+}
 const PARTS = {};
 function getParts(def, team) {
     const b = def.base || def, key = b.id + '|' + (team | 0);
     if (PARTS[key]) return PARTS[key];
-    const P = b.ln === 'g' ? buildTank(b.m, team | 0) : b.ln === 'a' ? (b.heli ? buildHeli(b.m, team | 0) : buildAir(b.m, team | 0)) : buildShip(b.m, team | 0);
+    const P = b.ln === 'i' ? buildSoldier(b.m, team | 0) : b.ln === 'g' ? buildTank(b.m, team | 0) : b.ln === 'a' ? (b.heli ? buildHeli(b.m, team | 0) : buildAir(b.m, team | 0)) : buildShip(b.m, team | 0);
     return PARTS[key] = P;
 }
 // two-digit decal quads (hull / turret / tail numbers), one small geometry per vehicle
@@ -1542,11 +1802,18 @@ function decalGeo(list, num) {      // list entries [x, y, z, size] on the +X si
 // ---- build a live model for an entity ----
 function makeModel(def, team, num) {
     const b = def.base || def, P = getParts(def, team), root = new THREE.Group(), o = { root, team, muzzles: [], turs: [], props: [], tur: null, gun: null, kit: [], disposables: [] };
-    const mat = MAT.veh[b.ln + ((team | 0) & 1)];
+    const mat = MAT.veh[(b.ln === 'i' ? 'g' : b.ln) + ((team | 0) & 1)];
     const add = (geo, m, parent, pos) => { const me = new THREE.Mesh(geo, m); if (pos) me.position.set(pos[0], pos[1], pos[2]); me.castShadow = true; me.receiveShadow = b.ln === 'n'; (parent || root).add(me); return me; };
     o.body = add(P.body, mat);
     const nm = num === undefined ? 10 + Math.floor(Math.random() * 89) : num;
     if (P.dec && P.dec.length) { const g = decalGeo(P.dec, nm); o.disposables.push(g); const d = add(g, MAT.decal); d.castShadow = false; }
+    if (P.inf) {      // a soldier: legs swing from the hips, arms + gun pitch from the shoulders
+        o.legs = [-1, 1].map((sx, k) => { const g = new THREE.Group(); g.position.set(sx * .12, .95, 0); root.add(g); add(k ? P.legR : P.legL, mat, g); return g; });
+        const tg = new THREE.Group(); root.add(tg); o.tur = tg;
+        const gg = new THREE.Group(); gg.position.set(P.gpos[0], P.gpos[1], P.gpos[2]); tg.add(gg); o.gun = gg; add(P.arms, mat, gg);
+        const mz = new THREE.Object3D(); mz.position.set(P.muz[0][0], P.muz[0][1], P.muz[0][2]); gg.add(mz); o.muzzles.push(mz);
+        root.rotation.order = 'YXZ'; return o;
+    }
     if (P.kitB) { const kb = add(P.kitB, mat); kb.visible = b.ln === 'n' ? !!def.radar : !!def.kit; o.kit.push(kb); }
     if (b.ln === 'g') {
         const tex = TEX.track.clone(); tex.needsUpdate = true; o.trMat = MAT.track.clone(); o.trMat.map = tex; o.disposables.push(tex, o.trMat);
@@ -2077,10 +2344,11 @@ function updateProjectiles(dt) {
             let ex = e.x, ey = e.y, ez = e.z;
             if (p.lag && e.hn) { posAt(e, tnow - p.lag, HP3); ex = HP3.x; ey = HP3.y; ez = HP3.z; }
             const air = e.def.ln === 'a';
-            let r = e.def.r + (p.k === 'bullet' ? 0.6 : 0.3) + (p.big ? (p.k === 'bullet' ? 1.2 : 1.6) : 0);
+            const sol = e.def.ln === 'i';
+            let r = sol ? .42 + (p.k === 'bullet' ? .12 : .45) + (p.big ? .3 : 0) : e.def.r + (p.k === 'bullet' ? 0.6 : 0.3) + (p.big ? (p.k === 'bullet' ? 1.2 : 1.6) : 0);
             if (p.prox && air) r += p.prox;
             if (p.k === 'torp') r += 1.5;
-            if (segSphere(ox, oy, oz, p.x, p.y, p.z, ex, ey + (air ? 0 : e.def.ln === 'n' ? 1 : 1.5), ez, r)) { hit = e; break; }
+            if (segSphere(ox, oy, oz, p.x, p.y, p.z, ex, ey + (air ? 0 : sol ? 1.05 : e.def.ln === 'n' ? 1 : 1.5), ez, r)) { hit = e; break; }
         }
         const gh = p.k === 'torp' ? (H(p.x, p.z) > -1 ? 99 : -9) : GHS(p.x, p.z);
         if (hit || p.y < gh || p.life <= 0) {
@@ -2129,6 +2397,11 @@ function removeEnt(e) { if (e.mdl) { scene.remove(e.mdl.root); disposeModel(e.md
 // spawn positions: tanks on the west / east shores, ships in the northern and southern seas, aircraft over the ends; FFA anywhere
 function battleR() { return M && M.R || EXT; }
 function pickSpawn(team, ln, ffa) {
+    if (ln === 'i' && !ffa) {      // soldiers start nearer the fight than the tanks (duellists closer still)
+        const sgn = team === 0 ? -1 : 1, near = M && M.cfg && M.cfg.duel ? 55 : 170;
+        for (let i = 0; i < 40; i++) { const x = sgn * (near + rnd(0, 60)), z = rnd(-90, 90), h = H(x, z); if (h > 1 && h < 22 && GH(x, z) === h) return { x, z, y: h, yaw: team === 0 ? PI / 2 : -PI / 2 }; }
+    }
+    if (ln === 'i') ln = 'g';
     const R = battleR(), sgn = team === 0 ? -1 : 1, k = R / EXT;
     for (let i = 0; i < 60; i++) {
         if (ffa) {
@@ -2153,7 +2426,7 @@ function spawnEnt(e, sp) {
     sp = sp || pickSpawn(e.team, e.def.ln, M && M.mode === 'ffa');
     e.x = sp.x; e.y = heli ? Math.min(sp.y, Math.max(GH(sp.x, sp.z), 0) + 40) : sp.y; e.z = sp.z; e.yaw = sp.yaw; e.tur = sp.yaw; e.pitch = 0; e.roll = 0; e.gun = 0; e.hp = e.def.hp; e.alive = true;
     e.speed = e.def.ln === 'a' && !heli ? e.def.minSp * 1.6 : 0; e.thr = e.def.ln === 'a' && !heli ? .6 : 0;
-    e.a2 = e.def.w2 && e.def.w2.cnt || 0; e.a3 = e.def.w3 ? e.def.w3.cnt : 0; e.t1 = e.t2 = e.t3 = 1; e.vx = e.vy = e.vz = 0; e.budget = e.def.maxDps * 3; e.prot = SPAWN_PROT; e.dive = 0; e.diveOn = false; e.nFl = 6; e.flareT = 0;
+    e.a2 = e.def.w2 && e.def.w2.cnt || 0; e.a3 = e.def.w3 ? e.def.w3.cnt : 0; e.t1 = e.t2 = e.t3 = 1; e.vx = e.vy = e.vz = 0; e.budget = e.def.maxDps * 3; e.prot = SPAWN_PROT; e.dive = 0; e.diveOn = false; e.nFl = 6; e.flareT = 0; e.am1 = e.def.w1.mag || 0; e.relT = 0; e.vyJ = 0;
     if (e.ai) aiReset(e);
     e.sb.length = 0; e.hn = 0; e.crashed = false;
     if (e.mdl) e.mdl.root.visible = true; e.dieT = 0;
@@ -2162,7 +2435,11 @@ function spawnEnt(e, sp) {
 function applyAnim(e, dt) {
     const m = e.mdl, r = m.root, d = e.def;
     r.position.set(e.x, e.y - (d.sub ? e.dive * 4.2 : 0), e.z); r.rotation.set(-e.pitch, e.yaw, e.roll);
-    if (d.ln === 'g') {
+    if (d.ln === 'i') {      // soldiers: legs swing with the walking speed, the gun follows the aim
+        const sp = Math.hypot(e.vx || 0, e.vz || 0); e.step = (e.step || 0) + sp * dt * 1.9;
+        const sw = Math.sin(e.step) * Math.min(.7, sp * .12); if (m.legs) { m.legs[0].rotation.x = sw; m.legs[1].rotation.x = -sw; }
+        m.gun.rotation.x = -e.gun; m.tur.rotation.y = 0;
+    } else if (d.ln === 'g') {
         m.tur.rotation.y = e.tur - e.yaw; m.gun.rotation.x = -e.gun;
         e.trk += e.speed * dt; if (m.trMat) m.trMat.map.offset.x = (P_WHEELED(e) ? -e.trk * .26 : -e.trk * .55);
     } else if (d.ln === 'n') { for (const t of m.turs) t.rotation.y = e.tur - e.yaw; }
@@ -2175,6 +2452,7 @@ function muzzleWorld(e, i) {
 function killVisual(e) {
     if (!e.alive && e.dieT) return;
     e.alive = false; e.dieT = simTime; if (e.mdl) e.mdl.root.visible = false;
+    if (e.def.ln === 'i') { fxDust(e.x, e.y + .5, e.z, 1.5); return; }      // a soldier just drops (no gore)
     const big = e.def.ln === 'n' ? 14 : e.def.ln === 'g' ? 8 : 6;
     fxExplosion(e.x, e.y + 1.5, e.z, big);
     if (e.def.ln === 'n' && H(e.x, e.z) < 0) fxSplash(e.x, e.z, 8);
@@ -2255,9 +2533,28 @@ function stepHeli(e, c, dt) {
     e.tur += clamp(angDiff(e.tur, c.aimYaw), -2.5 * dt, 2.5 * dt); if (Math.abs(angDiff(e.yaw, e.tur)) > 1.6) e.tur = e.yaw + Math.sign(angDiff(e.yaw, e.tur)) * 1.6;
     e.gun += clamp(clamp(c.aimPitch, -1.1, .3) - e.gun, -2 * dt, 2 * dt);
 }
+// soldiers (3.0): walk / sprint (Shift) / jump (Space) relative to where they aim; the body faces the aim
+function stepInf(e, c, dt) {
+    const d = e.def, R = battleR(), yaw = c.aimYaw;
+    e.yaw = e.tur = yaw; e.pitch = 0; e.roll = 0;
+    const run = c.sprint && c.thr > 0 ? 1.65 : 1, fx = Math.sin(yaw), fz = Math.cos(yaw), lx = Math.cos(yaw), lz = -Math.sin(yaw);
+    let mx = fx * c.thr + lx * (c.side || 0), mz = fz * c.thr + lz * (c.side || 0); const ml = Math.hypot(mx, mz); if (ml > 1) { mx /= ml; mz /= ml; }
+    const sp = d.sp * run * (e.ads ? .55 : 1), k = Math.min(1, dt * 10);
+    e.ivx = (e.ivx || 0) + (mx * sp - (e.ivx || 0)) * k; e.ivz = (e.ivz || 0) + (mz * sp - (e.ivz || 0)) * k;
+    const nx = clamp(e.x + e.ivx * dt, -R + 15, R - 15), nz = clamp(e.z + e.ivz * dt, -EXT + 15, EXT - 15), h0 = H(e.x, e.z), h1 = H(nx, nz);
+    if (h1 > .2 && (h1 - h0) < 1.4 * Math.hypot(nx - e.x, nz - e.z) + .05) { e.x = nx; e.z = nz; } else { e.ivx *= -.2; e.ivz *= -.2; }
+    pushOutOfBuildings(e, .45);
+    const gy = GH(e.x, e.z), onG = e.y <= gy + .05;
+    if (c.up > 0 && onG && !(e.vyJ > 0)) e.vyJ = 5.2;
+    e.vyJ = (e.vyJ || 0) - 16 * dt; e.y += e.vyJ * dt; if (e.y <= gy) { e.y = gy; e.vyJ = 0; }
+    e.gun += clamp(clamp(c.aimPitch, -1.2, d.el) - e.gun, -6 * dt, 6 * dt);
+    e.speed = Math.hypot(e.ivx, e.ivz);
+    if (e.relT > 0) e.relT -= dt;
+    if (c.reload && d.w1.mag && e.am1 < d.w1.mag && !(e.relT > 0)) { e.am1 = d.w1.mag; e.t1 = Math.max(e.t1, d.w1.reload); e.relT = d.w1.reload; if (e === ME) sfx('reload', e.x, e.y, e.z, .5); }
+}
 function stepVehicle(e, c, dt) {
     const px = e.x, py = e.y, pz = e.z, d = e.def;
-    if (d.heli) stepHeli(e, c, dt); else if (d.ln === 'a') stepAir(e, c, dt); else stepSurface(e, c, dt);
+    if (d.ln === 'i') stepInf(e, c, dt); else if (d.heli) stepHeli(e, c, dt); else if (d.ln === 'a') stepAir(e, c, dt); else stepSurface(e, c, dt);
     if (dt > 0) { e.vx = (e.x - px) / dt; e.vy = (e.y - py) / dt; e.vz = (e.z - pz) / dt; }
     // timers + ammo restock
     e.t1 -= dt; e.t2 -= dt; e.t3 -= dt; e.flareT -= dt;
@@ -2285,7 +2582,13 @@ const SEP = [];
 function separate() {
     SEP.length = 0; for (const e of EN.values()) if (e.alive && e.def.ln !== 'a') SEP.push(e);
     for (let i = 0; i < SEP.length; i++) for (let j = i + 1; j < SEP.length; j++) {
-        const a = SEP[i], b = SEP[j]; if (a.def.ln !== b.def.ln) continue;
+        const a = SEP[i], b = SEP[j];
+        if ((a.def.ln === 'i') !== (b.def.ln === 'i') && (a.def.ln === 'g' || b.def.ln === 'g')) {      // 3.0: tanks run soldiers over
+            const s = a.def.ln === 'i' ? a : b, v = s === a ? b : a, rr = v.def.r * .75 + .4;
+            if (Math.hypot(s.x - v.x, s.z - v.z) < rr && Math.abs(s.y - v.y) < 3) { if (Math.abs(v.speed) > 3 && M && M.host && foe(v, s)) hostDamage(v.id, s.id, 999, 1, 'w1', true); else if (!s.remote) { const dx = s.x - v.x, dz = s.z - v.z, d = Math.hypot(dx, dz) || 1; s.x = v.x + dx / d * rr; s.z = v.z + dz / d * rr; } }
+            continue;
+        }
+        if (a.def.ln !== b.def.ln) continue;
         const dx = b.x - a.x, dz = b.z - a.z, rr = (a.def.r + b.def.r) * .7, d2 = dx * dx + dz * dz;
         if (d2 < rr * rr && d2 > .0001) { const d = Math.sqrt(d2), k = (rr - d) * .5 / d; if (!a.remote) { a.x -= dx * k; a.z -= dz * k; } if (!b.remote) { b.x += dx * k; b.z += dz * k; } }
     }
@@ -2308,10 +2611,12 @@ function weaponFire(e, slot, c) {
     if (e[T] > 0) return false;
     if (slot !== 'w1' && w.cnt) { const A = slot === 'w2' ? 'a2' : 'a3', R = slot === 'w2' ? 'rel2' : 'rel3'; if (e[A] <= 0) return false; e[A]--; if (e[R] <= 0) e[R] = w.rel / w.cnt; }
     e[T] = w.rl;
+    if (slot === 'w1' && w.mag) { if (e.am1 <= 0) e.am1 = w.mag; e.am1--; if (e.am1 <= 0) { e.am1 = w.mag; e[T] = w.reload; e.relT = w.reload; if (e === ME) sfx('reload', e.x, e.y, e.z, .5); } }
     if (e === ME && M) { const f = M.fired || (M.fired = {}); f[slot] = (f[slot] | 0) + 1; }      // shots by slot (training checks them)
     const out = [], rep = !e.remote && (!M || M.host), n = w.nn || 1, heli = d.heli, tg = c && c.tgt >= 0 ? c.tgt : -1;
+    const inf = d.ln === 'i', sprK = inf ? (1 + e.speed * .3) * (e.ads ? .3 : 1) * (e.vyJ ? 2.5 : 1) : 1;
     const dirAt = (spr) => {
-        const yaw = e.tur + rnd(-1, 1) * spr, pit = e.gun + rnd(-1, 1) * spr, cp = Math.cos(pit);
+        spr *= sprK; const yaw = e.tur + rnd(-1, 1) * spr, pit = e.gun + (w.lob || 0) + rnd(-1, 1) * spr, cp = Math.cos(pit);
         return [Math.sin(yaw) * cp, Math.sin(pit), Math.cos(yaw) * cp];
     };
     for (let j = 0; j < n; j++) {
@@ -2335,14 +2640,14 @@ function weaponFire(e, slot, c) {
         else if (w.k === 'missile') { dir = dirAt(0); if (d.ln === 'n' && w.sea) dir = [dir[0] * .9, .35, dir[2] * .9]; else if (w.air) dir[1] = Math.max(dir[1], .25); else dir[1] += .06; }
         else dir = dirAt(w.k === 'shell' ? (w.spread || 0.004) : (w.sprd || 0.02));
         const v = w.v || 0, vx = dir[0] * v + vx0, vy = dir[1] * v + vy0, vz = dir[2] * v + vz0;
-        const p = addProj({ x, y, z, vx, vy, vz, g: w.g, life: w.life, own: e.id, team: e.team, dmg: w.dmg, sp: w.sp || 0, pk: w.pierce || 0, k: w.k, slot, rep, prox: w.prox || 0, big: !e.ai, tg, turn: w.turn || 0, sea: !!w.sea, air: !!w.air });
+        const p = addProj({ x, y, z, vx, vy, vz, g: w.g, life: w.life, own: e.id, team: e.team, dmg: w.dmg, sp: w.sp || 0, pk: w.pierce || 0, k: w.k, slot, rep, prox: w.prox || 0, big: !e.ai && !inf, tg, turn: w.turn || 0, sea: !!w.sea, air: !!w.air });
         if (!rep) { p.dmg = 0; p.mine = e === ME; p.claim = e === ME && w.k === 'bullet'; if (p.claim) p.dmg = w.dmg; }
         e.nShots = (e.nShots || 0) + 1;
         out.push([+x.toFixed(1), +y.toFixed(1), +z.toFixed(1), +vx.toFixed(1), +vy.toFixed(1), +vz.toFixed(1)]);
     }
     // sound + flash
     const mm = muzzleWorld(e, heli ? (slot === 'w1' ? 0 : 1) : e.muz);
-    if (w.k === 'bullet') { sfx(d.ln === 'a' ? 'gun' : 'mg', mm.x, mm.y, mm.z, .7); e.fl |= slot === 'w1' ? 1 : 2; e.flT = .18; if (Math.random() < .25) flash(mm.x, mm.y - 1, mm.z, 0xffc070, 60, .06); }
+    if (w.k === 'bullet') { sfx(d.ln === 'a' ? 'gun' : inf ? (w.auto ? 'mg' : 'rifle') : 'mg', mm.x, mm.y, mm.z, inf ? .5 : .7); e.fl |= slot === 'w1' ? 1 : 2; e.flT = .18; if (Math.random() < .25) flash(mm.x, mm.y - 1, mm.z, 0xffc070, 60, .06); }
     else if (w.k === 'shell') { const cal = clamp(1 + w.dmg / 110, 1.2, d.ln === 'n' ? 4 : 3); sfx(w.dmg > 120 ? 'heavy' : w.snd || 'cannon', mm.x, mm.y, mm.z); fxExplosion(mm.x, mm.y, mm.z, cal, true); for (let i = 0; i < 4; i++) part(mm.x, mm.y, mm.z, rnd(-1, 1) * 3, rnd(0, 2), rnd(-1, 1) * 3, 1, .8, 0x777777, -1, .7); if (e === ME) shakeAmt = Math.max(shakeAmt, cal * (d.ln === 'n' ? 1.2 : 1)); }
     else if (w.k === 'rocket') sfx('rocket', mm.x, mm.y, mm.z, .8); else if (w.k === 'missile') sfx('missile', mm.x, mm.y, mm.z, .8); else if (w.k === 'torp') sfx('torp', mm.x, 0, mm.z, .8); else sfx('bomb', mm.x, mm.y, mm.z, .6);
     if (w.k !== 'bullet' && !e.remote) netFire(e, slot, out, tg);
@@ -2498,6 +2803,7 @@ function aiPickTarget(e) {
         const d = d3(e, o), ol = o.def.ln; let lim, pref = 1;
         if (cls === 'spaa') { if (ol === 'a') { lim = 520; pref = .4; } else { lim = 260; pref = 1.5; } }
         else if (cls === 'arty') { if (ol === 'a') continue; lim = ol === 'n' ? 800 : 1100; }
+        else if (ln === 'i') { if (ol === 'n' || (ol === 'a' && !o.def.heli)) continue; lim = 360; pref = ol === 'i' ? 1 : e.def.w3 ? .6 : 2.2; }      // soldiers: rifles for soldiers, launchers for tanks
         else if (ln === 'g') { if (ol === 'a') { lim = 280; pref = 1.8; } else if (ol === 'n') lim = 380; else lim = compOf(o.x, o.z) === mc ? 1000 : 400; }
         else if (ln === 'n') { if (e.def.sub && ol !== 'n') continue; lim = ol === 'a' ? 260 : 650; if (ol === 'n') pref = .8; }
         else if (e.def.heli) { if (ol === 'a' && !o.def.heli) { lim = 300; pref = 1.6; } else lim = 600; }
@@ -2603,6 +2909,29 @@ function aiSurface(e, dt, c) {
     a.sT -= dt; if (a.sT <= 0) { a.sT = 1.5; if (Math.hypot(e.x - a.lx, e.z - a.lz) < 1.5 && c.thr > .5) { a.rev = 1.3; a.side = -a.side; } a.lx = e.x; a.lz = e.z; }
     if (a.rev > 0) a.rev -= dt;
 }
+// soldiers (3.0): close in to their gun's range, then strafe while shooting; grenades up close, launchers / AT rifles at armour
+function aiInf(e, dt, c) {
+    const a = e.ai, d = e.def, t = a.tgt && a.tgt.alive ? a.tgt : null, DD = aiDiff(e);
+    let D = 1e9; c.aimYaw = e.tur; c.aimPitch = 0;
+    a.losT = (a.losT || 0) - dt; if (t && a.losT <= 0) { a.losT = .3; a.los = hasLOS(e, t); }
+    if (t) {
+        D = aiAim(e, c, t, dt, false);
+        const armour = t.def.ln !== 'i' && t.def.ar >= 8, rng = { rif: 260, mg: 200, at: 140, smg: 110 }[d.cls] * DD.rng / .72;
+        const aligned = Math.abs(angDiff(e.tur, c.aimYaw)) < .06 + (1 - a.skill) * .05;
+        if (a.los && D < rng && !armour && aiTrigger(e, dt, d.w1.rl, true, aligned)) c.f1 = true;
+        if (d.w3 && e.a3 > 0 && a.los && armour && D < 170 && a.react <= 0 && aligned) c.f3 = true;
+        a.gT = (a.gT || 0) - dt; if (e.a2 > 0 && a.los && D > 10 && D < 30 && t.def.ln !== 'a' && a.gT <= 0) { a.gT = rnd(4, 9); c.f2 = true; }
+    }
+    let gx, gz, mv = 1;
+    if (t && t.def.ln !== 'a' && D < 450) { gx = t.x; gz = t.z; if (a.los && D < { smg: 35, at: 80, mg: 110, rif: 140 }[d.cls]) mv = 0; }
+    else { const tp = aiObjective(e); gx = tp.x; gz = tp.z; if (Math.hypot(gx - e.x, gz - e.z) < 14) mv = 0; }
+    const want = Math.atan2(gx - e.x, gz - e.z);
+    if (!t) { c.aimYaw = want; c.aimPitch = 0; }
+    const rel = angDiff(c.aimYaw, want); c.thr = Math.cos(rel) * mv; c.side = Math.sin(rel) * mv;
+    if (t && mv === 0) { a.stT = (a.stT || 0) - dt; if (a.stT <= 0) { a.stT = rnd(1.2, 2.6); a.strafe = rnd(-1, 1) > 0 ? .8 : -.8; } c.side = a.strafe; c.thr = 0; }
+    c.sprint = !t && Math.hypot(gx - e.x, gz - e.z) > 60;
+    a.sT -= dt; if (a.sT <= 0) { a.sT = 1.2; if (Math.hypot(e.x - a.lx, e.z - a.lz) < .6 && (Math.abs(c.thr) + Math.abs(c.side)) > .5) { c.up = 1; a.wp = null; a.strafe = -(a.strafe || .8); } a.lx = e.x; a.lz = e.z; }
+}
 function compatLand(e, t) { return t.def.ln === 'a' || compOf(e.x, e.z) === compOf(t.x, t.z) || Math.hypot(e.x - t.x, e.z - t.z) < 350; }
 function aiAir(e, dt, c) {
     const a = e.ai, d = e.def, t = a.tgt && a.tgt.alive ? a.tgt : null, w = d.w1, bomber = !!d.w3 && d.w3.k === 'bomb', R = battleR();
@@ -2686,7 +3015,7 @@ function aiStep(e, dt) {
     }
     e.turnK = aiDiff(e).turn;      // easier bots also bank a little slower
     const c = e.ctl; c.thr = 0; c.steer = 0; c.side = 0; c.up = 0; c.aimYaw = e.tur; c.aimPitch = 0; c.f1 = c.f2 = c.f3 = false; c.tgt = -1; c.bodyYaw = undefined;
-    if (e.def.heli) aiHeli(e, dt, c); else if (e.def.ln === 'a') aiAir(e, dt, c); else aiSurface(e, dt, c);
+    if (e.def.ln === 'i') aiInf(e, dt, c); else if (e.def.heli) aiHeli(e, dt, c); else if (e.def.ln === 'a') aiAir(e, dt, c); else aiSurface(e, dt, c);
     if (a.mute) c.f1 = c.f2 = c.f3 = false;
     stepVehicle(e, c, dt);
 }
@@ -2703,7 +3032,8 @@ const MODES = {
     tdm: { name: 'Team Deathmatch', short: 'TDM', desc: 'First team to the kill limit' },
     conq: { name: 'Conquest', short: 'CONQ', desc: 'Hold 3 points, drain their tickets' },
     ctf: { name: 'Capture the Flag', short: 'CTF', desc: 'Steal their flag, bring it home (tanks + helis carry)' },
-    ffa: { name: 'Free-for-all', short: 'FFA', desc: 'Everyone for themselves' }
+    ffa: { name: 'Free-for-all', short: 'FFA', desc: 'Everyone for themselves' },
+    duel: { name: 'Duel', short: '1v1', desc: 'One on one, first to 5 kills (a bot if you play alone)' }
 };
 const MAPR = { small: 470, normal: 610, large: 720 };
 let HQ = {}, hqT = 0, sendT = 0, bsT = 0, msT = 0, hpT = 0, pgT = 0;
@@ -2716,13 +3046,15 @@ const BOT_GEAR = {
     normal: { t: [-1, 0], br: [-.7, .3], mods: t => (t - 1) * .12 },
     hard:   { t: [0, 1], br: [-.3, 1], mods: t => .45 + t * .1 }
 };
-function pickBotDef(refs, mode, k, diff) {
+const RIVAL = { us: 'de', de: 'su', su: 'de', uk: 'de', jp: 'us', cx: 'cx' };      // 3.0: who the bots on the other team fight for
+function pickBotDef(refs, mode, k, diff, nat) {
     const ref = refs.length ? refs[k === undefined ? Math.floor(Math.random() * refs.length) : k % refs.length] : VBY.g1a, br = brOf(ref), rt = (ref.base || ref).t;
     const G = BOT_GEAR[diff || (M && M.cfg && M.cfg.diff)] || BOT_GEAR.normal, t0 = clamp(rt + G.t[0], 1, MAX_TIER), t1 = clamp(rt + G.t[1], 1, MAX_TIER);
-    let ln = ref.ln; if (mode === 'mixed') { const r = Math.random(); ln = r < .5 ? 'g' : r < .75 ? 'a' : 'n'; }
+    let ln = ref.ln; if (mode === 'mixed') { const r = Math.random(); ln = r < .4 ? 'g' : r < .6 ? 'i' : r < .8 ? 'a' : 'n'; } else if (ln === 'i' && Math.random() < .35) ln = 'g';      // soldiers get some tank support
     const inT = v => v.ln === ln && v.t >= t0 && v.t <= t1;
     let L = VEHS.filter(v => inT(v) && v.br <= Math.max(1.3, br + G.br[1]) && v.br >= br + G.br[0]);
     if (!L.length) L = VEHS.filter(inT);
+    if (nat) { const N = L.filter(v => v.nat === nat); if (N.length) L = N; }
     if (mode !== 'mixed' && Math.random() < .5) { const same = L.filter(v => v.cls === (ref.base || ref).cls); if (same.length) L = same; }
     if (!L.length) L = VEHS.filter(v => v.ln === ln && v.t <= Math.max(1, rt));
     const b = L[Math.floor(Math.random() * L.length)];
@@ -2732,18 +3064,21 @@ function pickBotDef(refs, mode, k, diff) {
 // Build the match description (host / solo). players = [{id,name,veh,mm,team?}], returns the cfg every client uses.
 function makeConfig(players, opts) {
     opts = opts || {};
-    const so = save.opts, mode = MODES[opts.mode || save.mode] ? opts.mode || save.mode : 'tdm', size = opts.size || save.size, split = opts.split !== undefined ? opts.split : save.split, ffa = mode === 'ffa';
-    const cfg = { mode, size, players: [], bots: [], seed: Date.now() & 0xffffff, limit: {}, ff: opts.ff !== undefined ? +opts.ff : so.ff, map: opts.map || so.map, wx: opts.wx || so.wx, len: opts.len || so.len };
+    let mode0 = MODES[opts.mode || save.mode] ? opts.mode || save.mode : 'tdm'; const duel = mode0 === 'duel';      // 3.0: a duel is a 1v1 team deathmatch to 5
+    const so = save.opts, mode = duel ? 'tdm' : mode0, size = duel ? 1 : opts.size || save.size, split = opts.split !== undefined ? opts.split : save.split, ffa = mode === 'ffa';
+    const cfg = { duel, mode, size, players: [], bots: [], seed: Date.now() & 0xffffff, limit: {}, ff: opts.ff !== undefined ? +opts.ff : so.ff, map: opts.map || so.map, wx: opts.wx || so.wx, len: opts.len || so.len };
     if (cfg.wx === 'random' || !WX[cfg.wx]) cfg.wx = Object.keys(WX)[Math.floor(Math.random() * 4)];
     const teams = [[], []];
-    players.forEach((p, i) => { const team = ffa ? i : (p.team === 0 || p.team === 1) ? p.team : split ? i % 2 : 0; cfg.players.push({ id: p.id, name: p.name, veh: p.veh, mm: p.mm | 0, team }); if (!ffa) teams[team].push(p); });
+    players.forEach((p, i) => { const team = ffa ? i : duel ? i % 2 : (p.team === 0 || p.team === 1) ? p.team : split ? i % 2 : 0; cfg.players.push({ id: p.id, name: p.name, veh: p.veh, mm: p.mm | 0, team }); if (!ffa) teams[team].push(p); });
     const bm = opts.bots || save.bots || 'match', refs = players.map(p => vdef(p.veh, p.mm)).filter(Boolean);
     const off = Math.floor(Math.random() * Math.max(1, refs.length)); cfg.bm = bm; cfg.diff = opts.diff || save.diff || 'normal';
     let bi = 0; const names = BOT_NAMES.slice().sort(() => Math.random() - .5);
-    const addBot = team => { const d = pickBotDef(refs, bm === 'off' ? 'match' : bm, bi + off, cfg.diff); cfg.bots.push({ id: 100 + bi, name: 'Bot ' + names[bi % names.length], veh: d.id, mm: d.mask | 0, team }); bi++; };
-    if (bm !== 'off') { if (ffa) for (let n = players.length; n < Math.min(12, size * 2); n++) addBot(n); else for (let t = 0; t < 2; t++) for (let n = teams[t].length; n < size; n++) addBot(t); }
+    const myNat = refs[0] && (refs[0].base || refs[0]).nat, hTeam = cfg.players[0] ? cfg.players[0].team : 0;
+    const addBot = team => { const d = pickBotDef(refs, bm === 'off' || duel ? 'match' : bm, bi + off, cfg.diff, myNat && (team === hTeam ? myNat : RIVAL[myNat])); cfg.bots.push({ id: 100 + bi, name: 'Bot ' + names[bi % names.length], veh: d.id, mm: d.mask | 0, team }); bi++; };
+    if (duel) { if (players.length < 2) addBot(1); }
+    else if (bm !== 'off') { if (ffa) for (let n = players.length; n < Math.min(12, size * 2); n++) addBot(n); else for (let t = 0; t < 2; t++) for (let n = teams[t].length; n < size; n++) addBot(t); }
     const L = cfg.len * 60;
-    cfg.limit = { kills: opts.killLimit || (ffa ? [10, 15, 20][[3, 5, 8].indexOf(size)] : [12, 20, 30][[3, 5, 8].indexOf(size)]) || 20, tickets: opts.tickets || (size === 3 ? 80 : size === 8 ? 160 : 120), caps: opts.caps || 3, time: opts.time || L };
+    cfg.limit = { kills: duel ? 5 : opts.killLimit || (ffa ? [10, 15, 20][[3, 5, 8].indexOf(size)] : [12, 20, 30][[3, 5, 8].indexOf(size)]) || 20, tickets: opts.tickets || (size === 3 ? 80 : size === 8 ? 160 : 120), caps: opts.caps || 3, time: opts.time || L };
     return cfg;
 }
 function beginMatch(cfg, meId, isHost) {
@@ -2813,9 +3148,11 @@ function hostDamage(by, tgId, dmg, pk, slot, trusted) {
         a.budget -= dmg;
     }
     let eff = dmg / (1 + Math.max(0, v.def.ar * (1 - pk)) / 100);
+    const aw = a.def[slot] || a.def.w1;
+    if (aw && aw.sa && v.def.ln !== 'i' && v.def.ar >= 8) eff *= .06;      // 3.0: rifles and machine pistols barely scratch armour
     if (a.ai) eff *= aiDiff(a).dmg * (a.def.ln === 'a' ? 1.4 : 1);      // jet guns do tiny damage per bullet and miss a lot; bots get a little help there
     if (team) eff *= .5;      // friendly fire is on: half damage
-    eff = Math.min(eff, v.def.hp * (a.def.ln !== v.def.ln ? .3 : .5));      // no single hit takes more than 30% (50% in the same domain) of a full health bar
+    eff = Math.min(eff, v.def.hp * (v.def.ln === 'i' ? 1 : a.def.ln === 'i' && aw && aw.at ? .45 : a.def.ln !== v.def.ln ? .3 : .5));      // a soldier can die to one big hit      // no single hit takes more than 30% (50% in the same domain) of a full health bar
     v.hp -= eff; if (!team) { a.dmg += eff; a.score += eff * .1; }
     const dead = v.hp <= 0;
     bcast({ t: 'dmg', tg: tgId, e: Math.round(eff * 10) / 10, by, hp: Math.max(0, Math.round(v.hp)) });
@@ -3406,7 +3743,7 @@ const UI = {
         $('#s-lobby').classList.add('hidden');
         $('#hud').classList.remove('hidden'); UIS.screen = 'match'; $('#h-feed').innerHTML = ''; $('#h-msg').classList.remove('on');
         $('#h-lock').classList.remove('hidden');
-        const L = M.limit; UI.msg(MODES[M.mode].name + ': ' + (M.mode === 'tdm' ? 'first to ' + L.kills + ' kills' : M.mode === 'ffa' ? 'first to ' + L.kills + ' kills wins' : M.mode === 'ctf' ? 'capture ' + L.caps + ' flags' : 'hold the points'), -1);
+        const L = M.limit; UI.msg(modeName() + ': ' + (M.mode === 'tdm' ? 'first to ' + L.kills + ' kills' : M.mode === 'ffa' ? 'first to ' + L.kills + ' kills wins' : M.mode === 'ctf' ? 'capture ' + L.caps + ' flags' : 'hold the points'), -1);
         UIS.hudT = 0; UI.buildCap(); if (typeof Cam !== 'undefined') Cam.reset();
         UI.hintFor(ME.def);
     },
@@ -3483,7 +3820,7 @@ const UI = {
         const title = ffa ? (rank === 1 ? 'WINNER!' : '#' + rank + ' of ' + ents.length) : r.win ? 'VICTORY' : r.draw ? 'DRAW' : 'DEFEAT';
         const sc = ffa ? '' : M.mode === 'tdm' ? [M.kills[0], M.kills[1]] : M.mode === 'ctf' ? [M.caps[0], M.caps[1]] : [Math.ceil(M.tickets[0]), Math.ceil(M.tickets[1])];
         const tile = (n, l) => '<div><b>' + n + '</b><small>' + l + '</small></div>';
-        $('#r-card').innerHTML = '<div class="res-banner"><small>' + esc(MODES[M.mode].name.toUpperCase()) + '</small><p class="res-h ' + (r.win || (ffa && rank === 1) ? 'win' : r.draw ? 'draw' : 'loss') + '">' + title + '</p>' +
+        $('#r-card').innerHTML = '<div class="res-banner"><small>' + esc(modeName().toUpperCase()) + '</small><p class="res-h ' + (r.win || (ffa && rank === 1) ? 'win' : r.draw ? 'draw' : 'loss') + '">' + title + '</p>' +
             (sc ? '<div class="res-sc"><span class="t0">BLUE ' + sc[0] + '</span> &ndash; <span class="t1">' + sc[1] + ' RED</span></div>' : '') + '</div>' +
             (mvp ? '<div class="mvp"><span>MVP</span><b style="color:' + entHex(mvp) + '">' + esc(mvp.name) + '</b><small>' + esc(mvp.def.n) + ' &middot; ' + mvp.kills + ' kills &middot; ' + Math.round(mvp.score) + ' pts</small>' + (r.mvp ? '<em>That is you! +25% rewards</em>' : '') + '</div>' : '') +
             '<div class="res-tiles">' + tile(my.kills, 'Kills') + tile(M.mode === 'ctf' ? my.flags : my.caps, M.mode === 'ctf' ? 'Flags' : 'Captures') + tile(fmt(my.dmg), 'Damage') + tile(my.deaths, 'Deaths') + '</div>' +
@@ -3497,7 +3834,7 @@ const UI = {
     paintPause() {
         if (!M) return; const left = Math.max(0, M.limit.time - M.t), clock = Math.floor(left / 60) + ':' + String(Math.floor(left % 60)).padStart(2, '0');
         const v = t => M.mode === 'tdm' ? M.kills[t] : M.mode === 'ctf' ? M.caps[t] : M.mode === 'conq' ? Math.ceil(M.tickets[t]) : 0;
-        $('#ps-info').innerHTML = '<span>' + esc(MODES[M.mode].name) + '</span><span>' + clock + ' left</span>' + (M.mode === 'ffa' ? '<span>' + (ME ? ME.kills : 0) + ' kills</span>' : '<span><b class="t0">' + v(0) + '</b> : <b class="t1">' + v(1) + '</b></span>');
+        $('#ps-info').innerHTML = '<span>' + esc(modeName()) + '</span><span>' + clock + ' left</span>' + (M.mode === 'ffa' ? '<span>' + (ME ? ME.kills : 0) + ' kills</span>' : '<span><b class="t0">' + v(0) + '</b> : <b class="t1">' + v(1) + '</b></span>');
     },
     // per-frame HUD
     hud(dt) {
@@ -3518,7 +3855,7 @@ const UI = {
         const d = ME.def, hpk = clamp(ME.hp / d.hp, 0, 1);
         let w = '';
         const rl = (name, t, max, extra) => '<div><span>' + name + (extra || '') + '</span><div class="rl' + (t <= 0 ? ' rdy' : '') + '"><i style="width:' + clamp(100 * (1 - t / max), 0, 100) + '%"></i></div></div>';
-        w += rl(d.w1.n, ME.t1, d.w1.rl);
+        w += d.w1.mag ? rl(d.w1.n, ME.relT > 0 ? ME.relT : 0, d.w1.reload, ' ' + (ME.relT > 0 ? 'reloading' : ME.am1 + ' / ' + d.w1.mag)) : rl(d.w1.n, ME.t1, d.w1.rl);
         if (d.w2) w += d.w2.cnt ? rl(d.w2.n, ME.t2, d.w2.rl, ' ' + ME.a2) : rl(d.w2.n, ME.t2, d.w2.rl);
         if (d.w3) w += rl(d.w3.n, ME.t3, d.w3.rl, ' ' + ME.a3);
         let fl = d.heli ? 'Speed ' + Math.round(Math.abs(ME.speed) * 3.6) + ' km/h &middot; Alt ' + Math.round(ME.y - Math.max(0, GH(ME.x, ME.z))) + ' m' : d.ln === 'a' ? 'Speed ' + Math.round(ME.speed * 3.6) + ' km/h &middot; Alt ' + Math.round(ME.y) + ' m &middot; Throttle ' + Math.round(ME.thr * 100) + '%' : 'Speed ' + Math.round(Math.abs(ME.speed) * 3.6) + ' km/h' + (d.ln === 'n' ? ' &middot; Throttle ' + Math.round(ME.thr * 100) + '%' : '');
@@ -3547,10 +3884,11 @@ const UI = {
             const ents = Array.from(EN.values()).sort((a, b) => b.score - a.score || b.kills - a.kills);
             const rows = L => L.map(e => '<tr' + (e === ME ? ' class="me"' : '') + '><td style="color:' + entHex(e) + '">' + (e.carry >= 0 ? '&#9873; ' : '') + esc(e.name) + (e.recon || e.stale ? ' <small class="bad">reconnecting</small>' : '') + '</td><td>' + esc(e.def.n) + '</td><td>' + brOf(e.def).toFixed(1) + '</td><td>' + Math.round(e.score) + '</td><td>' + e.kills + '</td><td>' + e.deaths + '</td><td>' + (M.mode === 'ctf' ? e.flags : e.caps) + '</td><td>' + (e.isBot ? 'BOT' : e === ME && M.host ? 'host' : Math.round(e === ME ? PARTY.rtt || 0 : e.q || 0) + ' ms') + '</td></tr>').join('');
             const hd = (t, n) => '<tr><th style="color:' + (t < 0 ? '#fff' : teamHex(t)) + '">' + n + '</th><th>Vehicle</th><th>BR</th><th>Score</th><th>K</th><th>D</th><th>' + (M.mode === 'ctf' ? 'Flags' : 'Caps') + '</th><th>Ping</th></tr>';
-            b.innerHTML = '<div class="bt">' + MODES[M.mode].name + ' &middot; ' + WX[WXK].name + '</div><table>' + (M.mode === 'ffa' ? hd(-1, 'PLAYERS') + rows(ents) : hd(0, 'BLUE') + rows(ents.filter(e => e.team === 0)) + hd(1, 'RED') + rows(ents.filter(e => e.team === 1))) + '</table>';
+            b.innerHTML = '<div class="bt">' + modeName() + ' &middot; ' + WX[WXK].name + '</div><table>' + (M.mode === 'ffa' ? hd(-1, 'PLAYERS') + rows(ents) : hd(0, 'BLUE') + rows(ents.filter(e => e.team === 0)) + hd(1, 'RED') + rows(ents.filter(e => e.team === 1))) + '</table>';
         }
     }
 };
+const modeName = () => M && M.cfg && M.cfg.duel ? 'Duel' : MODES[M.mode].name;
 function entHex(e) { return M && M.mode === 'ffa' ? (e === ME ? teamHex(0) : teamHex(1)) : teamHex(e.team); }
 // ---------- minimap + on-screen markers ----------
 const miniC = $('#h-map').getContext('2d');
@@ -3712,6 +4050,7 @@ const SVGP = {
     battle: 'M11 1h2v5h-2zM11 18h2v5h-2zM1 11h5v2H1zM18 11h5v2h-5zM12 6.5a5.5 5.5 0 1 0 0 11a5.5 5.5 0 1 0 0-11zm0 2.2a3.3 3.3 0 1 1 0 6.6a3.3 3.3 0 1 1 0-6.6z',
     mp: 'M8 3.5a3.2 3.2 0 1 1 0 6.4a3.2 3.2 0 1 1 0-6.4zM16.5 5a2.7 2.7 0 1 1 0 5.4a2.7 2.7 0 1 1 0-5.4zM1.5 20c0-4.2 3-6.8 6.5-6.8s6.5 2.6 6.5 6.8zM15.5 20c0-2.3-.6-4-1.7-5.3 .9-.5 1.8-.7 2.7-.7 3.2 0 6 2.2 6 6z',
     garage: 'M2 9l10-6.5L22 9v12h-3v-9H5v9H2zM7 14h10v2H7zM7 18h10v2H7z',
+    soldier: 'M12 1.5a2.6 2.6 0 1 1 0 5.2a2.6 2.6 0 1 1 0-5.2zM8.2 7.6h7.6l1.4 7.2h-2.4l-.7 7.7h-2.4l-.5-5.4h-.4l-.5 5.4H8.3l-.7-7.7H5.2zM15.5 9.2l6-1.6.4 1.4-6 1.6z',
     research: 'M9 2h6v2h-1v5.2l6 10c.9 1.5-.2 3.3-1.9 3.3H5.9c-1.7 0-2.8-1.8-1.9-3.3l6-10V4H9zM7.6 16h8.8l-2.6-4.5h-3.6z',
     gear: 'M10 1.5h4l.7 2.8 2.3 1.3 2.7-.9 2 3.5-2.1 2v2.6l2.1 2-2 3.5-2.7-.9-2.3 1.3-.7 2.8h-4l-.7-2.8-2.3-1.3-2.7.9-2-3.5 2.1-2v-2.6l-2.1-2 2-3.5 2.7.9 2.3-1.3zM12 8.6a3.4 3.4 0 1 0 0 6.8a3.4 3.4 0 1 0 0-6.8z',
     train: 'M12 2l10 4.5-10 4.5L2 6.5zM5.5 9.6l6.5 2.9 6.5-2.9v4.6c0 2.3-2.9 4.3-6.5 4.3s-6.5-2-6.5-4.3zM20.5 7.5h1.6v7.5h-1.6z',
@@ -3719,7 +4058,8 @@ const SVGP = {
 };
 const setH = (el, h) => { if (el._h !== h) { el._h = h; el.innerHTML = h; } };      // repaint only what changed (a click on a replaced button is lost)
 const svgI = k => '<svg class="i" viewBox="0 0 24 24"><path fill-rule="evenodd" d="' + SVGP[k] + '"/></svg>';
-const lineIcon = ln => svgI(ln === 'g' ? 'tank' : ln === 'a' ? 'plane' : 'ship');
+const lineIcon = ln => svgI(ln === 'g' ? 'tank' : ln === 'a' ? 'plane' : ln === 'i' ? 'soldier' : 'ship');
+const natBadge = v => { const N = NATIONS[v.nat || 'cx']; return '<span class="natb" style="--n1:' + N.cols[0] + ';--n2:' + N.cols[1] + '" title="' + N.n + '">' + N.short + '</span>'; };
 // the bars are a share of the best any fully upgraded vehicle of the same domain has (a jet's speed is not a tank's)
 const STATMAX = {};
 function statMax(ln) {
@@ -3770,7 +4110,7 @@ function vehCard(id, ctx) {
 }
 function slotHtml(v, sel, attrs, extra) {
     const d = vdef(v.id, modMask(v.id));
-    return '<div class="slot' + (sel ? ' sel' : '') + '" ' + attrs + ' style="--lc:' + LINES[v.ln].col + '"><span class="st"><span class="tierb">' + TIER_ROMAN[v.t] + '</span>' + lineIcon(v.ln) + '</span><b>' + esc(v.n) + '</b><small>' + CLS_NAME[v.cls] + ' &middot; BR ' + brOf(d).toFixed(1) + '</small>' + (extra || '') + '</div>';
+    return '<div class="slot' + (sel ? ' sel' : '') + '" ' + attrs + ' style="--lc:' + LINES[v.ln].col + '"><span class="st"><span class="tierb">' + TIER_ROMAN[v.t] + '</span>' + lineIcon(v.ln) + natBadge(v) + '</span><b>' + esc(v.n) + '</b><small>' + CLS_NAME[v.cls] + ' &middot; BR ' + brOf(d).toFixed(1) + '</small>' + (extra || '') + '</div>';
 }
 function lineupHtml(kind) {      // home / garage: 5 slots (empty ones lead to the garage); lobby: just the lineup
     const out = [];
@@ -3962,7 +4302,7 @@ Object.assign(UI, {
     paintGarage() {
         UI.wallet(); const gs = UIS.gs && isOwned(UIS.gs) ? UIS.gs : (UIS.gs = myVeh()), gt = UIS.gt;
         $$('#g-tabs button').forEach(b => b.classList.toggle('on', b.dataset.gt === gt));
-        $('#g-owned').innerHTML = ['g', 'a', 'n'].filter(ln => gt === 'all' || gt === ln).map(ln => { const L = VEHS.filter(v => v.ln === ln && isOwned(v.id)); return '<h4 style="color:' + LINES[ln].col + '">' + LINES[ln].name + ' <small style="color:var(--mut)">' + L.length + '</small></h4><div class="cards">' + L.map(v => slotHtml(v, v.id === gs, 'data-gid="' + v.id + '"', save.lineup.includes(v.id) ? '<span class="inl">LINEUP</span>' : '')).join('') + '</div>'; }).join('');
+        $('#g-owned').innerHTML = ['g', 'i', 'a', 'n'].filter(ln => gt === 'all' || gt === ln).map(ln => { const L = VEHS.filter(v => v.ln === ln && isOwned(v.id)); return '<h4 style="color:' + LINES[ln].col + '">' + LINES[ln].name + ' <small style="color:var(--mut)">' + L.length + '</small></h4><div class="cards">' + L.map(v => slotHtml(v, v.id === gs, 'data-gid="' + v.id + '"', save.lineup.includes(v.id) ? '<span class="inl">LINEUP</span>' : '')).join('') + '</div>'; }).join('');
         $('#g-info').innerHTML = vehCard(gs, 'garage');
         $('#g-lineup').innerHTML = lineupHtml('garage');
     },
@@ -3970,10 +4310,15 @@ Object.assign(UI, {
     paintResearch() {
         UI.wallet(); const ln = UIS.rln, br = BRANCHES[ln];
         $$('#rs-tabs button').forEach(b => b.classList.toggle('on', b.dataset.ln === ln));
+        // 3.0: one tree per nation
+        if (!UIS.rnat) UIS.rnat = (VBY[UIS.rs] && VBY[UIS.rs].nat) || 'us';
+        let nb = $('#rs-nat'); if (!nb) { nb = document.createElement('div'); nb.id = 'rs-nat'; $('#tree').parentNode.insertBefore(nb, $('#tree')); nb.addEventListener('click', ev => { const b = ev.target.closest('[data-nat]'); if (b) { UIS.rnat = b.dataset.nat; UI.paintResearch(); } }); }
+        const nat = UIS.rnat;
+        nb.innerHTML = NAT_IDS.map(k => '<button data-nat="' + k + '" class="' + (k === nat ? 'on' : '') + '" style="--n1:' + NATIONS[k].cols[0] + ';--n2:' + NATIONS[k].cols[1] + '"><i></i>' + NATIONS[k].n + '</button>').join('') + '<span class="note">' + esc(NATIONS[nat].desc) + '</span>';
         let h = '<div class="grid" style="grid-template-columns:30px repeat(' + br.length + ',minmax(104px,1fr))"><div></div>' + br.map(([k, n]) => '<div class="bh">' + n + '</div>').join('');
         for (let t = 1; t <= MAX_TIER; t++) {
             h += '<div class="th">' + TIER_ROMAN[t] + '</div>';
-            for (const [k] of br) h += '<div class="cell">' + VEHS.filter(v => v.ln === ln && v.t === t && v.cls === k).map(researchCard).join('') + '</div>';
+            for (const [k] of br) h += '<div class="cell">' + VEHS.filter(v => v.ln === ln && v.t === t && v.cls === k && (v.nat || 'cx') === nat).map(researchCard).join('') + '</div>';
         }
         $('#tree').innerHTML = h + '</div>';
         const tg = save.target && (VBY[save.target] || MODBY[save.target]);
@@ -4771,8 +5116,9 @@ function trainHook() {
 // ============================================================
 const IN = { keys: {}, mb: [0, 0, 0], camYaw: 0, camPitch: .2, zoom: 1 };
 const Cam = {
+    view: 0, zoomed: false, mbWas: false,      // 3.0: view 0 third person, 1 first person / sight, 2 far; zoomed = scope / binoculars
     aimD: 0, aim: { x: 0, y: 0, z: 0 }, deadYaw: 0, specId: -1, solOk: true, mlock: null, mlId: -1, mlT: 0,
-    reset() { if (!ME) return; IN.camYaw = ME.yaw; IN.camPitch = ME.def.ln === 'a' && !ME.def.heli ? 0.05 : 0.22; IN.zoom = 1; },
+    reset() { if (!ME) return; Cam.zoomed = false; IN.camYaw = ME.yaw; IN.camPitch = ME.def.ln === 'a' && !ME.def.heli ? 0.05 : 0.22; IN.zoom = 1; },
     lock() { try { const r = $('#gl').requestPointerLock(); if (r && r.catch) r.catch(() => {}); } catch (e) {} },
     locked() { return document.pointerLockElement === $('#gl'); }
 };
@@ -4785,13 +5131,13 @@ function leadPoint(e, o, v, from) {
 }
 function aimRay(e) {
     camera.getWorldDirection(V3); const dx = V3.x, dy = V3.y, dz = V3.z, ox = camera.position.x, oy = camera.position.y, oz = camera.position.z;
-    let t = 1500;
-    for (let s = 20; s < 1500; s += 6) { if (oy + dy * s < GHS(ox + dx * s, oz + dz * s)) { let lo = s - 6, hi = s; for (let i = 0; i < 5; i++) { const m = (lo + hi) / 2; if (oy + dy * m < GHS(ox + dx * m, oz + dz * m)) hi = m; else lo = m; } t = hi; break; } }
+    let t = 1500; const inf = e.def.ln === 'i';
+    for (let s = inf ? 2 : 20; s < 1500; s += inf && s < 60 ? 1.5 : 6) { if (oy + dy * s < GHS(ox + dx * s, oz + dz * s)) { let lo = s - 6, hi = s; for (let i = 0; i < 5; i++) { const m = (lo + hi) / 2; if (oy + dy * m < GHS(ox + dx * m, oz + dz * m)) hi = m; else lo = m; } t = hi; break; } }
     let best = null, bt = t;
     for (const o of EN.values()) {
         if (!o.alive || !foe(o, e) || hiddenSub(o)) continue;
         const cy = o.y + (o.def.ln === 'a' ? 0 : 1.5), vx = o.x - ox, vy = cy - oy, vz = o.z - oz, tt = vx * dx + vy * dy + vz * dz;
-        if (tt < 8 || tt > bt) continue;
+        if (tt < (inf ? 1 : 8) || tt > bt) continue;
         const px = ox + dx * tt - o.x, py = oy + dy * tt - cy, pz = oz + dz * tt - o.z;
         if (Math.sqrt(px * px + py * py + pz * pz) < o.def.r * 1.8 + tt * .02) { best = o; bt = tt; }
     }
@@ -4819,6 +5165,16 @@ function playerCtrl(e, dt) {
     const W = (k.KeyW ? 1 : 0) - (k.KeyS ? 1 : 0), A = (k.KeyA ? 1 : 0) - (k.KeyD ? 1 : 0);
     const mw = [d.w1, d.w2, d.w3].find(w => w && w.k === 'missile'), ml = missileLock(e, mw); Cam.mlock = ml;
     if (ml && Cam.mlId === ml.id) { const was = Cam.mlT < LOCK_T; Cam.mlT += dt; if (was && Cam.mlT >= LOCK_T) sfx('lock', e.x, e.y, e.z, .5); } else { Cam.mlId = ml ? ml.id : -1; Cam.mlT = 0; }
+    if (d.ln === 'i') {      // 3.0 soldiers: WASD move, Shift sprint, Space jump, R reload, left mouse fire, right mouse aim, G grenade, F launcher
+        c.thr = W; c.side = A; c.sprint = !!(k.ShiftLeft || k.ShiftRight); c.up = k.Space ? 1 : 0; c.reload = !!k.KeyR;
+        const click = !!IN.mb[0] && !Cam.mbWas; Cam.mbWas = !!IN.mb[0];
+        c.f1 = d.w1.auto ? !!IN.mb[0] : click; c.f2 = !!k.KeyG; c.f3 = !!(k.KeyF || k.KeyB); e.ads = !!IN.mb[2] || Cam.zoomed;
+        if (c.sprint && W > 0) { c.f1 = false; e.ads = false; }
+        const p = aimRay(e), m = muzzleWorld(e, 0), w = d.w1, b = ballistic(m.x, m.y, m.z, p.x, p.y, p.z, w.v, w.g, false);
+        Cam.aimD = Math.hypot(p.x - m.x, p.y - m.y, p.z - m.z); Cam.aim.x = p.x; Cam.aim.y = p.y; Cam.aim.z = p.z; Cam.solOk = true;
+        c.aimYaw = IN.camYaw; c.aimPitch = Cam.aimD > 6 ? b.pitch : IN.camPitch;
+        return c;
+    }
     if (d.ln === 'a' && !d.heli) {
         e.thr = clamp(e.thr + W * dt * .6, 0, 1); c.thr = e.thr;
         IN.camYaw += A * dt * 1.5; IN.camPitch = clamp(IN.camPitch + ((k.ArrowUp ? 1 : 0) - (k.ArrowDown ? 1 : 0)) * dt * .9, -1.3, 1.3);
@@ -4862,14 +5218,25 @@ function updateCamera(dt) {
         camera.lookAt(cx, cy, cz);
     } else {
         Cam.deadYaw = yaw; Cam.specId = -1;
-        const cp = Math.cos(pit), dist = d.cd * IN.zoom * (d.w1.arty ? 1.2 : 1), lift = d.ln === 'a' ? 3 : d.ln === 'n' ? 6 : 3.2;
-        const cx = e.x, cy = e.y + lift - (d.sub ? e.dive * 3 : 0), cz = e.z;
-        camera.position.set(cx - Math.sin(yaw) * cp * dist, cy - Math.sin(pit) * dist, cz - Math.cos(yaw) * cp * dist);
-        const gmin = Math.max(H(camera.position.x, camera.position.z), 0) + 2; if (camera.position.y < gmin) camera.position.y = gmin;
-        camera.lookAt(cx + Math.sin(yaw) * cp * 30, cy + Math.sin(pit) * 30, cz + Math.cos(yaw) * cp * 30);
+        const cp = Math.cos(pit), inf = d.ln === 'i', fp = Cam.view === 1;
+        if (e.mdl) e.mdl.root.visible = !fp;      // first person: your own vehicle / body is hidden
+        if (fp) {      // first person: the soldier's eyes, the tank gunner's sight, the cockpit, the ship's bridge
+            const up = inf ? 1.62 : d.ln === 'g' ? d.m.hull[1] + 2.1 : d.ln === 'n' ? 7 : 1, fw = d.ln === 'a' ? (d.m.len || 8) * .22 : 0;
+            camera.position.set(e.x + Math.sin(e.yaw) * fw, e.y + up - (d.sub ? e.dive * 3 : 0), e.z + Math.cos(e.yaw) * fw);
+            camera.lookAt(camera.position.x + Math.sin(yaw) * cp * 30, camera.position.y + Math.sin(pit) * 30, camera.position.z + Math.cos(yaw) * cp * 30);
+        } else {
+            const far = Cam.view === 2 ? 2 : 1, dist = d.cd * IN.zoom * far * (d.w1.arty ? 1.2 : 1), lift = inf ? 1.95 : d.ln === 'a' ? 3 : d.ln === 'n' ? 6 : 3.2;
+            const sh = inf && !far ? 0 : 0, rx = inf ? Math.cos(yaw) * -.95 : 0, rz = inf ? -Math.sin(yaw) * -.95 : 0;      // soldiers: over the right shoulder
+            const cx = e.x + rx + sh, cy = e.y + lift - (d.sub ? e.dive * 3 : 0), cz = e.z + rz;
+            camera.position.set(cx - Math.sin(yaw) * cp * dist, cy - Math.sin(pit) * dist, cz - Math.cos(yaw) * cp * dist);
+            const gmin = Math.max(H(camera.position.x, camera.position.z), 0) + (inf ? .4 : 2); if (camera.position.y < gmin) camera.position.y = gmin;
+            camera.lookAt(cx + Math.sin(yaw) * cp * 30, cy + Math.sin(pit) * 30, cz + Math.cos(yaw) * cp * 30);
+        }
     }
     if (shakeAmt > .02) { camera.position.x += rnd(-1, 1) * shakeAmt * .15; camera.position.y += rnd(-1, 1) * shakeAmt * .15; shakeAmt *= Math.pow(.02, dt); } else shakeAmt = 0;
-    const fov = d.ln === 'a' && !d.heli && e.alive ? 70 + (e.speed - d.minSp) / (d.sp - d.minSp) * 8 : 68; if (Math.abs(camera.fov - fov) > .1) { camera.fov = fov; camera.updateProjectionMatrix(); }
+    let fov = d.ln === 'a' && !d.heli && e.alive ? 70 + (e.speed - d.minSp) / (d.sp - d.minSp) * 8 : 68;
+    if (e.alive && (Cam.zoomed || (d.ln === 'i' && e.ads))) fov = d.ln === 'i' ? (d.cls === 'rif' && Cam.zoomed ? 18 : 42) : 22;      // aiming down the sights / scope / binoculars
+    if (Math.abs(camera.fov - fov) > .1) { camera.fov += (fov - camera.fov) * Math.min(1, dt * 14); camera.updateProjectionMatrix(); }
     listenerPos = camera.position;
 }
 // ---------- one simulation step (also driven by HGNet.every while the host's tab is hidden) ----------
@@ -4958,6 +5325,8 @@ function bindInput() {
         }
         if (M && !e.repeat) {
             if (e.code === 'Escape' && !Cam.locked() && ME && ME.alive && !M.over && $('#s-pause').classList.contains('hidden') && $('#s-settings').classList.contains('hidden')) $('#s-pause').classList.remove('hidden');
+            if (e.code === 'KeyV' && ME) { Cam.view = (Cam.view + 1) % 3; toast(['Third-person view', 'First-person view', 'Far view'][Cam.view] + ' (V)'); }
+            if (e.code === 'KeyZ' && ME && ME.alive) { Cam.zoomed = !Cam.zoomed; toast(Cam.zoomed ? (ME.def.ln === 'i' && ME.def.cls === 'rif' ? 'Scope' : 'Zoom') + ' on (Z)' : 'Zoom off'); }
             if (e.code === 'KeyC' && ME && ME.alive && ME.def.sub) { ME.diveOn = !ME.diveOn; toast(ME.diveOn ? 'Diving: only torpedoes can hit you, guns are off' : 'Surfacing'); }
             if (e.code === 'KeyF' && ME && ME.alive) { if (!dropFlares(ME) && !ME.def.flares && ME.def.ln === 'a') toast('Research the Countermeasures module for flares'); }
             if (e.code === 'Enter' && PARTY.net) { e.preventDefault(); const i = $('#h-say'); i.classList.remove('hidden'); if (document.pointerLockElement) document.exitPointerLock(); setTimeout(() => i.focus(), 0); IN.keys = {}; }
@@ -4978,8 +5347,8 @@ function bindInput() {
     addEventListener('wheel', e => { if (M) IN.zoom = clamp(IN.zoom + Math.sign(e.deltaY) * .1, .55, 2.2); }, { passive: true });
     addEventListener('mousemove', e => {
         if (!M || !ME || !ME.alive || !Cam.locked()) return;
-        const s = .0022 * save.settings.sens, air = ME.def.ln === 'a' && !ME.def.heli;
-        IN.camYaw -= e.movementX * s; IN.camPitch = clamp(IN.camPitch - e.movementY * s * (save.settings.invertY ? -1 : 1), air ? -1.3 : -.35, air ? 1.3 : (ME.def.heli ? 1.2 : .95));
+        const s = .0022 * save.settings.sens * (camera.fov / 68), air = ME.def.ln === 'a' && !ME.def.heli, inf = ME.def.ln === 'i';      // slower turning while zoomed in
+        IN.camYaw -= e.movementX * s; IN.camPitch = clamp(IN.camPitch - e.movementY * s * (save.settings.invertY ? -1 : 1), air ? -1.3 : inf ? -1.2 : -.35, air ? 1.3 : inf ? 1.2 : (ME.def.heli ? 1.2 : .95));
     });
     document.addEventListener('pointerlockchange', () => {
         const l = Cam.locked(); $('#h-lock').classList.toggle('hidden', l || !M || !ME || !ME.alive);

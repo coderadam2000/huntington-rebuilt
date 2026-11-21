@@ -17,7 +17,7 @@ function mulberry(seed) { return function () { seed |= 0; seed = seed + 0x6D2B79
 const TEAM_COL = [0x3b9bff, 0xff4d4d, 0x4cd964, 0xffd21f, 0xc77dff, 0xff9d3a, 0x3ae0d0, 0xff6ac1, 0xa0e85a, 0xe8e8e8, 0x7a8cff, 0xd08a5a, 0x5ad0ff, 0xffb0b0, 0x9a9a9a, 0xb0ff6a, 0xffe08a, 0x8affd8];
 const teamCol = t => TEAM_COL[((t | 0) % TEAM_COL.length + TEAM_COL.length) % TEAM_COL.length];
 const teamHex = t => '#' + teamCol(t).toString(16).padStart(6, '0');
-const VERSION = '2.4';
+const VERSION = '3.0';
 let toastT = 0;
 function toast(t) { const e = $('#toast'); e.textContent = t; e.classList.add('on'); clearTimeout(toastT); toastT = setTimeout(() => e.classList.remove('on'), 2600); }
 
@@ -74,7 +74,7 @@ function fixSave(s) {      // tier I is always owned; drop unknown ids; keep a u
     if (s.target && !(VBY[s.target] ? !s.researched[s.target] : MODBY[s.target] && !s.mods[s.target])) s.target = null;
     if (!(s.credits >= 0)) s.credits = 0;
     if (!(s.freeRp >= 0)) s.freeRp = 0;
-    if (!['tdm', 'conq', 'ctf', 'ffa'].includes(s.mode)) s.mode = 'tdm';
+    if (!['tdm', 'conq', 'ctf', 'ffa', 'duel'].includes(s.mode)) s.mode = 'tdm';
     s.size = [3, 5, 8].includes(s.size) ? s.size : 5;
     const o = s.opts; o.len = [5, 10, 15].includes(o.len) ? o.len : 10; if (!['small', 'normal', 'large'].includes(o.map)) o.map = 'normal';
     o.ff = o.ff ? 1 : 0; if (!['noon', 'evening', 'overcast', 'night', 'random'].includes(o.wx)) o.wx = 'noon';
@@ -128,6 +128,8 @@ const SFX = {
     cannon: c => { const t = c.currentTime; noiseBurst(c, 0.35, 0.9, 1400, 150, 'lowpass', t); tone(c, 'sine', 130, 35, 0.3, 0.9, t); },
     heavy: c => { const t = c.currentTime; noiseBurst(c, 0.7, 1, 900, 80, 'lowpass', t); tone(c, 'sine', 90, 25, 0.6, 1, t); },
     mg: c => { const t = c.currentTime; noiseBurst(c, 0.06, 0.35, 3500, 1200, 'bandpass', t); },
+    rifle: c => { const t = c.currentTime; noiseBurst(c, 0.12, 0.55, 5000, 700, 'bandpass', t); tone(c, 'square', 220, 80, 0.06, 0.25, t); },
+    reload: c => { const t = c.currentTime; tone(c, 'square', 900, 700, 0.03, 0.12, t); tone(c, 'square', 600, 500, 0.04, 0.12, t + 0.18); },
     gun: c => { const t = c.currentTime; noiseBurst(c, 0.07, 0.4, 2500, 700, 'bandpass', t); tone(c, 'square', 220, 110, 0.05, 0.08, t); },
     rocket: c => { const t = c.currentTime; noiseBurst(c, 0.7, 0.5, 500, 3000, 'bandpass', t); },
     bomb: c => { const t = c.currentTime; tone(c, 'sine', 900, 250, 0.9, 0.12, t); },

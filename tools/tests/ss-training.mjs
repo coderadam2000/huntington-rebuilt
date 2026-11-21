@@ -39,7 +39,7 @@ const stepTo = (p, title) => until(async () => (await tut(p)).title === title, 4
 // ---------- 1. a new player: the offer shows once; Basic training ----------
 const ctxN = await b.newContext({ viewport: { width: 1280, height: 720 } });
 const N = await page('new', null, ctxN);
-ok(await S(N, () => __steelstorm.version) === '2.3', 'version 2.3');
+ok(/^\d+\.\d+$/.test(await S(N, () => __steelstorm.version)), 'a version is shown');
 ok(!!(await until(() => S(N, () => __steelstorm.tut.offerOpen), 4000)), 'first visit: Basic training is offered');
 ok(await S(N, () => __steelstorm.save.tutOffer === 1 && document.getElementById('s-how').classList.contains('hidden')), 'the offer is remembered; How to play waits');
 ok(await S(N, () => !document.getElementById('nv-train').classList.contains('hidden')), 'Training button says NEW');

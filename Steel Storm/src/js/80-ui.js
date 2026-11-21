@@ -31,7 +31,7 @@ const UI = {
         $('#s-lobby').classList.add('hidden');
         $('#hud').classList.remove('hidden'); UIS.screen = 'match'; $('#h-feed').innerHTML = ''; $('#h-msg').classList.remove('on');
         $('#h-lock').classList.remove('hidden');
-        const L = M.limit; UI.msg(MODES[M.mode].name + ': ' + (M.mode === 'tdm' ? 'first to ' + L.kills + ' kills' : M.mode === 'ffa' ? 'first to ' + L.kills + ' kills wins' : M.mode === 'ctf' ? 'capture ' + L.caps + ' flags' : 'hold the points'), -1);
+        const L = M.limit; UI.msg(modeName() + ': ' + (M.mode === 'tdm' ? 'first to ' + L.kills + ' kills' : M.mode === 'ffa' ? 'first to ' + L.kills + ' kills wins' : M.mode === 'ctf' ? 'capture ' + L.caps + ' flags' : 'hold the points'), -1);
         UIS.hudT = 0; UI.buildCap(); if (typeof Cam !== 'undefined') Cam.reset();
         UI.hintFor(ME.def);
     },
@@ -108,7 +108,7 @@ const UI = {
         const title = ffa ? (rank === 1 ? 'WINNER!' : '#' + rank + ' of ' + ents.length) : r.win ? 'VICTORY' : r.draw ? 'DRAW' : 'DEFEAT';
         const sc = ffa ? '' : M.mode === 'tdm' ? [M.kills[0], M.kills[1]] : M.mode === 'ctf' ? [M.caps[0], M.caps[1]] : [Math.ceil(M.tickets[0]), Math.ceil(M.tickets[1])];
         const tile = (n, l) => '<div><b>' + n + '</b><small>' + l + '</small></div>';
-        $('#r-card').innerHTML = '<div class="res-banner"><small>' + esc(MODES[M.mode].name.toUpperCase()) + '</small><p class="res-h ' + (r.win || (ffa && rank === 1) ? 'win' : r.draw ? 'draw' : 'loss') + '">' + title + '</p>' +
+        $('#r-card').innerHTML = '<div class="res-banner"><small>' + esc(modeName().toUpperCase()) + '</small><p class="res-h ' + (r.win || (ffa && rank === 1) ? 'win' : r.draw ? 'draw' : 'loss') + '">' + title + '</p>' +
             (sc ? '<div class="res-sc"><span class="t0">BLUE ' + sc[0] + '</span> &ndash; <span class="t1">' + sc[1] + ' RED</span></div>' : '') + '</div>' +
             (mvp ? '<div class="mvp"><span>MVP</span><b style="color:' + entHex(mvp) + '">' + esc(mvp.name) + '</b><small>' + esc(mvp.def.n) + ' &middot; ' + mvp.kills + ' kills &middot; ' + Math.round(mvp.score) + ' pts</small>' + (r.mvp ? '<em>That is you! +25% rewards</em>' : '') + '</div>' : '') +
             '<div class="res-tiles">' + tile(my.kills, 'Kills') + tile(M.mode === 'ctf' ? my.flags : my.caps, M.mode === 'ctf' ? 'Flags' : 'Captures') + tile(fmt(my.dmg), 'Damage') + tile(my.deaths, 'Deaths') + '</div>' +
@@ -122,7 +122,7 @@ const UI = {
     paintPause() {
         if (!M) return; const left = Math.max(0, M.limit.time - M.t), clock = Math.floor(left / 60) + ':' + String(Math.floor(left % 60)).padStart(2, '0');
         const v = t => M.mode === 'tdm' ? M.kills[t] : M.mode === 'ctf' ? M.caps[t] : M.mode === 'conq' ? Math.ceil(M.tickets[t]) : 0;
-        $('#ps-info').innerHTML = '<span>' + esc(MODES[M.mode].name) + '</span><span>' + clock + ' left</span>' + (M.mode === 'ffa' ? '<span>' + (ME ? ME.kills : 0) + ' kills</span>' : '<span><b class="t0">' + v(0) + '</b> : <b class="t1">' + v(1) + '</b></span>');
+        $('#ps-info').innerHTML = '<span>' + esc(modeName()) + '</span><span>' + clock + ' left</span>' + (M.mode === 'ffa' ? '<span>' + (ME ? ME.kills : 0) + ' kills</span>' : '<span><b class="t0">' + v(0) + '</b> : <b class="t1">' + v(1) + '</b></span>');
     },
     // per-frame HUD
     hud(dt) {
@@ -143,7 +143,7 @@ const UI = {
         const d = ME.def, hpk = clamp(ME.hp / d.hp, 0, 1);
         let w = '';
         const rl = (name, t, max, extra) => '<div><span>' + name + (extra || '') + '</span><div class="rl' + (t <= 0 ? ' rdy' : '') + '"><i style="width:' + clamp(100 * (1 - t / max), 0, 100) + '%"></i></div></div>';
-        w += rl(d.w1.n, ME.t1, d.w1.rl);
+        w += d.w1.mag ? rl(d.w1.n, ME.relT > 0 ? ME.relT : 0, d.w1.reload, ' ' + (ME.relT > 0 ? 'reloading' : ME.am1 + ' / ' + d.w1.mag)) : rl(d.w1.n, ME.t1, d.w1.rl);
         if (d.w2) w += d.w2.cnt ? rl(d.w2.n, ME.t2, d.w2.rl, ' ' + ME.a2) : rl(d.w2.n, ME.t2, d.w2.rl);
         if (d.w3) w += rl(d.w3.n, ME.t3, d.w3.rl, ' ' + ME.a3);
         let fl = d.heli ? 'Speed ' + Math.round(Math.abs(ME.speed) * 3.6) + ' km/h &middot; Alt ' + Math.round(ME.y - Math.max(0, GH(ME.x, ME.z))) + ' m' : d.ln === 'a' ? 'Speed ' + Math.round(ME.speed * 3.6) + ' km/h &middot; Alt ' + Math.round(ME.y) + ' m &middot; Throttle ' + Math.round(ME.thr * 100) + '%' : 'Speed ' + Math.round(Math.abs(ME.speed) * 3.6) + ' km/h' + (d.ln === 'n' ? ' &middot; Throttle ' + Math.round(ME.thr * 100) + '%' : '');
@@ -172,10 +172,11 @@ const UI = {
             const ents = Array.from(EN.values()).sort((a, b) => b.score - a.score || b.kills - a.kills);
             const rows = L => L.map(e => '<tr' + (e === ME ? ' class="me"' : '') + '><td style="color:' + entHex(e) + '">' + (e.carry >= 0 ? '&#9873; ' : '') + esc(e.name) + (e.recon || e.stale ? ' <small class="bad">reconnecting</small>' : '') + '</td><td>' + esc(e.def.n) + '</td><td>' + brOf(e.def).toFixed(1) + '</td><td>' + Math.round(e.score) + '</td><td>' + e.kills + '</td><td>' + e.deaths + '</td><td>' + (M.mode === 'ctf' ? e.flags : e.caps) + '</td><td>' + (e.isBot ? 'BOT' : e === ME && M.host ? 'host' : Math.round(e === ME ? PARTY.rtt || 0 : e.q || 0) + ' ms') + '</td></tr>').join('');
             const hd = (t, n) => '<tr><th style="color:' + (t < 0 ? '#fff' : teamHex(t)) + '">' + n + '</th><th>Vehicle</th><th>BR</th><th>Score</th><th>K</th><th>D</th><th>' + (M.mode === 'ctf' ? 'Flags' : 'Caps') + '</th><th>Ping</th></tr>';
-            b.innerHTML = '<div class="bt">' + MODES[M.mode].name + ' &middot; ' + WX[WXK].name + '</div><table>' + (M.mode === 'ffa' ? hd(-1, 'PLAYERS') + rows(ents) : hd(0, 'BLUE') + rows(ents.filter(e => e.team === 0)) + hd(1, 'RED') + rows(ents.filter(e => e.team === 1))) + '</table>';
+            b.innerHTML = '<div class="bt">' + modeName() + ' &middot; ' + WX[WXK].name + '</div><table>' + (M.mode === 'ffa' ? hd(-1, 'PLAYERS') + rows(ents) : hd(0, 'BLUE') + rows(ents.filter(e => e.team === 0)) + hd(1, 'RED') + rows(ents.filter(e => e.team === 1))) + '</table>';
         }
     }
 };
+const modeName = () => M && M.cfg && M.cfg.duel ? 'Duel' : MODES[M.mode].name;
 function entHex(e) { return M && M.mode === 'ffa' ? (e === ME ? teamHex(0) : teamHex(1)) : teamHex(e.team); }
 // ---------- minimap + on-screen markers ----------
 const miniC = $('#h-map').getContext('2d');

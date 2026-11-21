@@ -3,8 +3,9 @@
 // ============================================================
 const IN = { keys: {}, mb: [0, 0, 0], camYaw: 0, camPitch: .2, zoom: 1 };
 const Cam = {
+    view: 0, zoomed: false, mbWas: false,      // 3.0: view 0 third person, 1 first person / sight, 2 far; zoomed = scope / binoculars
     aimD: 0, aim: { x: 0, y: 0, z: 0 }, deadYaw: 0, specId: -1, solOk: true, mlock: null, mlId: -1, mlT: 0,
-    reset() { if (!ME) return; IN.camYaw = ME.yaw; IN.camPitch = ME.def.ln === 'a' && !ME.def.heli ? 0.05 : 0.22; IN.zoom = 1; },
+    reset() { if (!ME) return; Cam.zoomed = false; IN.camYaw = ME.yaw; IN.camPitch = ME.def.ln === 'a' && !ME.def.heli ? 0.05 : 0.22; IN.zoom = 1; },
     lock() { try { const r = $('#gl').requestPointerLock(); if (r && r.catch) r.catch(() => {}); } catch (e) {} },
     locked() { return document.pointerLockElement === $('#gl'); }
 };
@@ -17,13 +18,13 @@ function leadPoint(e, o, v, from) {
 }
 function aimRay(e) {
     camera.getWorldDirection(V3); const dx = V3.x, dy = V3.y, dz = V3.z, ox = camera.position.x, oy = camera.position.y, oz = camera.position.z;
-    let t = 1500;
-    for (let s = 20; s < 1500; s += 6) { if (oy + dy * s < GHS(ox + dx * s, oz + dz * s)) { let lo = s - 6, hi = s; for (let i = 0; i < 5; i++) { const m = (lo + hi) / 2; if (oy + dy * m < GHS(ox + dx * m, oz + dz * m)) hi = m; else lo = m; } t = hi; break; } }
+    let t = 1500; const inf = e.def.ln === 'i';
+    for (let s = inf ? 2 : 20; s < 1500; s += inf && s < 60 ? 1.5 : 6) { if (oy + dy * s < GHS(ox + dx * s, oz + dz * s)) { let lo = s - 6, hi = s; for (let i = 0; i < 5; i++) { const m = (lo + hi) / 2; if (oy + dy * m < GHS(ox + dx * m, oz + dz * m)) hi = m; else lo = m; } t = hi; break; } }
     let best = null, bt = t;
     for (const o of EN.values()) {
         if (!o.alive || !foe(o, e) || hiddenSub(o)) continue;
         const cy = o.y + (o.def.ln === 'a' ? 0 : 1.5), vx = o.x - ox, vy = cy - oy, vz = o.z - oz, tt = vx * dx + vy * dy + vz * dz;
-        if (tt < 8 || tt > bt) continue;
+        if (tt < (inf ? 1 : 8) || tt > bt) continue;
         const px = ox + dx * tt - o.x, py = oy + dy * tt - cy, pz = oz + dz * tt - o.z;
         if (Math.sqrt(px * px + py * py + pz * pz) < o.def.r * 1.8 + tt * .02) { best = o; bt = tt; }
     }
@@ -51,6 +52,16 @@ function playerCtrl(e, dt) {
     const W = (k.KeyW ? 1 : 0) - (k.KeyS ? 1 : 0), A = (k.KeyA ? 1 : 0) - (k.KeyD ? 1 : 0);
     const mw = [d.w1, d.w2, d.w3].find(w => w && w.k === 'missile'), ml = missileLock(e, mw); Cam.mlock = ml;
     if (ml && Cam.mlId === ml.id) { const was = Cam.mlT < LOCK_T; Cam.mlT += dt; if (was && Cam.mlT >= LOCK_T) sfx('lock', e.x, e.y, e.z, .5); } else { Cam.mlId = ml ? ml.id : -1; Cam.mlT = 0; }
+    if (d.ln === 'i') {      // 3.0 soldiers: WASD move, Shift sprint, Space jump, R reload, left mouse fire, right mouse aim, G grenade, F launcher
+        c.thr = W; c.side = A; c.sprint = !!(k.ShiftLeft || k.ShiftRight); c.up = k.Space ? 1 : 0; c.reload = !!k.KeyR;
+        const click = !!IN.mb[0] && !Cam.mbWas; Cam.mbWas = !!IN.mb[0];
+        c.f1 = d.w1.auto ? !!IN.mb[0] : click; c.f2 = !!k.KeyG; c.f3 = !!(k.KeyF || k.KeyB); e.ads = !!IN.mb[2] || Cam.zoomed;
+        if (c.sprint && W > 0) { c.f1 = false; e.ads = false; }
+        const p = aimRay(e), m = muzzleWorld(e, 0), w = d.w1, b = ballistic(m.x, m.y, m.z, p.x, p.y, p.z, w.v, w.g, false);
+        Cam.aimD = Math.hypot(p.x - m.x, p.y - m.y, p.z - m.z); Cam.aim.x = p.x; Cam.aim.y = p.y; Cam.aim.z = p.z; Cam.solOk = true;
+        c.aimYaw = IN.camYaw; c.aimPitch = Cam.aimD > 6 ? b.pitch : IN.camPitch;
+        return c;
+    }
     if (d.ln === 'a' && !d.heli) {
         e.thr = clamp(e.thr + W * dt * .6, 0, 1); c.thr = e.thr;
         IN.camYaw += A * dt * 1.5; IN.camPitch = clamp(IN.camPitch + ((k.ArrowUp ? 1 : 0) - (k.ArrowDown ? 1 : 0)) * dt * .9, -1.3, 1.3);
@@ -94,14 +105,25 @@ function updateCamera(dt) {
         camera.lookAt(cx, cy, cz);
     } else {
         Cam.deadYaw = yaw; Cam.specId = -1;
-        const cp = Math.cos(pit), dist = d.cd * IN.zoom * (d.w1.arty ? 1.2 : 1), lift = d.ln === 'a' ? 3 : d.ln === 'n' ? 6 : 3.2;
-        const cx = e.x, cy = e.y + lift - (d.sub ? e.dive * 3 : 0), cz = e.z;
-        camera.position.set(cx - Math.sin(yaw) * cp * dist, cy - Math.sin(pit) * dist, cz - Math.cos(yaw) * cp * dist);
-        const gmin = Math.max(H(camera.position.x, camera.position.z), 0) + 2; if (camera.position.y < gmin) camera.position.y = gmin;
-        camera.lookAt(cx + Math.sin(yaw) * cp * 30, cy + Math.sin(pit) * 30, cz + Math.cos(yaw) * cp * 30);
+        const cp = Math.cos(pit), inf = d.ln === 'i', fp = Cam.view === 1;
+        if (e.mdl) e.mdl.root.visible = !fp;      // first person: your own vehicle / body is hidden
+        if (fp) {      // first person: the soldier's eyes, the tank gunner's sight, the cockpit, the ship's bridge
+            const up = inf ? 1.62 : d.ln === 'g' ? d.m.hull[1] + 2.1 : d.ln === 'n' ? 7 : 1, fw = d.ln === 'a' ? (d.m.len || 8) * .22 : 0;
+            camera.position.set(e.x + Math.sin(e.yaw) * fw, e.y + up - (d.sub ? e.dive * 3 : 0), e.z + Math.cos(e.yaw) * fw);
+            camera.lookAt(camera.position.x + Math.sin(yaw) * cp * 30, camera.position.y + Math.sin(pit) * 30, camera.position.z + Math.cos(yaw) * cp * 30);
+        } else {
+            const far = Cam.view === 2 ? 2 : 1, dist = d.cd * IN.zoom * far * (d.w1.arty ? 1.2 : 1), lift = inf ? 1.95 : d.ln === 'a' ? 3 : d.ln === 'n' ? 6 : 3.2;
+            const sh = inf && !far ? 0 : 0, rx = inf ? Math.cos(yaw) * -.95 : 0, rz = inf ? -Math.sin(yaw) * -.95 : 0;      // soldiers: over the right shoulder
+            const cx = e.x + rx + sh, cy = e.y + lift - (d.sub ? e.dive * 3 : 0), cz = e.z + rz;
+            camera.position.set(cx - Math.sin(yaw) * cp * dist, cy - Math.sin(pit) * dist, cz - Math.cos(yaw) * cp * dist);
+            const gmin = Math.max(H(camera.position.x, camera.position.z), 0) + (inf ? .4 : 2); if (camera.position.y < gmin) camera.position.y = gmin;
+            camera.lookAt(cx + Math.sin(yaw) * cp * 30, cy + Math.sin(pit) * 30, cz + Math.cos(yaw) * cp * 30);
+        }
     }
     if (shakeAmt > .02) { camera.position.x += rnd(-1, 1) * shakeAmt * .15; camera.position.y += rnd(-1, 1) * shakeAmt * .15; shakeAmt *= Math.pow(.02, dt); } else shakeAmt = 0;
-    const fov = d.ln === 'a' && !d.heli && e.alive ? 70 + (e.speed - d.minSp) / (d.sp - d.minSp) * 8 : 68; if (Math.abs(camera.fov - fov) > .1) { camera.fov = fov; camera.updateProjectionMatrix(); }
+    let fov = d.ln === 'a' && !d.heli && e.alive ? 70 + (e.speed - d.minSp) / (d.sp - d.minSp) * 8 : 68;
+    if (e.alive && (Cam.zoomed || (d.ln === 'i' && e.ads))) fov = d.ln === 'i' ? (d.cls === 'rif' && Cam.zoomed ? 18 : 42) : 22;      // aiming down the sights / scope / binoculars
+    if (Math.abs(camera.fov - fov) > .1) { camera.fov += (fov - camera.fov) * Math.min(1, dt * 14); camera.updateProjectionMatrix(); }
     listenerPos = camera.position;
 }
 // ---------- one simulation step (also driven by HGNet.every while the host's tab is hidden) ----------
@@ -190,6 +212,8 @@ function bindInput() {
         }
         if (M && !e.repeat) {
             if (e.code === 'Escape' && !Cam.locked() && ME && ME.alive && !M.over && $('#s-pause').classList.contains('hidden') && $('#s-settings').classList.contains('hidden')) $('#s-pause').classList.remove('hidden');
+            if (e.code === 'KeyV' && ME) { Cam.view = (Cam.view + 1) % 3; toast(['Third-person view', 'First-person view', 'Far view'][Cam.view] + ' (V)'); }
+            if (e.code === 'KeyZ' && ME && ME.alive) { Cam.zoomed = !Cam.zoomed; toast(Cam.zoomed ? (ME.def.ln === 'i' && ME.def.cls === 'rif' ? 'Scope' : 'Zoom') + ' on (Z)' : 'Zoom off'); }
             if (e.code === 'KeyC' && ME && ME.alive && ME.def.sub) { ME.diveOn = !ME.diveOn; toast(ME.diveOn ? 'Diving: only torpedoes can hit you, guns are off' : 'Surfacing'); }
             if (e.code === 'KeyF' && ME && ME.alive) { if (!dropFlares(ME) && !ME.def.flares && ME.def.ln === 'a') toast('Research the Countermeasures module for flares'); }
             if (e.code === 'Enter' && PARTY.net) { e.preventDefault(); const i = $('#h-say'); i.classList.remove('hidden'); if (document.pointerLockElement) document.exitPointerLock(); setTimeout(() => i.focus(), 0); IN.keys = {}; }
@@ -210,8 +234,8 @@ function bindInput() {
     addEventListener('wheel', e => { if (M) IN.zoom = clamp(IN.zoom + Math.sign(e.deltaY) * .1, .55, 2.2); }, { passive: true });
     addEventListener('mousemove', e => {
         if (!M || !ME || !ME.alive || !Cam.locked()) return;
-        const s = .0022 * save.settings.sens, air = ME.def.ln === 'a' && !ME.def.heli;
-        IN.camYaw -= e.movementX * s; IN.camPitch = clamp(IN.camPitch - e.movementY * s * (save.settings.invertY ? -1 : 1), air ? -1.3 : -.35, air ? 1.3 : (ME.def.heli ? 1.2 : .95));
+        const s = .0022 * save.settings.sens * (camera.fov / 68), air = ME.def.ln === 'a' && !ME.def.heli, inf = ME.def.ln === 'i';      // slower turning while zoomed in
+        IN.camYaw -= e.movementX * s; IN.camPitch = clamp(IN.camPitch - e.movementY * s * (save.settings.invertY ? -1 : 1), air ? -1.3 : inf ? -1.2 : -.35, air ? 1.3 : inf ? 1.2 : (ME.def.heli ? 1.2 : .95));
     });
     document.addEventListener('pointerlockchange', () => {
         const l = Cam.locked(); $('#h-lock').classList.toggle('hidden', l || !M || !ME || !ME.alive);

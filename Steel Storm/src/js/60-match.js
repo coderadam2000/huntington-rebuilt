@@ -9,7 +9,8 @@ const MODES = {
     tdm: { name: 'Team Deathmatch', short: 'TDM', desc: 'First team to the kill limit' },
     conq: { name: 'Conquest', short: 'CONQ', desc: 'Hold 3 points, drain their tickets' },
     ctf: { name: 'Capture the Flag', short: 'CTF', desc: 'Steal their flag, bring it home (tanks + helis carry)' },
-    ffa: { name: 'Free-for-all', short: 'FFA', desc: 'Everyone for themselves' }
+    ffa: { name: 'Free-for-all', short: 'FFA', desc: 'Everyone for themselves' },
+    duel: { name: 'Duel', short: '1v1', desc: 'One on one, first to 5 kills (a bot if you play alone)' }
 };
 const MAPR = { small: 470, normal: 610, large: 720 };
 let HQ = {}, hqT = 0, sendT = 0, bsT = 0, msT = 0, hpT = 0, pgT = 0;
@@ -22,13 +23,15 @@ const BOT_GEAR = {
     normal: { t: [-1, 0], br: [-.7, .3], mods: t => (t - 1) * .12 },
     hard:   { t: [0, 1], br: [-.3, 1], mods: t => .45 + t * .1 }
 };
-function pickBotDef(refs, mode, k, diff) {
+const RIVAL = { us: 'de', de: 'su', su: 'de', uk: 'de', jp: 'us', cx: 'cx' };      // 3.0: who the bots on the other team fight for
+function pickBotDef(refs, mode, k, diff, nat) {
     const ref = refs.length ? refs[k === undefined ? Math.floor(Math.random() * refs.length) : k % refs.length] : VBY.g1a, br = brOf(ref), rt = (ref.base || ref).t;
     const G = BOT_GEAR[diff || (M && M.cfg && M.cfg.diff)] || BOT_GEAR.normal, t0 = clamp(rt + G.t[0], 1, MAX_TIER), t1 = clamp(rt + G.t[1], 1, MAX_TIER);
-    let ln = ref.ln; if (mode === 'mixed') { const r = Math.random(); ln = r < .5 ? 'g' : r < .75 ? 'a' : 'n'; }
+    let ln = ref.ln; if (mode === 'mixed') { const r = Math.random(); ln = r < .4 ? 'g' : r < .6 ? 'i' : r < .8 ? 'a' : 'n'; } else if (ln === 'i' && Math.random() < .35) ln = 'g';      // soldiers get some tank support
     const inT = v => v.ln === ln && v.t >= t0 && v.t <= t1;
     let L = VEHS.filter(v => inT(v) && v.br <= Math.max(1.3, br + G.br[1]) && v.br >= br + G.br[0]);
     if (!L.length) L = VEHS.filter(inT);
+    if (nat) { const N = L.filter(v => v.nat === nat); if (N.length) L = N; }
     if (mode !== 'mixed' && Math.random() < .5) { const same = L.filter(v => v.cls === (ref.base || ref).cls); if (same.length) L = same; }
     if (!L.length) L = VEHS.filter(v => v.ln === ln && v.t <= Math.max(1, rt));
     const b = L[Math.floor(Math.random() * L.length)];
@@ -38,18 +41,21 @@ function pickBotDef(refs, mode, k, diff) {
 // Build the match description (host / solo). players = [{id,name,veh,mm,team?}], returns the cfg every client uses.
 function makeConfig(players, opts) {
     opts = opts || {};
-    const so = save.opts, mode = MODES[opts.mode || save.mode] ? opts.mode || save.mode : 'tdm', size = opts.size || save.size, split = opts.split !== undefined ? opts.split : save.split, ffa = mode === 'ffa';
-    const cfg = { mode, size, players: [], bots: [], seed: Date.now() & 0xffffff, limit: {}, ff: opts.ff !== undefined ? +opts.ff : so.ff, map: opts.map || so.map, wx: opts.wx || so.wx, len: opts.len || so.len };
+    let mode0 = MODES[opts.mode || save.mode] ? opts.mode || save.mode : 'tdm'; const duel = mode0 === 'duel';      // 3.0: a duel is a 1v1 team deathmatch to 5
+    const so = save.opts, mode = duel ? 'tdm' : mode0, size = duel ? 1 : opts.size || save.size, split = opts.split !== undefined ? opts.split : save.split, ffa = mode === 'ffa';
+    const cfg = { duel, mode, size, players: [], bots: [], seed: Date.now() & 0xffffff, limit: {}, ff: opts.ff !== undefined ? +opts.ff : so.ff, map: opts.map || so.map, wx: opts.wx || so.wx, len: opts.len || so.len };
     if (cfg.wx === 'random' || !WX[cfg.wx]) cfg.wx = Object.keys(WX)[Math.floor(Math.random() * 4)];
     const teams = [[], []];
-    players.forEach((p, i) => { const team = ffa ? i : (p.team === 0 || p.team === 1) ? p.team : split ? i % 2 : 0; cfg.players.push({ id: p.id, name: p.name, veh: p.veh, mm: p.mm | 0, team }); if (!ffa) teams[team].push(p); });
+    players.forEach((p, i) => { const team = ffa ? i : duel ? i % 2 : (p.team === 0 || p.team === 1) ? p.team : split ? i % 2 : 0; cfg.players.push({ id: p.id, name: p.name, veh: p.veh, mm: p.mm | 0, team }); if (!ffa) teams[team].push(p); });
     const bm = opts.bots || save.bots || 'match', refs = players.map(p => vdef(p.veh, p.mm)).filter(Boolean);
     const off = Math.floor(Math.random() * Math.max(1, refs.length)); cfg.bm = bm; cfg.diff = opts.diff || save.diff || 'normal';
     let bi = 0; const names = BOT_NAMES.slice().sort(() => Math.random() - .5);
-    const addBot = team => { const d = pickBotDef(refs, bm === 'off' ? 'match' : bm, bi + off, cfg.diff); cfg.bots.push({ id: 100 + bi, name: 'Bot ' + names[bi % names.length], veh: d.id, mm: d.mask | 0, team }); bi++; };
-    if (bm !== 'off') { if (ffa) for (let n = players.length; n < Math.min(12, size * 2); n++) addBot(n); else for (let t = 0; t < 2; t++) for (let n = teams[t].length; n < size; n++) addBot(t); }
+    const myNat = refs[0] && (refs[0].base || refs[0]).nat, hTeam = cfg.players[0] ? cfg.players[0].team : 0;
+    const addBot = team => { const d = pickBotDef(refs, bm === 'off' || duel ? 'match' : bm, bi + off, cfg.diff, myNat && (team === hTeam ? myNat : RIVAL[myNat])); cfg.bots.push({ id: 100 + bi, name: 'Bot ' + names[bi % names.length], veh: d.id, mm: d.mask | 0, team }); bi++; };
+    if (duel) { if (players.length < 2) addBot(1); }
+    else if (bm !== 'off') { if (ffa) for (let n = players.length; n < Math.min(12, size * 2); n++) addBot(n); else for (let t = 0; t < 2; t++) for (let n = teams[t].length; n < size; n++) addBot(t); }
     const L = cfg.len * 60;
-    cfg.limit = { kills: opts.killLimit || (ffa ? [10, 15, 20][[3, 5, 8].indexOf(size)] : [12, 20, 30][[3, 5, 8].indexOf(size)]) || 20, tickets: opts.tickets || (size === 3 ? 80 : size === 8 ? 160 : 120), caps: opts.caps || 3, time: opts.time || L };
+    cfg.limit = { kills: duel ? 5 : opts.killLimit || (ffa ? [10, 15, 20][[3, 5, 8].indexOf(size)] : [12, 20, 30][[3, 5, 8].indexOf(size)]) || 20, tickets: opts.tickets || (size === 3 ? 80 : size === 8 ? 160 : 120), caps: opts.caps || 3, time: opts.time || L };
     return cfg;
 }
 function beginMatch(cfg, meId, isHost) {
@@ -119,9 +125,11 @@ function hostDamage(by, tgId, dmg, pk, slot, trusted) {
         a.budget -= dmg;
     }
     let eff = dmg / (1 + Math.max(0, v.def.ar * (1 - pk)) / 100);
+    const aw = a.def[slot] || a.def.w1;
+    if (aw && aw.sa && v.def.ln !== 'i' && v.def.ar >= 8) eff *= .06;      // 3.0: rifles and machine pistols barely scratch armour
     if (a.ai) eff *= aiDiff(a).dmg * (a.def.ln === 'a' ? 1.4 : 1);      // jet guns do tiny damage per bullet and miss a lot; bots get a little help there
     if (team) eff *= .5;      // friendly fire is on: half damage
-    eff = Math.min(eff, v.def.hp * (a.def.ln !== v.def.ln ? .3 : .5));      // no single hit takes more than 30% (50% in the same domain) of a full health bar
+    eff = Math.min(eff, v.def.hp * (v.def.ln === 'i' ? 1 : a.def.ln === 'i' && aw && aw.at ? .45 : a.def.ln !== v.def.ln ? .3 : .5));      // a soldier can die to one big hit      // no single hit takes more than 30% (50% in the same domain) of a full health bar
     v.hp -= eff; if (!team) { a.dmg += eff; a.score += eff * .1; }
     const dead = v.hp <= 0;
     bcast({ t: 'dmg', tg: tgId, e: Math.round(eff * 10) / 10, by, hp: Math.max(0, Math.round(v.hp)) });

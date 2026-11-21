@@ -126,10 +126,11 @@ function updateProjectiles(dt) {
             let ex = e.x, ey = e.y, ez = e.z;
             if (p.lag && e.hn) { posAt(e, tnow - p.lag, HP3); ex = HP3.x; ey = HP3.y; ez = HP3.z; }
             const air = e.def.ln === 'a';
-            let r = e.def.r + (p.k === 'bullet' ? 0.6 : 0.3) + (p.big ? (p.k === 'bullet' ? 1.2 : 1.6) : 0);
+            const sol = e.def.ln === 'i';
+            let r = sol ? .42 + (p.k === 'bullet' ? .12 : .45) + (p.big ? .3 : 0) : e.def.r + (p.k === 'bullet' ? 0.6 : 0.3) + (p.big ? (p.k === 'bullet' ? 1.2 : 1.6) : 0);
             if (p.prox && air) r += p.prox;
             if (p.k === 'torp') r += 1.5;
-            if (segSphere(ox, oy, oz, p.x, p.y, p.z, ex, ey + (air ? 0 : e.def.ln === 'n' ? 1 : 1.5), ez, r)) { hit = e; break; }
+            if (segSphere(ox, oy, oz, p.x, p.y, p.z, ex, ey + (air ? 0 : sol ? 1.05 : e.def.ln === 'n' ? 1 : 1.5), ez, r)) { hit = e; break; }
         }
         const gh = p.k === 'torp' ? (H(p.x, p.z) > -1 ? 99 : -9) : GHS(p.x, p.z);
         if (hit || p.y < gh || p.life <= 0) {
@@ -178,6 +179,11 @@ function removeEnt(e) { if (e.mdl) { scene.remove(e.mdl.root); disposeModel(e.md
 // spawn positions: tanks on the west / east shores, ships in the northern and southern seas, aircraft over the ends; FFA anywhere
 function battleR() { return M && M.R || EXT; }
 function pickSpawn(team, ln, ffa) {
+    if (ln === 'i' && !ffa) {      // soldiers start nearer the fight than the tanks (duellists closer still)
+        const sgn = team === 0 ? -1 : 1, near = M && M.cfg && M.cfg.duel ? 55 : 170;
+        for (let i = 0; i < 40; i++) { const x = sgn * (near + rnd(0, 60)), z = rnd(-90, 90), h = H(x, z); if (h > 1 && h < 22 && GH(x, z) === h) return { x, z, y: h, yaw: team === 0 ? PI / 2 : -PI / 2 }; }
+    }
+    if (ln === 'i') ln = 'g';
     const R = battleR(), sgn = team === 0 ? -1 : 1, k = R / EXT;
     for (let i = 0; i < 60; i++) {
         if (ffa) {
@@ -202,7 +208,7 @@ function spawnEnt(e, sp) {
     sp = sp || pickSpawn(e.team, e.def.ln, M && M.mode === 'ffa');
     e.x = sp.x; e.y = heli ? Math.min(sp.y, Math.max(GH(sp.x, sp.z), 0) + 40) : sp.y; e.z = sp.z; e.yaw = sp.yaw; e.tur = sp.yaw; e.pitch = 0; e.roll = 0; e.gun = 0; e.hp = e.def.hp; e.alive = true;
     e.speed = e.def.ln === 'a' && !heli ? e.def.minSp * 1.6 : 0; e.thr = e.def.ln === 'a' && !heli ? .6 : 0;
-    e.a2 = e.def.w2 && e.def.w2.cnt || 0; e.a3 = e.def.w3 ? e.def.w3.cnt : 0; e.t1 = e.t2 = e.t3 = 1; e.vx = e.vy = e.vz = 0; e.budget = e.def.maxDps * 3; e.prot = SPAWN_PROT; e.dive = 0; e.diveOn = false; e.nFl = 6; e.flareT = 0;
+    e.a2 = e.def.w2 && e.def.w2.cnt || 0; e.a3 = e.def.w3 ? e.def.w3.cnt : 0; e.t1 = e.t2 = e.t3 = 1; e.vx = e.vy = e.vz = 0; e.budget = e.def.maxDps * 3; e.prot = SPAWN_PROT; e.dive = 0; e.diveOn = false; e.nFl = 6; e.flareT = 0; e.am1 = e.def.w1.mag || 0; e.relT = 0; e.vyJ = 0;
     if (e.ai) aiReset(e);
     e.sb.length = 0; e.hn = 0; e.crashed = false;
     if (e.mdl) e.mdl.root.visible = true; e.dieT = 0;
@@ -211,7 +217,11 @@ function spawnEnt(e, sp) {
 function applyAnim(e, dt) {
     const m = e.mdl, r = m.root, d = e.def;
     r.position.set(e.x, e.y - (d.sub ? e.dive * 4.2 : 0), e.z); r.rotation.set(-e.pitch, e.yaw, e.roll);
-    if (d.ln === 'g') {
+    if (d.ln === 'i') {      // soldiers: legs swing with the walking speed, the gun follows the aim
+        const sp = Math.hypot(e.vx || 0, e.vz || 0); e.step = (e.step || 0) + sp * dt * 1.9;
+        const sw = Math.sin(e.step) * Math.min(.7, sp * .12); if (m.legs) { m.legs[0].rotation.x = sw; m.legs[1].rotation.x = -sw; }
+        m.gun.rotation.x = -e.gun; m.tur.rotation.y = 0;
+    } else if (d.ln === 'g') {
         m.tur.rotation.y = e.tur - e.yaw; m.gun.rotation.x = -e.gun;
         e.trk += e.speed * dt; if (m.trMat) m.trMat.map.offset.x = (P_WHEELED(e) ? -e.trk * .26 : -e.trk * .55);
     } else if (d.ln === 'n') { for (const t of m.turs) t.rotation.y = e.tur - e.yaw; }
@@ -224,6 +234,7 @@ function muzzleWorld(e, i) {
 function killVisual(e) {
     if (!e.alive && e.dieT) return;
     e.alive = false; e.dieT = simTime; if (e.mdl) e.mdl.root.visible = false;
+    if (e.def.ln === 'i') { fxDust(e.x, e.y + .5, e.z, 1.5); return; }      // a soldier just drops (no gore)
     const big = e.def.ln === 'n' ? 14 : e.def.ln === 'g' ? 8 : 6;
     fxExplosion(e.x, e.y + 1.5, e.z, big);
     if (e.def.ln === 'n' && H(e.x, e.z) < 0) fxSplash(e.x, e.z, 8);
@@ -304,9 +315,28 @@ function stepHeli(e, c, dt) {
     e.tur += clamp(angDiff(e.tur, c.aimYaw), -2.5 * dt, 2.5 * dt); if (Math.abs(angDiff(e.yaw, e.tur)) > 1.6) e.tur = e.yaw + Math.sign(angDiff(e.yaw, e.tur)) * 1.6;
     e.gun += clamp(clamp(c.aimPitch, -1.1, .3) - e.gun, -2 * dt, 2 * dt);
 }
+// soldiers (3.0): walk / sprint (Shift) / jump (Space) relative to where they aim; the body faces the aim
+function stepInf(e, c, dt) {
+    const d = e.def, R = battleR(), yaw = c.aimYaw;
+    e.yaw = e.tur = yaw; e.pitch = 0; e.roll = 0;
+    const run = c.sprint && c.thr > 0 ? 1.65 : 1, fx = Math.sin(yaw), fz = Math.cos(yaw), lx = Math.cos(yaw), lz = -Math.sin(yaw);
+    let mx = fx * c.thr + lx * (c.side || 0), mz = fz * c.thr + lz * (c.side || 0); const ml = Math.hypot(mx, mz); if (ml > 1) { mx /= ml; mz /= ml; }
+    const sp = d.sp * run * (e.ads ? .55 : 1), k = Math.min(1, dt * 10);
+    e.ivx = (e.ivx || 0) + (mx * sp - (e.ivx || 0)) * k; e.ivz = (e.ivz || 0) + (mz * sp - (e.ivz || 0)) * k;
+    const nx = clamp(e.x + e.ivx * dt, -R + 15, R - 15), nz = clamp(e.z + e.ivz * dt, -EXT + 15, EXT - 15), h0 = H(e.x, e.z), h1 = H(nx, nz);
+    if (h1 > .2 && (h1 - h0) < 1.4 * Math.hypot(nx - e.x, nz - e.z) + .05) { e.x = nx; e.z = nz; } else { e.ivx *= -.2; e.ivz *= -.2; }
+    pushOutOfBuildings(e, .45);
+    const gy = GH(e.x, e.z), onG = e.y <= gy + .05;
+    if (c.up > 0 && onG && !(e.vyJ > 0)) e.vyJ = 5.2;
+    e.vyJ = (e.vyJ || 0) - 16 * dt; e.y += e.vyJ * dt; if (e.y <= gy) { e.y = gy; e.vyJ = 0; }
+    e.gun += clamp(clamp(c.aimPitch, -1.2, d.el) - e.gun, -6 * dt, 6 * dt);
+    e.speed = Math.hypot(e.ivx, e.ivz);
+    if (e.relT > 0) e.relT -= dt;
+    if (c.reload && d.w1.mag && e.am1 < d.w1.mag && !(e.relT > 0)) { e.am1 = d.w1.mag; e.t1 = Math.max(e.t1, d.w1.reload); e.relT = d.w1.reload; if (e === ME) sfx('reload', e.x, e.y, e.z, .5); }
+}
 function stepVehicle(e, c, dt) {
     const px = e.x, py = e.y, pz = e.z, d = e.def;
-    if (d.heli) stepHeli(e, c, dt); else if (d.ln === 'a') stepAir(e, c, dt); else stepSurface(e, c, dt);
+    if (d.ln === 'i') stepInf(e, c, dt); else if (d.heli) stepHeli(e, c, dt); else if (d.ln === 'a') stepAir(e, c, dt); else stepSurface(e, c, dt);
     if (dt > 0) { e.vx = (e.x - px) / dt; e.vy = (e.y - py) / dt; e.vz = (e.z - pz) / dt; }
     // timers + ammo restock
     e.t1 -= dt; e.t2 -= dt; e.t3 -= dt; e.flareT -= dt;
@@ -334,7 +364,13 @@ const SEP = [];
 function separate() {
     SEP.length = 0; for (const e of EN.values()) if (e.alive && e.def.ln !== 'a') SEP.push(e);
     for (let i = 0; i < SEP.length; i++) for (let j = i + 1; j < SEP.length; j++) {
-        const a = SEP[i], b = SEP[j]; if (a.def.ln !== b.def.ln) continue;
+        const a = SEP[i], b = SEP[j];
+        if ((a.def.ln === 'i') !== (b.def.ln === 'i') && (a.def.ln === 'g' || b.def.ln === 'g')) {      // 3.0: tanks run soldiers over
+            const s = a.def.ln === 'i' ? a : b, v = s === a ? b : a, rr = v.def.r * .75 + .4;
+            if (Math.hypot(s.x - v.x, s.z - v.z) < rr && Math.abs(s.y - v.y) < 3) { if (Math.abs(v.speed) > 3 && M && M.host && foe(v, s)) hostDamage(v.id, s.id, 999, 1, 'w1', true); else if (!s.remote) { const dx = s.x - v.x, dz = s.z - v.z, d = Math.hypot(dx, dz) || 1; s.x = v.x + dx / d * rr; s.z = v.z + dz / d * rr; } }
+            continue;
+        }
+        if (a.def.ln !== b.def.ln) continue;
         const dx = b.x - a.x, dz = b.z - a.z, rr = (a.def.r + b.def.r) * .7, d2 = dx * dx + dz * dz;
         if (d2 < rr * rr && d2 > .0001) { const d = Math.sqrt(d2), k = (rr - d) * .5 / d; if (!a.remote) { a.x -= dx * k; a.z -= dz * k; } if (!b.remote) { b.x += dx * k; b.z += dz * k; } }
     }
@@ -357,10 +393,12 @@ function weaponFire(e, slot, c) {
     if (e[T] > 0) return false;
     if (slot !== 'w1' && w.cnt) { const A = slot === 'w2' ? 'a2' : 'a3', R = slot === 'w2' ? 'rel2' : 'rel3'; if (e[A] <= 0) return false; e[A]--; if (e[R] <= 0) e[R] = w.rel / w.cnt; }
     e[T] = w.rl;
+    if (slot === 'w1' && w.mag) { if (e.am1 <= 0) e.am1 = w.mag; e.am1--; if (e.am1 <= 0) { e.am1 = w.mag; e[T] = w.reload; e.relT = w.reload; if (e === ME) sfx('reload', e.x, e.y, e.z, .5); } }
     if (e === ME && M) { const f = M.fired || (M.fired = {}); f[slot] = (f[slot] | 0) + 1; }      // shots by slot (training checks them)
     const out = [], rep = !e.remote && (!M || M.host), n = w.nn || 1, heli = d.heli, tg = c && c.tgt >= 0 ? c.tgt : -1;
+    const inf = d.ln === 'i', sprK = inf ? (1 + e.speed * .3) * (e.ads ? .3 : 1) * (e.vyJ ? 2.5 : 1) : 1;
     const dirAt = (spr) => {
-        const yaw = e.tur + rnd(-1, 1) * spr, pit = e.gun + rnd(-1, 1) * spr, cp = Math.cos(pit);
+        spr *= sprK; const yaw = e.tur + rnd(-1, 1) * spr, pit = e.gun + (w.lob || 0) + rnd(-1, 1) * spr, cp = Math.cos(pit);
         return [Math.sin(yaw) * cp, Math.sin(pit), Math.cos(yaw) * cp];
     };
     for (let j = 0; j < n; j++) {
@@ -384,14 +422,14 @@ function weaponFire(e, slot, c) {
         else if (w.k === 'missile') { dir = dirAt(0); if (d.ln === 'n' && w.sea) dir = [dir[0] * .9, .35, dir[2] * .9]; else if (w.air) dir[1] = Math.max(dir[1], .25); else dir[1] += .06; }
         else dir = dirAt(w.k === 'shell' ? (w.spread || 0.004) : (w.sprd || 0.02));
         const v = w.v || 0, vx = dir[0] * v + vx0, vy = dir[1] * v + vy0, vz = dir[2] * v + vz0;
-        const p = addProj({ x, y, z, vx, vy, vz, g: w.g, life: w.life, own: e.id, team: e.team, dmg: w.dmg, sp: w.sp || 0, pk: w.pierce || 0, k: w.k, slot, rep, prox: w.prox || 0, big: !e.ai, tg, turn: w.turn || 0, sea: !!w.sea, air: !!w.air });
+        const p = addProj({ x, y, z, vx, vy, vz, g: w.g, life: w.life, own: e.id, team: e.team, dmg: w.dmg, sp: w.sp || 0, pk: w.pierce || 0, k: w.k, slot, rep, prox: w.prox || 0, big: !e.ai && !inf, tg, turn: w.turn || 0, sea: !!w.sea, air: !!w.air });
         if (!rep) { p.dmg = 0; p.mine = e === ME; p.claim = e === ME && w.k === 'bullet'; if (p.claim) p.dmg = w.dmg; }
         e.nShots = (e.nShots || 0) + 1;
         out.push([+x.toFixed(1), +y.toFixed(1), +z.toFixed(1), +vx.toFixed(1), +vy.toFixed(1), +vz.toFixed(1)]);
     }
     // sound + flash
     const mm = muzzleWorld(e, heli ? (slot === 'w1' ? 0 : 1) : e.muz);
-    if (w.k === 'bullet') { sfx(d.ln === 'a' ? 'gun' : 'mg', mm.x, mm.y, mm.z, .7); e.fl |= slot === 'w1' ? 1 : 2; e.flT = .18; if (Math.random() < .25) flash(mm.x, mm.y - 1, mm.z, 0xffc070, 60, .06); }
+    if (w.k === 'bullet') { sfx(d.ln === 'a' ? 'gun' : inf ? (w.auto ? 'mg' : 'rifle') : 'mg', mm.x, mm.y, mm.z, inf ? .5 : .7); e.fl |= slot === 'w1' ? 1 : 2; e.flT = .18; if (Math.random() < .25) flash(mm.x, mm.y - 1, mm.z, 0xffc070, 60, .06); }
     else if (w.k === 'shell') { const cal = clamp(1 + w.dmg / 110, 1.2, d.ln === 'n' ? 4 : 3); sfx(w.dmg > 120 ? 'heavy' : w.snd || 'cannon', mm.x, mm.y, mm.z); fxExplosion(mm.x, mm.y, mm.z, cal, true); for (let i = 0; i < 4; i++) part(mm.x, mm.y, mm.z, rnd(-1, 1) * 3, rnd(0, 2), rnd(-1, 1) * 3, 1, .8, 0x777777, -1, .7); if (e === ME) shakeAmt = Math.max(shakeAmt, cal * (d.ln === 'n' ? 1.2 : 1)); }
     else if (w.k === 'rocket') sfx('rocket', mm.x, mm.y, mm.z, .8); else if (w.k === 'missile') sfx('missile', mm.x, mm.y, mm.z, .8); else if (w.k === 'torp') sfx('torp', mm.x, 0, mm.z, .8); else sfx('bomb', mm.x, mm.y, mm.z, .6);
     if (w.k !== 'bullet' && !e.remote) netFire(e, slot, out, tg);

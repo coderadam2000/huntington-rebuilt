@@ -13,6 +13,7 @@ const SVGP = {
     battle: 'M11 1h2v5h-2zM11 18h2v5h-2zM1 11h5v2H1zM18 11h5v2h-5zM12 6.5a5.5 5.5 0 1 0 0 11a5.5 5.5 0 1 0 0-11zm0 2.2a3.3 3.3 0 1 1 0 6.6a3.3 3.3 0 1 1 0-6.6z',
     mp: 'M8 3.5a3.2 3.2 0 1 1 0 6.4a3.2 3.2 0 1 1 0-6.4zM16.5 5a2.7 2.7 0 1 1 0 5.4a2.7 2.7 0 1 1 0-5.4zM1.5 20c0-4.2 3-6.8 6.5-6.8s6.5 2.6 6.5 6.8zM15.5 20c0-2.3-.6-4-1.7-5.3 .9-.5 1.8-.7 2.7-.7 3.2 0 6 2.2 6 6z',
     garage: 'M2 9l10-6.5L22 9v12h-3v-9H5v9H2zM7 14h10v2H7zM7 18h10v2H7z',
+    soldier: 'M12 1.5a2.6 2.6 0 1 1 0 5.2a2.6 2.6 0 1 1 0-5.2zM8.2 7.6h7.6l1.4 7.2h-2.4l-.7 7.7h-2.4l-.5-5.4h-.4l-.5 5.4H8.3l-.7-7.7H5.2zM15.5 9.2l6-1.6.4 1.4-6 1.6z',
     research: 'M9 2h6v2h-1v5.2l6 10c.9 1.5-.2 3.3-1.9 3.3H5.9c-1.7 0-2.8-1.8-1.9-3.3l6-10V4H9zM7.6 16h8.8l-2.6-4.5h-3.6z',
     gear: 'M10 1.5h4l.7 2.8 2.3 1.3 2.7-.9 2 3.5-2.1 2v2.6l2.1 2-2 3.5-2.7-.9-2.3 1.3-.7 2.8h-4l-.7-2.8-2.3-1.3-2.7.9-2-3.5 2.1-2v-2.6l-2.1-2 2-3.5 2.7.9 2.3-1.3zM12 8.6a3.4 3.4 0 1 0 0 6.8a3.4 3.4 0 1 0 0-6.8z',
     train: 'M12 2l10 4.5-10 4.5L2 6.5zM5.5 9.6l6.5 2.9 6.5-2.9v4.6c0 2.3-2.9 4.3-6.5 4.3s-6.5-2-6.5-4.3zM20.5 7.5h1.6v7.5h-1.6z',
@@ -20,7 +21,8 @@ const SVGP = {
 };
 const setH = (el, h) => { if (el._h !== h) { el._h = h; el.innerHTML = h; } };      // repaint only what changed (a click on a replaced button is lost)
 const svgI = k => '<svg class="i" viewBox="0 0 24 24"><path fill-rule="evenodd" d="' + SVGP[k] + '"/></svg>';
-const lineIcon = ln => svgI(ln === 'g' ? 'tank' : ln === 'a' ? 'plane' : 'ship');
+const lineIcon = ln => svgI(ln === 'g' ? 'tank' : ln === 'a' ? 'plane' : ln === 'i' ? 'soldier' : 'ship');
+const natBadge = v => { const N = NATIONS[v.nat || 'cx']; return '<span class="natb" style="--n1:' + N.cols[0] + ';--n2:' + N.cols[1] + '" title="' + N.n + '">' + N.short + '</span>'; };
 // the bars are a share of the best any fully upgraded vehicle of the same domain has (a jet's speed is not a tank's)
 const STATMAX = {};
 function statMax(ln) {
@@ -71,7 +73,7 @@ function vehCard(id, ctx) {
 }
 function slotHtml(v, sel, attrs, extra) {
     const d = vdef(v.id, modMask(v.id));
-    return '<div class="slot' + (sel ? ' sel' : '') + '" ' + attrs + ' style="--lc:' + LINES[v.ln].col + '"><span class="st"><span class="tierb">' + TIER_ROMAN[v.t] + '</span>' + lineIcon(v.ln) + '</span><b>' + esc(v.n) + '</b><small>' + CLS_NAME[v.cls] + ' &middot; BR ' + brOf(d).toFixed(1) + '</small>' + (extra || '') + '</div>';
+    return '<div class="slot' + (sel ? ' sel' : '') + '" ' + attrs + ' style="--lc:' + LINES[v.ln].col + '"><span class="st"><span class="tierb">' + TIER_ROMAN[v.t] + '</span>' + lineIcon(v.ln) + natBadge(v) + '</span><b>' + esc(v.n) + '</b><small>' + CLS_NAME[v.cls] + ' &middot; BR ' + brOf(d).toFixed(1) + '</small>' + (extra || '') + '</div>';
 }
 function lineupHtml(kind) {      // home / garage: 5 slots (empty ones lead to the garage); lobby: just the lineup
     const out = [];
@@ -263,7 +265,7 @@ Object.assign(UI, {
     paintGarage() {
         UI.wallet(); const gs = UIS.gs && isOwned(UIS.gs) ? UIS.gs : (UIS.gs = myVeh()), gt = UIS.gt;
         $$('#g-tabs button').forEach(b => b.classList.toggle('on', b.dataset.gt === gt));
-        $('#g-owned').innerHTML = ['g', 'a', 'n'].filter(ln => gt === 'all' || gt === ln).map(ln => { const L = VEHS.filter(v => v.ln === ln && isOwned(v.id)); return '<h4 style="color:' + LINES[ln].col + '">' + LINES[ln].name + ' <small style="color:var(--mut)">' + L.length + '</small></h4><div class="cards">' + L.map(v => slotHtml(v, v.id === gs, 'data-gid="' + v.id + '"', save.lineup.includes(v.id) ? '<span class="inl">LINEUP</span>' : '')).join('') + '</div>'; }).join('');
+        $('#g-owned').innerHTML = ['g', 'i', 'a', 'n'].filter(ln => gt === 'all' || gt === ln).map(ln => { const L = VEHS.filter(v => v.ln === ln && isOwned(v.id)); return '<h4 style="color:' + LINES[ln].col + '">' + LINES[ln].name + ' <small style="color:var(--mut)">' + L.length + '</small></h4><div class="cards">' + L.map(v => slotHtml(v, v.id === gs, 'data-gid="' + v.id + '"', save.lineup.includes(v.id) ? '<span class="inl">LINEUP</span>' : '')).join('') + '</div>'; }).join('');
         $('#g-info').innerHTML = vehCard(gs, 'garage');
         $('#g-lineup').innerHTML = lineupHtml('garage');
     },
@@ -271,10 +273,15 @@ Object.assign(UI, {
     paintResearch() {
         UI.wallet(); const ln = UIS.rln, br = BRANCHES[ln];
         $$('#rs-tabs button').forEach(b => b.classList.toggle('on', b.dataset.ln === ln));
+        // 3.0: one tree per nation
+        if (!UIS.rnat) UIS.rnat = (VBY[UIS.rs] && VBY[UIS.rs].nat) || 'us';
+        let nb = $('#rs-nat'); if (!nb) { nb = document.createElement('div'); nb.id = 'rs-nat'; $('#tree').parentNode.insertBefore(nb, $('#tree')); nb.addEventListener('click', ev => { const b = ev.target.closest('[data-nat]'); if (b) { UIS.rnat = b.dataset.nat; UI.paintResearch(); } }); }
+        const nat = UIS.rnat;
+        nb.innerHTML = NAT_IDS.map(k => '<button data-nat="' + k + '" class="' + (k === nat ? 'on' : '') + '" style="--n1:' + NATIONS[k].cols[0] + ';--n2:' + NATIONS[k].cols[1] + '"><i></i>' + NATIONS[k].n + '</button>').join('') + '<span class="note">' + esc(NATIONS[nat].desc) + '</span>';
         let h = '<div class="grid" style="grid-template-columns:30px repeat(' + br.length + ',minmax(104px,1fr))"><div></div>' + br.map(([k, n]) => '<div class="bh">' + n + '</div>').join('');
         for (let t = 1; t <= MAX_TIER; t++) {
             h += '<div class="th">' + TIER_ROMAN[t] + '</div>';
-            for (const [k] of br) h += '<div class="cell">' + VEHS.filter(v => v.ln === ln && v.t === t && v.cls === k).map(researchCard).join('') + '</div>';
+            for (const [k] of br) h += '<div class="cell">' + VEHS.filter(v => v.ln === ln && v.t === t && v.cls === k && (v.nat || 'cx') === nat).map(researchCard).join('') + '</div>';
         }
         $('#tree').innerHTML = h + '</div>';
         const tg = save.target && (VBY[save.target] || MODBY[save.target]);
