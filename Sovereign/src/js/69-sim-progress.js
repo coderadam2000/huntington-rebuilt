@@ -209,6 +209,7 @@ function checkVictories(n) {
     G.vicRun[v.id] = v.test(n) ? (G.vicRun[v.id] || 0) + 1 : 0;
     if (G.vicRun[v.id] >= Math.max(1, v.months)) {
       G.vic[v.id] = G.day; Clock.pause(); n.prestige = (n.prestige || 0) + 5;
+      if (!G.tut && !G.sim) { if (!Store.get('ipUnlocked', false)) setTimeout(() => toast('🪐 Unlocked: Sovereign Interplanetary! Find it on the title screen.', 5000), 1500); Store.set('ipUnlocked', true); }
       UI.modal(`<h2>🏆 Victory: ${esc(v.name)}</h2><p class="sub" style="font-size:15px">${esc(v.desc)}. History will remember this.</p><div class="actions"><button class="btn small" id="vic-end">Retire as a winner</button><button class="btn small gold" data-act="close-modal">Keep playing</button></div>`);
       $('#vic-end').onclick = () => { UI.closeModal(); endGame('victory', 'Victory: ' + v.name, `${G.player.title} ${G.player.name} retires in triumph.`); };
       return;
@@ -243,6 +244,7 @@ SYSTEM_INITS.push(g => {
   g.tech = g.tech || { done: [], current: null, progress: 0 }; g.ach = g.ach || {};
   if (!g.vicStart) { const G0 = G; G = g; g.vicStart = {}; for (const v of VICTORIES) { try { if (v.months && v.test(g.nations[g.player.idx])) g.vicStart[v.id] = true; } catch (e) {} } G = G0 || g; }
   if (!g.people) g.people = makePeople(g);
+  if (g.vic && Object.keys(g.vic).length && !g.tut && !g.sim) Store.set('ipUnlocked', true);      // 1.7: a save that already won unlocks Interplanetary
   const G0 = G; G = g; applyTech(g.nations[g.player.idx]); G = G0 || g;
 });
 MONTHLY.push(techMonth);

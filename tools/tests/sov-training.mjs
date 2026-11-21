@@ -39,7 +39,7 @@ const next = p => p.click('#hgt .hgt-btns .hgt-btn.pri');
 // ---------- 1. a brand-new player: the offer, Your first year through the real New Game screens ----------
 const ctxN = await b.newContext({ viewport: { width: 1366, height: 768 } });
 const N = await page('new', ctxN);
-ok(await S(N, () => /1\.5/.test(document.querySelector('#title .ver').textContent) && !!document.querySelector('#title [data-act="training"] .tut-new')), 'version 1.5; Training on the title says NEW');
+ok(await S(N, () => /version 1\.\d+/.test(document.querySelector('#title .ver').textContent) && !!document.querySelector('#title [data-act="training"] .tut-new')), 'a version is shown; Training on the title says NEW');
 ok(!!(await until(() => S(N, () => __sov.tut.offerOpen), 5000)), 'a new player (no saves) is offered a practice year');
 ok(await S(N, () => localStorage.getItem('sov.tutOffer') === '1' && document.getElementById('modal').classList.contains('hidden')), 'the offer is remembered (sov.tutOffer); What\'s new waits');
 const n0 = await real(N);

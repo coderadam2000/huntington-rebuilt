@@ -46,6 +46,7 @@ const UI = {
       else if (a === 'sim') Sim.choose();
       else if (a === 'online') Online.open();
       else if (a === 'explore') { G = null; this.home = null; this.startHud(); }
+      else if (a === 'interplanetary') IPU.open();
       else if (a === 'settings') this.settings();
       else if (a === 'credits') this.credits();
       else if (a === 'whatsnew') this.whatsNew();
@@ -162,8 +163,8 @@ const UI = {
     const has = !!Saves.latest();
     $('#title .menu').innerHTML = (has ? '<button class="btn gold" data-act="continue">Continue</button><button class="btn" data-act="new">New Game</button><button class="btn" data-act="load">Load Game</button>'
       : '<button class="btn gold" data-act="new">New Game</button>') +
-      `<button class="btn" data-act="online">Play online with friends (2-6 leaders)</button><button class="btn" data-act="sim">Simulator: watch the AI, take over anyone</button><button class="btn" data-act="explore">Explore the World</button><button class="btn" data-act="hall">Hall of Leaders</button>${trainButton()}<button class="btn" data-act="whatsnew">What\'s new in ${VERSION}</button><button class="btn" data-act="settings">Settings</button><button class="btn" data-act="credits">Credits</button>`;
-    if (!Store.get('seen15', false)) { Store.set('seen15', true); if (has) setTimeout(() => { if (this.screen === 'title' && $('#modal').classList.contains('hidden') && !Tutor.active && !Tutor.offerOpen) this.whatsNew(); }, 900); }
+      `<button class="btn" data-act="online">Play online with friends (2-6 leaders)</button><button class="btn" data-act="sim">Simulator: watch the AI, take over anyone</button><button class="btn" data-act="explore">Explore the World</button><button class="btn ip-title-btn" data-act="interplanetary">🪐 Interplanetary${ipUnlocked() ? '' : ' 🔒'}</button><button class="btn" data-act="hall">Hall of Leaders</button>${trainButton()}<button class="btn" data-act="whatsnew">What\'s new in ${VERSION}</button><button class="btn" data-act="settings">Settings</button><button class="btn" data-act="credits">Credits</button>`;
+    if (!Store.get('seen17', false)) { Store.set('seen17', true); if (has) setTimeout(() => { if (this.screen === 'title' && $('#modal').classList.contains('hidden') && !Tutor.active && !Tutor.offerOpen) this.whatsNew(); }, 900); }
     setTimeout(() => trainOffer(), 1200);      // 1.5: a new player (no saves yet) is offered Your first year once
   },
   confirm(title, text, ok, fn) {
@@ -210,6 +211,7 @@ const UI = {
   },
   whatsNew() {
     const items = [
+      ['🪐', 'Sovereign Interplanetary (new in 1.7)', 'Win any victory and a whole new game opens on the title screen: lead one of 13 planets and dwarf planets in the year 2187. Keep your people fed, powered and supplied, research 21 technologies, build fleets, trade, ally or go to war with the other worlds while they orbit the Sun for real. Five ways to win.'],
       ['🧊', 'Antarctica is whole again (1.6)', 'The hole at the South Pole is filled in: the detailed map had lost the Antarctic mainland and the simple one stopped short of the pole. You can click anywhere on it now.'],
       ['📐', 'The title menu fits (1.6)', 'On smaller or shorter screens the title menu no longer runs off the top or bottom: it shrinks to fit, and on short screens the buttons sit in two columns.'],
       ['🎓', 'Training (new in 1.5)', 'Four hands-on lessons on the title screen: your first year (in a practice game that is thrown away afterwards), war and peace, the World Council and crises, and playing online. Practice games never save and never count for achievements or leaderboards.'],

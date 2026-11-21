@@ -78,6 +78,59 @@
 /* Sovereign: the NEW tag on the title's Training button */
 .tut-new { margin-left: 6px; font-size: 10px; font-weight: 800; background: #ffd43b; color: #2b1a05; border-radius: 6px; padding: 1px 5px; vertical-align: middle; }
 
+/* Sovereign Interplanetary (1.7) */
+#ip-input { position: fixed; inset: 0; z-index: 3; display: none; cursor: grab; touch-action: none; }
+#ip-input:active { cursor: grabbing; }
+#ip-labels { position: fixed; inset: 0; z-index: 4; display: none; pointer-events: none; zoom: var(--ui); }
+.ip-lab { position: absolute; left: 0; top: 0; pointer-events: auto; cursor: pointer; white-space: nowrap; font: 700 12px var(--font); color: #e7edf7; text-shadow: 0 1px 3px #000, 0 0 6px #000; padding: 1px 6px; border-radius: 6px; }
+.ip-lab i, .ip-dot, .ip-me i { display: inline-block; width: 9px; height: 9px; border-radius: 50%; margin-right: 5px; vertical-align: 1px; border: 1px solid rgba(255,255,255,.6); }
+.ip-lab small { color: var(--dim); font-weight: 600; } .ip-lab.mine { color: var(--gold2); } .ip-lab.sel { background: rgba(226,182,92,.22); }
+#ipgame #ip-top { position: absolute; left: 10px; right: 10px; top: 10px; display: flex; flex-wrap: wrap; align-items: center; gap: 6px 14px; padding: 8px 12px; font-size: 14px; }
+.ip-me b { font-family: var(--title); color: var(--gold2); font-size: 17px; } .ip-me small { color: var(--dim); margin-left: 6px; }
+.ip-date { font-weight: 800; color: #fff; }
+.ip-speed { display: inline-flex; gap: 2px; } .ip-speed button { background: var(--panel2); border: 1px solid var(--line); border-radius: 6px; padding: 3px 8px; font-size: 12px; color: var(--text); }
+.ip-speed button.on { background: var(--gold); color: #1b1407; }
+.ip-r { white-space: nowrap; } .ip-r b { color: #fff; } .ip-r em { font-style: normal; font-size: 11px; color: var(--green); margin-left: 3px; } .ip-r em.neg { color: var(--red); }
+#ipgame .bad { color: var(--red); } #ipgame .good, .modal .good { color: var(--green); } .modal .bad { color: var(--red); }
+#ip-tools { position: absolute; left: 10px; top: 76px; display: flex; flex-direction: column; gap: 6px; }
+#ip-tools .btn { text-align: left; min-width: 140px; }
+#ip-panel { position: absolute; right: 10px; top: 76px; width: 330px; max-height: calc(100vh - 100px); overflow-y: auto; padding: 12px 14px; }
+#ip-panel .ph { display: flex; justify-content: space-between; align-items: center; } #ip-panel h2 { font-family: var(--title); color: var(--gold2); margin: 0; font-size: 22px; }
+#ip-panel .icon { background: none; border: 0; color: var(--dim); font-size: 16px; }
+.ip-blurb { font-size: 13px; color: #cbd5e1; margin: 6px 0; }
+.ip-grid { display: grid; grid-template-columns: auto 1fr; gap: 3px 10px; font-size: 13px; margin: 8px 0; } .ip-grid span { color: var(--dim); } .ip-grid b { text-align: right; font-weight: 700; }
+.ip-rel { display: inline-block; position: relative; width: 80px; height: 7px; background: rgba(255,255,255,.1); border-radius: 4px; vertical-align: 1px; } .ip-rel i { position: absolute; top: 0; bottom: 0; border-radius: 4px; }
+.ip-bld { display: flex; flex-wrap: wrap; gap: 6px; font-size: 14px; margin: 6px 0; }
+#ip-log { position: absolute; left: 10px; bottom: 10px; width: min(520px, 60vw); padding: 8px 10px; font-size: 12px; line-height: 1.45; max-height: 150px; overflow: hidden; }
+#ip-log small { color: var(--gold); margin-right: 4px; }
+#ip-notes { position: absolute; right: 350px; top: 76px; display: flex; flex-direction: column; gap: 6px; }
+.modal .box.wide { width: min(860px, 94vw); }
+.ip-pick { display: grid; grid-template-columns: repeat(2, 1fr); gap: 8px; margin: 10px 0; }
+.ip-card { display: flex; flex-direction: column; gap: 3px; text-align: left; background: var(--panel2); border: 1px solid var(--line); border-radius: 10px; padding: 10px 12px; color: var(--text); cursor: pointer; }
+.ip-card:hover { border-color: var(--gold); } .ip-card b { font-family: var(--title); color: var(--gold2); font-size: 17px; } .ip-card b i { display: inline-block; width: 10px; height: 10px; border-radius: 50%; margin-right: 6px; }
+.ip-card small { color: var(--dim); } .ip-card span { font-size: 13px; color: #cbd5e1; }
+.d-Easy { color: var(--green); } .d-Medium { color: var(--gold2); } .d-Hard { color: #fb923c; } .d-Veryhard { color: var(--red); }
+.ip-sl { margin: 8px 0; } .ip-sl label { display: flex; justify-content: space-between; font-weight: 700; } .ip-sl input { width: 100%; } .ip-sl small { color: var(--dim); }
+.modal h3 { margin: 12px 0 6px; font-size: 15px; color: var(--gold2); }
+#ip-blist { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; } #ip-blist h3, #ip-blist .sub { grid-column: 1 / -1; }
+.ip-brow { display: grid; grid-template-columns: 30px 1fr auto; grid-template-rows: auto auto; column-gap: 8px; text-align: left; background: var(--panel2); border: 1px solid var(--line); border-radius: 8px; padding: 7px 9px; color: var(--text); cursor: pointer; }
+.ip-brow span { grid-row: 1 / 3; font-size: 20px; } .ip-brow small { color: var(--dim); font-size: 11px; } .ip-brow em { grid-row: 1 / 3; grid-column: 3; align-self: center; font-style: normal; font-size: 12px; color: var(--gold2); }
+.ip-brow.no { opacity: .55; } .ip-brow:hover { border-color: var(--gold); }
+.ip-tree { display: grid; grid-template-columns: repeat(5, 1fr); gap: 8px; } .ip-tree h3 { margin: 4px 0; }
+.ip-tech { display: flex; flex-direction: column; gap: 2px; width: 100%; text-align: left; margin-bottom: 6px; background: var(--panel2); border: 1px solid var(--line); border-radius: 8px; padding: 7px 8px; color: var(--text); cursor: pointer; }
+.ip-tech b { font-size: 13px; } .ip-tech small { color: var(--dim); font-size: 11px; } .ip-tech em { font-style: normal; font-size: 11px; color: var(--gold2); }
+.ip-tech.done { border-color: var(--green); opacity: .8; } .ip-tech.cur { border-color: var(--gold); box-shadow: 0 0 0 1px var(--gold); } .ip-tech.lock { opacity: .4; cursor: default; }
+.ip-navy { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; } .ip-navy label { display: flex; flex-direction: column; gap: 3px; color: var(--dim); font-size: 13px; }
+.ip-navy select, .ip-navy input { background: rgba(0,0,0,.35); color: #fff; border: 1px solid var(--line); border-radius: 6px; padding: 6px; font-size: 14px; }
+#ip-navinfo { grid-column: 1 / -1; font-size: 13px; }
+.ip-dtab { width: 100%; border-collapse: collapse; font-size: 13px; } .ip-dtab td, .ip-dtab th { padding: 5px 6px; border-bottom: 1px solid var(--line); text-align: left; } .ip-dtab th { color: var(--dim); }
+.ip-acts { display: flex; flex-wrap: wrap; gap: 6px; margin: 10px 0; } .btn.bad { border-color: rgba(239,107,91,.6); }
+.ip-goals { display: grid; gap: 6px; } .ip-goals div { display: grid; grid-template-columns: 1fr auto; background: var(--panel2); border-radius: 8px; padding: 8px 10px; } .ip-goals small { color: var(--dim); grid-column: 1; } .ip-goals em { grid-row: 1 / 3; grid-column: 2; align-self: center; font-style: normal; color: var(--gold2); font-size: 13px; }
+.ip-goals .won { border: 1px solid var(--gold); }
+.ip-evo { flex-direction: column; align-items: stretch; }
+@media (max-width: 900px) { #ip-panel { width: 280px; } .ip-tree { grid-template-columns: repeat(2, 1fr); } .ip-pick, #ip-blist { grid-template-columns: 1fr; } #ip-notes { right: 300px; } }
+.ip-mkt { display: grid; gap: 4px; } .ip-mkt div { display: grid; grid-template-columns: 1fr auto auto; gap: 6px; align-items: center; font-size: 13px; } .ip-mkt small { color: var(--dim); }
+
 :root {
   --bg: #060b16; --panel: rgba(10, 18, 34, .86); --panel2: rgba(22, 34, 58, .9); --line: rgba(160, 190, 230, .16);
   --text: #e7edf7; --dim: #93a3bd; --gold: #e2b65c; --gold2: #f5d58f; --red: #ef6b5b; --green: #5fd38d; --blue: #6aa7ff;
@@ -409,7 +462,7 @@ textarea.code { width: 100%; height: 80px; background: rgba(0, 0, 0, .35); color
 // Source is split into src/js/*.js and joined (in file-name order) into one module by tools/build-game.js.
 import * as THREE from 'three';
 
-const VERSION = '1.6';
+const VERSION = '1.7';
 const DEG = Math.PI / 180;
 const clamp = (v, a, b) => v >= a ? (v <= b ? v : b) : a;   // NaN comes out as the low end, never NaN
 const lerp = (a, b, t) => a + (b - a) * t;
@@ -1601,6 +1654,7 @@ const UI = {
       else if (a === 'sim') Sim.choose();
       else if (a === 'online') Online.open();
       else if (a === 'explore') { G = null; this.home = null; this.startHud(); }
+      else if (a === 'interplanetary') IPU.open();
       else if (a === 'settings') this.settings();
       else if (a === 'credits') this.credits();
       else if (a === 'whatsnew') this.whatsNew();
@@ -1717,8 +1771,8 @@ const UI = {
     const has = !!Saves.latest();
     $('#title .menu').innerHTML = (has ? '<button class="btn gold" data-act="continue">Continue</button><button class="btn" data-act="new">New Game</button><button class="btn" data-act="load">Load Game</button>'
       : '<button class="btn gold" data-act="new">New Game</button>') +
-      `<button class="btn" data-act="online">Play online with friends (2-6 leaders)</button><button class="btn" data-act="sim">Simulator: watch the AI, take over anyone</button><button class="btn" data-act="explore">Explore the World</button><button class="btn" data-act="hall">Hall of Leaders</button>${trainButton()}<button class="btn" data-act="whatsnew">What\'s new in ${VERSION}</button><button class="btn" data-act="settings">Settings</button><button class="btn" data-act="credits">Credits</button>`;
-    if (!Store.get('seen15', false)) { Store.set('seen15', true); if (has) setTimeout(() => { if (this.screen === 'title' && $('#modal').classList.contains('hidden') && !Tutor.active && !Tutor.offerOpen) this.whatsNew(); }, 900); }
+      `<button class="btn" data-act="online">Play online with friends (2-6 leaders)</button><button class="btn" data-act="sim">Simulator: watch the AI, take over anyone</button><button class="btn" data-act="explore">Explore the World</button><button class="btn ip-title-btn" data-act="interplanetary">🪐 Interplanetary${ipUnlocked() ? '' : ' 🔒'}</button><button class="btn" data-act="hall">Hall of Leaders</button>${trainButton()}<button class="btn" data-act="whatsnew">What\'s new in ${VERSION}</button><button class="btn" data-act="settings">Settings</button><button class="btn" data-act="credits">Credits</button>`;
+    if (!Store.get('seen17', false)) { Store.set('seen17', true); if (has) setTimeout(() => { if (this.screen === 'title' && $('#modal').classList.contains('hidden') && !Tutor.active && !Tutor.offerOpen) this.whatsNew(); }, 900); }
     setTimeout(() => trainOffer(), 1200);      // 1.5: a new player (no saves yet) is offered Your first year once
   },
   confirm(title, text, ok, fn) {
@@ -1765,6 +1819,7 @@ const UI = {
   },
   whatsNew() {
     const items = [
+      ['🪐', 'Sovereign Interplanetary (new in 1.7)', 'Win any victory and a whole new game opens on the title screen: lead one of 13 planets and dwarf planets in the year 2187. Keep your people fed, powered and supplied, research 21 technologies, build fleets, trade, ally or go to war with the other worlds while they orbit the Sun for real. Five ways to win.'],
       ['🧊', 'Antarctica is whole again (1.6)', 'The hole at the South Pole is filled in: the detailed map had lost the Antarctic mainland and the simple one stopped short of the pole. You can click anywhere on it now.'],
       ['📐', 'The title menu fits (1.6)', 'On smaller or shorter screens the title menu no longer runs off the top or bottom: it shrinks to fit, and on short screens the buttons sit in two columns.'],
       ['🎓', 'Training (new in 1.5)', 'Four hands-on lessons on the title screen: your first year (in a practice game that is thrown away afterwards), war and peace, the World Council and crises, and playing online. Practice games never save and never count for achievements or leaderboards.'],
@@ -5418,6 +5473,7 @@ function checkVictories(n) {
     G.vicRun[v.id] = v.test(n) ? (G.vicRun[v.id] || 0) + 1 : 0;
     if (G.vicRun[v.id] >= Math.max(1, v.months)) {
       G.vic[v.id] = G.day; Clock.pause(); n.prestige = (n.prestige || 0) + 5;
+      if (!G.tut && !G.sim) { if (!Store.get('ipUnlocked', false)) setTimeout(() => toast('🪐 Unlocked: Sovereign Interplanetary! Find it on the title screen.', 5000), 1500); Store.set('ipUnlocked', true); }
       UI.modal(`<h2>🏆 Victory: ${esc(v.name)}</h2><p class="sub" style="font-size:15px">${esc(v.desc)}. History will remember this.</p><div class="actions"><button class="btn small" id="vic-end">Retire as a winner</button><button class="btn small gold" data-act="close-modal">Keep playing</button></div>`);
       $('#vic-end').onclick = () => { UI.closeModal(); endGame('victory', 'Victory: ' + v.name, `${G.player.title} ${G.player.name} retires in triumph.`); };
       return;
@@ -5452,6 +5508,7 @@ SYSTEM_INITS.push(g => {
   g.tech = g.tech || { done: [], current: null, progress: 0 }; g.ach = g.ach || {};
   if (!g.vicStart) { const G0 = G; G = g; g.vicStart = {}; for (const v of VICTORIES) { try { if (v.months && v.test(g.nations[g.player.idx])) g.vicStart[v.id] = true; } catch (e) {} } G = G0 || g; }
   if (!g.people) g.people = makePeople(g);
+  if (g.vic && Object.keys(g.vic).length && !g.tut && !g.sim) Store.set('ipUnlocked', true);      // 1.7: a save that already won unlocks Interplanetary
   const G0 = G; G = g; applyTech(g.nations[g.player.idx]); G = G0 || g;
 });
 MONTHLY.push(techMonth);
@@ -7857,6 +7914,7 @@ let lastT = 0, ambientT = 0, labelsDirty = true, lastDraw = 0;
 function loop(now) {
   requestAnimationFrame(loop);
   const t = now / 1000, dt = Math.min(0.1, lastT ? t - lastT : 0.016); lastT = t;
+  if (IPV.on) { if (!document.hidden) { IPU.tick(dt); IPV.frame(dt, t); } return; }      // 1.7: Interplanetary draws its own solar system
   const moved = stepCamera(dt);
   if (Clock.step(dt)) Game.refresh();
   UI.updateHover();
@@ -7878,6 +7936,7 @@ function loop(now) {
 window.__sov = {
   ready: false, detailed: false, tut: trainHook(), World, Cam, Globe, UI, Perf, Settings, MapModes, Clock, Gov, Panels, Setup,
   get G() { return G; }, Sim, General, Online, capitulate, newGame, worldMonth, nextMonth, nextDay, conquer, release, checkDomination, warWeek, frontLine, drawFronts, Rule, controlledHtml, MapModes, startWar, sovAch, endWar, Overlay, endGame, crisis, react, Politics, Life, War, peaceChance, forecast, budgetOf, gdpUsd, debtPct, serialize, saveTo, loadFrom, Game,
+  get ip() { return { IPU, IPV, ipNew, ipMonth, ipAct, ipSend, ipQueue, ipFlows, ipNavy, ipRealm, get IPG() { return IPG; }, set IPG(v) { IPG = v; } }; }, // 1.7 (a getter: those are defined in later files)
   Council, SCENARIOS, RESOLUTIONS, WORLD_CRISES, applyScenario, EVENTS, eventContext, applyEventFx, showNextEvent, saveTo, loadFrom, serialize, Game, VICTORIES, ACH, // 1.4
   flyTo, flyToCountry, screenToLL, llToScreen, pickLL, landPower: n => landPower(n), relation: (a, b) => relation(a, b),
   pick: (lon, lat) => { const h = pickLL(lon, lat); return h && h.c ? World.countries[h.c].id : null; },
@@ -7887,6 +7946,854 @@ window.__sov = {
     tris: Globe.renderer.info.render.triangles, calls: Globe.renderer.info.render.calls, selected: UI.selected && World.countries[UI.selected].id })
 };
 boot().catch(e => { console.error(e); $('#load-text').textContent = 'Something went wrong while loading: ' + e.message; });
+
+// ---- 95-ip-data.js ----
+// ==========================================
+// SOVEREIGN INTERPLANETARY (1.7): the data. Unlocked by winning any victory in the base game.
+// You lead a planet or dwarf planet in the year 2187 instead of a country. Worlds orbit the Sun for real (their
+// distance apart changes, so do fleet travel times); each has people, an economy built from what it can mine and
+// make, research, a navy, and relations with every other world.
+// Resources: cr credits (money), met metals, ene energy, vol volatiles (water, ice, gases), fd food, sci science.
+// ==========================================
+const IP_YEAR0 = 2187;
+const TAU = Math.PI * 2;
+// a: orbit size (AU), per: orbital period (years), r: drawn size, col: colours for the procedural texture
+// pop: millions, base output per month, cap: population room, def: starting defences, ships: starting fleet
+const IP_WORLDS = [
+  { id: 'mercury', name: 'Mercury', kind: 'Planet', a: 0.39, per: 0.24, r: 1.0, col: ['#8c8178', '#b5aa9b', '#5d554c'], style: 'rock',
+    pop: 180, cap: 400, out: { met: 9, ene: 12, vol: 0.5, fd: 1 }, def: 14, ships: [3, 0, 0], gov: 'The Solar Concession', ruler: 'Director Ines Adeyemi',
+    blurb: 'Sun-baked mining domes along the terminator line. More solar power than anyone can use, and metals to sell.' },
+  { id: 'venus', name: 'Venus', kind: 'Planet', a: 0.72, per: 0.62, r: 1.7, col: ['#e8c77a', '#f4dfa5', '#c79b4a'], style: 'cloud',
+    pop: 620, cap: 1100, out: { met: 3, ene: 8, vol: 4, fd: 4 }, def: 22, ships: [4, 1, 0], gov: 'Aphrodite Cloud Republic', ruler: 'Consul Mara Velasquez',
+    blurb: 'Floating cities in the cool upper clouds. Rich in chemistry, short of metals, proud and independent.' },
+  { id: 'earth', name: 'Earth', kind: 'Planet', a: 1.0, per: 1.0, r: 1.8, col: ['#2d6cdf', '#3fa34d', '#e8f1ff'], style: 'earth',
+    pop: 9800, cap: 11000, out: { met: 6, ene: 8, vol: 6, fd: 14 }, def: 60, ships: [10, 4, 1], gov: 'United Earth Directorate', ruler: 'Secretary-General Amaru Quispe',
+    blurb: 'The cradle: most of humanity, the biggest economy and the biggest navy, but old, crowded and slow to change.' },
+  { id: 'mars', name: 'Mars', kind: 'Planet', a: 1.52, per: 1.88, r: 1.3, col: ['#c1440e', '#e27b58', '#8a2c0a'], style: 'rock',
+    pop: 1400, cap: 2200, out: { met: 8, ene: 5, vol: 3, fd: 5 }, def: 34, ships: [6, 2, 0], gov: 'Free Martian Congress', ruler: 'Chancellor Yusuf Brandt',
+    blurb: 'Half-terraformed and hungry for more. Busy shipyards, a restless young population, and an eye on Earth.' },
+  { id: 'ceres', name: 'Ceres', kind: 'Dwarf planet', a: 2.77, per: 4.6, r: 0.7, col: ['#77736e', '#9a958e', '#55524e'], style: 'rock',
+    pop: 160, cap: 350, out: { met: 12, ene: 2, vol: 4, fd: 1 }, def: 12, ships: [3, 0, 0], gov: 'Belt Miners\' Union', ruler: 'Steward Kofi Mensah',
+    blurb: 'Capital of the asteroid belt. Ore and ice for the whole system, and rough miners who answer to nobody.' },
+  { id: 'jupiter', name: 'Jupiter', kind: 'Planet', a: 5.2, per: 11.9, r: 3.6, col: ['#d8b48a', '#a9744a', '#efe0c8'], style: 'bands',
+    pop: 900, cap: 1600, out: { met: 4, ene: 10, vol: 10, fd: 3 }, def: 30, ships: [5, 2, 0], gov: 'Galilean League', ruler: 'Archon Selene Okafor',
+    blurb: 'The league of Europa, Ganymede and Callisto. Oceans of water, helium-3 fusion fuel, and a big appetite.' },
+  { id: 'saturn', name: 'Saturn', kind: 'Planet', a: 9.58, per: 29.5, r: 3.1, col: ['#e3d19c', '#c9a865', '#f5ecd0'], style: 'bands', rings: true,
+    pop: 520, cap: 1000, out: { met: 3, ene: 7, vol: 11, fd: 3 }, def: 24, ships: [4, 1, 0], gov: 'Titan Commonwealth', ruler: 'Premier Ravi Nakamura',
+    blurb: 'Methane lakes on Titan fuel the outer system. Wealthy traders, careful diplomats.' },
+  { id: 'uranus', name: 'Uranus', kind: 'Planet', a: 19.2, per: 84, r: 2.3, col: ['#9fe3e6', '#c9f2f3', '#7cc6cc'], style: 'ice', rings: true,
+    pop: 90, cap: 300, out: { met: 2, ene: 4, vol: 9, fd: 1 }, def: 10, ships: [2, 0, 0], gov: 'Miranda Collective', ruler: 'Speaker Ada Lindqvist',
+    blurb: 'A tiny scientific collective on tipped-over moons. Brilliant labs, almost no army.' },
+  { id: 'neptune', name: 'Neptune', kind: 'Planet', a: 30.1, per: 165, r: 2.2, col: ['#3f5fd8', '#6a87f0', '#2b45a8'], style: 'ice',
+    pop: 110, cap: 320, out: { met: 2, ene: 4, vol: 10, fd: 1 }, def: 12, ships: [2, 1, 0], gov: 'Triton Watch', ruler: 'Warden Lucia Ferraz',
+    blurb: 'Guardians of the system\'s edge on frozen Triton. Few people, fierce pride, deep-space warships.' },
+  { id: 'pluto', name: 'Pluto', kind: 'Dwarf planet', a: 39.5, per: 248, r: 0.6, col: ['#d9c3a8', '#b48f6e', '#f2e6d8'], style: 'ice',
+    pop: 24, cap: 120, out: { met: 1, ene: 2, vol: 5, fd: 0.5 }, def: 6, ships: [1, 0, 0], gov: 'Tombaugh Station', ruler: 'Administrator Hiro Sato',
+    blurb: 'A research station turned tiny nation. The heart-shaped glacier is its pride.' },
+  { id: 'haumea', name: 'Haumea', kind: 'Dwarf planet', a: 43.1, per: 283, r: 0.5, col: ['#e9eef5', '#c7d0dc', '#ffffff'], style: 'ice',
+    pop: 9, cap: 80, out: { met: 1, ene: 1, vol: 4, fd: 0.3 }, def: 4, ships: [1, 0, 0], gov: 'Haumea Free Port', ruler: 'Captain Noa Kealoha',
+    blurb: 'A spinning egg of ice, a free port for smugglers and dreamers.' },
+  { id: 'makemake', name: 'Makemake', kind: 'Dwarf planet', a: 45.8, per: 306, r: 0.5, col: ['#c98a5e', '#e0b08a', '#a06a44'], style: 'rock',
+    pop: 7, cap: 70, out: { met: 2, ene: 1, vol: 3, fd: 0.3 }, def: 4, ships: [1, 0, 0], gov: 'Makemake Outpost', ruler: 'Overseer Tama Rangi',
+    blurb: 'A red, lonely outpost. Cheap to keep, easy to forget, hard to take.' },
+  { id: 'eris', name: 'Eris', kind: 'Dwarf planet', a: 67.7, per: 559, r: 0.6, col: ['#f1f1f1', '#d6d6d6', '#bdbdbd'], style: 'ice',
+    pop: 12, cap: 90, out: { met: 2, ene: 1, vol: 4, fd: 0.3 }, def: 6, ships: [1, 0, 0], gov: 'Discordia Holdfast', ruler: 'Matriarch Eris Vane',
+    blurb: 'The farthest world anyone lives on. Strange, stubborn, and always looking for a quarrel.' }
+];
+// ships: [frigates, cruisers, dreadnoughts]
+const IP_SHIPS = [
+  { id: 'frig', n: 'Frigate', cost: { cr: 40, met: 20 }, pow: 1, upk: 1, ic: '🛸' },
+  { id: 'crui', n: 'Cruiser', cost: { cr: 110, met: 60, ene: 10 }, pow: 3.4, upk: 3, ic: '🚀' },
+  { id: 'drea', n: 'Dreadnought', cost: { cr: 300, met: 160, ene: 40 }, pow: 10, upk: 8, ic: '🛰️', tech: 'dread' }
+];
+// buildings: each world can have several of each; cost scales with how many you already have
+const IP_BUILD = [
+  { id: 'mine', n: 'Mining station', ic: '⛏️', cost: { cr: 80, ene: 10 }, fx: { met: 3 }, d: '+3 metals a month' },
+  { id: 'fusion', n: 'Fusion plant', ic: '⚛️', cost: { cr: 100, met: 30 }, fx: { ene: 4 }, d: '+4 energy a month (needs volatiles: 1 a month)', use: { vol: 1 } },
+  { id: 'harvest', n: 'Ice harvester', ic: '🧊', cost: { cr: 70, met: 15 }, fx: { vol: 3 }, d: '+3 volatiles a month' },
+  { id: 'farm', n: 'Hydroponic farm', ic: '🌱', cost: { cr: 60, ene: 10 }, fx: { fd: 3 }, d: '+3 food a month (uses 1 energy)', use: { ene: 1 } },
+  { id: 'dome', n: 'Habitat dome', ic: '🏙️', cost: { cr: 150, met: 50 }, fx: { cap: 0.18 }, d: 'Room for 18% more people' },
+  { id: 'lab', n: 'Research lab', ic: '🔬', cost: { cr: 120, ene: 20 }, fx: { sci: 3 }, d: '+3 science a month' },
+  { id: 'yard', n: 'Shipyard', ic: '🏗️', cost: { cr: 160, met: 60 }, fx: { yard: 1 }, d: 'Build one more ship at a time, ships 10% cheaper' },
+  { id: 'grid', n: 'Defence grid', ic: '🛡️', cost: { cr: 130, met: 40, ene: 20 }, fx: { def: 12 }, d: '+12 defence against invasion' },
+  { id: 'port', n: 'Trade port', ic: '🏦', cost: { cr: 140, met: 30 }, fx: { trade: 0.12 }, d: '+12% income from trade deals' },
+  { id: 'terra', n: 'Terraformer', ic: '🌍', cost: { cr: 400, met: 120, ene: 80 }, fx: { cap: 0.35, happy: 6 }, d: 'Huge project: +35% room and happier people', only: ['venus', 'mars', 'mercury', 'ceres'] }
+];
+// technology: 5 branches. fx: travel (faster fleets), pow (ship power %), out (all output %), sci, happy, def, cap, unlock
+const IP_TECH_BR = ['Propulsion', 'Industry', 'Life', 'Weapons', 'Society'];
+const IP_TECH = [];
+function IPT(b, id, n, cost, needs, fx, d) { IP_TECH.push({ b, id, n, cost, needs, fx, d }); }
+IPT(0, 'ion', 'Ion drives', 60, [], { travel: 0.15 }, 'Fleets travel 15% faster.');
+IPT(0, 'fusiond', 'Fusion drives', 140, ['ion'], { travel: 0.25 }, 'Fleets travel 25% faster.');
+IPT(0, 'torch', 'Torch ships', 280, ['fusiond', 'mag'], { travel: 0.3, pow: 0.1 }, 'Fleets travel 30% faster and hit harder.');
+IPT(0, 'gate', 'Lagrange gates', 420, ['torch'], { travel: 0.4, trade: 0.15 }, 'Shortcuts through the system: much faster fleets and trade.');
+IPT(1, 'auto', 'Autonomous mining', 60, [], { out: 0.08 }, '+8% to everything you produce.');
+IPT(1, 'orbital', 'Orbital foundries', 150, ['auto'], { out: 0.1, ship: 0.1 }, '+10% output, ships 10% cheaper.');
+IPT(1, 'nano', 'Nanofactories', 300, ['orbital'], { out: 0.15 }, '+15% output.');
+IPT(1, 'dyson', 'Dyson swarm', 600, ['nano', 'gate'], { ene: 40, out: 0.1, unlock: 'swarm' }, 'Wrap the Sun in collectors. A wonder of the system.');
+IPT(2, 'hydro', 'Closed-loop farms', 50, [], { fd: 0.2 }, '+20% food.');
+IPT(2, 'gene', 'Space-adapted genes', 140, ['hydro'], { cap: 0.12, happy: 3 }, 'People thrive in low gravity: +12% room.');
+IPT(2, 'arcol', 'Arcologies', 260, ['gene'], { cap: 0.2, happy: 4 }, 'Cities in a single building: +20% room.');
+IPT(2, 'ark', 'Generation ark', 650, ['arcol', 'gate'], { unlock: 'ark' }, 'Lets you build the ark to the stars: the science victory.');
+IPT(3, 'rail', 'Railguns', 70, [], { pow: 0.12 }, 'Ships hit 12% harder.');
+IPT(3, 'mag', 'Magnetic shields', 130, ['rail'], { pow: 0.1, def: 10 }, '+10% ship power and +10 home defence.');
+IPT(3, 'dread', 'Dreadnoughts', 220, ['mag'], { unlock: 'drea' }, 'Huge battleships, ten frigates in one hull.');
+IPT(3, 'lance', 'Particle lances', 380, ['dread'], { pow: 0.25 }, 'Ships hit 25% harder.');
+IPT(4, 'media', 'Solar media', 50, [], { happy: 3 }, 'Entertainment beamed system-wide: people are happier.');
+IPT(4, 'envoy', 'Envoy corps', 110, ['media'], { rel: 1, trade: 0.1 }, 'Better relations with everyone, +10% trade.');
+IPT(4, 'charter', 'Solar charter', 240, ['envoy'], { rel: 2, happy: 3 }, 'A shared law for the system: relations improve faster.');
+IPT(4, 'mind', 'Shared mind', 420, ['charter'], { sci: 0.3, happy: 5 }, '+30% science and calmer people.');
+const IP_VICTORIES = [
+  { id: 'hegemony', n: 'Solar Hegemony', d: 'Rule 7 of the 13 worlds' },
+  { id: 'wealth', n: 'Richest World', d: 'Have the biggest economy for 3 years in a row' },
+  { id: 'federation', n: 'Solar Federation', d: 'Be allied with 6 other worlds at once' },
+  { id: 'stars', n: 'To the Stars', d: 'Research the Generation ark and launch it (5,000 credits)' },
+  { id: 'swarm', n: 'Master of the Sun', d: 'Research the Dyson swarm and own the most ships in the system' }
+];
+// events: { t: title, d: text, w: weight test(world), o: [[label, fx]] }. fx keys: res deltas, happy, stab, pop%, rel {who:'all'|'rand'}
+const IP_EVENTS = [
+  { id: 'flare', t: 'Solar flare!', d: 'A huge flare is heading our way. We can shut the grids down early, or ride it out and hope.', o: [['Shut down early (-20 energy, safe)', { ene: -20 }], ['Ride it out (50%: nothing, or -2 stability and a damaged defence grid)', { gamble: 0.5, fail: { stab: -6, def: -8 } }]] },
+  { id: 'comet', t: 'A comet full of ice', d: 'A comet will pass close by. Catching it costs ships\' time but would fill our tanks for years.', o: [['Catch it (-40 credits, +60 volatiles)', { cr: -40, vol: 60 }], ['Let it pass', {}]] },
+  { id: 'strike', t: 'Dock workers strike', d: 'Shipyard workers want better pay and fewer shifts.', o: [['Pay them (-60 credits, +4 happiness)', { cr: -60, happy: 4 }], ['Refuse (-6 stability)', { stab: -6 }]] },
+  { id: 'signal', t: 'A strange signal', d: 'Our deep-space array has picked up a repeating signal from beyond the heliopause.', o: [['Fund a study (-50 credits, +60 science)', { cr: -50, sci: 60 }], ['Share it with everyone (+5 relations with all)', { relAll: 5 }]] },
+  { id: 'plague', t: 'Dome fever', d: 'A fast-spreading illness in the habitat domes.', o: [['Quarantine (-40 food, -1% people)', { fd: -40, pop: -0.01 }], ['Rush a cure (-80 credits, -3 happiness)', { cr: -80, happy: -3 }]] },
+  { id: 'boom', t: 'A mining boom', d: 'Prospectors found a rich vein nearby.', o: [['Tax it (+120 credits, -2 happiness)', { cr: 120, happy: -2 }], ['Let miners keep it (+40 metals, +3 happiness)', { met: 40, happy: 3 }]] },
+  { id: 'refugees', t: 'Refugees arrive', d: 'Ships full of families fleeing a failing station ask to land.', o: [['Welcome them (+2% people, -30 food, +4 relations with all)', { pop: 0.02, fd: -30, relAll: 4 }], ['Turn them away (-3 happiness)', { happy: -3 }]] },
+  { id: 'ai', t: 'Rogue AI scare', d: 'A logistics AI is acting strangely. Nobody is sure what it wants.', o: [['Shut it down (-10% output this month)', { outHit: 0.1 }], ['Let researchers talk to it (50%: +100 science, or -8 stability)', { gamble: 0.5, win: { sci: 100 }, fail: { stab: -8 } }]] },
+  { id: 'festival', t: 'Founders\' festival', d: 'The anniversary of our first landing. People expect a party.', o: [['Throw a big one (-50 credits, +6 happiness)', { cr: -50, happy: 6 }], ['Keep it small (+1 happiness)', { happy: 1 }]] },
+  { id: 'pirates', t: 'Pirates in the lanes', d: 'Raiders are hitting our freighters.', o: [['Hunt them (-1 frigate, +4 stability)', { ship0: -1, stab: 4 }], ['Pay them off (-70 credits)', { cr: -70 }]] },
+  { id: 'scandal', t: 'Bribery scandal', d: 'Your trade minister took money from a foreign world.', o: [['Fire and prosecute (-1 relation with a world, +3 stability)', { stab: 3, relRand: -15 }], ['Cover it up (50%: nothing, or -10 happiness)', { gamble: 0.5, fail: { happy: -10 } }]] },
+  { id: 'impact', t: 'Asteroid on a collision course', d: 'A rock the size of a city will hit a populated area in months.', o: [['Send the fleet to push it (-1 cruiser, saved)', { ship1: -1 }], ['Evacuate (-3% people, -6 stability)', { pop: -0.03, stab: -6 }]] }
+];
+
+// ---- 96-ip-sim.js ----
+// ==========================================
+// SOVEREIGN INTERPLANETARY: the simulation. One tick = one month.
+// Every world runs the same economy. A world conquered by another keeps its own economy but sends most of its
+// surplus to its ruler, and may rebel when unhappy. The AI rulers build, research, trade, make friends and wars.
+// State (saved as sov.ip.save): IPG = { month, me, worlds[], fleets[], rel[][], pacts[], wars[], log[], vic, ... }
+// ==========================================
+let IPG = null;
+const IP_RES = ['cr', 'met', 'ene', 'vol', 'fd', 'sci'];
+const IP_RN = { cr: 'Credits', met: 'Metals', ene: 'Energy', vol: 'Volatiles', fd: 'Food', sci: 'Science' };
+const IP_RI = { cr: '💰', met: '⛓️', ene: '⚡', vol: '💧', fd: '🌾', sci: '🔬' };
+const IP_COLS = ['#f59e0b', '#facc15', '#3b82f6', '#ef4444', '#94a3b8', '#d97706', '#eab308', '#22d3ee', '#6366f1', '#f472b6', '#e2e8f0', '#f97316', '#a3a3a3'];
+const IP_PERS = { mercury: 'trader', venus: 'trader', earth: 'balanced', mars: 'warlike', ceres: 'trader', jupiter: 'warlike', saturn: 'trader', uranus: 'scholar', neptune: 'warlike', pluto: 'scholar', haumea: 'trader', makemake: 'turtle', eris: 'warlike' };
+const ipRng = () => IPG.rnd();
+function ipMonthName(m) { const y = IP_YEAR0 + Math.floor(m / 12); return MONTHS[m % 12] + ' ' + y; }
+function ipW(i) { return IPG.worlds[i]; }
+const ipRuler = w => w.owner;                                 // who rules a world (its own index when free)
+const ipRealm = r => IPG.worlds.filter(w => w.owner === r);   // every world ruled by r
+const ipAlive = r => IPG.worlds[r].owner === r;              // a nation lives while it rules its own home
+function ipRel(a, b) { return a === b ? 100 : IPG.rel[a][b]; }
+function ipAddRel(a, b, d) { if (a === b) return; IPG.rel[a][b] = clamp(IPG.rel[a][b] + d, -100, 100); IPG.rel[b][a] = clamp(IPG.rel[b][a] + d, -100, 100); }
+function ipPact(a, b, type) { return IPG.pacts.some(p => p.type === type && ((p.a === a && p.b === b) || (p.a === b && p.b === a))); }
+function ipAtWar(a, b) { return IPG.wars.some(w => (w.a === a && w.b === b) || (w.a === b && w.b === a)); }
+function ipAllies(a) { return IPG.pacts.filter(p => p.type === 'ally' && (p.a === a || p.b === a)).map(p => p.a === a ? p.b : p.a).filter(ipAlive); }
+function ipTechDone(r, id) { return ipW(r).tech.done.includes(id); }
+function ipTechSum(r, key) { let s = 0; for (const t of IP_TECH) if (t.fx[key] && ipTechDone(r, t.id)) s += t.fx[key]; return s; }
+function ipLog(text, who) { IPG.log.unshift({ m: IPG.month, t: text, who: who == null ? -1 : who }); if (IPG.log.length > 80) IPG.log.length = 80; if (window.IPV && IPV.onLog) IPV.onLog(text, who); }
+
+// ---- a new game ----
+function ipNew(me, seed) {
+    const rnd = makeRng(seed || (Math.random() * 1e9) | 0);
+    IPG = { v: 1, seed, month: 0, me, rel: [], pacts: [], wars: [], log: [], fleets: [], fid: 1, vic: {}, wealthRun: 0, over: null, speed: 1, ark: false, notes: [] };
+    Object.defineProperty(IPG, 'rnd', { value: rnd, enumerable: false, writable: true });
+    IPG.worlds = IP_WORLDS.map((d, i) => ({
+        i, id: d.id, name: d.name, owner: i, pop: d.pop, pop0: d.pop, cap: d.cap, res: { cr: 120 + d.pop * 0.02, met: 60, ene: 60, vol: 60, fd: 60, sci: 0 },
+        bld: {}, ships: d.ships.slice(), def: d.def, happy: 60, stab: 62, tax: 0.25, bud: { ind: 30, sci: 20, mil: 25, wel: 25 }, tech: { done: [], cur: null, prog: 0 },
+        q: [], last: {}, gdp: 0, ang0: rnd() * TAU, weary: 0, aiT: rnd() * 3 | 0, lowStab: 0
+    }));
+    const n = IP_WORLDS.length;
+    for (let a = 0; a < n; a++) { IPG.rel[a] = []; for (let b = 0; b < n; b++) IPG.rel[a][b] = a === b ? 100 : Math.round((rnd() * 2 - 1) * 20); }
+    // history: a few friendships and rivalries to start with
+    const R = (a, b, v) => { const i = IP_WORLDS.findIndex(w => w.id === a), j = IP_WORLDS.findIndex(w => w.id === b); IPG.rel[i][j] = IPG.rel[j][i] = v; };
+    R('earth', 'mars', -35); R('earth', 'venus', 25); R('mars', 'ceres', 30); R('jupiter', 'saturn', -25); R('saturn', 'uranus', 35); R('neptune', 'uranus', 20); R('pluto', 'eris', -30); R('jupiter', 'ceres', -20); R('mercury', 'venus', 30); R('earth', 'mercury', 20);
+    const P = (a, b, type) => IPG.pacts.push({ a: IP_WORLDS.findIndex(w => w.id === a), b: IP_WORLDS.findIndex(w => w.id === b), type });
+    P('earth', 'venus', 'trade'); P('mars', 'ceres', 'trade'); P('saturn', 'uranus', 'trade'); P('mercury', 'venus', 'trade'); P('saturn', 'uranus', 'nap');
+    ipLog('The year is ' + IP_YEAR0 + '. You lead ' + IP_WORLDS[me].name + '.', me);
+    for (const w of IPG.worlds) w.gdp = ipGdp(w);
+    return IPG;
+}
+// ---- the economy of one world ----
+function ipGdp(w) {
+    const r = w.owner, happyF = 0.75 + w.happy / 200, out = 1 + ipTechSum(r, 'out') + (w.bud.ind - 25) / 150;
+    return Math.pow(w.pop / 100, 0.75) * 10 * happyF * out;
+}
+function ipTradeIncome(w) {
+    let s = 0; const r = w.owner; if (r !== w.i) return 0;
+    for (const p of IPG.pacts) if (p.type === 'trade' && (p.a === r || p.b === r)) { const o = p.a === r ? p.b : p.a; if (!ipAlive(o) || ipAtWar(r, o)) continue; s += 0.06 * Math.min(w.gdp, ipW(o).gdp) + 2; }
+    return s * (1 + ipTechSum(r, 'trade') + (w.bld.port || 0) * 0.12);
+}
+// what a world makes and needs in a month (also shown in the UI)
+function ipFlows(w) {
+    const d = IP_WORLDS[w.i], r = w.owner, sz = Math.sqrt(w.pop / w.pop0), outB = 1 + ipTechSum(r, 'out') + (w.bud.ind - 25) / 120;
+    const f = { cr: 0, met: 0, ene: 0, vol: 0, fd: 0, sci: 0 }, need = { ene: 0, vol: 0, fd: 0 };
+    for (const k of ['met', 'ene', 'vol', 'fd']) f[k] = d.out[k] * sz * outB;
+    f.fd *= 1 + ipTechSum(r, 'fd'); f.ene += ipTechDone(r, 'dyson') && r === w.i ? 40 : 0;
+    for (const b of IP_BUILD) { const n = w.bld[b.id] || 0; if (!n) continue; for (const k in b.fx) if (f[k] != null) f[k] += b.fx[k] * n * outB; if (b.use) for (const k in b.use) need[k] = (need[k] || 0) + b.use[k] * n; }
+    need.fd += (w.pop / w.pop0) * d.out.fd * 0.88; need.ene += (w.pop / w.pop0) * d.out.ene * 0.5; need.vol += (w.pop / w.pop0) * d.out.vol * 0.35;
+    const gdp = ipGdp(w), tax = gdp * w.tax, trade = ipTradeIncome(w);
+    const upk = w.owner === w.i ? ipUpkeep(w.i) : 0;
+    f.cr = tax * (1 - w.bud.sci / 100 - w.bud.wel / 100) + trade - upk;
+    f.sci = ((w.bld.lab || 0) * 3 + tax * w.bud.sci / 100 * 0.8 + 1) * (1 + ipTechSum(r, 'sci'));
+    return { f, need, gdp, tax, trade, upk };
+}
+function ipUpkeep(r) { let u = 0; for (const w of ipRealm(r)) u += w.ships[0] * IP_SHIPS[0].upk + w.ships[1] * IP_SHIPS[1].upk + w.ships[2] * IP_SHIPS[2].upk; for (const f of IPG.fleets) if (f.owner === r) u += f.ships[0] * 1 + f.ships[1] * 3 + f.ships[2] * 8; return u * 0.5; }
+function ipMonthWorld(w) {
+    const { f, need } = ipFlows(w), d = IP_WORLDS[w.i], R = w.res;
+    let short = 0;
+    for (const k of IP_RES) R[k] += f[k] - (need[k] || 0);
+    for (const k of ['ene', 'vol', 'fd']) if (R[k] < 0) { R[k] = 0; short++; }
+    if (R.cr < 0) { R.cr = 0; short++; w.stab -= 1; }
+    // conquered: most of the surplus goes to the ruler
+    if (w.owner !== w.i) { const ru = ipW(w.owner); for (const k of ['cr', 'met', 'ene', 'vol']) { const give = Math.max(0, R[k] - 40) * 0.6; R[k] -= give; ru.res[k] += give; } }
+    // people
+    const capM = w.cap * (1 + ipTechSum(w.owner, 'cap') + (w.bld.dome || 0) * 0.18 + (w.bld.terra || 0) * 0.35);
+    const grow = R.fd > 0 && short === 0 ? 0.006 * (1 - w.pop / capM) * (w.happy / 60) : -0.004 * short;
+    w.pop = Math.max(1, w.pop * (1 + grow)); w.capM = capM;
+    // mood
+    const war = IPG.wars.filter(x => x.a === w.owner || x.b === w.owner).length;
+    const happyT = 52 + (w.bud.wel - 25) * 0.6 - (w.tax - 0.25) * 140 + ipTechSum(w.owner, 'happy') + (w.bld.terra || 0) * 6 - short * 8 - war * 4 - w.weary * 0.2 + (w.owner !== w.i ? -15 : 0) + (w.boost || 0);
+    w.happy = clamp(w.happy + (happyT - w.happy) * 0.12, 0, 100); w.boost = (w.boost || 0) * 0.85;
+    const stabT = 30 + w.happy * 0.55 - war * 4 + (w.bud.mil - 25) * 0.2;
+    w.stab = clamp(w.stab + (stabT - w.stab) * 0.1, 0, 100);
+    w.gdp = ipGdp(w); w.last = { f, need, short };
+    // research (rulers only: conquered worlds add their science to their ruler's)
+    if (w.owner === w.i) ipResearch(w, R.sci); else ipW(w.owner).res.sci += R.sci;
+    R.sci = 0;
+    // building queue
+    const slots = 1 + (w.bld.yard || 0);
+    for (const it of w.q.slice(0, slots)) { it.left--; if (it.left <= 0) ipFinish(w, it); }
+    w.q = w.q.filter(it => it.left > 0);
+    // home defences slowly repair, wear down in long wars
+    const defMax = d.def + (w.bld.grid || 0) * 12 + ipTechSum(w.owner, 'def');
+    w.defMax = defMax; w.def = Math.min(defMax, w.def + defMax * 0.04 * (w.bud.mil / 25));
+    // rebellions
+    if (w.owner !== w.i && w.stab < 22 && ipRng() < 0.08) { const old = w.owner; ipFree(w); ipLog('🔥 ' + w.name + ' rebels against ' + ipW(old).name + ' and is free again!', w.i); }
+    if (w.i === IPG.me && w.owner === w.i) { w.lowStab = w.stab < 8 ? w.lowStab + 1 : 0; }
+}
+function ipResearch(w, sci) {
+    const T = w.tech; if (!T.cur) return; T.prog += sci;
+    const t = IP_TECH.find(x => x.id === T.cur);
+    if (T.prog >= t.cost) { T.done.push(t.id); T.prog -= t.cost; T.cur = null; if (t.fx.rel) for (const o of IPG.worlds) if (o.i !== w.i) ipAddRel(w.i, o.i, 4 * t.fx.rel); if (w.i === IPG.me) { ipLog('🔬 Research done: ' + t.n + '. ' + t.d, w.i); if (window.IPV) IPV.techDone(t); } }
+}
+// ---- building ----
+function ipCostOf(w, kind, id) {
+    if (kind === 'ship') { const s = IP_SHIPS.find(x => x.id === id), m = (1 - 0.1 * Math.min(3, w.bld.yard || 0)) * (1 - ipTechSum(w.owner, 'ship')); const c = {}; for (const k in s.cost) c[k] = Math.round(s.cost[k] * m); return c; }
+    const b = IP_BUILD.find(x => x.id === id), n = (w.bld[id] || 0) + w.q.filter(q => q.id === id).length, c = {};
+    for (const k in b.cost) c[k] = Math.round(b.cost[k] * Math.pow(1.35, n)); return c;
+}
+function ipCanPay(w, cost) { const R = ipW(w.owner).res, L = w.res; for (const k in cost) if ((k === 'cr' ? R.cr : L[k] + (w.owner !== w.i ? 0 : 0)) < cost[k]) return false; return true; }
+function ipPay(w, cost) { const R = ipW(w.owner).res; for (const k in cost) { if (k === 'cr') R.cr -= cost[k]; else w.res[k] -= cost[k]; } }
+function ipQueue(w, kind, id) {
+    if (kind === 'ship') { const s = IP_SHIPS.find(x => x.id === id); if (s.tech && !ipTechDone(w.owner, s.tech)) return 'Needs ' + IP_TECH.find(t => t.id === s.tech).n + '.'; }
+    else { const b = IP_BUILD.find(x => x.id === id); if (b.only && !b.only.includes(w.id)) return 'Only on ' + b.only.join(', ') + '.'; }
+    if (w.q.length >= 6) return 'The build list is full (6).';
+    const cost = ipCostOf(w, kind, id); if (!ipCanPay(w, cost)) return 'Not enough: ' + Object.entries(cost).map(([k, v]) => IP_RI[k] + v).join(' ');
+    ipPay(w, cost);
+    w.q.push({ kind, id, left: kind === 'ship' ? { frig: 2, crui: 4, drea: 7 }[id] : id === 'terra' ? 12 : 3, tot: 0 }); w.q[w.q.length - 1].tot = w.q[w.q.length - 1].left;
+    return '';
+}
+function ipFinish(w, it) {
+    if (it.kind === 'ship') w.ships[IP_SHIPS.findIndex(s => s.id === it.id)]++;
+    else { w.bld[it.id] = (w.bld[it.id] || 0) + 1; if (it.id === 'grid') w.def += 12; }
+    if (w.owner === IPG.me) ipLog('🏗️ ' + w.name + ': ' + (it.kind === 'ship' ? IP_SHIPS.find(s => s.id === it.id).n : IP_BUILD.find(b => b.id === it.id).n) + ' finished.', w.i);
+}
+// ---- fleets and battles ----
+// where a world is (AU, in the plane), month m
+function ipPos(i, m) { const d = IP_WORLDS[i], w = IPG.worlds[i], a = w.ang0 + TAU * (m / 12) / d.per; return [Math.cos(a) * d.a, Math.sin(a) * d.a]; }
+function ipDist(a, b, m) { const p = ipPos(a, m), q = ipPos(b, m); return Math.hypot(p[0] - q[0], p[1] - q[1]); }
+function ipTravel(owner, a, b) { return Math.max(1, Math.round((1 + 1.6 * Math.sqrt(ipDist(a, b, IPG.month))) / (1 + ipTechSum(owner, 'travel')))); }
+function ipPower(owner, ships) { return (ships[0] * IP_SHIPS[0].pow + ships[1] * IP_SHIPS[1].pow + ships[2] * IP_SHIPS[2].pow) * (1 + ipTechSum(owner, 'pow')); }
+function ipNavy(r) { let s = 0; for (const w of ipRealm(r)) s += ipPower(r, w.ships); for (const f of IPG.fleets) if (f.owner === r) s += ipPower(r, f.ships); return s; }
+function ipSend(from, to, ships, mission) {
+    const w = ipW(from), r = w.owner;
+    for (let k = 0; k < 3; k++) { ships[k] = clamp(ships[k] | 0, 0, w.ships[k]); }
+    if (!ships.some(x => x > 0)) return 'Pick some ships.';
+    if (mission === 'attack' && !ipAtWar(r, ipW(to).owner)) return 'You are not at war with ' + ipW(ipW(to).owner).name + '.';
+    for (let k = 0; k < 3; k++) w.ships[k] -= ships[k];
+    const t = ipTravel(r, from, to);
+    IPG.fleets.push({ id: IPG.fid++, owner: r, ships, from, to, dep: IPG.month, arr: IPG.month + t, mission });
+    return '';
+}
+function ipFleetsMonth() {
+    for (const f of IPG.fleets.slice()) {
+        if (IPG.month < f.arr) continue;
+        IPG.fleets.splice(IPG.fleets.indexOf(f), 1);
+        const w = ipW(f.to), defR = w.owner;
+        if (!ipAlive(f.owner)) continue;
+        if (defR === f.owner || ipPact(defR, f.owner, 'ally') && f.mission !== 'attack') { for (let k = 0; k < 3; k++) w.ships[k] += f.ships[k]; if (defR !== f.owner) ipLog('🛸 ' + ipW(f.owner).name + ' fleet arrives to guard ' + w.name + '.', f.owner); continue; }
+        if (!ipAtWar(f.owner, defR)) { const home = ipW(f.from); const back = home.owner === f.owner ? home : ipW(f.owner); for (let k = 0; k < 3; k++) back.ships[k] += f.ships[k]; continue; }
+        ipBattle(f, w);
+    }
+}
+function ipBattle(f, w) {
+    const A = f.owner, D = w.owner, att = ipPower(A, f.ships) * (0.85 + ipRng() * 0.3), dfl = ipPower(D, w.ships), dd = w.def * (1 + ipTechSum(D, 'def') / 50), def = (dfl + dd * 0.5) * (0.85 + ipRng() * 0.3);
+    const ratio = att / Math.max(0.1, def);
+    const lossA = clamp(0.6 / ratio, 0.05, 1), lossD = clamp(0.55 * ratio, 0.05, 1);
+    for (let k = 0; k < 3; k++) { f.ships[k] = Math.max(0, Math.round(f.ships[k] * (1 - lossA))); w.ships[k] = Math.max(0, Math.floor(w.ships[k] * (1 - lossD))); }
+    w.def = Math.max(0, w.def * (1 - lossD * 0.8));
+    const an = ipW(A).name, dn = ipW(D).name;
+    if (ratio > 1.15 && f.ships.some(x => x > 0)) {
+        ipLog('⚔️ ' + an + ' wins the battle of ' + w.name + ' and takes it from ' + dn + '!', A);
+        ipConquer(w, A); for (let k = 0; k < 3; k++) w.ships[k] += f.ships[k];
+        ipW(A).weary = Math.max(0, ipW(A).weary - 5);
+    } else {
+        ipLog('⚔️ ' + dn + ' holds ' + w.name + ' against ' + an + '.', D);
+        if (f.ships.some(x => x > 0)) { const home = ipW(f.owner); for (let k = 0; k < 3; k++) home.ships[k] += f.ships[k]; }
+        ipW(A).weary += 8; ipW(D).weary += 3;
+    }
+    if (window.IPV) IPV.battle(w.i, ratio > 1.15);
+}
+function ipConquer(w, by) {
+    const old = w.owner; w.owner = by; w.q = []; w.happy = Math.min(w.happy, 35); w.stab = 30;
+    // a nation that loses its home falls: its other worlds go free, its fleets disband, its wars and pacts end
+    if (old === w.i) {
+        for (const o of IPG.worlds) if (o.owner === old && o.i !== w.i) ipFree(o);
+        IPG.fleets = IPG.fleets.filter(f => f.owner !== old);
+        IPG.wars = IPG.wars.filter(x => x.a !== old && x.b !== old); IPG.pacts = IPG.pacts.filter(p => p.a !== old && p.b !== old);
+        ipLog('🏳️ The government of ' + w.name + ' has fallen.', old);
+        if (old === IPG.me) ipEnd('defeat', 'Conquered', 'Your home world fell to ' + ipW(by).name + '.');
+    }
+}
+function ipFree(w) { w.owner = w.i; w.stab = 45; w.happy = 55; w.q = []; IPG.wars = IPG.wars.filter(x => x.a !== w.i && x.b !== w.i); }
+// ---- diplomacy ----
+function ipDeclare(a, b) {
+    if (ipAtWar(a, b)) return;
+    IPG.pacts = IPG.pacts.filter(p => !((p.a === a && p.b === b) || (p.a === b && p.b === a)));
+    IPG.wars.push({ a, b, since: IPG.month }); ipAddRel(a, b, -50);
+    ipLog('💥 ' + ipW(a).name + ' declares war on ' + ipW(b).name + '!', a);
+    for (const al of ipAllies(b)) if (al !== a && !ipAtWar(al, a) && !ipPact(al, a, 'ally')) { IPG.wars.push({ a: al, b: a, since: IPG.month }); ipAddRel(al, a, -30); ipLog('🤝 ' + ipW(al).name + ' joins the war to defend its ally ' + ipW(b).name + '.', al); }
+    for (const o of IPG.worlds) if (o.owner === o.i && o.i !== a && o.i !== b) ipAddRel(o.i, a, ipRel(o.i, b) > 30 ? -10 : -3);
+}
+function ipPeace(a, b) { IPG.wars = IPG.wars.filter(x => !((x.a === a && x.b === b) || (x.a === b && x.b === a))); ipAddRel(a, b, 15); ipW(a).weary = Math.max(0, ipW(a).weary - 20); ipW(b).weary = Math.max(0, ipW(b).weary - 20); ipLog('🕊️ ' + ipW(a).name + ' and ' + ipW(b).name + ' make peace.', a); }
+// will b agree to something a asks? (AI side)
+function ipWould(b, a, what) {
+    const r = ipRel(b, a), pb = ipNavy(b) + ipW(b).def, pa = ipNavy(a) + ipW(a).def, w = ipW(b);
+    if (what === 'trade') return !ipAtWar(a, b) && r > -5;
+    if (what === 'nap') return !ipAtWar(a, b) && r > 15;
+    if (what === 'ally') return !ipAtWar(a, b) && r > 45 && IPG.wars.filter(x => x.a === a || x.b === a).length <= 1;
+    if (what === 'peace') { const war = IPG.wars.find(x => (x.a === a && x.b === b) || (x.a === b && x.b === a)); return war && (IPG.month - war.since >= 4) && (w.weary > 15 || pa > pb * 1.2 || r > -40 + w.weary); }
+    if (what === 'tribute') return pa > pb * 2.2 && r > -60;
+    return false;
+}
+// the player's actions on another nation (returns a message)
+function ipAct(t, what) {
+    const me = IPG.me, M = ipW(me), T = ipW(t), n = T.name;
+    if (!ipAlive(t)) return n + ' has no government to talk to.';
+    if (what === 'gift') { if (M.res.cr < 60) return 'Needs 60 credits.'; M.res.cr -= 60; ipAddRel(me, t, 10 * (1 + ipTechSum(me, 'rel') * 0.3)); return 'Gift sent. ' + n + ' likes you more.'; }
+    if (what === 'war') { ipDeclare(me, t); return ''; }
+    if (what === 'peace') { if (ipWould(t, me, 'peace')) { ipPeace(me, t); return n + ' accepts peace.'; } ipAddRel(me, t, -2); return n + ' refuses peace for now.'; }
+    if (what === 'tribute') { if (ipWould(t, me, 'tribute')) { const g = Math.round(T.res.cr * 0.3 + 20); T.res.cr -= g; M.res.cr += g; ipAddRel(me, t, -15); return n + ' pays you ' + g + ' credits, unhappily.'; } ipAddRel(me, t, -20); return n + ' refuses. They will remember this.'; }
+    if (what === 'cancel') { IPG.pacts = IPG.pacts.filter(p => !((p.a === me && p.b === t) || (p.a === t && p.b === me))); ipAddRel(me, t, -15); return 'Every deal with ' + n + ' is cancelled.'; }
+    if (ipPact(me, t, what)) return 'You already have that deal.';
+    if (ipWould(t, me, what)) { IPG.pacts.push({ a: me, b: t, type: what }); ipAddRel(me, t, 5); ipLog('📜 ' + M.name + ' and ' + n + ' sign a ' + { trade: 'trade deal', nap: 'non-aggression pact', ally: 'alliance' }[what] + '.', me); return n + ' agrees!'; }
+    ipAddRel(me, t, -1); return n + ' says no. (Relations need to be better.)';
+}
+// ---- the AI ----
+function ipAI(w) {
+    const r = w.i, pers = IP_PERS[w.id], R = w.res, atWar = IPG.wars.filter(x => x.a === r || x.b === r).map(x => x.a === r ? x.b : x.a);
+    // budget and tax
+    w.tax = pers === 'trader' ? 0.22 : pers === 'warlike' ? 0.3 : 0.26;
+    w.bud = atWar.length ? { ind: 25, sci: 10, mil: 45, wel: 20 } : pers === 'scholar' ? { ind: 25, sci: 40, mil: 10, wel: 25 } : pers === 'warlike' ? { ind: 30, sci: 15, mil: 35, wel: 20 } : { ind: 35, sci: 20, mil: 20, wel: 25 };
+    if (w.happy < 40) { w.tax -= 0.05; w.bud.wel += 10; w.bud.ind -= 10; }
+    // research
+    if (!w.tech.cur) { const fav = { warlike: 3, trader: 1, scholar: 2, turtle: 3, balanced: 1 }[pers]; const can = IP_TECH.filter(t => !w.tech.done.includes(t.id) && t.needs.every(n => w.tech.done.includes(n))).sort((a, b) => (a.b === fav ? 0 : 1) - (b.b === fav ? 0 : 1) || a.cost - b.cost); if (can[0]) w.tech.cur = can[0].id; }
+    // build for every world it rules
+    for (const o of ipRealm(r)) {
+        if (o.q.length >= 2) continue;
+        const L = o.last, nd = L.need || {}, ff = L.f || {};
+        let pick = null;
+        if ((ff.fd || 0) < (nd.fd || 0) * 1.05) pick = ['bld', 'farm'];
+        else if ((ff.ene || 0) < (nd.ene || 0) * 1.05) pick = ['bld', o.res.vol > 30 ? 'fusion' : 'mine'];
+        else if ((ff.vol || 0) < (nd.vol || 0) * 1.05) pick = ['bld', 'harvest'];
+        else if (o.pop > (o.capM || o.cap) * 0.9) pick = ['bld', 'dome'];
+        else if (atWar.length || (pers === 'warlike' && ipRng() < 0.5) || ipNavy(r) < 4) pick = ['ship', ipTechDone(r, 'dread') && R.cr > 400 ? 'drea' : R.cr > 160 ? 'crui' : 'frig'];
+        else pick = ['bld', ['mine', 'lab', 'port', 'grid', 'yard', 'harvest'][Math.floor(ipRng() * 6)]];
+        ipQueue(o, pick[0], pick[1]);
+    }
+    // diplomacy, every few months
+    if ((IPG.month + w.aiT) % 3 !== 0) return;
+    const others = IPG.worlds.filter(o => o.owner === o.i && o.i !== r);
+    for (const o of others) {
+        const rel = ipRel(r, o.i);
+        if (ipAtWar(r, o.i)) { if (ipWould(r, o.i, 'peace') && ipWould(o.i, r, 'peace') && o.i !== IPG.me) ipPeace(r, o.i); else if (o.i === IPG.me && w.weary > 20 && ipRng() < 0.4) ipOffer(r, 'peace'); continue; }
+        if (rel > 15 && !ipPact(r, o.i, 'trade') && ipRng() < 0.2) { if (o.i === IPG.me) ipOffer(r, 'trade'); else if (ipWould(o.i, r, 'trade')) { IPG.pacts.push({ a: r, b: o.i, type: 'trade' }); ipLog('📜 ' + w.name + ' and ' + o.name + ' sign a trade deal.', r); } }
+        else if (rel > 55 && !ipPact(r, o.i, 'ally') && ipRng() < 0.12) { if (o.i === IPG.me) ipOffer(r, 'ally'); else if (ipWould(o.i, r, 'ally')) { IPG.pacts.push({ a: r, b: o.i, type: 'ally' }); ipLog('🤝 ' + w.name + ' and ' + o.name + ' form an alliance.', r); } }
+        // war: a strong, hostile neighbour picks on someone weaker and not too far
+        const need = pers === 'warlike' ? 1.4 : pers === 'balanced' ? 1.8 : 2.4, strong = ipNavy(r) > (ipNavy(o.i) + o.def * 0.35) * need;
+        const hostile = rel < (pers === 'warlike' ? 5 : pers === 'balanced' ? -30 : -50);
+        if (hostile && strong && !ipPact(r, o.i, 'nap') && !ipPact(r, o.i, 'ally') && atWar.length === 0 && IPG.month > 10 && ipDist(r, o.i, IPG.month) < 16 && ipRng() < (pers === 'warlike' ? 0.25 : 0.15)) { ipDeclare(r, o.i); return; }
+        // tribute demands to the player
+        if (o.i === IPG.me && pers === 'warlike' && ipWould(IPG.me, r, 'tribute') === false && ipNavy(r) > (ipNavy(o.i) + o.def) * 2.5 && rel < 0 && ipRng() < 0.1) ipOffer(r, 'demand');
+    }
+    // attack: send most of the home fleet at the weakest enemy world within reach
+    if (atWar.length) {
+        let best = null;
+        for (const e of atWar) for (const t of ipRealm(e)) { const d = ipDist(r, t.i, IPG.month), def = ipPower(e, t.ships) + t.def * 0.5, s = def + d * 0.5; if (!best || s < best.s) best = { t, def, s }; }
+        const myPow = ipPower(r, w.ships);
+        if (best && myPow > best.def * 1.5 && !IPG.fleets.some(f => f.owner === r && f.to === best.t.i)) { const send = w.ships.map(x => Math.floor(x * 0.75)); ipSend(r, best.t.i, send, 'attack'); ipLog('🚀 ' + w.name + ' sends a fleet toward ' + best.t.name + '.', r); }
+    }
+}
+// AI proposals to the player (answered in the UI)
+function ipOffer(from, kind) { if (IPG.notes.some(n => n.from === from && n.kind === kind)) return; IPG.notes.push({ from, kind, m: IPG.month }); }
+function ipAnswer(note, yes) {
+    IPG.notes = IPG.notes.filter(n => n !== note); const me = IPG.me, f = note.from; if (!ipAlive(f)) return;
+    if (note.kind === 'peace') { if (yes) ipPeace(me, f); else ipAddRel(me, f, -5); }
+    else if (note.kind === 'demand') { if (yes) { const g = Math.round(ipW(me).res.cr * 0.25 + 20); ipW(me).res.cr -= g; ipW(f).res.cr += g; ipAddRel(me, f, 10); ipLog('💸 You pay ' + g + ' credits to ' + ipW(f).name + '.', me); } else { ipAddRel(me, f, -25); if (ipRng() < 0.5) ipDeclare(f, me); } }
+    else if (yes) { IPG.pacts.push({ a: me, b: f, type: note.kind }); ipAddRel(me, f, 6); ipLog('📜 You sign a ' + { trade: 'trade deal', ally: 'alliance' }[note.kind] + ' with ' + ipW(f).name + '.', me); }
+    else ipAddRel(me, f, -4);
+}
+// ---- events for the player ----
+function ipEventFx(fx) {
+    const w = ipW(IPG.me), R = w.res;
+    if (fx.gamble) { const ok = ipRng() < fx.gamble; fx = ok ? (fx.win || {}) : (fx.fail || {}); ipLog(ok ? '🎲 It worked out.' : '🎲 It went badly.', IPG.me); }
+    for (const k of IP_RES) if (fx[k]) R[k] = Math.max(0, R[k] + fx[k]);
+    if (fx.happy) w.happy = clamp(w.happy + fx.happy, 0, 100); if (fx.stab) w.stab = clamp(w.stab + fx.stab, 0, 100); if (fx.def) w.def = Math.max(0, w.def + fx.def);
+    if (fx.pop) w.pop *= 1 + fx.pop; if (fx.outHit) for (const k of ['met', 'ene', 'vol', 'fd']) R[k] *= 1 - fx.outHit;
+    if (fx.ship0) w.ships[0] = Math.max(0, w.ships[0] + fx.ship0); if (fx.ship1) { if (w.ships[1] > 0) w.ships[1]--; else w.ships[0] = Math.max(0, w.ships[0] - 3); }
+    if (fx.relAll) for (const o of IPG.worlds) if (o.i !== IPG.me) ipAddRel(IPG.me, o.i, fx.relAll);
+    if (fx.relRand) { const o = IPG.worlds.filter(x => x.i !== IPG.me && ipAlive(x.i)); if (o.length) ipAddRel(IPG.me, o[Math.floor(ipRng() * o.length)].i, fx.relRand); }
+}
+// ---- one month for everyone ----
+function ipMonth() {
+    if (!IPG || IPG.over) return;
+    IPG.month++;
+    for (const w of IPG.worlds) ipMonthWorld(w);
+    ipFleetsMonth();
+    for (const w of IPG.worlds) if (w.owner === w.i && w.i !== IPG.me) ipAI(w);
+    for (const w of IPG.worlds) w.weary = Math.max(0, w.weary - 0.5 + IPG.wars.filter(x => x.a === w.i || x.b === w.i).length * 1.2);
+    // relations drift back toward neutral; allies and trade partners warm up
+    const n = IPG.worlds.length;
+    for (let a = 0; a < n; a++) for (let b = a + 1; b < n; b++) { let d = -Math.sign(IPG.rel[a][b]) * 0.3; if (ipPact(a, b, 'trade')) d += 0.25; if (ipPact(a, b, 'ally')) d += 0.35; if (ipAtWar(a, b)) d -= 1; IPG.rel[a][b] = IPG.rel[b][a] = clamp(IPG.rel[a][b] + d, -100, 100); }
+    // incidents: two worlds fall out (smuggling, a collision, a spy caught...)
+    if (ipRng() < 0.3) { const al = IPG.worlds.filter(w => w.owner === w.i); if (al.length > 2) { const a = al[Math.floor(ipRng() * al.length)], b = al[Math.floor(ipRng() * al.length)]; if (a !== b && !ipPact(a.i, b.i, 'ally')) { ipAddRel(a.i, b.i, -(10 + ipRng() * 18)); if (a.i === IPG.me || b.i === IPG.me) ipLog('⚠️ ' + ['A freighter collision', 'A spy scandal', 'A smuggling bust', 'A border patrol shoot-out', 'An insult in a speech'][Math.floor(ipRng() * 5)] + ' sours relations between ' + a.name + ' and ' + b.name + '.', a.i); } } }
+    ipVictories();
+    const me = ipW(IPG.me);
+    if (me.lowStab >= 3) ipEnd('defeat', 'Overthrown', 'Riots filled the domes and your government fell. Keep your people fed, housed and happy.');
+    if (!IPG.over && ipRng() < 0.16) IPG.pendingEvent = IP_EVENTS[Math.floor(ipRng() * IP_EVENTS.length)].id;
+}
+function ipVictories() {
+    const me = IPG.me, M = ipW(me), V = IPG.vic, done = id => { if (V[id]) return; V[id] = IPG.month; ipLog('🏆 VICTORY: ' + IP_VICTORIES.find(v => v.id === id).n + '!', me); if (window.IPV) IPV.victory(id); };
+    if (ipRealm(me).length >= 7) done('hegemony');
+    const top = IPG.worlds.filter(w => w.owner === w.i).every(w => w.i === me || ipRealmGdp(w.i) <= ipRealmGdp(me));
+    IPG.wealthRun = top ? IPG.wealthRun + 1 : 0; if (IPG.wealthRun >= 36) done('wealth');
+    if (ipAllies(me).length >= 6) done('federation');
+    if (IPG.ark) done('stars');
+    if (ipTechDone(me, 'dyson') && IPG.worlds.filter(w => w.owner === w.i).every(w => w.i === me || ipNavy(w.i) <= ipNavy(me))) done('swarm');
+}
+function ipRealmGdp(r) { return ipRealm(r).reduce((a, w) => a + w.gdp, 0); }
+function ipEnd(kind, head, text) { if (IPG.over) return; IPG.over = { kind, head, text, m: IPG.month }; if (window.IPV) IPV.ended(); }
+// the market: sell surplus for credits, buy what you lack (at twice the price)
+const IP_PRICE = { met: 1.2, ene: 0.9, vol: 0.8, fd: 1.0 };
+function ipMarket(k, qty, sell) {
+    const w = ipW(IPG.me), p = IP_PRICE[k]; if (!p) return 'Cannot trade that.';
+    if (sell) { const q = Math.min(qty, Math.floor(w.res[k])); if (q <= 0) return 'You have none to sell.'; w.res[k] -= q; w.res.cr += Math.round(q * p); return 'Sold ' + q + ' for ' + Math.round(q * p) + ' credits.'; }
+    const cost = Math.round(qty * p * 2); if (w.res.cr < cost) return 'Needs ' + cost + ' credits.'; w.res.cr -= cost; w.res[k] += qty; return 'Bought ' + qty + ' for ' + cost + ' credits.';
+}
+function ipLaunchArk() { const M = ipW(IPG.me); if (!ipTechDone(IPG.me, 'ark')) return 'Research the Generation ark first.'; if (M.res.cr < 5000) return 'The ark costs 5,000 credits.'; M.res.cr -= 5000; IPG.ark = true; ipVictories(); return ''; }
+
+// ---- 97-ip-view.js ----
+// ==========================================
+// SOVEREIGN INTERPLANETARY: the solar system on screen. Its own scene, drawn with the globe's renderer while
+// Interplanetary is open (the globe sleeps). Planets get painted textures, orbit lines, rings in their ruler's
+// colour; fleets fly between worlds; labels follow the planets. Drag to turn, wheel to zoom, click to select.
+// Distances are squashed (12 x AU^0.55) so Mercury and Eris both fit on one screen.
+// ==========================================
+const IPV = { on: false, sel: -1, cam: { yaw: 0.6, pitch: 0.75, dist: 120, tx: 0, tz: 0, ty: 0 }, frac: 0 };
+const ipD = a => 12 * Math.pow(a, 0.55);
+function ipScreenPos(i, m) { const d = IP_WORLDS[i], w = IPG.worlds[i], a = w.ang0 + TAU * (m / 12) / d.per, r = ipD(d.a); return new THREE.Vector3(Math.cos(a) * r, 0, Math.sin(a) * r); }
+function ipTex(d) {
+    const c = document.createElement('canvas'); c.width = 256; c.height = 128; const g = c.getContext('2d'), rnd = makeRng(d.id.length * 977 + d.a * 100);
+    const [c0, c1, c2] = d.col; g.fillStyle = c0; g.fillRect(0, 0, 256, 128);
+    if (d.style === 'bands') { for (let y = 0; y < 128; y += 3) { g.fillStyle = [c0, c1, c2][Math.floor((Math.sin(y * 0.21) + Math.sin(y * 0.07 + 1) + 2) / 4 * 3) % 3]; g.globalAlpha = 0.55; g.fillRect(0, y, 256, 3 + rnd() * 2); } g.globalAlpha = 1; if (d.id === 'jupiter') { g.fillStyle = '#b5523b'; g.beginPath(); g.ellipse(170, 80, 16, 8, 0, 0, TAU); g.fill(); } }
+    else if (d.style === 'cloud') { for (let k = 0; k < 140; k++) { g.fillStyle = rnd() < 0.5 ? c1 : c2; g.globalAlpha = 0.25; g.beginPath(); g.ellipse(rnd() * 256, rnd() * 128, 20 + rnd() * 40, 4 + rnd() * 6, 0, 0, TAU); g.fill(); } }
+    else if (d.style === 'earth') { g.fillStyle = '#1e56b8'; g.fillRect(0, 0, 256, 128); for (let k = 0; k < 26; k++) { g.fillStyle = rnd() < 0.7 ? '#3d8b3d' : '#b49a62'; g.beginPath(); g.ellipse(rnd() * 256, 20 + rnd() * 88, 8 + rnd() * 26, 6 + rnd() * 16, rnd() * 3, 0, TAU); g.fill(); } g.fillStyle = '#f4f8ff'; g.fillRect(0, 0, 256, 9); g.fillRect(0, 119, 256, 9); g.globalAlpha = 0.35; for (let k = 0; k < 40; k++) { g.fillStyle = '#fff'; g.beginPath(); g.ellipse(rnd() * 256, rnd() * 128, 10 + rnd() * 20, 2 + rnd() * 4, 0, 0, TAU); g.fill(); } g.globalAlpha = 1; }
+    else { for (let k = 0; k < (d.style === 'ice' ? 60 : 110); k++) { g.fillStyle = rnd() < 0.5 ? c1 : c2; g.globalAlpha = 0.35 + rnd() * 0.3; g.beginPath(); g.arc(rnd() * 256, rnd() * 128, 1 + rnd() * (d.style === 'ice' ? 14 : 7), 0, TAU); g.fill(); } g.globalAlpha = 1; if (d.id === 'pluto') { g.fillStyle = '#f7eee2'; g.beginPath(); g.arc(130, 70, 18, 0, TAU); g.arc(150, 70, 18, 0, TAU); g.fill(); } if (d.id === 'mars') { g.fillStyle = '#fff'; g.fillRect(0, 0, 256, 6); g.fillRect(0, 123, 256, 5); } }
+    const t = new THREE.CanvasTexture(c); t.colorSpace = THREE.SRGBColorSpace; return t;
+}
+IPV.dot = function () { if (this._dot) return this._dot; const c = document.createElement('canvas'); c.width = c.height = 16; const g = c.getContext('2d'); g.fillStyle = '#fff'; g.beginPath(); g.arc(8, 8, 7, 0, TAU); g.fill(); return this._dot = new THREE.CanvasTexture(c); };
+IPV.init = function () {
+    if (this.scene) return;
+    const S = this.scene = new THREE.Scene(); S.background = new THREE.Color('#02030a');
+    this.camera = new THREE.PerspectiveCamera(45, 1, 0.1, 6000);
+    S.add(new THREE.AmbientLight(0xffffff, 0.22));
+    const sunL = new THREE.PointLight(0xfff2d6, 2.4, 0, 0); S.add(sunL);
+    // the Sun and its glow
+    const sun = new THREE.Mesh(new THREE.SphereGeometry(3.2, 32, 20), new THREE.MeshBasicMaterial({ color: '#ffd27a' })); S.add(sun);
+    const gc = document.createElement('canvas'); gc.width = gc.height = 128; const gg = gc.getContext('2d'), gr = gg.createRadialGradient(64, 64, 0, 64, 64, 64);
+    gr.addColorStop(0, 'rgba(255,230,160,1)'); gr.addColorStop(0.25, 'rgba(255,180,80,.55)'); gr.addColorStop(1, 'rgba(255,120,40,0)'); gg.fillStyle = gr; gg.fillRect(0, 0, 128, 128);
+    const glowT = new THREE.CanvasTexture(gc);
+    const glow = new THREE.Sprite(new THREE.SpriteMaterial({ map: glowT, blending: THREE.AdditiveBlending, depthWrite: false, transparent: true })); glow.scale.set(22, 22, 1); S.add(glow);
+    // stars
+    { const n = 2500, p = new Float32Array(n * 3), r = makeRng(4); for (let k = 0; k < n; k++) { const a = r() * TAU, b = Math.acos(r() * 2 - 1); p.set([Math.sin(b) * Math.cos(a) * 3000, Math.cos(b) * 3000, Math.sin(b) * Math.sin(a) * 3000], k * 3); }
+      const g = new THREE.BufferGeometry(); g.setAttribute('position', new THREE.BufferAttribute(p, 3)); S.add(new THREE.Points(g, new THREE.PointsMaterial({ color: '#cbd5e1', size: 1.6, sizeAttenuation: false }))); }
+    // asteroid belt and Kuiper belt
+    const belt = (n, a0, a1, h, col, size, seed) => { const p = new Float32Array(n * 3), r = makeRng(seed); for (let k = 0; k < n; k++) { const a = r() * TAU, rr = ipD(a0 + r() * (a1 - a0)); p.set([Math.cos(a) * rr, (r() - 0.5) * h, Math.sin(a) * rr], k * 3); } const g = new THREE.BufferGeometry(); g.setAttribute('position', new THREE.BufferAttribute(p, 3)); const m = new THREE.Points(g, new THREE.PointsMaterial({ color: col, size, sizeAttenuation: false, transparent: true, opacity: 0.75, map: IPV.dot(), alphaTest: 0.1 })); S.add(m); return m; };
+    this.belt = belt(1800, 2.2, 3.3, 1.6, '#a8a29e', 2.2, 7); this.kuiper = belt(2600, 32, 55, 8, '#93c5fd', 2.2, 8);
+    // planets
+    this.P = IP_WORLDS.map((d, i) => {
+        const g = new THREE.Group(); S.add(g);
+        const m = new THREE.Mesh(new THREE.SphereGeometry(d.r * 0.9, 32, 20), new THREE.MeshLambertMaterial({ map: ipTex(d) })); m.userData.i = i; g.add(m);
+        if (d.rings) { const rg = new THREE.Mesh(new THREE.RingGeometry(d.r * 1.25, d.r * (d.id === 'saturn' ? 2.2 : 1.6), 48), new THREE.MeshBasicMaterial({ color: d.id === 'saturn' ? '#e8d7a8' : '#a5d8dd', side: THREE.DoubleSide, transparent: true, opacity: 0.55 })); rg.rotation.x = Math.PI / 2 - (d.id === 'uranus' ? 1.4 : 0.45); g.add(rg); }
+        const own = new THREE.Mesh(new THREE.TorusGeometry(d.r * 1.2 + 0.45, 0.05 + d.r * 0.03, 6, 48), new THREE.MeshBasicMaterial({ color: '#fff' })); own.rotation.x = Math.PI / 2; g.add(own);
+        const sel = new THREE.Mesh(new THREE.TorusGeometry(d.r * 1.45 + 0.8, 0.04 + d.r * 0.02, 6, 48), new THREE.MeshBasicMaterial({ color: '#fde68a', transparent: true, opacity: 0.9 })); sel.rotation.x = Math.PI / 2; sel.visible = false; g.add(sel);
+        // orbit line
+        const pts = []; for (let k = 0; k <= 128; k++) { const a = k / 128 * TAU; pts.push(new THREE.Vector3(Math.cos(a) * ipD(d.a), 0, Math.sin(a) * ipD(d.a))); }
+        const orbit = new THREE.Line(new THREE.BufferGeometry().setFromPoints(pts), new THREE.LineBasicMaterial({ color: '#334155', transparent: true, opacity: 0.6 })); S.add(orbit);
+        return { g, m, own, sel, orbit };
+    });
+    this.fleetGeo = new THREE.ConeGeometry(0.55, 1.6, 6); this.fleetGeo.rotateX(Math.PI / 2);
+    this.fleets = new Map(); this.booms = [];
+    this.pathMat = new THREE.LineDashedMaterial({ color: '#fde68a', dashSize: 1.2, gapSize: 0.8, transparent: true, opacity: 0.7 });
+    this.lab = document.createElement('div'); this.lab.id = 'ip-labels'; document.body.appendChild(this.lab);
+    this.labels = IP_WORLDS.map((d, i) => { const e = document.createElement('div'); e.className = 'ip-lab'; e.dataset.i = i; this.lab.appendChild(e); return e; });
+    this.lab.addEventListener('click', e => { const l = e.target.closest('.ip-lab'); if (l) IPU.select(+l.dataset.i, true); });
+    // input layer above the globe
+    const L = this.layer = document.createElement('div'); L.id = 'ip-input'; document.body.appendChild(L);
+    let drag = null;
+    L.addEventListener('pointerdown', e => { drag = { x: e.clientX, y: e.clientY, moved: 0 }; L.setPointerCapture(e.pointerId); });
+    L.addEventListener('pointermove', e => { if (!drag) return; const dx = e.clientX - drag.x, dy = e.clientY - drag.y; drag.moved += Math.abs(dx) + Math.abs(dy); drag.x = e.clientX; drag.y = e.clientY; this.cam.yaw -= dx * 0.005; this.cam.pitch = clamp(this.cam.pitch + dy * 0.004, 0.08, 1.45); });
+    L.addEventListener('pointerup', e => { if (drag && drag.moved < 6) this.pick(e.clientX, e.clientY); drag = null; });
+    L.addEventListener('wheel', e => { e.preventDefault(); this.cam.dist = clamp(this.cam.dist * Math.pow(1.0015, e.deltaY * (e.deltaMode ? 30 : 1)), 6, 900); }, { passive: false });
+    L.addEventListener('dblclick', () => { if (this.sel >= 0) this.focus(this.sel); });
+};
+IPV.pick = function (x, y) {
+    const r = new THREE.Raycaster(), v = new THREE.Vector2(x / innerWidth * 2 - 1, -(y / innerHeight) * 2 + 1); r.setFromCamera(v, this.camera);
+    const hit = r.intersectObjects(this.P.map(p => p.m))[0];
+    if (hit) IPU.select(hit.object.userData.i, false);
+    else { // clicks near a planet count too (small worlds are tiny when zoomed out)
+        let best = -1, bd = 28; this.P.forEach((p, i) => { const s = p.g.position.clone().project(this.camera), sx = (s.x + 1) / 2 * innerWidth, sy = (1 - s.y) / 2 * innerHeight, d = Math.hypot(sx - x, sy - y); if (s.z < 1 && d < bd) { bd = d; best = i; } });
+        IPU.select(best, false);
+    }
+};
+IPV.focus = function (i) { this.focusI = i; const d = IP_WORLDS[i]; this.cam.dist = clamp(d.r * 14 + 10, 14, 80); };
+IPV.show = function (on) {
+    this.init(); this.on = on;
+    this.layer.style.display = on ? 'block' : 'none'; this.lab.style.display = on ? 'block' : 'none';
+    const R = Globe.renderer;
+    if (on) { this.oldCS = R.outputColorSpace; R.outputColorSpace = THREE.SRGBColorSpace; } else if (this.oldCS) { R.outputColorSpace = this.oldCS; Globe.dirty = true; }
+};
+IPV.frame = function (dt, t) {
+    if (!IPG) return;
+    const m = IPG.month + this.frac, C = this.cam;
+    this.P.forEach((p, i) => {
+        const pos = ipScreenPos(i, m); p.g.position.copy(pos); p.m.rotation.y += dt * 0.3;
+        const w = IPG.worlds[i]; p.own.material.color.set(IP_COLS[w.owner]); p.own.visible = true; p.own.scale.setScalar(w.owner === IPG.me ? 1.15 : 1);
+        p.sel.visible = this.sel === i; if (p.sel.visible) p.sel.rotation.z += dt;
+    });
+    // fleets: straight lines from where they left to where the target will be
+    const seen = new Set();
+    for (const f of IPG.fleets) {
+        seen.add(f.id); let o = this.fleets.get(f.id);
+        if (!o) { const mesh = new THREE.Mesh(this.fleetGeo, new THREE.MeshBasicMaterial({ color: IP_COLS[f.owner] })); this.scene.add(mesh); const line = new THREE.Line(new THREE.BufferGeometry().setFromPoints([new THREE.Vector3(), new THREE.Vector3()]), this.pathMat); line.visible = f.owner === IPG.me || IPG.worlds[f.to].owner === IPG.me; this.scene.add(line); o = { mesh, line }; this.fleets.set(f.id, o); }
+        const a = ipScreenPos(f.from, f.dep), b = ipScreenPos(f.to, f.arr), u = clamp((m - f.dep) / Math.max(1, f.arr - f.dep), 0, 1);
+        const p = a.clone().lerp(b, u); p.y = Math.sin(u * Math.PI) * 4 + 1; o.mesh.position.copy(p); o.mesh.lookAt(b.x, 1, b.z);
+        o.line.geometry.setFromPoints([p, new THREE.Vector3(b.x, 1, b.z)]); o.line.computeLineDistances();
+    }
+    for (const [id, o] of this.fleets) if (!seen.has(id)) { this.scene.remove(o.mesh); this.scene.remove(o.line); o.line.geometry.dispose(); this.fleets.delete(id); }
+    // battle flashes
+    for (const b of this.booms) { b.t += dt; b.s.scale.setScalar(4 + b.t * 30); b.s.material.opacity = Math.max(0, 1 - b.t * 1.2); b.s.position.copy(this.P[b.i].g.position); }
+    this.booms = this.booms.filter(b => { if (b.t > 1) { this.scene.remove(b.s); return false; } return true; });
+    // camera: follow the focused planet
+    if (this.focusI != null) { const p = this.P[this.focusI].g.position; C.tx = lerp(C.tx, p.x, Math.min(1, dt * 4)); C.tz = lerp(C.tz, p.z, Math.min(1, dt * 4)); }
+    const cam = this.camera, cp = Math.cos(C.pitch);
+    cam.position.set(C.tx + Math.cos(C.yaw) * cp * C.dist, Math.sin(C.pitch) * C.dist, C.tz + Math.sin(C.yaw) * cp * C.dist); cam.lookAt(C.tx, 0, C.tz);
+    const R = Globe.renderer, sz = R.getSize(new THREE.Vector2()); if (Math.abs(cam.aspect - sz.x / sz.y) > 1e-3) { cam.aspect = sz.x / sz.y; cam.updateProjectionMatrix(); }
+    R.render(this.scene, cam);
+    // labels
+    const v = new THREE.Vector3();
+    this.labels.forEach((e, i) => {
+        const w = IPG.worlds[i], d = IP_WORLDS[i]; v.copy(this.P[i].g.position); v.y += d.r * 0.9 + 1.2; v.project(cam);
+        const vis = v.z < 1 && Math.abs(v.x) < 1.1 && Math.abs(v.y) < 1.1; e.style.display = vis ? 'block' : 'none'; if (!vis) return;
+        e.style.transform = `translate(${(v.x + 1) / 2 * innerWidth}px, ${(1 - v.y) / 2 * innerHeight}px) translate(-50%, -100%)`;
+        const html = `<i style="background:${IP_COLS[w.owner]}"></i>${esc(d.name)}${w.owner !== i ? `<small> (${esc(IP_WORLDS[w.owner].name)})</small>` : ''}${i === IPG.me ? ' ★' : ''}`;
+        if (e._h !== html) { e.innerHTML = html; e._h = html; }
+        e.classList.toggle('sel', this.sel === i); e.classList.toggle('mine', w.owner === IPG.me);
+    });
+};
+IPV.battle = function (i, taken) {
+    if (!this.scene) return;
+    const s = new THREE.Sprite(new THREE.SpriteMaterial({ color: taken ? '#f97316' : '#e2e8f0', blending: THREE.AdditiveBlending, transparent: true, depthWrite: false })); this.scene.add(s); this.booms.push({ s, i, t: 0 });
+};
+IPV.onLog = (t, who) => { if (window.IPU) IPU.logChanged(); };
+IPV.techDone = t => { if (window.IPU) IPU.techDone(t); };
+IPV.victory = id => { if (window.IPU) IPU.victory(id); };
+IPV.ended = () => { if (window.IPU) IPU.ended(); };
+window.IPV = IPV;
+
+// ---- 98-ip-ui.js ----
+// ==========================================
+// SOVEREIGN INTERPLANETARY: the screens. Pick a world, then run it from the top bar (time, resources, mood),
+// the tool buttons (Economy, Build, Research, Navy, Diplomacy, Goals) and the panel of the selected world.
+// Saved in sov.ip.save every year and when you leave. Unlocked once you win any victory in the base game
+// (sov.ipUnlocked, also set from the Hall of Leaders and from saves that already hold a victory).
+// ==========================================
+const IPU = { rate: [0, 0.5, 1, 2], speed: 1, saveT: 0 };
+function ipModal(html, wide) { UI.modal(html); $('#modal-box').classList.toggle('wide', !!wide); }
+window.IPU = IPU;
+function ipUnlocked() {
+    if (Store.get('ipUnlocked', false)) return true;
+    const hall = Store.get('hall', []); if (hall.some(h => /^Victory/.test(h.ending || ''))) { Store.set('ipUnlocked', true); return true; }
+    return false;
+}
+const ipFmt = v => Math.abs(v) >= 1000 ? (v / 1000).toFixed(1) + 'k' : Math.abs(v) >= 100 ? Math.round(v) + '' : (Math.round(v * 10) / 10) + '';
+const ipPopFmt = p => p >= 1000 ? (p / 1000).toFixed(2) + ' billion' : Math.round(p) + ' million';
+const ipCostHtml = c => Object.entries(c).map(([k, v]) => `${IP_RI[k]}${v}`).join(' ');
+function ipEl() {
+    let s = $('#ipgame'); if (s) return s;
+    s = document.createElement('div'); s.id = 'ipgame'; s.className = 'screen';
+    s.innerHTML = `<div id="ip-top" class="panel"></div>
+      <div id="ip-tools"><button class="btn small" data-ip="econ">💰 Economy</button><button class="btn small" data-ip="build">🏗️ Build</button><button class="btn small" data-ip="tech">🔬 Research</button><button class="btn small" data-ip="navy">🚀 Navy</button><button class="btn small" data-ip="diplo">🤝 Diplomacy</button><button class="btn small" data-ip="goals">🏆 Goals</button><button class="btn small" data-ip="help">❔ How to play</button><button class="btn small" data-ip="menu">☰ Menu</button></div>
+      <div id="ip-panel" class="panel hidden"></div>
+      <div id="ip-log" class="panel"></div>
+      <div id="ip-notes"></div>`;
+    document.body.appendChild(s);
+    s.addEventListener('click', e => {
+        const b = e.target.closest('[data-ip]'); if (!b) return;
+        const a = b.dataset.ip, i = +b.dataset.i;
+        if (a === 'econ') IPU.econ(); if (a === 'build') IPU.build(IPU.mineSel()); if (a === 'tech') IPU.tech(); if (a === 'navy') IPU.navy(); if (a === 'diplo') IPU.diplo(); if (a === 'goals') IPU.goals(); if (a === 'help') IPU.help(); if (a === 'menu') IPU.menu();
+        if (a === 'speed') IPU.setSpeed(i); if (a === 'close') IPU.select(-1);
+        if (a === 'buildat') IPU.build(i); if (a === 'sendfrom') IPU.navy(i, -1); if (a === 'attack') IPU.navy(IPU.mineSel(), i); if (a === 'talk') IPU.talk(i);
+        if (a === 'note') IPU.note(i); if (a === 'focus') IPV.focus(i);
+    });
+    return s;
+}
+IPU.mineSel = () => IPV.sel >= 0 && IPG.worlds[IPV.sel].owner === IPG.me ? IPV.sel : IPG.me;
+// ---- open: locked, pick a world, or continue ----
+IPU.open = function () {
+    if (!ipUnlocked()) { ipModal(`<h2>🪐 Sovereign Interplanetary 🔒</h2><p class="sub" style="font-size:14px">Lead a planet or dwarf planet in the year ${IP_YEAR0}: build, research, trade and fight across the solar system.</p><p style="font-size:14px">Unlocks when you <b>win any victory</b> in the base game (Economic Superpower, Peacemaker, Science, Long Reign...). Check the goals in your game menu.</p><div class="actions"><button class="btn small gold" data-act="close-modal">OK</button></div>`); return; }
+    const sv = Store.get('ip.save', null);
+    ipModal(`<h2>🪐 Sovereign Interplanetary</h2><p class="sub" style="font-size:14px">The year is ${IP_YEAR0}. Humanity lives on thirteen worlds, and each one answers to itself. Pick yours.</p>
+      ${sv ? `<div class="actions" style="justify-content:flex-start"><button class="btn small gold" id="ip-cont">Continue: ${esc(IP_WORLDS[sv.me].name)}, ${ipMonthName(sv.month)}</button></div>` : ''}
+      <div class="ip-pick">${IP_WORLDS.map((d, i) => { const diff = d.pop > 5000 ? 'Easy' : d.pop > 400 ? 'Medium' : d.pop > 60 ? 'Hard' : 'Very hard';
+        return `<button class="ip-card" data-w="${i}"><b><i style="background:${IP_COLS[i]}"></i>${esc(d.name)}</b><small>${esc(d.kind)} · ${esc(d.gov)} · ${ipPopFmt(d.pop)} · <span class="d-${diff.split(' ').join('')}">${diff}</span></small><span>${esc(d.blurb)}</span></button>`; }).join('')}</div>
+      <div class="actions"><button class="btn small" data-act="close-modal">Back</button></div>`, true);
+    if ($('#ip-cont')) $('#ip-cont').onclick = () => { UI.closeModal(); IPU.load(sv); };
+    $$('.ip-card').forEach(b => b.onclick = () => { const i = +b.dataset.w; UI.closeModal(); ipNew(i, (Math.random() * 1e9) | 0); IPU.enter(); IPU.welcome(); });
+};
+IPU.load = function (sv) {
+    try { IPG = sv; Object.defineProperty(IPG, 'rnd', { value: makeRng((sv.seed || 1) + sv.month * 7919), enumerable: false, writable: true }); IPG.notes = IPG.notes || []; IPU.enter(); }
+    catch (e) { console.error(e); toast('That save could not be loaded.'); }
+};
+IPU.save = () => { if (IPG && !IPG.over) Store.set('ip.save', IPG); };
+IPU.enter = function () {
+    ipEl(); UI.closeModal(); UI.show('ipgame'); Globe.camera.clearViewOffset(); IPV.show(true); IPV.sel = -1; IPV.focusI = null; IPV.cam.tx = IPV.cam.tz = 0; IPV.cam.dist = 140;
+    IPU.speed = 1; IPU.refresh(); IPU.select(IPG.me, true);
+};
+IPU.exit = function () { IPU.save(); IPV.show(false); $('#ip-panel').classList.add('hidden'); IPG = null; UI.show('title'); };
+IPU.welcome = function () {
+    const d = IP_WORLDS[IPG.me];
+    ipModal(`<h2>Welcome, leader of ${esc(d.name)}</h2><p style="font-size:14px">${esc(d.blurb)}</p>
+      <p style="font-size:14px">Time runs on its own: <b>Space</b> pauses, <b>1 2 3</b> set the speed. Keep your people <b>fed</b> (🌾), <b>powered</b> (⚡) and <b>supplied</b> (💧), grow your economy, research new technology, and deal with the other twelve worlds: trade, alliances, or war.</p>
+      <p style="font-size:14px">Win by ruling 7 worlds, having the richest economy for 3 years, allying with 6 worlds, launching an ark to the stars, or mastering the Sun.</p>
+      <div class="actions"><button class="btn small gold" data-act="close-modal">Begin</button></div>`);
+};
+// ---- the clock ----
+IPU.setSpeed = s => { IPU.speed = s; IPU.paintTop(); };
+IPU.tick = function (dt) {
+    if (!IPG || IPG.over) return;
+    if (Tutor.offerOpen) Tutor.hideOffer();
+    if (!$('#modal').classList.contains('hidden')) return;           // time stops while a window is open
+    if (IPG.notes.length && !IPU.noteShown) { IPU.noteShown = true; IPU.paintNotes(); }
+    IPV.frac += dt * IPU.rate[IPU.speed] / 2;
+    if (IPV.frac >= 1) {
+        IPV.frac -= 1; ipMonth(); IPU.refresh();
+        if (IPG.month % 12 === 0) IPU.save();
+        if (IPG.pendingEvent && !IPG.over) { const ev = IP_EVENTS.find(e => e.id === IPG.pendingEvent); IPG.pendingEvent = null; IPU.event(ev); }
+    }
+};
+// ---- top bar, log, notes ----
+IPU.refresh = function () { if (!IPG) return; IPU.paintTop(); IPU.paintLog(); IPU.paintNotes(); if (IPV.sel >= 0) IPU.paintPanel(); };
+IPU.paintTop = function () {
+    const me = IPG.me, w = ipW(me), d = IP_WORLDS[me], F = ipFlows(w), net = {};
+    for (const k of IP_RES) net[k] = (F.f[k] || 0) - (F.need[k] || 0);
+    for (const o of ipRealm(me)) if (o.i !== me) for (const k of ['cr', 'met', 'ene', 'vol']) net[k] += Math.max(0, o.res[k] - 40) * 0.6 > 0 ? 0 : 0;
+    const res = IP_RES.map(k => `<span class="ip-r" title="${IP_RN[k]}: ${ipFmt(w.res[k])} (${net[k] >= 0 ? '+' : ''}${ipFmt(net[k])} a month)">${IP_RI[k]} <b>${k === 'sci' ? (w.tech.cur ? Math.floor(w.tech.prog) + '/' + IP_TECH.find(t => t.id === w.tech.cur).cost : '<span class=\"bad\">pick!</span>') : ipFmt(w.res[k])}</b><em class="${net[k] < 0 ? 'neg' : ''}">${net[k] >= 0 ? '+' : ''}${ipFmt(net[k])}</em></span>`).join('');
+    $('#ip-top').innerHTML = `<span class="ip-me"><i style="background:${IP_COLS[me]}"></i><b>${esc(d.name)}</b><small>${esc(d.gov)}</small></span>
+      <span class="ip-date">${ipMonthName(IPG.month)}</span>
+      <span class="ip-speed">${['⏸', '▶', '▶▶', '▶▶▶'].map((s, i) => `<button class="${IPU.speed === i ? 'on' : ''}" data-ip="speed" data-i="${i}" title="${['Pause (Space)', 'Slow (1)', 'Normal (2)', 'Fast (3)'][i]}">${s}</button>`).join('')}</span>
+      ${res}<span class="ip-r" title="People">👥 <b>${ipPopFmt(w.pop)}</b></span><span class="ip-r" title="Happiness">😊 <b class="${w.happy < 35 ? 'bad' : ''}">${Math.round(w.happy)}</b></span><span class="ip-r" title="Stability">🏛️ <b class="${w.stab < 25 ? 'bad' : ''}">${Math.round(w.stab)}</b></span>`;
+};
+IPU.paintLog = function () { $('#ip-log').innerHTML = IPG.log.slice(0, 6).map(l => `<div><small>${ipMonthName(l.m)}</small> ${esc(l.t)}</div>`).join(''); };
+IPU.logChanged = () => { if (IPV.on) IPU.paintLog(); };
+IPU.paintNotes = function () {
+    const box = $('#ip-notes'); if (!box || !IPG) return;
+    box.innerHTML = IPG.notes.map((n, k) => `<button class="btn small gold" data-ip="note" data-i="${k}">📨 ${esc(IP_WORLDS[n.from].name)}: ${{ trade: 'trade deal?', ally: 'alliance?', peace: 'peace?', demand: 'demands tribute!' }[n.kind]}</button>`).join('');
+    if (!IPG.notes.length) IPU.noteShown = false;
+};
+IPU.note = function (k) {
+    const n = IPG.notes[k]; if (!n) return; const who = IP_WORLDS[n.from].name;
+    const text = { trade: `${who} offers a trade deal: both worlds earn more credits every month.`, ally: `${who} proposes an alliance: you defend each other in every war.`, peace: `${who} asks for peace.`, demand: `${who} demands a quarter of your credits. Refuse, and they may attack.` }[n.kind];
+    ipModal(`<h2>📨 From ${esc(who)}</h2><p style="font-size:14px">${text}</p><p class="sub">Relations: ${Math.round(ipRel(IPG.me, n.from))}</p><div class="actions"><button class="btn small" id="ip-no">Refuse</button><button class="btn small gold" id="ip-yes">Accept</button></div>`);
+    $('#ip-yes').onclick = () => { ipAnswer(n, true); UI.closeModal(); IPU.refresh(); };
+    $('#ip-no').onclick = () => { ipAnswer(n, false); UI.closeModal(); IPU.refresh(); };
+};
+// ---- selecting a world ----
+IPU.select = function (i, focus) { IPV.sel = i; if (i >= 0 && focus) IPV.focus(i); IPU.paintPanel(); };
+IPU.paintPanel = function () {
+    const p = $('#ip-panel'), i = IPV.sel; if (i < 0 || !IPG) { p.classList.add('hidden'); return; }
+    const w = ipW(i), d = IP_WORLDS[i], me = IPG.me, mine = w.owner === me, ru = w.owner, F = ipFlows(w);
+    const relBar = r => `<span class="ip-rel"><i style="width:${Math.abs(r) / 2}%;${r < 0 ? 'right:50%;background:#ef4444' : 'left:50%;background:#22c55e'}"></i></span> ${Math.round(r)}`;
+    const deals = ru !== me ? ['trade', 'nap', 'ally'].filter(t => ipPact(me, ru, t)).map(t => ({ trade: 'Trade', nap: 'Non-aggression', ally: 'Allied' })[t]).join(', ') : '';
+    const war = ru !== me && ipAtWar(me, ru);
+    p.innerHTML = `<div class="ph"><h2><i class="ip-dot" style="background:${IP_COLS[ru]}"></i>${esc(d.name)}</h2><button class="icon" data-ip="close">✕</button></div>
+      <div class="sub">${esc(d.kind)} · ${ru === i ? esc(d.gov) : 'Ruled by ' + esc(IP_WORLDS[ru].name)}${i === me ? ' · <b>your home</b>' : ''}</div>
+      <p class="ip-blurb">${esc(d.blurb)}</p>
+      <div class="ip-grid"><span>People</span><b>${ipPopFmt(w.pop)} / ${ipPopFmt(w.capM || w.cap)}</b><span>Economy</span><b>${ipFmt(w.gdp)}</b><span>Happiness</span><b>${Math.round(w.happy)}</b><span>Stability</span><b>${Math.round(w.stab)}</b>
+        <span>Defence</span><b>${Math.round(w.def)} / ${Math.round(w.defMax || w.def)}</b><span>Ships here</span><b>${IP_SHIPS.map((s, k) => w.ships[k] ? s.ic + w.ships[k] : '').join(' ') || 'none'}</b>
+        <span>Fleet power</span><b>${ipFmt(ipPower(ru, w.ships))}</b><span>From Sun</span><b>${d.a} AU</b>${i !== me ? `<span>Travel from home</span><b>${ipTravel(me, me, i)} months</b>` : ''}</div>
+      ${mine ? `<div class="ip-grid">${['met', 'ene', 'vol', 'fd'].map(k => `<span>${IP_RI[k]} ${IP_RN[k]}</span><b class="${F.f[k] < (F.need[k] || 0) ? 'bad' : ''}">${ipFmt(F.f[k])} made / ${ipFmt(F.need[k] || 0)} used</b>`).join('')}</div>
+        <div class="ip-bld">${IP_BUILD.filter(b => w.bld[b.id]).map(b => `<span title="${esc(b.n)}">${b.ic}${w.bld[b.id]}</span>`).join('') || '<span class="sub">No buildings yet</span>'}</div>
+        ${w.q.length ? `<div class="sub">Building: ${w.q.map(q => (q.kind === 'ship' ? IP_SHIPS.find(s => s.id === q.id).n : IP_BUILD.find(b => b.id === q.id).n) + ' (' + q.left + ' mo)').join(', ')}</div>` : ''}
+        <div class="actions"><button class="btn small gold" data-ip="buildat" data-i="${i}">🏗️ Build here</button><button class="btn small" data-ip="sendfrom" data-i="${i}">🚀 Send ships</button></div>`
+      : `${ipAlive(ru) ? `<div class="ip-grid"><span>Relations</span><b>${relBar(ipRel(me, ru))}</b><span>Deals</span><b>${war ? '<span class="bad">AT WAR</span>' : deals || 'none'}</b><span>Their navy</span><b>${ipFmt(ipNavy(ru))}</b><span>Your navy</span><b>${ipFmt(ipNavy(me))}</b></div>` : ''}
+        <div class="actions">${ipAlive(ru) ? `<button class="btn small gold" data-ip="talk" data-i="${ru}">🤝 Talk to ${esc(IP_WORLDS[ru].name)}</button>` : ''}${war ? `<button class="btn small" data-ip="attack" data-i="${i}">⚔️ Attack ${esc(d.name)}</button>` : ''}</div>`}
+      ${IPG.fleets.filter(f => f.to === i).map(f => `<div class="sub">${f.owner === me ? '🚀 Your' : '⚠️ ' + esc(IP_WORLDS[f.owner].name)} fleet (${ipFmt(ipPower(f.owner, f.ships))} power) arrives ${ipMonthName(f.arr)}${f.mission === 'attack' ? ' to attack' : ''}</div>`).join('')}`;
+    p.classList.remove('hidden');
+};
+// ---- economy ----
+IPU.econ = function () {
+    const w = ipW(IPG.me), F = ipFlows(w);
+    ipModal(`<h2>💰 Economy of ${esc(w.name || IP_WORLDS[IPG.me].name)}</h2>
+      <div class="ip-sl"><label>Tax rate <b id="ip-taxv">${Math.round(w.tax * 100)}%</b></label><input type="range" id="ip-tax" min="10" max="50" value="${Math.round(w.tax * 100)}"><small>Higher taxes bring in more credits and make people less happy.</small></div>
+      <h3>Spending (what your taxes pay for)</h3>
+      ${[['ind', 'Industry', 'More of everything you make'], ['sci', 'Science', 'Faster research'], ['mil', 'Military', 'Defences repair faster, steadier government'], ['wel', 'Welfare', 'Happier people']].map(([k, n, s]) => `<div class="ip-sl"><label>${n} <b id="ip-b-${k}v">${w.bud[k]}%</b></label><input type="range" min="0" max="70" value="${w.bud[k]}" data-b="${k}"><small>${s}</small></div>`).join('')}
+      <div class="ip-grid" id="ip-econ-sum"></div>
+      <h3>Market</h3><div class="sub">Sell what you have too much of, buy what you are short of (buying costs twice as much).</div>
+      <div class="ip-mkt">${Object.keys(IP_PRICE).map(k => `<div><span>${IP_RI[k]} ${IP_RN[k]} <small>(${ipFmt(w.res[k])})</small></span><button class="btn small" data-mk="${k}" data-s="1">Sell 50 (+${Math.round(50 * IP_PRICE[k])} 💰)</button><button class="btn small" data-mk="${k}" data-s="0">Buy 20 (-${Math.round(40 * IP_PRICE[k])} 💰)</button></div>`).join('')}</div><div id="ip-mktmsg" class="sub"></div>
+      <div class="actions"><button class="btn small gold" data-act="close-modal">Done</button></div>`);
+    $$('[data-mk]').forEach(b => b.onclick = () => { const sell = b.dataset.s === '1', msg = ipMarket(b.dataset.mk, sell ? 50 : 20, sell); IPU.econ(); $('#ip-mktmsg').textContent = msg; IPU.paintTop(); });
+    const sum = () => { const F = ipFlows(w); $('#ip-econ-sum').innerHTML = `<span>Economy</span><b>${ipFmt(F.gdp)}</b><span>Taxes</span><b>+${ipFmt(F.tax)}</b><span>Trade deals</span><b>+${ipFmt(F.trade)}</b><span>Fleet upkeep</span><b>-${ipFmt(F.upk)}</b><span>Credits a month</span><b class="${F.f.cr < 0 ? 'bad' : ''}">${F.f.cr >= 0 ? '+' : ''}${ipFmt(F.f.cr)}</b><span>Science a month</span><b>+${ipFmt(F.f.sci)}</b>`; };
+    sum();
+    $('#ip-tax').oninput = e => { w.tax = e.target.value / 100; $('#ip-taxv').textContent = e.target.value + '%'; sum(); IPU.paintTop(); };
+    $$('[data-b]').forEach(el => el.oninput = () => {
+        const k = el.dataset.b, v = +el.value, others = ['ind', 'sci', 'mil', 'wel'].filter(x => x !== k), rest = 100 - v, cur = others.reduce((a, x) => a + w.bud[x], 0) || 1;
+        w.bud[k] = v; others.forEach(x => w.bud[x] = Math.round(w.bud[x] / cur * rest)); const fix = 100 - ['ind', 'sci', 'mil', 'wel'].reduce((a, x) => a + w.bud[x], 0); w.bud[others[0]] += fix;
+        for (const x of ['ind', 'sci', 'mil', 'wel']) { $('#ip-b-' + x + 'v').textContent = w.bud[x] + '%'; const s = $(`[data-b="${x}"]`); if (s !== el) s.value = w.bud[x]; }
+        sum(); IPU.paintTop();
+    });
+};
+// ---- building ----
+IPU.build = function (i) {
+    const w = ipW(i), paint = () => {
+        const row = (kind, x, n, extra) => { const c = ipCostOf(w, kind, x.id), ok = ipCanPay(w, c); return `<button class="ip-brow${ok ? '' : ' no'}" data-k="${kind}" data-id="${x.id}"><span>${x.ic}</span><b>${esc(x.n)}${n ? ` <small>×${n}</small>` : ''}</b><small>${esc(extra)}</small><em>${ipCostHtml(c)}</em></button>`; };
+        $('#ip-blist').innerHTML = `<h3>Buildings</h3>${IP_BUILD.filter(b => !b.only || b.only.includes(w.id)).map(b => row('bld', b, w.bld[b.id] || 0, b.d)).join('')}
+          <h3>Warships</h3>${IP_SHIPS.filter(s => !s.tech || ipTechDone(w.owner, s.tech)).map(s => row('ship', s, w.ships[IP_SHIPS.indexOf(s)], `Power ${s.pow} · upkeep ${s.upk / 2}/mo`)).join('')}
+          <div class="sub">Being built (${1 + (w.bld.yard || 0)} at a time): ${w.q.map(q => (q.kind === 'ship' ? IP_SHIPS.find(s => s.id === q.id).n : IP_BUILD.find(b => b.id === q.id).n) + ' ' + q.left + ' mo').join(', ') || 'nothing'}</div>`;
+    };
+    ipModal(`<h2>🏗️ Build on ${esc(IP_WORLDS[i].name)}</h2><div class="sub">Credits come from your treasury; metals, energy and volatiles from this world. You have ${IP_RES.slice(0, 4).map(k => IP_RI[k] + ipFmt(k === 'cr' ? ipW(w.owner).res.cr : w.res[k])).join(' ')}</div><div id="ip-blist"></div><div id="ip-bmsg" class="sub"></div><div class="actions"><button class="btn small gold" data-act="close-modal">Done</button></div>`, true);
+    paint();
+    $('#ip-blist').onclick = e => { const b = e.target.closest('.ip-brow'); if (!b) return; const err = ipQueue(w, b.dataset.k, b.dataset.id); $('#ip-bmsg').textContent = err || 'Added to the build list.'; paint(); IPU.refresh(); };
+};
+// ---- research ----
+IPU.tech = function () {
+    const me = IPG.me, w = ipW(me), T = w.tech, sci = ipFlows(w).f.sci;
+    const cell = t => { const done = T.done.includes(t.id), can = t.needs.every(n => T.done.includes(n)), cur = T.cur === t.id; return `<button class="ip-tech${done ? ' done' : cur ? ' cur' : can ? '' : ' lock'}" data-t="${t.id}" ${done || !can ? 'disabled' : ''}><b>${esc(t.n)}</b><small>${esc(t.d)}</small><em>${done ? '✓ done' : cur ? Math.round(T.prog) + ' / ' + t.cost : t.cost + ' 🔬 · ~' + Math.ceil(t.cost / Math.max(0.5, sci)) + ' mo'}</em></button>`; };
+    ipModal(`<h2>🔬 Research</h2><div class="sub">Science: +${ipFmt(sci)} a month. Raise the Science budget or build labs to go faster. ${T.cur ? 'Now: <b>' + esc(IP_TECH.find(t => t.id === T.cur).n) + '</b>' : '<b class="bad">Pick something to research!</b>'}</div>
+      <div class="ip-tree">${IP_TECH_BR.map((b, k) => `<div><h3>${b}</h3>${IP_TECH.filter(t => t.b === k).map(cell).join('')}</div>`).join('')}</div><div class="actions"><button class="btn small gold" data-act="close-modal">Done</button></div>`, true);
+    $$('.ip-tech[data-t]').forEach(b => b.onclick = () => { if (T.cur !== b.dataset.t) { T.cur = b.dataset.t; T.prog = Math.min(T.prog, 0); } IPU.tech(); IPU.paintTop(); });
+};
+IPU.techDone = t => { toast('🔬 ' + t.n + ' researched!', 3500); if (!ipW(IPG.me).tech.cur) setTimeout(() => toast('Pick your next research (🔬 Research).', 3000), 3600); };
+// ---- navy: send fleets ----
+IPU.navy = function (from, to) {
+    const me = IPG.me, mine = ipRealm(me).filter(w => w.ships.some(x => x > 0) || w.i === me);
+    from = from != null && from >= 0 ? from : (mine[0] || ipW(me)).i;
+    const targets = IPG.worlds.filter(w => w.i !== from);
+    ipModal(`<h2>🚀 Navy</h2><div class="sub">Total fleet power ${ipFmt(ipNavy(me))}. Ships cost upkeep every month.</div>
+      <div class="ip-navy"><label>From <select id="ip-from">${ipRealm(me).map(w => `<option value="${w.i}" ${w.i === from ? 'selected' : ''}>${esc(IP_WORLDS[w.i].name)} (${IP_SHIPS.map((s, k) => s.ic + w.ships[k]).join(' ')})</option>`).join('')}</select></label>
+      <label>To <select id="ip-to">${targets.map(w => `<option value="${w.i}" ${w.i === to ? 'selected' : ''}>${esc(IP_WORLDS[w.i].name)}${w.owner === me ? ' (yours)' : ipAtWar(me, w.owner) ? ' (enemy)' : ''}</option>`).join('')}</select></label>
+      ${IP_SHIPS.map((s, k) => `<label>${s.ic} ${s.n}s <input type="number" min="0" value="0" data-sh="${k}"></label>`).join('')}
+      <div id="ip-navinfo" class="sub"></div></div>
+      <div class="actions"><button class="btn small" data-act="close-modal">Close</button><button class="btn small gold" id="ip-go">Send</button></div>
+      <h3>Fleets in space</h3><div class="sub">${IPG.fleets.filter(f => f.owner === me || ipW(f.to).owner === me).map(f => `${f.owner === me ? '🚀' : '⚠️ ' + esc(IP_WORLDS[f.owner].name)} → ${esc(IP_WORLDS[f.to].name)}, ${ipFmt(ipPower(f.owner, f.ships))} power, arrives ${ipMonthName(f.arr)}`).join('<br>') || 'none'}</div>`);
+    const info = () => {
+        const f = +$('#ip-from').value, t = +$('#ip-to').value, W = ipW(f), T = ipW(t);
+        $$('[data-sh]').forEach(el => el.max = W.ships[+el.dataset.sh]);
+        const ships = $$('[data-sh]').map(el => clamp(+el.value | 0, 0, W.ships[+el.dataset.sh])), pw = ipPower(me, ships), war = ipAtWar(me, T.owner), defP = ipPower(T.owner, T.ships) + T.def * 0.5;
+        $('#ip-navinfo').innerHTML = `Travel time: <b>${ipTravel(me, f, t)} months</b>. ` + (T.owner === me ? 'Moving ships between your worlds.' : war ? `Attack! Your power ${ipFmt(pw)} against about ${ipFmt(defP)} (fleet + defences). You need clearly more to win.` : ipPact(me, T.owner, 'ally') ? 'Your ally: the ships will guard it.' : '<span class="bad">You are not at war with them: declare war first (Diplomacy) to attack.</span>');
+        return { f, t, ships, war, T };
+    };
+    $('#ip-from').onchange = () => IPU.navy(+$('#ip-from').value, +$('#ip-to').value);
+    $('#ip-to').onchange = info; $$('[data-sh]').forEach(el => el.oninput = info);
+    if (to < 0 || to == null) { } info();
+    $('#ip-go').onclick = () => { const r = info(); const err = ipSend(r.f, r.t, r.ships, r.T.owner === me || ipPact(me, r.T.owner, 'ally') ? 'move' : 'attack'); if (err) { $('#ip-navinfo').innerHTML = '<span class="bad">' + esc(err) + '</span>'; return; } UI.closeModal(); toast('Fleet launched.'); IPU.refresh(); };
+};
+// ---- diplomacy ----
+IPU.diplo = function () {
+    const me = IPG.me;
+    ipModal(`<h2>🤝 Diplomacy</h2><div class="sub">Gifts and trade warm relations. Wars, demands and cancelled deals chill them. Allies defend each other.</div>
+      <table class="ip-dtab"><tr><th>World</th><th>Relations</th><th>Deals</th><th>Navy</th><th></th></tr>${IPG.worlds.filter(w => w.owner === w.i && w.i !== me).map(w => { const r = ipRel(me, w.i), war = ipAtWar(me, w.i);
+        return `<tr><td><i class="ip-dot" style="background:${IP_COLS[w.i]}"></i>${esc(IP_WORLDS[w.i].name)} <small>${ipRealm(w.i).length > 1 ? '+' + (ipRealm(w.i).length - 1) : ''}</small></td><td class="${r < -20 ? 'bad' : r > 30 ? 'good' : ''}">${Math.round(r)}</td><td>${war ? '<b class="bad">WAR</b>' : ['trade', 'nap', 'ally'].filter(t => ipPact(me, w.i, t)).map(t => ({ trade: '💱', nap: '🕊️', ally: '🤝' })[t]).join(' ') || '—'}</td><td>${ipFmt(ipNavy(w.i))}</td><td><button class="btn small" data-talk="${w.i}">Talk</button></td></tr>`; }).join('')}</table>
+      <div class="actions"><button class="btn small gold" data-act="close-modal">Done</button></div>`);
+    $$('[data-talk]').forEach(b => b.onclick = () => IPU.talk(+b.dataset.talk));
+};
+IPU.talk = function (t) {
+    const me = IPG.me, war = ipAtWar(me, t), n = IP_WORLDS[t].name;
+    ipModal(`<h2>🤝 ${esc(n)}</h2><div class="sub">${esc(IP_WORLDS[t].ruler)} · relations ${Math.round(ipRel(me, t))} · their navy ${ipFmt(ipNavy(t))}, yours ${ipFmt(ipNavy(me))}</div>
+      <div class="ip-acts">${war ? `<button class="btn small gold" data-a="peace">🕊️ Offer peace</button>` : `<button class="btn small" data-a="gift">🎁 Send a gift (60 💰)</button><button class="btn small" data-a="trade" ${ipPact(me, t, 'trade') ? 'disabled' : ''}>💱 Trade deal</button><button class="btn small" data-a="nap" ${ipPact(me, t, 'nap') ? 'disabled' : ''}>🕊️ Non-aggression pact</button><button class="btn small" data-a="ally" ${ipPact(me, t, 'ally') ? 'disabled' : ''}>🤝 Alliance</button><button class="btn small" data-a="tribute">💸 Demand tribute</button>${['trade', 'nap', 'ally'].some(x => ipPact(me, t, x)) ? '<button class="btn small" data-a="cancel">✂️ Cancel deals</button>' : ''}<button class="btn small bad" data-a="war">⚔️ Declare war</button>`}</div>
+      <div id="ip-talkmsg" class="sub"></div><div class="actions"><button class="btn small gold" data-act="close-modal">Done</button></div>`);
+    $$('.ip-acts [data-a]').forEach(b => b.onclick = () => {
+        const a = b.dataset.a;
+        const go = () => { const msg = ipAct(t, a); IPU.refresh(); if (a === 'war') { UI.closeModal(); toast('⚔️ War with ' + n + '! Send your navy to attack (🚀 Navy).', 4000); return; } IPU.talk(t); $('#ip-talkmsg').textContent = msg; };
+        if (a === 'war') UI.confirm('Declare war on ' + n + '?', 'Every deal with them ends, and their allies may join in.', 'Declare war', go); else go();
+    });
+};
+// ---- goals ----
+IPU.goals = function () {
+    const me = IPG.me, V = IPG.vic, prog = {
+        hegemony: ipRealm(me).length + ' / 7 worlds', wealth: IPG.wealthRun + ' / 36 months richest', federation: ipAllies(me).length + ' / 6 allies',
+        stars: ipTechDone(me, 'ark') ? (IPG.ark ? 'launched!' : 'ready to launch') : 'needs the Generation ark', swarm: ipTechDone(me, 'dyson') ? 'navy rank ' + (1 + IPG.worlds.filter(w => w.owner === w.i && ipNavy(w.i) > ipNavy(me)).length) : 'needs the Dyson swarm'
+    };
+    ipModal(`<h2>🏆 Goals</h2><div class="ip-goals">${IP_VICTORIES.map(v => `<div class="${V[v.id] ? 'won' : ''}"><b>${V[v.id] ? '🏆 ' : ''}${esc(v.n)}</b><small>${esc(v.d)}</small><em>${V[v.id] ? 'Won ' + ipMonthName(V[v.id]) : prog[v.id]}</em></div>`).join('')}</div>
+      ${ipTechDone(me, 'ark') && !IPG.ark ? '<div class="actions"><button class="btn small gold" id="ip-ark">🚀 Launch the ark (5,000 💰)</button></div><div id="ip-arkmsg" class="sub"></div>' : ''}
+      <div class="actions"><button class="btn small gold" data-act="close-modal">Done</button></div>`);
+    if ($('#ip-ark')) $('#ip-ark').onclick = () => { const e = ipLaunchArk(); if (e) $('#ip-arkmsg').textContent = e; else IPU.goals(); };
+};
+IPU.victory = function (id) {
+    const v = IP_VICTORIES.find(x => x.id === id); IPU.save();
+    setTimeout(() => ipModal(`<h2>🏆 Victory: ${esc(v.n)}</h2><p style="font-size:15px">${esc(v.d)}. The whole solar system will remember ${esc(IP_WORLDS[IPG.me].name)}.</p><div class="actions"><button class="btn small" id="ip-retire">Retire in triumph</button><button class="btn small gold" data-act="close-modal">Keep playing</button></div>`), 50);
+    setTimeout(() => { if ($('#ip-retire')) $('#ip-retire').onclick = () => { ipEnd('victory', 'Victory: ' + v.n, v.d); }; }, 80);
+    try { const h = Store.get('hall', []); h.unshift({ country: IP_WORLDS[IPG.me].name + ' (Interplanetary)', flag: '', leader: 'Leader of ' + IP_WORLDS[IPG.me].name, years: (IPG.month / 12).toFixed(1), ending: 'Interplanetary victory: ' + v.n, score: Math.round(ipRealmGdp(IPG.me) * 10), date: ipMonthName(IPG.month), at: Date.now() }); Store.set('hall', h.slice(0, 50)); } catch (e) {}
+};
+IPU.ended = function () {
+    const o = IPG.over; try { localStorage.removeItem('sov.ip.save'); } catch (e) {}
+    ipModal(`<h2>${o.kind === 'victory' ? '🏆' : '💀'} ${esc(o.head)}</h2><p style="font-size:15px">${esc(o.text)}</p><p class="sub">${esc(IP_WORLDS[IPG.me].name)}, ${ipMonthName(IPG.month)} · ${(IPG.month / 12).toFixed(1)} years in charge</p><div class="actions"><button class="btn small gold" id="ip-endok">Back to the title</button></div>`);
+    $('#ip-endok').onclick = () => { UI.closeModal(); IPU.exit(); };
+};
+// ---- events ----
+IPU.event = function (ev) {
+    ipModal(`<h2>${esc(ev.t)}</h2><p style="font-size:14px">${esc(ev.d)}</p><div class="actions ip-evo">${ev.o.map((o, k) => `<button class="btn small ${k ? '' : 'gold'}" data-o="${k}">${esc(o[0])}</button>`).join('')}</div>`);
+    $$('.ip-evo [data-o]').forEach(b => b.onclick = () => { ipEventFx(Object.assign({}, ev.o[+b.dataset.o][1])); UI.closeModal(); IPU.refresh(); });
+};
+// ---- help and menu ----
+IPU.help = function () {
+    ipModal(`<h2>❔ How to play Interplanetary</h2><div style="font-size:14px;line-height:1.5">
+      <p><b>Time</b> runs by itself (Space pauses, 1 2 3 change speed). Each tick is a month.</p>
+      <p><b>Your world</b> needs 🌾 food, ⚡ energy and 💧 volatiles every month. Shortages make people unhappy and shrink your population. Build farms, fusion plants and harvesters to keep up, and domes when you run out of room.</p>
+      <p><b>Money:</b> taxes on your economy, plus trade deals. Ships cost upkeep. Set taxes and spending in 💰 Economy.</p>
+      <p><b>Research</b> (🔬) makes everything better: faster fleets, stronger ships, more room, happier people.</p>
+      <p><b>Other worlds</b> have their own plans. Trade with friends, ally with good friends, and when someone is weak and hostile... declare war and send your navy. Taking a world's home topples its government. Conquered worlds pay you but may rebel if unhappy.</p>
+      <p><b>Planets move.</b> Travel time depends on where the worlds are in their orbits right now.</p>
+      <p><b>Lose</b> if your home is conquered, or if your people stay furious (stability under 8) for three months.</p>
+      <p><b>Mouse:</b> drag to turn the view, wheel to zoom, click a world to select it, double-click to fly to it.</p></div>
+      <div class="actions"><button class="btn small gold" data-act="close-modal">Got it</button></div>`);
+};
+IPU.menu = function () {
+    ipModal(`<h2>☰ Interplanetary</h2><div class="actions" style="flex-direction:column;align-items:stretch"><button class="btn small gold" data-act="close-modal">Back to the game</button><button class="btn small" id="ip-sv">Save now</button><button class="btn small" id="ip-quit">Save and quit to title</button></div>`);
+    $('#ip-sv').onclick = () => { IPU.save(); toast('Saved.'); UI.closeModal(); };
+    $('#ip-quit').onclick = () => { UI.closeModal(); IPU.exit(); };
+};
+addEventListener('keydown', e => {
+    if (!IPV.on || !IPG) return;
+    const t = e.target; if (t && (t.tagName === 'INPUT' || t.tagName === 'SELECT' || t.tagName === 'TEXTAREA')) return;
+    if (!$('#modal').classList.contains('hidden')) { if (e.code === 'Escape') { UI.closeModal(); e.stopImmediatePropagation(); } return; }
+    if (e.code === 'Space') { IPU.setSpeed(IPU.speed ? 0 : IPU.last || 2); if (IPU.speed) IPU.last = IPU.speed; e.preventDefault(); e.stopImmediatePropagation(); }
+    else if (e.code === 'Digit1' || e.code === 'Digit2' || e.code === 'Digit3') { IPU.setSpeed(+e.code.slice(5)); IPU.last = IPU.speed; e.stopImmediatePropagation(); }
+    else if (e.code === 'Escape') { IPU.select(-1); e.stopImmediatePropagation(); }
+}, true);
+addEventListener('beforeunload', () => { if (IPV.on) IPU.save(); });
 
 </script>
 </body>

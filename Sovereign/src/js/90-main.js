@@ -45,6 +45,7 @@ let lastT = 0, ambientT = 0, labelsDirty = true, lastDraw = 0;
 function loop(now) {
   requestAnimationFrame(loop);
   const t = now / 1000, dt = Math.min(0.1, lastT ? t - lastT : 0.016); lastT = t;
+  if (IPV.on) { if (!document.hidden) { IPU.tick(dt); IPV.frame(dt, t); } return; }      // 1.7: Interplanetary draws its own solar system
   const moved = stepCamera(dt);
   if (Clock.step(dt)) Game.refresh();
   UI.updateHover();
@@ -66,6 +67,7 @@ function loop(now) {
 window.__sov = {
   ready: false, detailed: false, tut: trainHook(), World, Cam, Globe, UI, Perf, Settings, MapModes, Clock, Gov, Panels, Setup,
   get G() { return G; }, Sim, General, Online, capitulate, newGame, worldMonth, nextMonth, nextDay, conquer, release, checkDomination, warWeek, frontLine, drawFronts, Rule, controlledHtml, MapModes, startWar, sovAch, endWar, Overlay, endGame, crisis, react, Politics, Life, War, peaceChance, forecast, budgetOf, gdpUsd, debtPct, serialize, saveTo, loadFrom, Game,
+  get ip() { return { IPU, IPV, ipNew, ipMonth, ipAct, ipSend, ipQueue, ipFlows, ipNavy, ipRealm, get IPG() { return IPG; }, set IPG(v) { IPG = v; } }; }, // 1.7 (a getter: those are defined in later files)
   Council, SCENARIOS, RESOLUTIONS, WORLD_CRISES, applyScenario, EVENTS, eventContext, applyEventFx, showNextEvent, saveTo, loadFrom, serialize, Game, VICTORIES, ACH, // 1.4
   flyTo, flyToCountry, screenToLL, llToScreen, pickLL, landPower: n => landPower(n), relation: (a, b) => relation(a, b),
   pick: (lon, lat) => { const h = pickLL(lon, lat); return h && h.c ? World.countries[h.c].id : null; },
