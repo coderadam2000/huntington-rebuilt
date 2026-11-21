@@ -351,7 +351,7 @@ function paintChip() {
   var chip = document.getElementById('chip');
   chip.className = name ? 'on' : '';
   if (!name) return;
-  document.getElementById('chip-nm').textContent = name;
+  document.getElementById('chip-nm').textContent = name; document.getElementById('chip-nm').className = 'nm' + (hgRole(name) ? ' un-' + hgRole(name) : '');
   var s = L ? L.status().status : 'connecting';
   document.getElementById('chip-dot').className = 'cdot' + (s === 'online' ? ' on' : s === 'signed-out' || s === 'error' ? '' : ' wait');
   // your picture and goons on the chip: the way into your profile and the shop

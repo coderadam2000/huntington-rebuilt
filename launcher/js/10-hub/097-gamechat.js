@@ -36,7 +36,7 @@ function gcPaint() {
   box.textContent = '';
   show.forEach(function (l) {
     var r = document.createElement('div'); r.className = 'gc-line' + (l.sys ? ' sys' : '') + (l.err ? ' err' : '') + (!GC.open && now - l.at > 7000 ? ' fade' : '');
-    if (l.from) { var b = document.createElement('b'); b.textContent = l.from; b.style.color = gcColor(l.uid || l.from); if (l.real && l.real !== l.from) b.title = l.real; r.appendChild(b); }
+    if (l.from) { var b = document.createElement('b'); b.textContent = l.from; b.style.color = HG_ROLE_COL[hgRole(l.real || l.from)] || gcColor(l.uid || l.from); if (l.real && l.real !== l.from) b.title = l.real; r.appendChild(b); }
     r.appendChild(document.createTextNode(l.text));
     box.appendChild(r);
   });

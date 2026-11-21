@@ -680,6 +680,9 @@ body.hubbonked{animation:hbonkshake .5s}
 @media (max-width: 1440px) { #tabs { order: 6; flex: 1 1 100%; } .tab { padding: 10px 12px; } }
 @media (max-width: 1240px) { #reportBtn, #rulesBtn { font-size: 0; padding-left: 10px; padding-right: 10px; } #reportBtn::first-letter, #rulesBtn::first-letter { font-size: 15px; } }
 @media (max-width: 1100px) { .tab { padding: 10px 9px; letter-spacing: .1em; } }
+
+/* staff names: always blue (admins) / yellow (owner) */
+.un-admin, #chip .nm.un-admin { color: #60a5fa !important; font-weight: 700; } .un-owner, #chip .nm.un-owner { color: #fbbf24 !important; font-weight: 800; }
 </style>
 <style>/* The loading screen (2026-11-16). The SAME rules and markup live in loader.html (the code people paste into jsfiddle),
    so the screen is up from the first moment and carries on unchanged into the launcher's own boot screen.
@@ -812,6 +815,20 @@ function hubWake(f) { HUB_WAKE.push(f); }
 function setHtml(el, html) { if (el && el.hgHtml !== html) { el.hgHtml = html; el.innerHTML = html; } }
 // hgTime(ms): a date and time in Eastern time, the launcher's one clock (2026-11-17), e.g. "Nov 17, 3:05 PM ET"
 function hgTime(t) { try { return new Date(t).toLocaleString('en-US', { timeZone: 'America/New_York', month: 'short', day: 'numeric', hour: 'numeric', minute: '2-digit' }) + ' ET'; } catch (e) { return new Date(t).toLocaleString(); } }
+
+// ---- staff names (2026-11-20): admins' names are always blue and the owner's always yellow, wherever the launcher shows
+// a name. The list is the owner's; a server-granted admin wearing the ADMIN / OWNER tag counts too. Nobody can turn it off.
+var HG_OWNER = 'adaboy', HG_ADMINS = ['bobertodaroberto', 'alexander tomato', 'billybobjonethethirds', 'levybowls', 'clover'];
+function hgRole(name, cs) {
+  var n = String(name || '').trim().toLowerCase(), t = (cs && cs.tg) || [];
+  if (n === HG_OWNER || t.indexOf('owner') >= 0) return 'owner';
+  if (HG_ADMINS.indexOf(n) >= 0 || t.indexOf('admin') >= 0) return 'admin';
+  return '';
+}
+function hgEscN(s) { return String(s == null ? '' : s).replace(/[&<>"']/g, function (c) { return '&#' + c.charCodeAt(0) + ';'; }); }
+// shown = what to print (a nickname), name = the account name the role belongs to
+function hgNameHtml(name, shown, cs) { var r = hgRole(name, cs), t = hgEscN(shown == null ? name : shown); return r ? '<span class="un-' + r + '">' + t + '</span>' : t; }
+var HG_ROLE_COL = { owner: '#fbbf24', admin: '#60a5fa' };
 // ---- bans: a banned device is shut out of the whole launcher (games, chat, accounts), the moment it loads ----------------
 // The server bans an account together with every device it ever signed in on (any ban, since 2026-11-04). Here:
 // 1. a ban this device already knows about ('hgv:ban') locks the launcher before anything else runs, even offline;
@@ -1572,7 +1589,7 @@ function paintChip() {
   var chip = document.getElementById('chip');
   chip.className = name ? 'on' : '';
   if (!name) return;
-  document.getElementById('chip-nm').textContent = name;
+  document.getElementById('chip-nm').textContent = name; document.getElementById('chip-nm').className = 'nm' + (hgRole(name) ? ' un-' + hgRole(name) : '');
   var s = L ? L.status().status : 'connecting';
   document.getElementById('chip-dot').className = 'cdot' + (s === 'online' ? ' on' : s === 'signed-out' || s === 'error' ? '' : ' wait');
   // your picture and goons on the chip: the way into your profile and the shop
@@ -2237,7 +2254,7 @@ function profPfp(id, px, img) {
   return '<span class="ppfp' + (it.t ? ' team' : '') + '" title="' + profEsc(it.n) + '" style="width:' + s + 'px;height:' + s + 'px;font-size:' + Math.round(s * .6) + 'px;background:linear-gradient(135deg,' + it.c[0] + ',' + it.c[1] + ')">' + inner + '</span>';
 }
 // someone's nickname (their account name on hover), and the Owner / Admin tag the server vouches for
-function lbWho(name, cs) { var nn = cs && cs.nn && cs.nn !== name ? cs.nn : null; return (nn ? '<span title="' + profEsc(name) + '">' + profEsc(nn) + '</span>' : profEsc(name)) + cosRoles(cs); }
+function lbWho(name, cs) { var nn = cs && cs.nn && cs.nn !== name ? cs.nn : null; return (nn ? '<span title="' + profEsc(name) + '">' + hgNameHtml(name, nn, cs) + '</span>' : hgNameHtml(name, name, cs)) + cosRoles(cs); }
 function cosRoles(cs) { return ((cs && cs.tg) || []).map(function (t) { return ' <span class="ptag role-' + t + '">' + (t === 'owner' ? '\u2605 OWNER' : 'ADMIN') + '</span>'; }).join(''); }
 // a title tag: one that is won by playing (ra: an achievement, a record, a rank) is written in a moving colour of its own
 function cosTitle(it, big) { return '<span class="ptag' + (big ? ' big' : '') + ' r-' + it.r + (it.ra ? ' ra' : '') + '">' + (it.ra ? '<i>' + profEsc(it.n) + '</i>' : profEsc(it.n)) + '</span>'; }
@@ -2280,7 +2297,7 @@ function profRender() {
   var eq = e.equip || {}, title = profItem(eq.title);
   var mine = L.eco.cos([me.userId])[me.userId] || {}, ranks = Object.keys(mine.ranks || {}).sort(function (a, b) { return mine.ranks[a] - mine.ranks[b]; });
   var h = '<div class="phead" style="background:' + (profBannerCss(eq.banner) || 'linear-gradient(120deg,#1b2440,#2a1b40)') + '">' +
-    cosPet(cosFrame(profPfp(eq.pfp, 84), eq.frame), eq.pet, 84) + '<div class="pwho"><div class="pnm">' + profEsc(mine.nn || me.name) + (mine.nn ? ' <small class="preal" title="your account name">(' + profEsc(me.name) + ')</small>' : '') + ' <button class="pnickb" data-pnick="1" title="A nickname everyone sees">\u270e nickname</button></div>' + cosRoles(mine) +
+    cosPet(cosFrame(profPfp(eq.pfp, 84), eq.frame), eq.pet, 84) + '<div class="pwho"><div class="pnm">' + hgNameHtml(me.name, mine.nn || me.name, mine) + (mine.nn ? ' <small class="preal" title="your account name">(' + profEsc(me.name) + ')</small>' : '') + ' <button class="pnickb" data-pnick="1" title="A nickname everyone sees">\u270e nickname</button></div>' + cosRoles(mine) +
     (title ? cosTitle(title) : '<span class="ptag dim">no title yet</span>') +
     ((mine.rec || []).length ? '<span class="ptag rec">🏆 Record Holder</span>' : '') +
     ranks.slice(0, 4).map(function (g) { return '<span class="ptag rank t' + mine.ranks[g] + '">R' + mine.ranks[g] + ' · ' + profEsc(g) + '</span>'; }).join('') +
@@ -2869,7 +2886,7 @@ function dockPaint(scroll) {
   ls.innerHTML = ms.length ? ms.map(function (m) {
     var inv = INVITE_RE.exec(m.text || ''), g = inv && inviteGame(inv[1]), c = cos[m.uid] || {};
     var text = inv ? (m.text || '').replace(INVITE_RE, '').replace(/\s*-\s*$/, '') : m.text;
-    return '<div class="dk-m' + (m.mine ? ' me' : '') + '">' + (typeof profPfp === 'function' && c.p ? profPfp(c.p, 18, c.img) : '') + '<b>' + profEsc(m.nick || m.from) + '</b> ' + profEsc(text) +
+    return '<div class="dk-m' + (m.mine ? ' me' : '') + '">' + (typeof profPfp === 'function' && c.p ? profPfp(c.p, 18, c.img) : '') + '<b>' + hgNameHtml(m.from, m.nick || m.from) + '</b> ' + profEsc(text) +
       (g && !m.mine ? ' <button data-dkjoin="' + profEsc(inv[1]) + '|' + profEsc(inv[2]) + '">Join</button>' : '') + '</div>';
   }).join('') : '<div class="dk-none">' + (DOCK.cur ? 'No messages yet. Say hi!' : 'You are not in any chats yet.') + '</div>';
   if (scroll || stick) ls.scrollTop = ls.scrollHeight;
@@ -3116,7 +3133,7 @@ function homePaint() {
   var L = window.HGGrapevine, me = L && L.me(), e = L && L.eco && L.eco.state(), h = document.getElementById('hello'), j = document.getElementById('jump');
   if (!h || !j || !hubShown()) return;
   var hr = new Date().getHours(), part = hr < 12 ? 'Good morning' : hr < 18 ? 'Good afternoon' : 'Good evening';
-  setHtml(h, me ? part + ', <b>' + profEsc(me.name) + '</b>.' + (e ? ' You have <b class="hgoons">' + (e.dev ? '∞' : e.goons) + ' goons</b> to spend in your <a href="#" id="hello-prof">Profile</a>.' : '') + ' Pick a game.' : 'Pick a game.');
+  setHtml(h, me ? part + ', <b>' + hgNameHtml(me.name) + '</b>.' + (e ? ' You have <b class="hgoons">' + (e.dev ? '∞' : e.goons) + ' goons</b> to spend in your <a href="#" id="hello-prof">Profile</a>.' : '') + ' Pick a game.' : 'Pick a game.');
   var hp = document.getElementById('hello-prof'); if (hp) hp.onclick = function (ev) { ev.preventDefault(); showTab('prof'); };
   var r = []; try { r = JSON.parse(localStorage.getItem('hgv:recent') || '[]'); } catch (x) {}
   var gs = r.map(function (d) { return GAMES.filter(function (g) { return g.dir === d; })[0]; }).filter(Boolean).slice(0, 4);
@@ -3473,7 +3490,7 @@ function gcPaint() {
   box.textContent = '';
   show.forEach(function (l) {
     var r = document.createElement('div'); r.className = 'gc-line' + (l.sys ? ' sys' : '') + (l.err ? ' err' : '') + (!GC.open && now - l.at > 7000 ? ' fade' : '');
-    if (l.from) { var b = document.createElement('b'); b.textContent = l.from; b.style.color = gcColor(l.uid || l.from); if (l.real && l.real !== l.from) b.title = l.real; r.appendChild(b); }
+    if (l.from) { var b = document.createElement('b'); b.textContent = l.from; b.style.color = HG_ROLE_COL[hgRole(l.real || l.from)] || gcColor(l.uid || l.from); if (l.real && l.real !== l.from) b.title = l.real; r.appendChild(b); }
     r.appendChild(document.createTextNode(l.text));
     box.appendChild(r);
   });
@@ -4446,12 +4463,12 @@ reportInbox = function () { ADM.sec = 'reports'; showTab('admin'); };
   // (only a new-report ping: the list replies come through 'reports' too)
   L.on('reports', function (m) { if (m && m.ping && !document.getElementById('view-admin').hidden) { var n = document.querySelector('.adm-nav[data-adm="reports"]'); if (n) n.innerHTML = '<span>🚩</span>Reports' + (REPORT.open ? ' <span class="rp-n">' + REPORT.open + '</span>' : ''); if (ADM.sec === 'reports' && !document.querySelector('#adm-replist .adm-note:focus, #adm-replist .adm-reason:focus')) admRepLoad(); } });
 })();
-// ===== Top bar clock (2026-11-20): the time and today's date =====
+// ===== Top bar clock (2026-11-20): the time and today's date, in Eastern time like the rest of the launcher (hgTime) =====
 function clkTick() {
   var el = document.getElementById('hgclock'); if (!el) return;
   var now = new Date();
-  el.querySelector('.ct').textContent = now.toLocaleTimeString(undefined, { hour: 'numeric', minute: '2-digit' });
-  el.querySelector('.cd').textContent = now.toLocaleDateString(undefined, { weekday: 'short', month: 'short', day: 'numeric' });
+  el.querySelector('.ct').textContent = now.toLocaleTimeString('en-US', { timeZone: 'America/New_York', hour: 'numeric', minute: '2-digit' }) + ' ET';
+  el.querySelector('.cd').textContent = now.toLocaleDateString('en-US', { timeZone: 'America/New_York', weekday: 'short', month: 'short', day: 'numeric' });
 }
 (function () {
   var tabs = document.getElementById('tabs'); if (!tabs) return;

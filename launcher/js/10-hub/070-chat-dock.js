@@ -42,7 +42,7 @@ function dockPaint(scroll) {
   ls.innerHTML = ms.length ? ms.map(function (m) {
     var inv = INVITE_RE.exec(m.text || ''), g = inv && inviteGame(inv[1]), c = cos[m.uid] || {};
     var text = inv ? (m.text || '').replace(INVITE_RE, '').replace(/\s*-\s*$/, '') : m.text;
-    return '<div class="dk-m' + (m.mine ? ' me' : '') + '">' + (typeof profPfp === 'function' && c.p ? profPfp(c.p, 18, c.img) : '') + '<b>' + profEsc(m.nick || m.from) + '</b> ' + profEsc(text) +
+    return '<div class="dk-m' + (m.mine ? ' me' : '') + '">' + (typeof profPfp === 'function' && c.p ? profPfp(c.p, 18, c.img) : '') + '<b>' + hgNameHtml(m.from, m.nick || m.from) + '</b> ' + profEsc(text) +
       (g && !m.mine ? ' <button data-dkjoin="' + profEsc(inv[1]) + '|' + profEsc(inv[2]) + '">Join</button>' : '') + '</div>';
   }).join('') : '<div class="dk-none">' + (DOCK.cur ? 'No messages yet. Say hi!' : 'You are not in any chats yet.') + '</div>';
   if (scroll || stick) ls.scrollTop = ls.scrollHeight;

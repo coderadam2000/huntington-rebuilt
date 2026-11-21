@@ -25,7 +25,7 @@ function profPfp(id, px, img) {
   return '<span class="ppfp' + (it.t ? ' team' : '') + '" title="' + profEsc(it.n) + '" style="width:' + s + 'px;height:' + s + 'px;font-size:' + Math.round(s * .6) + 'px;background:linear-gradient(135deg,' + it.c[0] + ',' + it.c[1] + ')">' + inner + '</span>';
 }
 // someone's nickname (their account name on hover), and the Owner / Admin tag the server vouches for
-function lbWho(name, cs) { var nn = cs && cs.nn && cs.nn !== name ? cs.nn : null; return (nn ? '<span title="' + profEsc(name) + '">' + profEsc(nn) + '</span>' : profEsc(name)) + cosRoles(cs); }
+function lbWho(name, cs) { var nn = cs && cs.nn && cs.nn !== name ? cs.nn : null; return (nn ? '<span title="' + profEsc(name) + '">' + hgNameHtml(name, nn, cs) + '</span>' : hgNameHtml(name, name, cs)) + cosRoles(cs); }
 function cosRoles(cs) { return ((cs && cs.tg) || []).map(function (t) { return ' <span class="ptag role-' + t + '">' + (t === 'owner' ? '\u2605 OWNER' : 'ADMIN') + '</span>'; }).join(''); }
 // a title tag: one that is won by playing (ra: an achievement, a record, a rank) is written in a moving colour of its own
 function cosTitle(it, big) { return '<span class="ptag' + (big ? ' big' : '') + ' r-' + it.r + (it.ra ? ' ra' : '') + '">' + (it.ra ? '<i>' + profEsc(it.n) + '</i>' : profEsc(it.n)) + '</span>'; }
@@ -68,7 +68,7 @@ function profRender() {
   var eq = e.equip || {}, title = profItem(eq.title);
   var mine = L.eco.cos([me.userId])[me.userId] || {}, ranks = Object.keys(mine.ranks || {}).sort(function (a, b) { return mine.ranks[a] - mine.ranks[b]; });
   var h = '<div class="phead" style="background:' + (profBannerCss(eq.banner) || 'linear-gradient(120deg,#1b2440,#2a1b40)') + '">' +
-    cosPet(cosFrame(profPfp(eq.pfp, 84), eq.frame), eq.pet, 84) + '<div class="pwho"><div class="pnm">' + profEsc(mine.nn || me.name) + (mine.nn ? ' <small class="preal" title="your account name">(' + profEsc(me.name) + ')</small>' : '') + ' <button class="pnickb" data-pnick="1" title="A nickname everyone sees">\u270e nickname</button></div>' + cosRoles(mine) +
+    cosPet(cosFrame(profPfp(eq.pfp, 84), eq.frame), eq.pet, 84) + '<div class="pwho"><div class="pnm">' + hgNameHtml(me.name, mine.nn || me.name, mine) + (mine.nn ? ' <small class="preal" title="your account name">(' + profEsc(me.name) + ')</small>' : '') + ' <button class="pnickb" data-pnick="1" title="A nickname everyone sees">\u270e nickname</button></div>' + cosRoles(mine) +
     (title ? cosTitle(title) : '<span class="ptag dim">no title yet</span>') +
     ((mine.rec || []).length ? '<span class="ptag rec">🏆 Record Holder</span>' : '') +
     ranks.slice(0, 4).map(function (g) { return '<span class="ptag rank t' + mine.ranks[g] + '">R' + mine.ranks[g] + ' · ' + profEsc(g) + '</span>'; }).join('') +
