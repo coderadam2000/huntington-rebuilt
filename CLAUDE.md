@@ -27,6 +27,7 @@ Launcher (`loader.html` pasted into jsfiddle/jsbin, which loads the hub `index.h
   by `tools/split-game.py` and paste their pieces back in verbatim (`<!--@inline js/10-game/-->`), plain scripts and all.
 - The launcher hub too: edit `launcher/` (shell.html, css/, js/10-hub/ pieces), then `node tools/build-game.js . --src launcher --check`.
   Grapevine: edit `grapevine/src/`, then `node tools/build.mjs --check` there (see grapevine/CLAUDE.md), then `bash tools/sync-grapevine.sh` here.
+  The Grapevine tab's look is `gv/app-redesign.css`, laid over `client.html` by the sync (`tools/gv-redesign.js`); never hand-edit it into `gv/app.html`.
   `gv/account.js` is built from `gv/core.js`, `ach.js`, `ui.js`: `bash tools/build-gv.sh`.
 - Minigames share one lobby: edit `Minigames/_shared/mg.js|mg.css`, then `bash Minigames/build.sh`.
 

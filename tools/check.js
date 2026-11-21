@@ -86,7 +86,7 @@ try {
 try {
   const gv = path.join(ROOT, '..', 'grapevine');
   if (fs.existsSync(path.join(gv, 'client.html'))) {
-    if (read(path.join(gv, 'client.html')).length !== read(path.join(ROOT, 'gv/app.html')).length) notes.push('gv/app.html is not the current grapevine/client.html (bash tools/sync-grapevine.sh), unless Grapevine is ahead on purpose');
+    if (require('./gv-redesign.js').apply(read(path.join(gv, 'client.html')), read(path.join(ROOT, 'gv/app-redesign.css'))).length !== read(path.join(ROOT, 'gv/app.html')).length) notes.push('gv/app.html is not the current grapevine/client.html (bash tools/sync-grapevine.sh), unless Grapevine is ahead on purpose');
     const core = fs.statSync(path.join(ROOT, 'gv/core.js')).mtimeMs, acc = fs.statSync(path.join(ROOT, 'gv/account.js')).mtimeMs;
     const built = cp.spawnSync('bash', ['-c', 'cat gv/vendor/ed25519.js gv/vendor/gvlink.js gv/core.js gv/ach.js gv/ui.js | wc -c'], { cwd: ROOT, encoding: 'utf8' });
     if (core > acc + 1000 && built.status === 0) notes.push('gv/core.js is newer than gv/account.js: run bash tools/build-gv.sh if you changed it');
