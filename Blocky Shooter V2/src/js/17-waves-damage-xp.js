@@ -327,12 +327,17 @@ function screenFlash(color, hit) {
         a = Math.min(a, lum > 0.8 ? 0.18 : 0.4);                // near-white is capped hard: no flashbang look
         if (settings.reduceFlash !== false) a *= 0.55;
         color = `rgba(${r | 0},${g | 0},${b | 0},${a.toFixed(3)})`;
-    }
+    } else return;                                               // 5.7: a colour we can't read (and cap) never shows
     const el = ui.flash;
     clearTimeout(_flashClr);
     el.style.transition = 'none'; el.style.background = color; el.style.opacity = '1';
-    requestAnimationFrame(() => { el.style.transition = 'opacity 0.35s'; el.style.opacity = '0'; });
-    _flashClr = setTimeout(() => { el.style.transition = 'none'; el.style.opacity = '0'; }, 500);
+    void el.offsetWidth;                                         // 5.7: start the fade now, not on the next animation frame (which a busy or hidden frame may never get)
+    el.style.transition = 'opacity 0.35s'; el.style.opacity = '0';
+    _flashClr = setTimeout(clearScreenFlash, 500);
+}
+function clearScreenFlash() {
+    clearTimeout(_flashClr);
+    const el = ui.flash; el.style.transition = 'none'; el.style.opacity = '0';
 }
 // 5.2: can the player actually see this spot? (in front of the camera or very close, and no wall in between)
 const _fxv = new V3();

@@ -645,7 +645,7 @@
         // ==========================================
 
 
-        const VERSION = '5.6';
+        const VERSION = '5.7';
         let LOOK_MINE = null;          // 5.2: what you wear (goon-shop skin + avatar + title + rank tier), read from the launcher by 27b-mp-look.js
         const V3 = THREE.Vector3;
         const $ = (id) => document.getElementById(id);
@@ -1758,6 +1758,9 @@
             composer.setSize(window.innerWidth, window.innerHeight);
             composer.addPass(new RenderPass(scene, camera));
             composer.addPass(new ViewmodelPass());
+            // 5.7: an Infinity or NaN pixel (a hot additive spark in the half-float target) would be blurred by bloom over the whole screen: clamp it first
+            composer.addPass(new ShaderPass({ uniforms: { tDiffuse: { value: null } }, vertexShader: GradeShader.vertexShader,
+                fragmentShader: `uniform sampler2D tDiffuse; varying vec2 vUv; void main() { vec4 c = texture2D(tDiffuse, vUv); if (!(c.r == c.r && c.g == c.g && c.b == c.b)) c.rgb = vec3(0.0); c.rgb = clamp(c.rgb, 0.0, 64.0); gl_FragColor = vec4(c.rgb, 1.0); }` }));
             bloomPass = new UnrealBloomPass(new THREE.Vector2(window.innerWidth, window.innerHeight), cine ? 0.8 : 0.55, cine ? 0.65 : 0.45, 0.8);
             // bloom is soft anyway: run it at half resolution (a quarter of the pixels)
             const bloomSize = bloomPass.setSize.bind(bloomPass);
@@ -1887,6 +1890,7 @@
             renderer.shadowMap.enabled = Q.shadows;
             renderer.shadowMap.type = Q.soft ? THREE.PCFSoftShadowMap : THREE.PCFShadowMap;
             $('game-container').appendChild(renderer.domElement);
+            rgWatchContext(renderer.domElement);      // 5.7 (23b-render-guard.js)
 
 
             detailTex = makeDetailTexture(); detailTex.anisotropy = Q.aniso;
@@ -10210,12 +10214,17 @@
                 a = Math.min(a, lum > 0.8 ? 0.18 : 0.4);                // near-white is capped hard: no flashbang look
                 if (settings.reduceFlash !== false) a *= 0.55;
                 color = `rgba(${r | 0},${g | 0},${b | 0},${a.toFixed(3)})`;
-            }
+            } else return;                                               // 5.7: a colour we can't read (and cap) never shows
             const el = ui.flash;
             clearTimeout(_flashClr);
             el.style.transition = 'none'; el.style.background = color; el.style.opacity = '1';
-            requestAnimationFrame(() => { el.style.transition = 'opacity 0.35s'; el.style.opacity = '0'; });
-            _flashClr = setTimeout(() => { el.style.transition = 'none'; el.style.opacity = '0'; }, 500);
+            void el.offsetWidth;                                         // 5.7: start the fade now, not on the next animation frame (which a busy or hidden frame may never get)
+            el.style.transition = 'opacity 0.35s'; el.style.opacity = '0';
+            _flashClr = setTimeout(clearScreenFlash, 500);
+        }
+        function clearScreenFlash() {
+            clearTimeout(_flashClr);
+            const el = ui.flash; el.style.transition = 'none'; el.style.opacity = '0';
         }
         // 5.2: can the player actually see this spot? (in front of the camera or very close, and no wall in between)
         const _fxv = new V3();
@@ -12512,6 +12521,8 @@
             instFlush();
             // the sun's shadow map only re-renders every other frame (half the shadow cost, invisible at 60fps)
             pfMark('misc');
+            renderGuard(delta);      // 5.7: nothing left stuck white or NaN before we draw
+            if (RG.lost) return;
             renderer.info.autoReset = false; renderer.info.reset();
             frameNo++;
             if (!window.__hgReady) { window.__hgReady = 1; try { if (parent !== window && parent.HG_gameReady) setTimeout(() => parent.HG_gameReady(), 80); } catch (e) {} }      // the launcher's loading screen can go
@@ -12533,6 +12544,61 @@
             pfMark('render');
             cpuAcc += performance.now() - cpu0;
         }
+
+        // ---- 23b-render-guard.js ----
+        // 5.7: the white screen. Something could leave the picture stuck bright or white until you paused and came back.
+        // renderGuard() runs every frame just before drawing and puts back anything that would keep it that way:
+        //  - a camera, view or player motion that has gone NaN/Infinity (nothing draws, so the whole screen is the fog colour):
+        //    back to the last good spot, motion and shake zeroed
+        //  - scene light / exposure / lightning values that are not numbers or have run away
+        //  - the screen-flash overlay stuck showing (a flash never lasts longer than 0.6s)
+        //  - a lost WebGL context: the post-processing targets are rebuilt when the browser gives it back
+        //  - coming back to the tab or window: the same full redraw a pause and resume used to give
+        const RG = { pos: new V3(0, EYE_STAND, 0), quat: new THREE.Quaternion(), feet: 0, ok: false, flashOn: 0, flashT: 0, fixes: {}, lost: false };
+        const rgFin = (v) => Number.isFinite(v.x) && Number.isFinite(v.y) && Number.isFinite(v.z);
+        function rgFix(k) { RG.fixes[k] = (RG.fixes[k] || 0) + 1; }
+        function renderGuard(delta) {
+            const q = camera.quaternion;
+            const camOk = rgFin(camera.position) && Number.isFinite(q.x + q.y + q.z + q.w) && Number.isFinite(feetY);
+            if (camOk && rgFin(velocity) && rgFin(push) && rgFin(camOffset) && Number.isFinite(shake) && Number.isFinite(headBob)) {
+                RG.pos.copy(camera.position); RG.quat.copy(q); RG.feet = feetY; RG.ok = true;
+            } else {
+                rgFix('motion');
+                if (RG.ok) { camera.position.copy(RG.pos); q.copy(RG.quat); feetY = RG.feet; }
+                else { camera.position.set(spawnPt ? spawnPt.x : 0, EYE_STAND, spawnPt ? spawnPt.z : 0); q.identity(); feetY = 0; }
+                if (!Number.isFinite(q.x + q.y + q.z + q.w) || q.lengthSq() < 1e-6) q.identity();
+                velocity.set(0, 0, 0); push.set(0, 0, 0); camOffset.set(0, 0, 0); shake = 0; headBob = 0;
+            }
+            if (!Number.isFinite(camera.fov) || camera.fov < 5 || camera.fov > 140 || !Number.isFinite(fovNow)) {
+                rgFix('fov'); camera.fov = fovNow = settings.fov; camera.updateProjectionMatrix();
+            }
+            if (!Number.isFinite(lightningFlash)) { rgFix('lightning'); lightningFlash = 0; }
+            const hemiMax = theme.hemiInt * (Q.env ? 1 : 2.1) * 2;
+            if (!Number.isFinite(hemi.intensity) || hemi.intensity > hemiMax + 0.01) { rgFix('hemi'); hemi.intensity = theme.hemiInt * (Q.env ? 1 : 2.1); }
+            if (!Number.isFinite(renderer.toneMappingExposure) || renderer.toneMappingExposure > theme.exposure * 3) { rgFix('exposure'); renderer.toneMappingExposure = theme.exposure; }
+            // the flash overlay: a flash fades in 0.35s; if it is still up after 0.6s it is stuck
+            // (checked 4 times a second: reading the shown opacity costs a style pass)
+            // real time, not game time: a slow frame rate must not keep a stuck flash up any longer
+            const now = performance.now();
+            if (now - RG.flashT >= 250) {
+                RG.flashT = now;
+                if (+getComputedStyle(ui.flash).opacity <= 0.02) RG.flashOn = 0;
+                else if (!RG.flashOn) RG.flashOn = now;
+                else if (now - RG.flashOn > 600) { rgFix('flash'); clearScreenFlash(); RG.flashOn = 0; }
+            }
+        }
+        function rgRedraw() {      // what pausing and resuming did: a fresh drawing buffer and fresh post-processing targets
+            if (!renderer) return;
+            renderer.setSize(window.innerWidth, window.innerHeight);
+            if (composer) setupPost();
+            clearScreenFlash();
+        }
+        function rgWatchContext(canvas) {
+            canvas.addEventListener('webglcontextlost', (e) => { e.preventDefault(); RG.lost = true; rgFix('ctxlost'); });
+            canvas.addEventListener('webglcontextrestored', () => { RG.lost = false; rgRedraw(); });
+        }
+        document.addEventListener('visibilitychange', () => { if (!document.hidden) rgRedraw(); else clearScreenFlash(); });
+        window.addEventListener('focus', () => { if (currentGameState === 'playing') rgRedraw(); });
 
         // ---- 24-ui-shop.js ----
         // ==========================================
@@ -13243,6 +13309,7 @@
             impact: (x, y, z, nx, ny, nz) => { const p = new V3(x, y, z), n = new V3(nx, ny, nz); const k = surfaceAt(p, n); impactFx(p, n, k); return k; },
             hitEnemy: (i, head) => { const e = enemies[i]; damageEnemy(e, 1, !!head, new V3(e.position.x, e.position.y + 2, e.position.z)); return { hitT: e.userData.hitT, body: e.userData.body.rotation.x }; },
             lightning: () => { lightningFlash = 0.28; },
+            get guard() { return RG.fixes; }, guardNow: () => renderGuard(0.016), redraw: () => rgRedraw(),
             q: (k, v) => { Q[k] = v; setupPointLights(); applyShadowSettings(); setupPost(); recompileAll(); },
             post: () => ({ passes: composer ? composer.passes.length : 0 }),
             fps: (f, secs = 1) => { for (let i = 0; i < f * secs; i++) trackFps(1 / f); return { scale: dynScale, shadows: Q.shadows, lite: Q.lite }; },

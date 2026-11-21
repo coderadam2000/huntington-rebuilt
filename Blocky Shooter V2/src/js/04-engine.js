@@ -102,6 +102,9 @@ function setupPost() {
     composer.setSize(window.innerWidth, window.innerHeight);
     composer.addPass(new RenderPass(scene, camera));
     composer.addPass(new ViewmodelPass());
+    // 5.7: an Infinity or NaN pixel (a hot additive spark in the half-float target) would be blurred by bloom over the whole screen: clamp it first
+    composer.addPass(new ShaderPass({ uniforms: { tDiffuse: { value: null } }, vertexShader: GradeShader.vertexShader,
+        fragmentShader: `uniform sampler2D tDiffuse; varying vec2 vUv; void main() { vec4 c = texture2D(tDiffuse, vUv); if (!(c.r == c.r && c.g == c.g && c.b == c.b)) c.rgb = vec3(0.0); c.rgb = clamp(c.rgb, 0.0, 64.0); gl_FragColor = vec4(c.rgb, 1.0); }` }));
     bloomPass = new UnrealBloomPass(new THREE.Vector2(window.innerWidth, window.innerHeight), cine ? 0.8 : 0.55, cine ? 0.65 : 0.45, 0.8);
     // bloom is soft anyway: run it at half resolution (a quarter of the pixels)
     const bloomSize = bloomPass.setSize.bind(bloomPass);
@@ -231,6 +234,7 @@ function init3D() {
     renderer.shadowMap.enabled = Q.shadows;
     renderer.shadowMap.type = Q.soft ? THREE.PCFSoftShadowMap : THREE.PCFShadowMap;
     $('game-container').appendChild(renderer.domElement);
+    rgWatchContext(renderer.domElement);      // 5.7 (23b-render-guard.js)
 
 
     detailTex = makeDetailTexture(); detailTex.anisotropy = Q.aniso;

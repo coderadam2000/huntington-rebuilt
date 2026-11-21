@@ -351,6 +351,7 @@ window.__blocky = {
     impact: (x, y, z, nx, ny, nz) => { const p = new V3(x, y, z), n = new V3(nx, ny, nz); const k = surfaceAt(p, n); impactFx(p, n, k); return k; },
     hitEnemy: (i, head) => { const e = enemies[i]; damageEnemy(e, 1, !!head, new V3(e.position.x, e.position.y + 2, e.position.z)); return { hitT: e.userData.hitT, body: e.userData.body.rotation.x }; },
     lightning: () => { lightningFlash = 0.28; },
+    get guard() { return RG.fixes; }, guardNow: () => renderGuard(0.016), redraw: () => rgRedraw(),
     q: (k, v) => { Q[k] = v; setupPointLights(); applyShadowSettings(); setupPost(); recompileAll(); },
     post: () => ({ passes: composer ? composer.passes.length : 0 }),
     fps: (f, secs = 1) => { for (let i = 0; i < f * secs; i++) trackFps(1 / f); return { scale: dynScale, shadows: Q.shadows, lite: Q.lite }; },
