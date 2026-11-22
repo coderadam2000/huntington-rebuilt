@@ -1,0 +1,309 @@
+// ==========================================
+// WORLD CONFLICT: a grand-strategy simulation on a 3D globe. A random world of land and sea split into ~1,600 regions;
+// nations rise, settle empty land, trade, ally, go to war along their borders, rebel, split apart and climb the ages
+// from Tribal to Modern. Rule one nation (click it, then Play as) or watch history happen with the god tools.
+//   Drag to turn the globe, wheel to zoom, click a region for its nation. SPACE pauses, 1-4 set the speed.
+// Each region: terrain (plains, forest, hills, mountains, desert, tundra, jungle), population, development, owner.
+// Each nation: treasury, tax, army (from manpower), tech (sets its age), stability, war exhaustion, opinions,
+// allies, wars, truces. A month a tick. Battles happen on every contested border; terrain and tech decide them.
+// Save (synced, prefix taco): taco.worldconflict.v1 = { games, bestYears, wins } (the world itself is not saved)
+// ==========================================
+import * as THREE from 'three';
+const $ = id => document.getElementById(id);
+const KEY = 'taco.worldconflict.v1';
+let SV = { games: 0, bestYears: 0, wins: 0, conquered: 0 };
+try { SV = Object.assign(SV, JSON.parse(localStorage.getItem(KEY) || '{}') || {}); } catch (e) {}
+const save = () => { try { localStorage.setItem(KEY, JSON.stringify(SV)); } catch (e) {} };
+const AGES = ['Tribal', 'Bronze', 'Iron', 'Classical', 'Medieval', 'Gunpowder', 'Industrial', 'Modern'];
+const TERR = { plains: { c: [120, 168, 82], food: 1.2, def: 1, dev: 1.1 }, forest: { c: [52, 110, 60], food: .9, def: 1.25, dev: .9 }, hills: { c: [139, 140, 92], food: .8, def: 1.45, dev: .9 },
+    mount: { c: [128, 118, 108], food: .4, def: 2, dev: .6 }, desert: { c: [214, 190, 130], food: .35, def: 1.1, dev: .6 }, tundra: { c: [190, 200, 205], food: .4, def: 1.15, dev: .6 }, jungle: { c: [38, 128, 70], food: 1, def: 1.35, dev: .8 } };
+const SYL = ['ar', 'bel', 'cor', 'da', 'el', 'fen', 'gal', 'har', 'is', 'jor', 'ka', 'lor', 'mar', 'nor', 'os', 'pra', 'qu', 'ru', 'sar', 'tor', 'ul', 'val', 'wen', 'xa', 'yor', 'zan', 'tha', 'mir', 'kel', 'dun', 'ost', 'ven', 'ria', 'gor'];
+const SUF = ['ia', 'land', 'or', 'stan', 'heim', 'mark', 'ora', 'ium', 'ar', 'en', 'is', 'onia', 'ea'];
+const GOV = ['Tribe', 'Kingdom', 'Empire', 'Republic', 'Federation', 'Sultanate', 'Dominion', 'Union', 'Duchy', 'Khanate'];
+let seed = 1, NSEED = 1; const R = () => { seed ^= seed << 13; seed >>>= 0; seed ^= seed >> 17; seed ^= seed << 5; seed >>>= 0; return seed / 4294967296; };
+const pick = a => a[Math.floor(R() * a.length)], clamp = (v, a, b) => v < a ? a : v > b ? b : v;
+// ---- noise on the sphere ----
+function hash3(x, y, z) { let h = (Math.imul(x, 374761393) + Math.imul(y, 668265263) + Math.imul(z, 1440670441) + Math.imul(NSEED, 97)) | 0; h = Math.imul(h ^ (h >>> 13), 1274126177); h ^= h >>> 16; return (h >>> 0) / 4294967296; }
+function vnoise(x, y, z) { const X = Math.floor(x), Y = Math.floor(y), Z = Math.floor(z), fx = x - X, fy = y - Y, fz = z - Z, s = t => t * t * (3 - 2 * t), u = s(fx), v = s(fy), w = s(fz); const L = (a, b, t) => a + (b - a) * t;
+    return L(L(L(hash3(X, Y, Z), hash3(X + 1, Y, Z), u), L(hash3(X, Y + 1, Z), hash3(X + 1, Y + 1, Z), u), v), L(L(hash3(X, Y, Z + 1), hash3(X + 1, Y, Z + 1), u), L(hash3(X, Y + 1, Z + 1), hash3(X + 1, Y + 1, Z + 1), u), v), w); }
+const fbm = (x, y, z) => { let a = 0, f = 1.6, k = .5; for (let i = 0; i < 5; i++) { a += vnoise(x * f, y * f, z * f) * k; f *= 2.1; k *= .5; } return a; };
+// ---- the world ----
+const TW = 1024, TH = 512, NREG = 1600;
+const W = { regs: [], nations: [], month: 0, year: 0, speed: 2, paused: false, me: null, mode: 'watch', sel: null, log: [], pix: null, nb: null, dirty: true, over: false, god: null };
+window.__wc = W;
+function build(sd, nNations) {
+    seed = sd >>> 0 || 1; NSEED = seed; W.regs = []; W.nations = []; W.month = 0; W.year = 0; W.log = []; W.over = false; W.me = null; W.sel = null;
+    const off = R() * 100;
+    // regions on a Fibonacci sphere
+    for (let i = 0; i < NREG; i++) {
+        const y = 1 - (i + .5) / NREG * 2, r = Math.sqrt(1 - y * y), a = i * Math.PI * (3 - Math.sqrt(5)), x = Math.cos(a) * r, z = Math.sin(a) * r;
+        const h = fbm(x * .8 + off, y * .8, z * .8) * .85 + fbm(x * 2.4 + off, y * 2.4, z * 2.4) * .15 + (R() - .5) * .02, lat = Math.abs(y);      // continents, with some ragged coast
+        const land = h > .5, m = fbm(x * 3 + 50, y * 3, z * 3);
+        const terr = !land ? null : h > .66 ? 'mount' : h > .6 ? 'hills' : lat > .82 ? 'tundra' : lat < .3 && m > .55 ? 'jungle' : lat < .45 && m < .42 ? 'desert' : m > .52 ? 'forest' : 'plains';
+        W.regs.push({ i, x, y, z, land, terr, h, owner: -1, pop: land ? 2 + TERR[terr].food * 6 * R() : 0, dev: 1, siege: 0, n: [] });
+    }
+    // texture pixels -> nearest region (with a coarse grid of buckets); neighbours from touching pixels
+    const B = 24, buckets = Array.from({ length: B * B * B }, () => []), bk = (x, y, z) => { const f = v => clamp(Math.floor((v + 1) / 2 * B), 0, B - 1); return (f(x) * B + f(y)) * B + f(z); };
+    for (const r of W.regs) buckets[bk(r.x, r.y, r.z)].push(r.i);
+    W.pix = new Uint16Array(TW * TH);
+    for (let py = 0; py < TH; py++) { const lat = Math.PI / 2 - (py + .5) / TH * Math.PI, cy = Math.sin(lat), cr = Math.cos(lat);
+        for (let px = 0; px < TW; px++) { const lon = (px + .5) / TW * Math.PI * 2 - Math.PI, x = cr * Math.cos(lon), z = -cr * Math.sin(lon);      // the same way round as three.js sphere UVs
+            const fx = clamp(Math.floor((x + 1) / 2 * B), 0, B - 1), fy = clamp(Math.floor((cy + 1) / 2 * B), 0, B - 1), fz = clamp(Math.floor((z + 1) / 2 * B), 0, B - 1); let best = 0, bd = 9;
+            for (let a = -1; a <= 1; a++) for (let b = -1; b <= 1; b++) for (let c = -1; c <= 1; c++) { const gx = fx + a, gy = fy + b, gz = fz + c; if (gx < 0 || gy < 0 || gz < 0 || gx >= B || gy >= B || gz >= B) continue; for (const ri of buckets[(gx * B + gy) * B + gz]) { const r = W.regs[ri], d = (r.x - x) ** 2 + (r.y - cy) ** 2 + (r.z - z) ** 2; if (d < bd) { bd = d; best = ri; } } }
+            W.pix[py * TW + px] = best; } }
+    const nset = W.regs.map(() => new Set());
+    for (let py = 0; py < TH; py++) for (let px = 0; px < TW; px++) { const a = W.pix[py * TW + px], b = W.pix[py * TW + (px + 1) % TW], c = py + 1 < TH ? W.pix[(py + 1) * TW + px] : a; if (a !== b) { nset[a].add(b); nset[b].add(a); } if (a !== c) { nset[a].add(c); nset[c].add(a); } }
+    W.regs.forEach((r, i) => { r.n = [...nset[i]]; r.coast = r.land && r.n.some(j => !W.regs[j].land); });
+    // nations: capitals spread out over the land
+    const land = W.regs.filter(r => r.land);
+    for (let k = 0; k < nNations; k++) { let cap = null; for (let t = 0; t < 60 && !cap; t++) { const c = pick(land); if (c.owner < 0 && W.nations.every(n => dist(W.regs[n.cap], c) > .35)) cap = c; } if (cap) newNation(cap, null); }
+    W.dirty = true; SV.games++; save();
+}
+const dist = (a, b) => Math.hypot(a.x - b.x, a.y - b.y, a.z - b.z);
+function nameGen() { let s = pick(SYL) + (R() < .6 ? pick(SYL) : ''); s = s[0].toUpperCase() + s.slice(1) + pick(SUF); return s; }
+function newNation(cap, from, regsList) {
+    const id = W.nations.length, hue = (id * 137.5 + R() * 40) % 360;
+    const n = { id, name: nameGen(), gov: pick(GOV), col: hslToRgb(hue / 360, .55 + R() * .3, .5), cap: cap.i, gold: 50, tax: .25, army: 8, tech: R() * .3, stab: 70, exh: 0, op: {}, allies: [], wars: [], truce: {}, alive: true, born: W.year, aggr: .3 + R() * .7, peak: 1, from };
+    W.nations.push(n);
+    (regsList || [cap]).forEach(r => { r.owner = id; });
+    if (from != null) n.tech = W.nations[from].tech * .9;
+    W.dirty = true; return n;
+}
+function hslToRgb(h, s, l) { const q = l < .5 ? l * (1 + s) : l + s - l * s, p = 2 * l - q, f = t => { t = (t + 1) % 1; return t < 1 / 6 ? p + (q - p) * 6 * t : t < .5 ? q : t < 2 / 3 ? p + (q - p) * (2 / 3 - t) * 6 : p; }; return [f(h + 1 / 3), f(h), f(h - 1 / 3)].map(v => Math.round(v * 255)); }
+const regsOf = n => W.regs.filter(r => r.owner === n.id);
+const ageOf = n => AGES[clamp(Math.floor(n.tech), 0, AGES.length - 1)];
+const atWar = (a, b) => a.wars.includes(b.id);
+function log(t) { W.log.unshift(`<b>${W.year}</b> ${t}`); if (W.log.length > 80) W.log.pop(); W.logDirty = true; }
+// ---- one month ----
+function tick() {
+    W.month++; if (W.month % 12 === 0) W.year++;
+    const N = W.nations.filter(n => n.alive), size = {};
+    for (const r of W.regs) if (r.owner >= 0) size[r.owner] = (size[r.owner] || 0) + 1;
+    for (const n of N) {
+        const regs = size[n.id] || 0; if (!regs) { die(n); continue; }
+        n.peak = Math.max(n.peak, regs);
+        // economy: every region pays by population and development, less in unrest
+        let inc = 0, pop = 0; for (const r of W.regs) if (r.owner === n.id) { const T = TERR[r.terr]; r.pop = Math.min(30 * T.food * r.dev, r.pop * (1 + .004 * T.food * (n.wars.length ? .5 : 1)) + .002); r.dev = Math.min(8, r.dev + .0006 * T.dev * (1 + n.tech * .1)); inc += r.pop * r.dev * .02; pop += r.pop; }
+        n.pop = pop; const upkeep = n.army * .035 * (1 + n.tech * .08);
+        n.gold += inc * n.tax * (n.stab / 100 + .3) - upkeep;
+        n.tech = Math.min(7.99, n.tech + .00085 * (1 + Math.min(1.5, Math.sqrt(inc) * .06)) * (n.me ? n.research || 1 : 1) * (n.tax > .35 ? .8 : 1));
+        // manpower: the army grows toward what the people can give, faster for the AI at war
+        const cap2 = pop * .06 * (1 + n.tech * .15); if (n.gold > 0 && n.army < cap2) n.army += (n.me ? n.recruit || .4 : n.wars.length ? 1.1 : .5) * (1 + n.tech * .05);
+        if (n.gold < -20) { n.army *= .97; n.stab -= .5; }
+        // stability: too big, too taxed, too long at war
+        n.stab += ((75 - regs * .6 - n.tax * 60 - n.exh * .4) - n.stab) * .02; n.stab = clamp(n.stab, 0, 100);
+        n.exh = Math.max(0, n.exh + (n.wars.length ? .25 : -.4));
+        for (const k in n.truce) if (--n.truce[k] <= 0) delete n.truce[k];
+        // settle empty land next door
+        if (n.gold > 15 && R() < .35) { const edge = []; for (const r of W.regs) if (r.owner === n.id) for (const j of r.n) { const o = W.regs[j]; if (o.land && o.owner < 0) edge.push(o); } if (edge.length) { const t = pick(edge); t.owner = n.id; n.gold -= 6; W.dirty = true; } }
+        if (!n.me) ai(n);
+    }
+    battles();
+    if (W.month % 6 === 0) for (const n of N) if (n.alive && n.stab < 22 && R() < .25 && (size[n.id] || 0) > 8) rebel(n);
+    if (W.month % 24 === 0 && R() < .25) event();
+    const alive = W.nations.filter(n => n.alive);
+    if (W.me && !W.me.alive && !W.over) { W.over = true; log(`<b>${W.me.name}</b> has fallen. Your game is over.`); showEnd(false); }
+    if (W.me && W.me.alive && !W.over && regsOf(W.me).length >= W.regs.filter(r => r.land).length * .6) { W.over = true; SV.wins++; save(); showEnd(true); }
+    if (W.me && W.me.alive) SV.bestYears = Math.max(SV.bestYears, W.year - W.me.born);
+}
+function die(n) { n.alive = false; for (const o of W.nations) { o.wars = o.wars.filter(x => x !== n.id); o.allies = o.allies.filter(x => x !== n.id); } log(`<b>${n.name}</b> is no more.`); if (n === W.me) SV.conquered++; }
+function opinion(a, b) { return (a.op[b.id] || 0); }
+function neighbours(n) { const s = new Set(); for (const r of W.regs) if (r.owner === n.id) for (const j of r.n) { const o = W.regs[j].owner; if (o >= 0 && o !== n.id) s.add(o); } return [...s].map(i => W.nations[i]).filter(x => x.alive); }
+function power(n) { return n.army * (1 + n.tech * .35); }
+function declare(a, b) {
+    if (atWar(a, b) || a.truce[b.id] || a === b) return false;
+    a.wars.push(b.id); b.wars.push(a.id); a.op[b.id] = -100; b.op[a.id] = -100; a.stab -= 3;
+    log(`<b>${a.name}</b> declares war on <b>${b.name}</b>!`);
+    for (const al of b.allies.map(i => W.nations[i]).filter(x => x.alive && x !== a)) if (!atWar(al, a) && R() < .75) { al.wars.push(a.id); a.wars.push(al.id); log(`${al.name} joins the war to defend ${b.name}.`); }
+    for (const al of a.allies.map(i => W.nations[i]).filter(x => x.alive && x !== b)) if (!atWar(al, b) && R() < .4) { al.wars.push(b.id); b.wars.push(al.id); log(`${al.name} joins ${a.name}'s war.`); }
+    return true;
+}
+function peace(a, b, terms) {
+    a.wars = a.wars.filter(x => x !== b.id); b.wars = b.wars.filter(x => x !== a.id); a.truce[b.id] = b.truce[a.id] = 120; a.op[b.id] = b.op[a.id] = -20;
+    if (terms && terms.taker) { const giver = terms.taker === a ? b : a, take = W.regs.filter(r => r.owner === giver.id && r.siegeBy === terms.taker.id); take.forEach(r => { r.owner = terms.taker.id; }); if (take.length) W.dirty = true; }
+    W.regs.forEach(r => { if (r.siegeBy === a.id || r.siegeBy === b.id) { r.siege = 0; r.siegeBy = -1; } });
+    log(`<b>${a.name}</b> and <b>${b.name}</b> make peace.`);
+}
+function ally(a, b) { if (a.allies.includes(b.id) || atWar(a, b)) return; a.allies.push(b.id); b.allies.push(a.id); a.op[b.id] = b.op[a.id] = 60; log(`<b>${a.name}</b> and <b>${b.name}</b> form an alliance.`); }
+function ai(n) {
+    if (W.month % 3 !== n.id % 3) return;
+    const nb = neighbours(n);
+    for (const o of nb) { n.op[o.id] = clamp((n.op[o.id] || 0) + (R() - .52) * 4 + (o.gov === n.gov ? .6 : 0), -100, 100); }
+    // war: a weaker neighbour we dislike, while we are stable and not already busy
+    if (!n.wars.length && n.stab > 40 && R() < .05 * n.aggr) { const t = nb.filter(o => !n.allies.includes(o.id) && !n.truce[o.id] && power(o) < power(n) * (1.1 + n.aggr * .4) && opinion(n, o) < 10).sort((a, b) => power(a) - power(b))[0]; if (t) declare(n, t); }
+    // peace when tired or losing
+    for (const id of n.wars.slice()) { const o = W.nations[id]; if (!o || !o.alive) continue; const losing = power(n) < power(o) * .55, tired = n.exh > 60; if ((losing || tired) && R() < .12) { const winner = power(n) > power(o) ? n : o; peace(n, o, { taker: winner }); } }
+    // friends: alliances with neighbours we like (and who share an enemy)
+    if (n.allies.length < 3 && R() < .03) { const f = nb.filter(o => !n.allies.includes(o.id) && !atWar(n, o) && (opinion(n, o) > 30 || o.wars.some(w => n.wars.includes(w))))[0]; if (f && !f.me) ally(n, f); }
+    n.tax = clamp(n.tax + (n.gold < 20 ? .01 : n.stab < 40 ? -.01 : 0), .1, .45);
+}
+// every border between enemies: a skirmish; win enough and the region changes hands
+function battles() {
+    const fronts = {};
+    for (const r of W.regs) { if (r.owner < 0) continue; const a = W.nations[r.owner]; if (!a.wars.length) continue; for (const j of r.n) { const t = W.regs[j]; if (t.owner < 0 || t.owner === r.owner) continue; const b = W.nations[t.owner]; if (!atWar(a, b)) continue; (fronts[a.id] = fronts[a.id] || []).push([r, t]); } }
+    for (const id in fronts) {
+        const a = W.nations[id], list = fronts[id], per = a.army / Math.max(4, list.length);
+        for (let k = 0; k < Math.min(list.length, 6); k++) {
+            const [r, t] = pick(list), b = W.nations[t.owner]; if (!b.alive || !atWar(a, b)) continue;
+            const defFronts = (fronts[b.id] || []).length || 1, dper = b.army / Math.max(4, defFronts);
+            const att = per * (1 + a.tech * .35) * (.7 + R() * .6), def = dper * (1 + b.tech * .35) * TERR[t.terr].def * (t.i === b.cap ? 1.5 : 1) * (.7 + R() * .6);
+            const loss = Math.min(a.army, b.army, (att + def) * .02); a.army = Math.max(0, a.army - loss * (def / (att + def)) * 1.2); b.army = Math.max(0, b.army - loss * (att / (att + def)) * 1.2);
+            a.exh += .05; b.exh += .05;
+            if (att > def) { t.siege = (t.siegeBy === a.id ? t.siege : 0) + (att - def) / (def + 1) + .3; t.siegeBy = a.id; if (t.siege > 1.5) { t.owner = a.id; t.siege = 0; t.siegeBy = -1; t.pop *= .85; W.dirty = true; if (t.i === b.cap) { const rest = regsOf(b); if (rest.length) { b.cap = pick(rest).i; b.stab -= 15; log(`${a.name} takes the capital of <b>${b.name}</b>!`); } } } }
+        }
+    }
+}
+// rebels: a far-off chunk of an unstable nation breaks away as a new nation
+function rebel(n) {
+    const regs = regsOf(n), cap = W.regs[n.cap]; if (regs.length < 9) return;
+    const far = regs.sort((a, b) => dist(b, cap) - dist(a, cap))[0], grab = [far], seen = new Set([far.i]);
+    for (let k = 0; k < grab.length && grab.length < regs.length * .3; k++) for (const j of grab[k].n) { const o = W.regs[j]; if (o.owner === n.id && !seen.has(j) && o.i !== n.cap) { seen.add(j); grab.push(o); } }
+    const rb = newNation(far, n.id, grab); rb.army = n.army * .3; n.army *= .75; rb.gov = pick(['Republic', 'Free State', 'Commune', 'Union']); rb.name = (R() < .5 ? 'Free ' : 'New ') + rb.name;
+    n.stab += 25; rb.stab = 60; declare(rb, n); n.truce = n.truce || {};
+    log(`Rebels in ${n.name} declare <b>${rb.name}</b>!`);
+}
+function event() {
+    const alive = W.nations.filter(n => n.alive); if (!alive.length) return; const n = pick(alive), r = R();
+    if (r < .3) { regsOf(n).forEach(x => { x.pop *= .8; }); n.stab -= 8; log(`A plague sweeps through <b>${n.name}</b>.`); }
+    else if (r < .55) { n.gold += 80; n.stab += 8; log(`<b>${n.name}</b> enters a golden age.`); }
+    else if (r < .75) { n.tech = Math.min(7.99, n.tech + .3); log(`Great minds in <b>${n.name}</b> make a breakthrough.`); }
+    else { n.army *= .7; log(`Famine weakens the armies of <b>${n.name}</b>.`); }
+}
+// ---- the globe ----
+const rdr = new THREE.WebGLRenderer({ canvas: $('cv'), antialias: true }); rdr.setPixelRatio(Math.min(2, devicePixelRatio || 1));
+const scene = new THREE.Scene(), cam = new THREE.PerspectiveCamera(40, 1, .1, 100); cam.position.set(0, 0, 3.4);
+scene.add(new THREE.AmbientLight(0xffffff, .55)); const sun = new THREE.DirectionalLight(0xffffff, 1.5); sun.position.set(3, 2, 4); scene.add(sun);
+const tex = document.createElement('canvas'); tex.width = TW; tex.height = TH; const tg = tex.getContext('2d'), img = tg.createImageData(TW, TH);
+const texture = new THREE.CanvasTexture(tex); texture.colorSpace = THREE.SRGBColorSpace; texture.anisotropy = 4;
+const globe = new THREE.Mesh(new THREE.SphereGeometry(1, 96, 64), new THREE.MeshPhongMaterial({ map: texture, shininess: 18, specular: 0x222233 })); scene.add(globe);
+const atmo = new THREE.Mesh(new THREE.SphereGeometry(1.06, 64, 48), new THREE.ShaderMaterial({ transparent: true, side: THREE.BackSide, depthWrite: false, vertexShader: 'varying vec3 n; void main(){ n = normalize(normalMatrix * normal); gl_Position = projectionMatrix * modelViewMatrix * vec4(position,1.); }', fragmentShader: 'varying vec3 n; void main(){ float i = pow(.75 - dot(n, vec3(0,0,1.)), 3.); gl_FragColor = vec4(.35,.6,1.,1.) * i; }' })); scene.add(atmo);
+const stars = new THREE.Points(new THREE.BufferGeometry().setAttribute('position', new THREE.Float32BufferAttribute(Array.from({ length: 3000 }, () => (Math.random() - .5) * 60), 3)), new THREE.PointsMaterial({ color: 0xffffff, size: .06 })); scene.add(stars);
+function fit() { rdr.setSize(innerWidth, innerHeight, false); cam.aspect = innerWidth / innerHeight; cam.updateProjectionMatrix(); }
+addEventListener('resize', fit); fit();
+function paint() {
+    const d = img.data, pix = W.pix, regs = W.regs, selN = W.sel != null ? W.regs[W.sel].owner : -2;
+    const rc = regs.map(r => { if (!r.land) return r.n.some(j => regs[j].land) ? [44, 104, 168] : [22, 62, 124]; const T = TERR[r.terr].c; if (r.owner < 0) return T; const n = W.nations[r.owner], k = .62; let c = n.col.map((v, i) => v * k + T[i] * (1 - k)); if (r.owner === selN) c = c.map(v => Math.min(255, v * 1.18 + 12)); if (r.siege > 0) c = c.map((v, i) => i === 0 ? Math.min(255, v + 40) : v * .85); return c; });
+    for (let py = 0; py < TH; py++) for (let px = 0; px < TW; px++) {
+        const i = py * TW + px, ri = pix[i], r = regs[ri], c = rc[ri], o = i * 4;
+        const rj = pix[py * TW + (px + 1) % TW], rd = py + 1 < TH ? pix[i + TW] : ri;
+        let k = 1;
+        if (rj !== ri || rd !== ri) { const a = regs[rj], b = regs[rd], own = x => x.land ? x.owner : -9;
+            if ((own(a) !== own(r) && (a.land || r.land)) || (own(b) !== own(r) && (b.land || r.land))) k = r.land && r.owner >= 0 ? .45 : .75;
+            else if (r.land) k = .93; }
+        if (r.land && r.i === (r.owner >= 0 ? W.nations[r.owner].cap : -1)) k *= 1.15;
+        d[o] = c[0] * k; d[o + 1] = c[1] * k; d[o + 2] = c[2] * k; d[o + 3] = 255;
+    }
+    tg.putImageData(img, 0, 0);
+    // capitals: a small star
+    tg.fillStyle = '#fff'; for (const n of W.nations) if (n.alive) { const r = W.regs[n.cap], lat = Math.asin(r.y), lon = Math.atan2(-r.z, r.x), x = (lon + Math.PI) / (Math.PI * 2) * TW, y = (Math.PI / 2 - lat) / Math.PI * TH; tg.beginPath(); tg.arc(x, y, 2.6, 0, 7); tg.fill(); }
+    texture.needsUpdate = true; W.dirty = false;
+}
+// ---- turning, zooming, picking ----
+let drag = null, rotY = 0, rotX = .35, zoomD = 3.4, spin = .02;
+$('cv').addEventListener('pointerdown', e => { drag = { x: e.clientX, y: e.clientY, moved: 0 }; $('cv').setPointerCapture(e.pointerId); });
+$('cv').addEventListener('pointermove', e => { if (drag) { const dx = e.clientX - drag.x, dy = e.clientY - drag.y; drag.moved += Math.abs(dx) + Math.abs(dy); rotY += dx * .005 * zoomD / 3.4; rotX = clamp(rotX + dy * .005 * zoomD / 3.4, -1.4, 1.4); drag.x = e.clientX; drag.y = e.clientY; spin = 0; } else hover(e); });
+$('cv').addEventListener('pointerup', e => { if (drag && drag.moved < 6) click(e); drag = null; });
+$('cv').addEventListener('wheel', e => { zoomD = clamp(zoomD * (e.deltaY > 0 ? 1.1 : .9), 1.5, 6); }, { passive: true });
+const ray = new THREE.Raycaster();
+function regionAt(e) { ray.setFromCamera(new THREE.Vector2(e.clientX / innerWidth * 2 - 1, -e.clientY / innerHeight * 2 + 1), cam); const h = ray.intersectObject(globe)[0]; if (!h) return null; const uv = h.uv, px = Math.floor(uv.x * TW) % TW, py = clamp(Math.floor((1 - uv.y) * TH), 0, TH - 1); return W.regs[W.pix[py * TW + px]]; }
+function hover(e) { const r = regionAt(e), t = $('tip'); if (!r || !t) { if (t) t.classList.add('hidden'); return; } const n = r.owner >= 0 ? W.nations[r.owner] : null; t.innerHTML = r.land ? `${n ? '<b>' + n.name + '</b><br>' : 'Unclaimed land<br>'}${r.terr} · pop ${(r.pop * 10).toFixed(0)}k${r.siege > 0 ? ' · <b style="color:#f87171">under siege</b>' : ''}` : 'Ocean'; t.style.left = e.clientX + 14 + 'px'; t.style.top = e.clientY + 10 + 'px'; t.classList.remove('hidden'); }
+function click(e) {
+    const r = regionAt(e); if (!r) return;
+    if (W.god) { godAct(r); return; }
+    W.sel = r.i; W.dirty = true; panel();
+}
+// ---- UI ----
+function ui0() {
+    $('ui').innerHTML = `<div class="pn" id="topbar"></div><div class="pn" id="left"></div><div class="pn" id="right"></div><div class="pn" id="log"></div><div id="tip" class="hidden"></div>`;
+}
+function top() {
+    $('topbar').innerHTML = `<b id="yr">Year ${W.year}</b><span id="mo"></span>${[['⏸', 0], ['▶', 1], ['▶▶', 2], ['▶▶▶', 3], ['⏩', 4]].map(([t, s]) => `<button class="sb ${(s === 0 ? W.paused : !W.paused && W.speed === s) ? 'on' : ''}" data-sp="${s}">${t}</button>`).join('')}<span style="color:var(--dim)">${W.me ? 'Ruling ' + W.me.name : 'Watching'}</span><button class="sb" id="newworld">New world</button>`;
+    $('topbar').querySelectorAll('[data-sp]').forEach(b => b.onclick = () => { const s = +b.dataset.sp; if (!s) W.paused = !W.paused; else { W.speed = s; W.paused = false; } top(); });
+    $('newworld').onclick = startScreen;
+}
+function list() {
+    const alive = W.nations.filter(n => n.alive), cnt = {}; for (const r of W.regs) if (r.owner >= 0) cnt[r.owner] = (cnt[r.owner] || 0) + 1;
+    alive.sort((a, b) => (cnt[b.id] || 0) - (cnt[a.id] || 0));
+    $('left').innerHTML = `<h3>Nations (${alive.length})</h3>` + alive.slice(0, 40).map(n => `<div class="nat ${n === W.me ? 'me' : ''}" data-n="${n.id}"><i style="background:rgb(${n.col})"></i><span>${n.name}<br><small>${n.gov} · ${ageOf(n)}${n.wars.length ? ' · ⚔️' + n.wars.length : ''}</small></span><small>${cnt[n.id] || 0}</small></div>`).join('');
+    $('left').querySelectorAll('[data-n]').forEach(el => el.onclick = () => { const n = W.nations[+el.dataset.n]; W.sel = n.cap; W.dirty = true; lookAt(W.regs[n.cap]); panel(); });
+}
+function lookAt(r) { rotY = Math.atan2(-r.x, r.z); rotX = Math.asin(r.y); spin = 0; }
+function panel() {
+    const P = $('right'); if (W.sel == null) { P.innerHTML = `<h3>${W.mode === 'watch' ? 'Spectating' : 'Your nation'}</h3><p style="color:var(--dim)">Click a nation on the globe or in the list.</p>${godTools()}`; wireGod(); if (W.me) meBox(P); return; }
+    const r = W.regs[W.sel], n = r.owner >= 0 ? W.nations[r.owner] : null;
+    if (!n) { P.innerHTML = `<h3>${r.land ? 'Unclaimed ' + r.terr : 'Ocean'}</h3>${godTools()}`; wireGod(); if (W.me) meBox(P); return; }
+    const cnt = regsOf(n).length, me = W.me;
+    let h = `<h3 style="color:rgb(${n.col})">${n.name}</h3><div class="kv">Government <b>${n.gov}</b></div><div class="kv">Age <b>${ageOf(n)}</b></div><div class="kv">Regions <b>${cnt}</b></div><div class="kv">Population <b>${((n.pop || 0) * 10).toFixed(0)}k</b></div><div class="kv">Army <b>${Math.round(n.army * 100).toLocaleString()} troops</b></div><div class="kv">Treasury <b>${Math.round(n.gold)} gold</b></div>
+      <div class="kv">Stability <b>${Math.round(n.stab)}%</b></div><div class="bar"><i style="width:${n.stab}%;background:${n.stab < 30 ? '#ef4444' : '#22c55e'}"></i></div><div class="kv">War weariness <b>${Math.round(n.exh)}</b></div>
+      <div class="kv">At war with <b>${n.wars.map(i => W.nations[i].name).join(', ') || 'nobody'}</b></div><div class="kv">Allies <b>${n.allies.map(i => W.nations[i].name).join(', ') || 'none'}</b></div><div class="kv">Founded <b>${n.born}</b>${n.from != null ? ' (from ' + W.nations[n.from].name + ')' : ''}</div>`;
+    if (!me) h += `<div class="acts"><button class="sb big" id="playas">👑 Play as ${n.name}</button></div>`;
+    else if (n !== me) h += `<div class="acts">${atWar(me, n) ? `<button class="sb" id="mpeace">Offer peace</button>` : `<button class="sb" id="mwar" ${me.truce[n.id] ? 'disabled title="Truce"' : ''}>⚔️ Declare war</button>`}${me.allies.includes(n.id) ? '' : `<button class="sb" id="mally" ${atWar(me, n) ? 'disabled' : ''}>🤝 Ask alliance</button>`}<button class="sb" id="mgift" ${me.gold < 50 ? 'disabled' : ''}>🎁 Gift 50 gold</button></div><div class="kv">They think of you <b>${Math.round(opinion(n, me))}</b></div>`;
+    P.innerHTML = h + godTools(); wireGod();
+    const on = (id, f) => { const b = $(id); if (b) b.onclick = () => { f(); panel(); list(); }; };
+    on('playas', () => { W.me = n; n.me = true; W.mode = 'play'; n.research = 1; n.recruit = .4; log(`You now rule <b>${n.name}</b>. Survive, grow, and unite the world.`); top(); });
+    on('mwar', () => declare(me, n));
+    on('mpeace', () => { const accept = power(n) < power(me) * 1.1 || n.exh > 40 || R() < .3; if (accept) peace(me, n, { taker: power(me) > power(n) ? me : n }); else log(`${n.name} refuses peace.`); });
+    on('mally', () => { if (opinion(n, me) > 15 || n.wars.some(w => me.wars.includes(w))) ally(me, n); else { log(`${n.name} turns down your alliance.`); n.op[me.id] = (n.op[me.id] || 0) + 3; } });
+    on('mgift', () => { me.gold -= 50; n.gold += 50; n.op[me.id] = (n.op[me.id] || 0) + 20; log(`You send gifts to ${n.name}.`); });
+    if (me) meBox(P);
+}
+function meBox(P) {
+    const me = W.me; if (!me || !me.alive) return;
+    const d = document.createElement('div'); d.innerHTML = `<h3 style="margin-top:14px">Your nation: ${me.name}</h3><div class="kv">Treasury <b>${Math.round(me.gold)}</b> · Army <b>${Math.round(me.army * 100).toLocaleString()}</b></div>
+      <label>Tax ${Math.round(me.tax * 100)}% <small style="color:var(--dim)">(more gold, less stability)</small><input type="range" id="mtax" min="5" max="50" value="${Math.round(me.tax * 100)}"></label>
+      <label>Recruiting ${me.recruit.toFixed(1)} <small style="color:var(--dim)">(costs upkeep)</small><input type="range" id="mrec" min="0" max="20" value="${Math.round(me.recruit * 10)}"></label>
+      <label>Research ${me.research.toFixed(1)}x <small style="color:var(--dim)">(costs gold each month)</small><input type="range" id="mres" min="10" max="30" value="${Math.round(me.research * 10)}"></label>
+      <div class="acts"><button class="sb" id="mfest" ${me.gold < 60 ? 'disabled' : ''}>🎉 Festival (+stability, 60)</button><button class="sb" id="mfind">📍 Find me</button></div>`;
+    P.appendChild(d);
+    const sl = (id, f) => { const s = $(id); s.oninput = () => f(+s.value); s.onchange = () => panel(); };
+    sl('mtax', v => me.tax = v / 100); sl('mrec', v => me.recruit = v / 10); sl('mres', v => me.research = v / 10);
+    $('mfest').onclick = () => { me.gold -= 60; me.stab = Math.min(100, me.stab + 15); log('A great festival lifts spirits.'); panel(); };
+    $('mfind').onclick = () => { lookAt(W.regs[me.cap]); W.sel = me.cap; panel(); };
+}
+// spectator god tools
+function godTools() { if (W.me) return ''; return `<h3 style="margin-top:14px">God tools</h3><div class="acts">${[['nation', '🏳️ New nation'], ['meteor', '☄️ Meteor'], ['plague', '🦠 Plague'], ['gold', '💰 Gold rain'], ['war', '⚔️ Start a war'], ['rebel', '🔥 Revolt']].map(([k, n]) => `<button class="sb ${W.god === k ? 'on' : ''}" data-god="${k}">${n}</button>`).join('')}</div><p style="color:var(--dim);font-size:12px">${W.god ? 'Now click the globe.' : 'Pick a tool, then click the globe.'}</p>`; }
+function wireGod() { $('right').querySelectorAll('[data-god]').forEach(b => b.onclick = () => { W.god = W.god === b.dataset.god ? null : b.dataset.god; panel(); }); }
+function godAct(r) {
+    const n = r.owner >= 0 ? W.nations[r.owner] : null, k = W.god;
+    if (k === 'nation' && r.land && r.owner < 0) { const nn = newNation(r, null); nn.tech = Math.max(...W.nations.filter(x => x.alive).map(x => x.tech)) * .8; log(`<b>${nn.name}</b> rises from the wilds.`); }
+    else if (k === 'meteor') { for (const x of W.regs) if (dist(x, r) < .12) { x.pop *= .2; if (x.owner >= 0) W.nations[x.owner].army *= .9; } log('☄️ A meteor strikes!'); }
+    else if (k === 'plague' && n) { regsOf(n).forEach(x => x.pop *= .6); n.stab -= 20; log(`🦠 A plague is unleashed on ${n.name}.`); }
+    else if (k === 'gold' && n) { n.gold += 300; log(`💰 Gold rains on ${n.name}.`); }
+    else if (k === 'war' && n) { const t = neighbours(n).sort((a, b) => power(b) - power(a))[0]; if (t) declare(n, t); }
+    else if (k === 'rebel' && n) { n.stab = 5; rebel(n); }
+    W.dirty = true; W.sel = r.i; panel(); list();
+}
+function startScreen() {
+    W.paused = true;
+    const old = $('start'); if (old) old.remove();
+    const d = document.createElement('div'); d.className = 'pn'; d.id = 'start';
+    d.innerHTML = `<h1>WORLD CONFLICT</h1><p>A world of ~1,600 regions. Nations rise and fall: they settle land, trade, ally, fight on every border, rebel and climb the ages from Tribal to Modern.</p>
+      <div class="opts">Nations: ${[8, 14, 22, 32].map(k => `<button class="sb ${(W.nn || 14) === k ? 'on' : ''}" data-nn="${k}">${k}</button>`).join('')}</div>
+      <div class="opts"><button class="sb big" id="st-watch">🌍 Watch history</button><button class="sb big" id="st-play">👑 Pick a nation to rule</button></div>
+      <p style="font-size:12px">Drag to turn the globe · wheel to zoom · SPACE pause · 1-4 speed<br>Worlds made: ${SV.games} · longest reign: ${SV.bestYears} years · world unified: ${SV.wins}</p>`;
+    $('ui').appendChild(d);
+    d.querySelectorAll('[data-nn]').forEach(b => b.onclick = () => { W.nn = +b.dataset.nn; d.querySelectorAll('[data-nn]').forEach(x => x.classList.toggle('on', x === b)); });
+    const go = mode => { d.remove(); build((Math.random() * 1e9) | 0, W.nn || 14); W.mode = mode; W.paused = mode === 'play'; W.god = null; ui0(); top(); list(); panel(); paint(); if (mode === 'play') log('Click a nation, then <b>Play as</b> it. The world waits (press ▶ when ready).'); else log('History begins.'); };
+    d.querySelector('#st-watch').onclick = () => go('watch'); d.querySelector('#st-play').onclick = () => go('play');
+}
+function showEnd(won) {
+    W.paused = true; const d = document.createElement('div'); d.className = 'pn'; d.id = 'start';
+    d.innerHTML = `<h1>${won ? 'WORLD UNITED' : 'FALLEN'}</h1><p>${won ? `${W.me.name} rules most of the world in the year ${W.year}.` : `${W.me.name} fell in the year ${W.year}, after ${W.year - W.me.born} years.`}</p><div class="opts"><button class="sb big" id="e-watch">Keep watching</button><button class="sb big" id="e-new">New world</button></div>`;
+    $('ui').appendChild(d); d.querySelector('#e-watch').onclick = () => { d.remove(); W.me = null; W.mode = 'watch'; W.paused = false; top(); panel(); }; d.querySelector('#e-new').onclick = () => { d.remove(); startScreen(); };
+}
+addEventListener('keydown', e => { if (e.code === 'Space') { e.preventDefault(); W.paused = !W.paused; top(); } const s = ['Digit1', 'Digit2', 'Digit3', 'Digit4'].indexOf(e.code); if (s >= 0) { W.speed = s + 1; W.paused = false; top(); } });
+// ---- loop ----
+let last = performance.now(), acc = 0, uiT = 0, paintT = 0;
+function frame(now) {
+    requestAnimationFrame(frame); const dt = Math.min(.1, (now - last) / 1000); last = now;
+    if (W.regs.length && !W.paused && !W.over) { acc += dt * [0, 4, 10, 24, 60][W.speed]; let n = 0; while (acc >= 1 && n < 80) { acc -= 1; tick(); n++; } }
+    if ((paintT -= dt) <= 0 && W.dirty && W.regs.length) { paintT = .35; paint(); }
+    if ((uiT -= dt) <= 0 && W.regs.length && $('topbar')) { uiT = .8; const still = id => !$(id).matches(':hover'); if (still('topbar')) top(); if (still('left')) list(); if (still('right') && (!document.activeElement || document.activeElement.type !== 'range')) panel(); const yr = $('yr'); if (yr) { yr.textContent = 'Year ' + W.year; $('mo').textContent = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'][W.month % 12]; }
+        if (W.logDirty) { $('log').innerHTML = W.log.slice(0, 30).map(l => `<div>${l}</div>`).join(''); W.logDirty = false; } }
+    rotY += spin * dt; globe.rotation.set(rotX, rotY, 0); atmo.rotation.copy(globe.rotation); cam.position.set(0, 0, zoomD); cam.lookAt(0, 0, 0);
+    rdr.render(scene, cam);
+}
+// a world spins behind the start screen
+build(12345, 14); paint(); ui0(); startScreen(); requestAnimationFrame(frame);
+// tests
+Object.assign(W, { build, tick, paint, declare, peace, ally, regsOf, power, neighbours, save: () => SV, startScreen });

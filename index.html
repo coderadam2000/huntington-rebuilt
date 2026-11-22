@@ -904,7 +904,7 @@ function setVersion(v) { MIRRORS = MIRROR_HOSTS.map(function (m) { return m + RE
 // If GitHub cannot be reached (blocked, or its 60-an-hour limit for one school network), it falls back to '@main'.
 // (A hub cannot swap itself for a newer one in the same page: its scripts have already declared their names. Players get a
 // newer launcher itself through the loader, which pins it; HG_HUB_ID tells which build is running.)
-var HG_HUB_ID = '30eacc79cddc';      // the build fills in a fingerprint of this file
+var HG_HUB_ID = 'fa38a4ae3bc3';      // the build fills in a fingerprint of this file
 var HG_SHA_RE = /^[0-9a-f]{40}$/;
 function latestSha() {
   try { var c = JSON.parse(localStorage.getItem('hgv:sha') || 'null'); if (c && HG_SHA_RE.test(c.s) && Date.now() - c.t < 120000) return Promise.resolve(c.s); } catch (e) {}
@@ -929,6 +929,7 @@ var BUNDLE = window.HG_BUNDLE || null; // only set inside the saved "Taco Games 
 var local = !BUNDLE && !window.HG_VERSION && (location.protocol === 'file:' || /github\.io$/.test(location.hostname) || location.hostname === '127.0.0.1' || location.hostname === 'localhost');
 
 var GAMES = [
+  { dir: 'World Conflict', name: 'World Conflict', img: 'worldconflict', tags: ['New', '3D', 'Strategy', 'Simulation'], desc: "NEW: grand strategy on a 3D globe. Nations settle land, ally, fight on every border, rebel and climb eight ages from Tribal to Modern. Rule one (taxes, armies, research, diplomacy) or watch history unfold with god tools." },
   { dir: 'Design Anything', name: 'Design Anything', img: 'design', tags: ['New', 'Creative', 'Sandbox'], desc: "NEW: design anything. 37 templates (posters, cards, logos, T-shirts, sneakers, cars, cakes, rooms, comics, thumbnails...), 16 shapes, 24 fonts, 1,000+ stickers, backdrops, a brush and your own pictures. Save your designs or export a PNG." },
   { dir: 'Crochet Simulator', name: 'Crochet & Knitting Simulator', img: 'craft', tags: ['New', 'Cozy', 'Simulator'], desc: "NEW: a cozy corner by the fire. Knit (F and J) or crochet (SPACE) eight patterns in time with a soft metronome: every stitch shows how even you were. Sell at the craft fair, buy yarn, tools, patterns and a sleepy cat." },
   { dir: 'Pancake Simulator', name: 'Pancake Simulator', img: 'pancake', tags: ['New', 'Simulator', 'Funny'], desc: "NEW: live one whole life as a pancake. Get stirred smooth, flip yourself golden on the griddle, climb the stack, catch the best toppings and escape the fork. Unlock blueberry, chocolate chip, banana, matcha and rainbow pancakes." },
