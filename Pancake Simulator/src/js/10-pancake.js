@@ -1,0 +1,226 @@
+// ==========================================
+// PANCAKE SIMULATOR: one life, as a pancake. Five chapters, each a little game, then your life story and a rating.
+//   1 Batter Days: get stirred smooth (move the mouse in circles over the bowl). Lumps are bad; so is too much stirring.
+//   2 The Griddle: cook. Bubbles tell you when your underside is golden: SPACE (or click) to flip yourself. Twice.
+//   3 The Stack: climb the stack (←/→, SPACE/↑ to jump) as new pancakes flop down. The top spot gets the toppings.
+//   4 Topping Time: catch the good stuff (syrup, butter, berries, cream, chips); dodge the wrong stuff.
+//   5 The Fork: survive the breakfast. Forks stab where their shadow is; reach the edge of the table and roll away.
+// Pancake kinds (buttermilk, blueberry, chocolate chip, banana, matcha, rainbow) unlock with good lives.
+// Save (synced, prefix taco): taco.pancake.v1 = { lives, best, kind, kinds, escaped, eaten, titles }
+// ==========================================
+const cv = document.getElementById('cv'), g = cv.getContext('2d'), ui = document.getElementById('ui');
+const KEY = 'taco.pancake.v1';
+let SV = { lives: 0, best: 0, kind: 'butter', kinds: ['butter'], escaped: 0, eaten: 0, titles: [] };
+try { SV = Object.assign(SV, JSON.parse(localStorage.getItem(KEY) || '{}') || {}); } catch (e) {}
+const save = () => { try { localStorage.setItem(KEY, JSON.stringify(SV)); } catch (e) {} };
+const KINDS = [
+    { id: 'butter', n: 'Buttermilk', e: '🥞', c: ['#fde7b0', '#e9b360', '#b8742a'], need: 0 }, { id: 'blue', n: 'Blueberry', e: '🫐', c: ['#fde7b0', '#e3a95a', '#a8692a'], dots: '#4338ca', need: 250 },
+    { id: 'choc', n: 'Choc chip', e: '🍫', c: ['#fbe0a8', '#dca457', '#9a5f22'], dots: '#3f1d0b', need: 350 }, { id: 'banana', n: 'Banana', e: '🍌', c: ['#fff1b8', '#ecc45e', '#b98a2a'], need: 450 },
+    { id: 'matcha', n: 'Matcha', e: '🍵', c: ['#d9f0b8', '#a7c768', '#6b8a2a'], need: 550 }, { id: 'rainbow', n: 'Rainbow', e: '🌈', c: ['#fde7f3', '#f0a8d0', '#a855f7'], dots: 'rainbow', need: 650 }];
+const kind = () => KINDS.find(k => k.id === SV.kind) || KINDS[0];
+const W = 1000, H = 640, rnd = (a, b) => a + Math.random() * (b - a), clamp = (v, a, b) => v < a ? a : v > b ? b : v;
+// ---- input ----
+const IN = { x: W / 2, y: H / 2, down: false, keys: {}, press: false };
+let scale = 1, ox = 0, oy = 0;
+function fit() { const d = Math.min(2, devicePixelRatio || 1); cv.width = innerWidth * d; cv.height = innerHeight * d; scale = Math.min(cv.width / W, cv.height / H); ox = (cv.width - W * scale) / 2; oy = (cv.height - H * scale) / 2; }
+addEventListener('resize', fit); fit();
+const toWorld = e => { const d = cv.width / innerWidth; return [(e.clientX * d - ox) / scale, (e.clientY * d - oy) / scale]; };
+cv.addEventListener('pointermove', e => { [IN.x, IN.y] = toWorld(e); });
+cv.addEventListener('pointerdown', e => { [IN.x, IN.y] = toWorld(e); IN.down = true; IN.press = true; });
+addEventListener('pointerup', () => { IN.down = false; });
+addEventListener('keydown', e => { IN.keys[e.code] = true; if (e.code === 'Space' || e.code === 'ArrowUp') { e.preventDefault(); if (!e.repeat) IN.press = true; } });
+addEventListener('keyup', e => { IN.keys[e.code] = false; });
+// ---- sound ----
+let AC = null;
+function tone(f, len, type, f2, vol) { try { AC = AC || new (window.AudioContext || window.webkitAudioContext)(); const o = AC.createOscillator(), v = AC.createGain(); o.type = type || 'sine'; o.frequency.setValueAtTime(f, AC.currentTime); if (f2) o.frequency.exponentialRampToValueAtTime(f2, AC.currentTime + len); v.gain.setValueAtTime(vol || .05, AC.currentTime); v.gain.exponentialRampToValueAtTime(.0005, AC.currentTime + len); o.connect(v); v.connect(AC.destination); o.start(); o.stop(AC.currentTime + len); } catch (e) {} }
+const sfx = { good: () => tone(660, .15, 'triangle', 990), bad: () => tone(200, .25, 'square', 100, .04), flip: () => tone(300, .3, 'sine', 900), sizzle: () => tone(4000, .08, 'sawtooth', 2000, .006), boing: () => tone(250, .2, 'sine', 500), stab: () => tone(150, .3, 'sawtooth', 60, .07), win: () => [523, 659, 784, 1046].forEach((f, i) => setTimeout(() => tone(f, .25, 'triangle'), i * 120)) };
+// ---- drawing a pancake (you) ----
+function pancake(x, y, r, opt) {
+    opt = opt || {}; const K = kind(), cook = opt.cook == null ? 1 : opt.cook, top = opt.top;
+    const col = cook < .5 ? mix(K.c[0], K.c[1], cook * 2) : mix(K.c[1], K.c[2], (cook - .5) * 2);
+    g.save(); g.translate(x, y); if (opt.rot) g.rotate(opt.rot); g.scale(1, opt.squash || 1);
+    g.fillStyle = 'rgba(0,0,0,.18)'; g.beginPath(); g.ellipse(4, r * .32 + 6, r, r * .3, 0, 0, 7); g.fill();
+    g.fillStyle = mix(col, '#7c4a17', .25); g.beginPath(); g.ellipse(0, r * .12, r, r * .34, 0, 0, 7); g.fill();
+    g.fillStyle = col; g.beginPath(); g.ellipse(0, 0, r, r * .34, 0, 0, 7); g.fill();
+    if (K.dots) for (let i = 0; i < 7; i++) { const a = i * 2.4, d = (i % 3 + 1) * r * .22; g.fillStyle = K.dots === 'rainbow' ? `hsl(${i * 50},90%,60%)` : K.dots; g.beginPath(); g.ellipse(Math.cos(a) * d, Math.sin(a) * d * .3, r * .06, r * .03, 0, 0, 7); g.fill(); }
+    if (top) top(r);
+    if (!opt.noFace) {      // the face: you
+        const ey = -r * .04, mood = opt.mood || 0;
+        g.fillStyle = '#3b1d0b'; for (const s of [-1, 1]) { g.beginPath(); g.ellipse(s * r * .22, ey, r * .055, r * (opt.blink ? .01 : .07), 0, 0, 7); g.fill(); g.fillStyle = '#fff'; g.beginPath(); g.arc(s * r * .22 + r * .02, ey - r * .03, r * .02, 0, 7); g.fill(); g.fillStyle = '#3b1d0b'; }
+        g.strokeStyle = '#3b1d0b'; g.lineWidth = r * .035; g.lineCap = 'round'; g.beginPath(); if (mood >= 0) g.arc(0, ey + r * .06, r * .1, .2, Math.PI - .2); else g.arc(0, ey + r * .2, r * .1, Math.PI + .3, -.3); g.stroke();
+        g.fillStyle = 'rgba(244,114,182,.35)'; for (const s of [-1, 1]) { g.beginPath(); g.ellipse(s * r * .34, ey + r * .07, r * .07, r * .035, 0, 0, 7); g.fill(); }
+    }
+    g.restore();
+}
+function rgbOf(c) { if (c[0] === '#') { const n = parseInt(c.slice(1), 16); return [(n >> 16) & 255, (n >> 8) & 255, n & 255]; } return c.match(/\d+/g).slice(0, 3).map(Number); }
+function mix(a, b, t) { const A = rgbOf(a), B = rgbOf(b); t = clamp(t, 0, 1); return `rgb(${A.map((v, i) => Math.round(v * (1 - t) + B[i] * t)).join(',')})`; }
+function kitchen(wall, floor) { const gr = g.createLinearGradient(0, 0, 0, H); gr.addColorStop(0, wall || '#fde7c4'); gr.addColorStop(1, floor || '#f5c98a'); g.fillStyle = gr; g.fillRect(0, 0, W, H); g.fillStyle = 'rgba(255,255,255,.25)'; for (let x = 0; x < W; x += 80) for (let y = 0; y < H * .55; y += 80) if ((x + y) / 80 % 2 === 0) g.fillRect(x, y, 80, 80); }
+function text(t, x, y, size, col, align) { g.font = `bold ${size}px Trebuchet MS`; g.textAlign = align || 'center'; g.fillStyle = col || '#4a2a0a'; g.fillText(t, x, y); }
+// ---- the life ----
+const L = { ch: 0, scores: [], notes: [], C: null, t: 0, over: false };
+window.__pancake = L;
+const CHAPTERS = [
+    { n: 'Batter Days', d: 'You are batter. Get stirred smooth: move the mouse in circles over the bowl. Lumps are bad. Too much stirring makes you tough.',
+      start() { return { lumps: Array.from({ length: 26 }, () => ({ a: rnd(0, 6.28), d: rnd(20, 170), r: rnd(8, 15) })), mixT: 0, over: 0, last: null, ang: 0, time: 18, spoon: [W / 2, H / 2] }; },
+      step(C, dt) {
+          const cx = W / 2, cy = H / 2 + 30, dx = IN.x - cx, dy = IN.y - cy, a = Math.atan2(dy, dx);
+          C.spoon = [IN.x, IN.y]; C.active = false; if (C.last != null && Math.hypot(dx, dy) < 230) { let d = a - C.last; d = Math.atan2(Math.sin(d), Math.cos(d)); C.ang += Math.abs(d); if (Math.abs(d) > .02) { C.mixT += dt; C.active = true; } }
+          C.last = a;
+          for (const l of C.lumps) { const lx = cx + Math.cos(l.a) * l.d, ly = cy + Math.sin(l.a) * l.d * .55; if (Math.hypot(IN.x - lx, IN.y - ly) < 40 && C.active) l.r -= dt * 14; l.a += dt * .4; }
+          C.lumps = C.lumps.filter(l => l.r > 2);
+          if (!C.lumps.length) { if (C.active) C.over += dt; else C.idle = (C.idle || 0) + dt; }
+          C.time -= dt; if (C.time <= 0 || C.over > 4 || C.idle > 1.2) return Math.round(clamp(100 - C.lumps.length * 4 - Math.max(0, C.over - 1) * 18, 0, 100));
+      },
+      draw(C) {
+          kitchen(); const cx = W / 2, cy = H / 2 + 30;
+          g.fillStyle = '#e5e7eb'; g.beginPath(); g.ellipse(cx, cy + 40, 290, 150, 0, 0, Math.PI); g.fill(); g.fillStyle = '#cbd5e1'; g.beginPath(); g.ellipse(cx, cy, 290, 160, 0, 0, 7); g.fill();
+          g.fillStyle = kind().c[0]; g.beginPath(); g.ellipse(cx, cy, 250, 135, 0, 0, 7); g.fill();
+          g.strokeStyle = 'rgba(180,120,40,.25)'; g.lineWidth = 3; for (let i = 0; i < 4; i++) { g.beginPath(); g.ellipse(cx, cy, 60 + i * 45, (60 + i * 45) * .55, C.ang * .2 + i, 0, 4); g.stroke(); }
+          for (const l of C.lumps) { const lx = cx + Math.cos(l.a) * l.d, ly = cy + Math.sin(l.a) * l.d * .55; g.fillStyle = '#f1d9a0'; g.beginPath(); g.arc(lx, ly, l.r, 0, 7); g.fill(); g.fillStyle = '#e8c070'; g.beginPath(); g.arc(lx + 2, ly + 2, l.r * .5, 0, 7); g.fill(); }
+          pancake(cx, cy - 4, 60, { cook: 0, noFace: false, mood: C.lumps.length > 10 ? -1 : 1 });
+          g.strokeStyle = '#a16207'; g.lineWidth = 12; g.lineCap = 'round'; g.beginPath(); g.moveTo(C.spoon[0], C.spoon[1]); g.lineTo(C.spoon[0] + 60, C.spoon[1] - 170); g.stroke(); g.fillStyle = '#a16207'; g.beginPath(); g.ellipse(C.spoon[0], C.spoon[1], 22, 14, -.5, 0, 7); g.fill();
+          hud(`<b>Lumps left: ${C.lumps.length}</b><br>${!C.lumps.length ? (C.over > 1.5 ? 'Stop! You are getting tough!' : 'Smooth! Stop stirring now.') : 'Stir in circles over the lumps'} · ${Math.ceil(C.time)} s`);
+      }},
+    { n: 'The Griddle', d: 'Into the pan. Watch the bubbles: when they pop all over, your underside is golden. SPACE (or click) to flip yourself. Cook both sides, then flip once more to slide off.',
+      start() { return { side: 0, cook: [0, 0], bub: [], flips: 0, air: 0, time: 0, res: [], done: false }; },
+      step(C, dt) {
+          C.time += dt; const heat = .085;
+          if (C.air > 0) { C.air -= dt; return; }
+          if (C.done) { C.doneT = (C.doneT || 0) + dt; if (C.doneT > 1) return Math.round(C.res.reduce((a, b) => a + b, 0) / C.res.length); return; }
+          C.cook[C.side] += dt * heat * rnd(.8, 1.2);
+          if (Math.random() < dt * (2 + C.cook[C.side] * 14)) C.bub.push({ x: rnd(-140, 140), y: rnd(-42, 42), r: rnd(3, 9), t: 0, pop: rnd(.3, 1.2) });
+          for (const b of C.bub) b.t += dt; C.bub = C.bub.filter(b => b.t < b.pop + .3);
+          if (Math.random() < dt * 4) sfx.sizzle();
+          if (IN.press) { IN.press = false; const c = C.cook[C.side], score = Math.round(clamp(100 - Math.abs(c - .62) * 260, 0, 100)); C.res.push(score); C.flips++; C.air = .7; C.bub = []; sfx.flip(); L.note(score > 80 ? 'golden' : c < .62 ? 'pale' : 'crispy'); if (C.flips >= 2) C.done = true; else C.side = 1 - C.side; }
+          if (C.cook[C.side] > 1.25) { C.res.push(0); C.flips++; C.air = .7; sfx.bad(); L.note('burnt'); if (C.flips >= 2) C.done = true; else C.side = 1 - C.side; }
+      },
+      draw(C) {
+          kitchen('#fde2b8', '#d6a56a'); const cx = W / 2, cy = H / 2 + 40;
+          g.fillStyle = '#1f2937'; g.beginPath(); g.ellipse(cx, cy + 14, 320, 150, 0, 0, 7); g.fill(); g.fillStyle = '#374151'; g.beginPath(); g.ellipse(cx, cy, 300, 138, 0, 0, 7); g.fill(); g.fillStyle = '#111827'; g.fillRect(cx + 290, cy - 16, 210, 30);
+          for (let i = 0; i < 5; i++) { g.strokeStyle = `rgba(251,146,60,${.08 + Math.sin(L.t * 3 + i) * .04})`; g.lineWidth = 5; g.beginPath(); g.ellipse(cx, cy, 60 + i * 50, 28 + i * 23, 0, 0, 7); g.stroke(); }
+          const up = C.air > 0 ? Math.sin((1 - C.air / .7) * Math.PI) * 220 : 0, rot = C.air > 0 ? (1 - C.air / .7) * Math.PI : 0;
+          pancake(cx, cy - up, 150, { cook: C.cook[1 - C.side] * .9, squash: Math.cos(rot) * .9 + .1, mood: C.cook[C.side] > 1 ? -1 : 1, noFace: Math.cos(rot) < 0 });
+          if (!C.air) for (const b of C.bub) { const popped = b.t > b.pop; g.strokeStyle = popped ? 'rgba(120,70,20,.5)' : 'rgba(255,255,255,.7)'; g.fillStyle = popped ? 'rgba(120,70,20,.25)' : 'rgba(255,255,255,.35)'; g.lineWidth = 2; g.beginPath(); g.arc(cx + b.x, cy + b.y, b.r * (popped ? .7 : 1), 0, 7); g.fill(); g.stroke(); }
+          // the underside meter (you can feel it)
+          const c = C.cook[C.side], mx = cx - 200, my = H - 70; g.fillStyle = '#fff'; g.fillRect(mx, my, 400, 22); const gr = g.createLinearGradient(mx, 0, mx + 400, 0); gr.addColorStop(0, kind().c[0]); gr.addColorStop(.5, kind().c[1]); gr.addColorStop(.75, kind().c[2]); gr.addColorStop(1, '#1c0f05'); g.fillStyle = gr; g.fillRect(mx, my, 400, 22);
+          g.fillStyle = '#16a34a'; g.fillRect(mx + 400 * .5, my - 6, 400 * .25, 4); g.fillStyle = '#000'; g.fillRect(mx + 400 * clamp(c / 1.25, 0, 1) - 2, my - 8, 4, 38);
+          hud(`<b>${C.done ? 'Done!' : C.flips === 0 ? 'Side one' : 'Side two'}</b><br>Flip when the bubbles pop and the marker is in the green · SPACE`);
+      }},
+    { n: 'The Stack', d: 'Onto the plate, at the bottom of a growing stack. Climb! ←/→ to move, SPACE/↑ to jump. Do not get squashed by the pancakes flopping down. Reach the top before the stack is done.',
+      start() { const st = [{ x: W / 2, y: H - 90, w: 230 }]; for (let i = 1; i < 6; i++) st.push({ x: W / 2 + rnd(-90, 90), y: H - 90 - i * 46, w: rnd(180, 240) }); return { st, falling: [], p: { x: W / 2, y: H - 120, vx: 0, vy: 0, on: true }, t: 0, spawnT: 1.2, squash: 0, cam: 0, max: 10, best: 0, hits: 0 }; },
+      step(C, dt) {
+          const p = C.p, k = IN.keys; C.t += dt;
+          p.vx = ((k.ArrowRight || k.KeyD ? 1 : 0) - (k.ArrowLeft || k.KeyA ? 1 : 0)) * 300;
+          if (IN.press && p.on) { p.vy = -620; p.on = false; sfx.boing(); } IN.press = false;
+          p.vy += 1500 * dt; p.x = clamp(p.x + p.vx * dt, 60, W - 60); p.y += p.vy * dt; p.on = false;
+          for (const s of C.st) if (p.vy >= 0 && p.y >= s.y - 30 && p.y - p.vy * dt <= s.y - 28 && Math.abs(p.x - s.x) < s.w / 2) { p.y = s.y - 30; p.vy = 0; p.on = true; }
+          C.spawnT -= dt; if (C.spawnT <= 0 && C.st.length < C.max + 6) { C.spawnT = rnd(1.1, 1.8); C.falling.push({ x: clamp(p.x + rnd(-160, 160), 140, W - 140), y: C.cam - 120, w: rnd(180, 240), vy: 0 }); }
+          for (const f of C.falling) { f.vy += 900 * dt; f.y += f.vy * dt; const top = Math.min(...C.st.map(s => Math.abs(s.x - f.x) < (s.w + f.w) / 2.4 ? s.y : 9999)); if (f.y >= top - 46) { f.y = top - 46; f.land = 1; C.st.push({ x: f.x, y: f.y, w: f.w }); sfx.boing(); if (Math.abs(p.x - f.x) < f.w / 2 && p.y > f.y - 40 && p.y < f.y + 40) { C.hits++; C.squash = .6; p.y = f.y - 30; p.vy = -300; sfx.bad(); } } }
+          C.falling = C.falling.filter(f => !f.land);
+          const topY = Math.min(...C.st.map(s => s.y)); C.cam += ((Math.min(0, p.y - H * .6)) - C.cam) * dt * 3; C.squash -= dt;
+          const lvl = Math.round((H - 90 - p.y) / 46); C.best = Math.max(C.best, lvl);
+          if (p.y > H + 200 - C.cam) { p.y = H - 120; p.vy = 0; }
+          const atTop = p.on && p.y <= topY - 25;
+          if (C.t > 26 || (atTop && C.st.length >= C.max)) return Math.round(clamp((atTop ? 70 : 20) + C.best * 3 - C.hits * 10, 0, 100));
+      },
+      draw(C) {
+          kitchen('#fef3c7', '#e9c38a'); g.save(); g.translate(0, -C.cam);
+          g.fillStyle = '#f8fafc'; g.beginPath(); g.ellipse(W / 2, H - 60, 300, 40, 0, 0, 7); g.fill(); g.strokeStyle = '#cbd5e1'; g.lineWidth = 4; g.stroke();
+          for (const s of C.st) pancake(s.x, s.y, s.w / 2, { noFace: true, cook: .6 });
+          for (const f of C.falling) { g.fillStyle = 'rgba(0,0,0,.12)'; g.beginPath(); g.ellipse(f.x, Math.min(...C.st.map(s => s.y)) - 40, f.w / 2, 10, 0, 0, 7); g.fill(); pancake(f.x, f.y, f.w / 2, { noFace: true, cook: .6 }); }
+          pancake(C.p.x, C.p.y, 46, { squash: C.squash > 0 ? .5 : 1, mood: C.squash > 0 ? -1 : 1 });
+          g.restore();
+          hud(`<b>Climb to the top!</b><br>Layer ${C.best} · ${Math.max(0, Math.ceil(26 - C.t))} s · squashed ${C.hits}`);
+      }},
+    { n: 'Topping Time', d: 'You made it to the top. Now catch the toppings: syrup, butter, berries, whipped cream, chocolate chips. Dodge ketchup, pickles and sardines. Mouse or ←/→.',
+      start() { return { items: [], x: W / 2, t: 0, spawn: 0, got: [], score: 50, combo: 0 }; },
+      step(C, dt) {
+          C.t += dt; const k = IN.keys; if (k.ArrowLeft || k.ArrowRight || k.KeyA || k.KeyD) C.x += ((k.ArrowRight || k.KeyD ? 1 : 0) - (k.ArrowLeft || k.KeyA ? 1 : 0)) * 520 * dt; else C.x += (IN.x - C.x) * Math.min(1, dt * 10); C.x = clamp(C.x, 90, W - 90);
+          C.spawn -= dt; if (C.spawn <= 0) { C.spawn = rnd(.35, .6); const good = Math.random() < .72; C.items.push({ x: rnd(80, W - 80), y: -40, vy: rnd(160, 260) + C.t * 4, good, e: good ? ['🍯', '🧈', '🫐', '🍓', '🍫', '🍌', '🍒'][Math.floor(rnd(0, 7))] : ['🥫', '🥒', '🐟', '🧅', '🌶️'][Math.floor(rnd(0, 5))] }); }
+          for (const it of C.items) { it.y += it.vy * dt; if (!it.done && it.y > H - 150 && it.y < H - 90 && Math.abs(it.x - C.x) < 100) { it.done = 1; if (it.good) { C.combo++; C.score += 3 + Math.min(4, C.combo); C.got.push(it.e); sfx.good(); } else { C.combo = 0; C.score -= 12; C.got.push(it.e); sfx.bad(); } } }
+          C.items = C.items.filter(it => !it.done && it.y < H + 40);
+          if (C.t > 25) return Math.round(clamp(C.score, 0, 100));
+      },
+      draw(C) {
+          kitchen('#fef9c3', '#f2cf8e');
+          g.fillStyle = '#f8fafc'; g.beginPath(); g.ellipse(C.x, H - 70, 150, 26, 0, 0, 7); g.fill();
+          for (let i = 0; i < 4; i++) pancake(C.x, H - 92 - i * 16, 120, { noFace: true, cook: .6 });
+          const got = C.got.slice(-14);
+          pancake(C.x, H - 160, 120, { mood: C.combo >= 0 ? 1 : -1, top: r => { got.forEach((e, i) => { g.font = '30px serif'; g.textAlign = 'center'; g.fillText(e, (i % 7 - 3) * r * .26, -r * .1 - Math.floor(i / 7) * 16); }); } });
+          for (const it of C.items) { g.font = '44px serif'; g.textAlign = 'center'; g.fillText(it.e, it.x, it.y); }
+          hud(`<b>Deliciousness ${Math.round(clamp(C.score, 0, 100))}</b><br>combo ${C.combo} · ${Math.max(0, Math.ceil(25 - C.t))} s`);
+      }},
+    { n: 'The Fork', d: 'Breakfast is served. Forks stab where their shadows grow: get out of the way (WASD / arrows or the mouse). Survive and reach the glowing edge of the table to roll away to freedom.',
+      start() { return { p: { x: 200, y: H / 2 }, forks: [], t: 0, spawn: 1, hits: 0, inv: 0, exitOpen: false }; },
+      step(C, dt) {
+          C.t += dt; const p = C.p, k = IN.keys; let mx = (k.ArrowRight || k.KeyD ? 1 : 0) - (k.ArrowLeft || k.KeyA ? 1 : 0), my = (k.ArrowDown || k.KeyS ? 1 : 0) - (k.ArrowUp || k.KeyW ? 1 : 0);
+          if (!mx && !my && IN.down) { const dx = IN.x - p.x, dy = IN.y - p.y, d = Math.hypot(dx, dy); if (d > 10) { mx = dx / d; my = dy / d; } }
+          const l = Math.hypot(mx, my) || 1; p.x = clamp(p.x + mx / l * 300 * dt, 60, W - 40); p.y = clamp(p.y + my / l * 300 * dt, 120, H - 60);
+          C.spawn -= dt; if (C.spawn <= 0) { C.spawn = Math.max(.35, 1.1 - C.t * .03); C.forks.push({ x: p.x + rnd(-120, 120), y: p.y + rnd(-90, 90), t: 0, warn: Math.max(.6, 1.1 - C.t * .02) }); }
+          C.inv -= dt;
+          for (const f of C.forks) { f.t += dt; if (!f.hit && f.t >= f.warn) { f.hit = 1; sfx.stab(); if (Math.hypot(f.x - p.x, f.y - p.y) < 62 && C.inv <= 0) { C.hits++; C.inv = 1; if (C.hits >= 3) return 10; } } }
+          C.forks = C.forks.filter(f => f.t < f.warn + .5);
+          C.exitOpen = C.t > 18;
+          if (C.exitOpen && p.x > W - 80) return Math.round(clamp(100 - C.hits * 25, 30, 100));
+      },
+      draw(C) {
+          g.fillStyle = '#7c4a2a'; g.fillRect(0, 0, W, H); g.fillStyle = '#fff7ed'; g.fillRect(30, 100, W - 60, H - 130);
+          g.strokeStyle = '#ef4444'; g.lineWidth = 10; for (let x = 30; x < W - 30; x += 60) { g.beginPath(); g.moveTo(x, 100); g.lineTo(x, H - 30); g.globalAlpha = .12; g.stroke(); } for (let y = 100; y < H - 30; y += 60) { g.beginPath(); g.moveTo(30, y); g.lineTo(W - 30, y); g.stroke(); } g.globalAlpha = 1;
+          if (C.exitOpen) { g.fillStyle = `rgba(250,204,21,${.35 + Math.sin(L.t * 6) * .2})`; g.fillRect(W - 90, 100, 60, H - 130); text('ROLL!', W - 60, H / 2, 22, '#92400e'); }
+          g.fillStyle = '#e5e7eb'; g.beginPath(); g.arc(W * .55, H * .58, 120, 0, 7); g.fill(); text('🍳', W * .55, H * .62, 60); text('☕', 140, 190, 54); text('🥛', W - 220, 200, 54);
+          for (const f of C.forks) { const k2 = clamp(f.t / f.warn, 0, 1); g.fillStyle = `rgba(0,0,0,${.1 + k2 * .3})`; g.beginPath(); g.ellipse(f.x, f.y, 30 + k2 * 30, 14 + k2 * 14, 0, 0, 7); g.fill();
+              if (f.t >= f.warn) { g.fillStyle = '#9ca3af'; g.fillRect(f.x - 6, f.y - 220, 12, 200); for (let i = -1; i <= 1; i++) g.fillRect(f.x + i * 14 - 3, f.y - 40, 6, 40); g.fillRect(f.x - 20, f.y - 46, 40, 10); } }
+          pancake(C.p.x, C.p.y, 58, { mood: C.inv > 0 ? -1 : 1, blink: C.inv > 0 && Math.sin(L.t * 30) > 0 });
+          hud(`<b>${C.exitOpen ? 'GO! Roll off the edge →' : 'Survive breakfast: ' + Math.ceil(18 - C.t) + ' s'}</b><br>stabbed ${C.hits} of 3`);
+      }}];
+L.note = w => L.notes.push(w);
+function hud(html) { let h = document.getElementById('hud'); if (!h) { ui.innerHTML = '<div class="hud" id="hud"></div>'; h = document.getElementById('hud'); } if (h.innerHTML !== html) h.innerHTML = html; }
+function intro(i) {
+    if (L.over) return;
+    L.ch = i; L.C = null; const c = CHAPTERS[i];
+    ui.innerHTML = `<div class="pp"><div style="font-size:14px;color:#b45309">CHAPTER ${i + 1} OF 5</div><h2>${c.n}</h2><p>${c.d}</p><button class="pb" id="p-go">Go!</button></div>`;
+    document.getElementById('p-go').onclick = () => { ui.innerHTML = ''; IN.press = false; L.C = c.start(); };
+}
+function newLife() { L.scores = []; L.notes = []; L.over = false; intro(0); }
+function endChapter(score) {
+    L.scores.push(score); L.C = null; (score >= 60 ? sfx.good : sfx.bad)();
+    if (L.ch === 4 && score <= 10) return story(false);
+    if (L.ch >= 4) return story(true);
+    const next = ++L.ch; setTimeout(() => intro(next), 200);
+}
+function story(escaped) {
+    L.over = true;
+    const total = Math.round(L.scores.reduce((a, b) => a + b, 0) / 5 * 7), stars = Math.round(total / 140), K = kind();
+    const title = !escaped ? 'Delicious Breakfast' : total >= 600 ? 'Legendary Flapjack' : total >= 450 ? 'Golden Hotcake' : total >= 300 ? 'Decent Griddlecake' : 'Floppy Pancake';
+    const lines = [L.scores[0] >= 70 ? 'You started life smooth and lump-free.' : 'You were a lumpy kid, and that is okay.', L.notes.includes('burnt') ? 'You got a little burnt on the griddle.' : L.notes.filter(n => n === 'golden').length === 2 ? 'Golden on both sides. Perfect.' : 'You cooked your own way.',
+        (L.scores[2] || 0) >= 70 ? 'You climbed to the top of the stack.' : 'The stack was tough, but you held on.', (L.scores[3] || 0) >= 70 ? 'You wore the best toppings in the kitchen.' : 'Your toppings were... interesting.', escaped ? 'And then you rolled off the table, free, into legend.' : 'And then someone ate you. You were delicious.'];
+    SV.lives++; SV.best = Math.max(SV.best, total); escaped ? SV.escaped++ : SV.eaten++; if (!SV.titles.includes(title)) SV.titles.push(title);
+    const unlocked = KINDS.filter(k2 => !SV.kinds.includes(k2.id) && total >= k2.need); unlocked.forEach(k2 => SV.kinds.push(k2.id)); save(); sfx.win();
+    ui.innerHTML = `<div class="pp"><div style="font-size:54px">${escaped ? K.e : '🍴'}</div><h2>${title}</h2><div class="stars">${'★'.repeat(stars)}${'☆'.repeat(5 - stars)}</div>
+      ${CHAPTERS.map((c, i) => `<div class="ch"><span>${c.n}</span><b>${L.scores[i] != null ? L.scores[i] : '-'}</b></div>`).join('')}<div class="ch"><span><b>Pancake life rating</b></span><b>${total} / 700</b></div>
+      <p>${lines.join(' ')}</p>${unlocked.length ? `<p><b>New pancake${unlocked.length > 1 ? 's' : ''}: ${unlocked.map(k2 => k2.e + ' ' + k2.n).join(', ')}!</b></p>` : ''}
+      <button class="pb" id="p-again">Live again</button><button class="pb alt" id="p-menu">Menu</button></div>`;
+    document.getElementById('p-again').onclick = newLife; document.getElementById('p-menu').onclick = menu;
+}
+function menu() {
+    L.C = null;
+    ui.innerHTML = `<div class="pp"><h1>Pancake Simulator</h1><p>One life. As a pancake. From the mixing bowl to the edge of the table.</p>
+      <div class="flav">${KINDS.map(k2 => `<button class="fl ${SV.kind === k2.id ? 'on' : ''}" data-k="${k2.id}" ${SV.kinds.includes(k2.id) ? '' : 'disabled'}><b>${k2.e}</b>${k2.n}${SV.kinds.includes(k2.id) ? '' : '<br><small>life rating ' + k2.need + '</small>'}</button>`).join('')}</div>
+      <button class="pb" id="p-start">Be a pancake</button>
+      <p style="font-size:13px;color:#92400e">Lives lived ${SV.lives} · best rating ${SV.best} · rolled to freedom ${SV.escaped} · eaten ${SV.eaten}${SV.titles.length ? '<br>Titles: ' + SV.titles.join(', ') : ''}</p></div>`;
+    ui.querySelectorAll('[data-k]').forEach(b => b.onclick = () => { SV.kind = b.dataset.k; save(); menu(); });
+    document.getElementById('p-start').onclick = newLife;
+}
+// ---- loop ----
+let last = performance.now();
+function frame(now) {
+    requestAnimationFrame(frame); const dt = Math.min(.05, (now - last) / 1000); last = now; L.t += dt;
+    g.setTransform(1, 0, 0, 1, 0, 0); g.fillStyle = '#7c4a2a'; g.fillRect(0, 0, cv.width, cv.height); g.setTransform(scale, 0, 0, scale, ox, oy);
+    const c = CHAPTERS[L.ch];
+    if (L.C) { const r = c.step(L.C, dt); if (L.C) c.draw(L.C); if (r != null) endChapter(r); }
+    else { kitchen(); for (let i = 0; i < 7; i++) pancake(W / 2, H - 120 - i * 28, 170 - i * 4, { noFace: i < 6, cook: .6, mood: 1 }); }
+    IN.press = false;
+}
+menu(); requestAnimationFrame(frame);
+// tests
+Object.assign(L, { CHAPTERS, IN, newLife, intro, endChapter, save: () => SV });

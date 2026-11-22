@@ -1,0 +1,14 @@
+html, body { margin: 0; height: 100%; overflow: hidden; background: #fde7c4; font-family: 'Trebuchet MS', 'Comic Sans MS', system-ui, sans-serif; color: #4a2a0a; user-select: none; }
+#cv { position: fixed; inset: 0; width: 100%; height: 100%; display: block; touch-action: none; }
+#ui { position: fixed; inset: 0; pointer-events: none; }
+.pp { position: absolute; left: 50%; top: 50%; transform: translate(-50%, -50%); pointer-events: auto; width: min(560px, 92vw); max-height: 92vh; overflow: auto; text-align: center; background: #fffaf0; border: 4px solid #b45309; border-radius: 26px; padding: 22px 26px; box-shadow: 0 10px 0 #92400e, 0 20px 40px rgba(0,0,0,.25); }
+.pp h1 { margin: 0; font-size: 50px; color: #b45309; text-shadow: 3px 3px 0 #fcd34d; }
+.pp h2 { margin: 0 0 4px; color: #92400e; font-size: 30px; }
+.pp p { margin: 8px 0; font-size: 16px; line-height: 1.45; }
+.pb { pointer-events: auto; font: bold 19px inherit; background: #f59e0b; color: #fff; border: 0; border-radius: 16px; padding: 11px 26px; margin: 5px; cursor: pointer; box-shadow: 0 5px 0 #b45309; } .pb:active { transform: translateY(3px); box-shadow: 0 2px 0 #b45309; } .pb.alt { background: #a8a29e; box-shadow: 0 5px 0 #57534e; }
+.flav { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; margin: 12px 0; }
+.fl { border: 3px solid #e7d3b0; border-radius: 16px; background: #fff; padding: 8px 4px; cursor: pointer; font: inherit; font-size: 13px; color: #4a2a0a; } .fl.on { border-color: #f59e0b; background: #fef3c7; } .fl:disabled { opacity: .4; cursor: default; } .fl b { display: block; font-size: 26px; }
+.stars { font-size: 34px; color: #f59e0b; letter-spacing: 4px; }
+.ch { display: flex; justify-content: space-between; padding: 5px 8px; border-bottom: 1px dashed #e7d3b0; font-size: 15px; } .ch b { color: #b45309; }
+.hud { position: absolute; top: 12px; left: 50%; transform: translateX(-50%); background: rgba(255,250,240,.9); border: 3px solid #b45309; border-radius: 16px; padding: 6px 16px; font-size: 16px; text-align: center; min-width: 260px; } .hud b { font-size: 20px; }
+.hidden { display: none !important; }
