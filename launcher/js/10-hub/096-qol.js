@@ -273,26 +273,51 @@ function qolPlayerBar() {
     playNow(current.game);
   };
 })();
-// --- what's new: once after an update, on the Games page ---
-var WHATSNEW = { id: 'u2026-11-21', items: [
-  ['🏎️ New game: Zoom', '3D kart and bike racing: 12 tracks in 3 cups, 15 items, drifting with mini-turbos, a garage full of parts, six modes (Grand Prix, Time Trial, Knockout, Coin Rush, Balloon Battle and more) and online races with your friends.'],
-  ['⚽ New: Sports Mix', 'Soccer, basketball, tennis, baseball, hockey, American football, bowling and golf (mini golf or the real thing) in one minigame. Play a bot or your friends.'],
-  ['♟️ New: Chess and Checkers', 'Play a friend or one of 8 rated bots. Every game is ranked with Elo, from Rookie to Unreal.'],
-  ['🪖 Steel Storm 3.0', 'Five nations with real vehicles from WW1 to the Cold War, fight on foot with real guns, four maps, first-person and zoom views, side and rear armour, and a 1v1 Duel mode.'],
-  ['🪐 Sovereign 1.7', 'Win any victory and unlock Sovereign Interplanetary: lead a planet or dwarf planet, trade, ally and fight across a solar system that really orbits.'],
-  ['🎮 More updates', 'Last Light: the LINEAR Run. 100 Levels of Spikes: Victor places, auto respawn and a bored cube. Element Lab: 12 new goals. Blocky Shooter: no more stuck white screen. Sovereign: Antarctica is whole again.'],
-  ['🕒 In the launcher', 'The clock and date in the top bar, tabs that always fit, an hours-played-per-day chart in Activity, and staff names in colour: the owner in yellow, admins in blue.']
+// --- what's new: a bubble in the bottom-right corner of the launcher. A dot (and one automatic opening) after an update;
+// press it any time to read the list again. The old inline box (#whatsnew) is no longer shown.
+var WHATSNEW = { id: 'u2026-11-22', title: 'The big Taco update', items: [
+  ['🌮 Goons are now Tacos', 'Same currency, tastier name: the shop, the casino (now The Lucky Taco) and every reward say tacos.'],
+  ['🎮 Ten new games', 'Sketch, Zombie vs. You, DoomsDay, Edible Light Bulb Clicker, Crochet & Knitting Simulator, World Conflict, Slither, Design Anything, Bing Bong BANG! and Pancake Simulator.'],
+  ['🧊 Design Anything in 3D', 'Cars, sneakers, houses, robots, cakes, spaceships, planets, castles and more, each with dozens of options. Save them or snapshot a picture.'],
+  ['🪨 New minigames', 'Rock Simulator (be a rock, or a really dark rock) and Battleship against a friend or three levels of bot.'],
+  ['🌐 External Games tab', 'Baseball Bros, Rocket League 2D and Snowball.io, made by other people and kept safely walled off from your account.'],
+  ['❌⭕ Ultimate Tic-Tac-Toe', 'Nine boards in one: where you play decides where your opponent goes next.'],
+  ['♟️ Material counter', 'Chess and Checkers now show the pieces each side has taken and who is ahead.'],
+  ['🎳 Bowling, rebuilt', 'Sports Mix bowling has a 3D lane, real hook, wobbling pins, splits and turkeys.'],
+  ['👻 Imposter', 'Playing with bots only? Turn on "Make me a Shade" to always be the Shade.'],
+  ['📺 Livestreams fixed', 'No more endless "Connecting to the game...", and a big Leave button (or Esc) to get out.']
 ] };
-function qolNews(force) {
-  var box = document.getElementById('whatsnew'); if (!box) return;
-  var seen = null, first = false;
-  try { seen = localStorage.getItem('hgv:seennew'); first = !localStorage.getItem('hgv:booted'); } catch (e) {}
-  if (!force && (seen === WHATSNEW.id || first)) { if (first) { try { localStorage.setItem('hgv:seennew', WHATSNEW.id); } catch (e) {} } box.hidden = true; return; }
-  box.innerHTML = '<div class="wn-h"><b>&#10024; What\'s new</b><button id="wn-x" title="Hide this">Got it</button></div><ul>' + WHATSNEW.items.map(function (i) { return '<li><b>' + i[0] + '</b> ' + i[1] + '</li>'; }).join('') + '</ul>';
-  box.hidden = false;
-  document.getElementById('wn-x').onclick = function () { try { localStorage.setItem('hgv:seennew', WHATSNEW.id); } catch (e) {} box.hidden = true; };
+function wnSeen() { try { return localStorage.getItem('hgv:seennew') === WHATSNEW.id; } catch (e) { return true; } }
+function wnPaint() {
+  var b = document.getElementById('wn-bubble'); if (!b) return;
+  b.classList.toggle('new', !wnSeen());
 }
-window.HG_whatsNew = function () { showTab('games'); qolNews(true); try { document.getElementById('whatsnew').scrollIntoView({ block: 'nearest' }); } catch (e) {} };
+function wnOpen(open) {
+  var pop = document.getElementById('wn-pop'); if (!pop) return;
+  if (open === undefined) open = pop.hidden;
+  pop.hidden = !open;
+  if (open) { try { localStorage.setItem('hgv:seennew', WHATSNEW.id); } catch (e) {} wnPaint(); }
+}
+function qolNews(force) {
+  var old = document.getElementById('whatsnew'); if (old) old.hidden = true;
+  if (!document.getElementById('wn-bubble')) {
+    var b = document.createElement('button'); b.id = 'wn-bubble'; b.title = "What's new"; b.innerHTML = '<span class="wn-ic">&#10024;</span><span class="wn-t">What\'s new</span><i class="wn-dot"></i>';
+    var pop = document.createElement('div'); pop.id = 'wn-pop'; pop.hidden = true;
+    pop.innerHTML = '<div class="wn-hd"><b>&#10024; ' + WHATSNEW.title + '</b><button class="wn-x" title="Close">&#10005;</button></div><ul>' + WHATSNEW.items.map(function (i) { return '<li><b>' + i[0] + '</b><span>' + i[1] + '</span></li>'; }).join('') + '</ul><button class="wn-ok">Got it</button>';
+    document.body.appendChild(pop); document.body.appendChild(b);
+    b.onclick = function (e) { e.stopPropagation(); wnOpen(); };
+    pop.querySelector('.wn-x').onclick = pop.querySelector('.wn-ok').onclick = function () { wnOpen(false); };
+    pop.addEventListener('click', function (e) { e.stopPropagation(); });
+    document.addEventListener('click', function () { wnOpen(false); });
+    document.addEventListener('keydown', function (e) { if (e.key === 'Escape' && !pop.hidden) wnOpen(false); });
+  }
+  var first = false; try { first = !localStorage.getItem('hgv:booted'); } catch (e) {}
+  if (first && !force) { try { localStorage.setItem('hgv:seennew', WHATSNEW.id); } catch (e) {} }      // brand-new players: no dot
+  wnPaint();
+  if (force) wnOpen(true);
+  else if (!wnSeen()) setTimeout(function () { if (!document.documentElement.classList.contains('playing') && !wnSeen()) wnOpen(true); }, 2500);      // once, after an update
+}
+window.HG_whatsNew = function () { showTab('games'); qolNews(true); };
 // --- offline / back online ---
 (function () {
   var bar = document.getElementById('netbar'), t = 0; if (!bar) return;

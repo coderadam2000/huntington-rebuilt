@@ -65,7 +65,7 @@ try {
   await createAccount(A, 'Dock' + (Date.now() % 100000));
   await until(async () => (await status(A)) === 'online', 60000);
   await sleep(1500);
-  await A.evaluate(() => { [...document.querySelectorAll('.game')].find(g => /Tetris/.test(g.textContent)).click(); });
+  await A.evaluate(() => { [...document.querySelectorAll('.game')].find(g => /Sketch/.test(g.textContent)).click(); });
   await A.waitForSelector('#player.open', { timeout: 20000 }); await sleep(2500);
   check('the 💬 Chat button is in the bar above the game', await A.evaluate(() => !!document.getElementById('dk-btn') && document.getElementById('dk-btn').offsetWidth > 0));
   const w0 = await A.evaluate(() => document.getElementById('frame').getBoundingClientRect().width);
@@ -74,7 +74,7 @@ try {
   check('the dock has conversation tabs once Grapevine is up (#main)', !!(await until(() => A.evaluate(() => [...document.querySelectorAll('#dk-tabs button')].some(b => /main/.test(b.textContent))), 60000)));
   await A.evaluate(() => { const b = [...document.querySelectorAll('#dk-tabs button')].find(b => /main/.test(b.textContent)); b.click(); });
   await A.fill('#dk-in', 'hello from the dock'); await A.press('#dk-in', 'Enter');
-  const gv = A.frames().find(f => f.name() !== 'player' && f.url().startsWith('about:srcdoc') && f !== A.mainFrame() && f !== A.frames().find(x => x.url().includes('Tetris')));
+  const gv = A.frames().find(f => f.name() !== 'player' && f.url().startsWith('about:srcdoc') && f !== A.mainFrame() && f !== A.frames().find(x => x.url().includes('Sketch')));
   check('a message sent from the dock is in Grapevine', !!(await until(() => A.evaluate(() => document.getElementById('dk-ls').textContent.includes('hello from the dock')), 10000)));
   await A.click('[data-dkq="gg"]');
   check('quick phrases send in one press', !!(await until(() => A.evaluate(() => [...document.querySelectorAll('#dk-ls .dk-m')].some(m => / gg$/.test(m.textContent))), 10000)));

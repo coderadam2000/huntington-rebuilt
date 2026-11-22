@@ -92,9 +92,9 @@ try {
   for (const P of [A, B, C]) await P.evaluate(() => HGGrapevine.party.activity(null));
 
   console.log('\n=== the game chat over a running game ===');
-  for (const P of [A, B]) await P.evaluate(() => { showTab('games'); playNow(GAMES.find(g => g.dir === 'Tetris')); });
-  check('opening a game puts you in its game chat', !!(await until(() => A.evaluate(() => !document.getElementById('gchat').hidden && /Everyone in Tetris/.test(document.querySelector('#gchat .gc-ch').textContent)), 20000)));
-  const tf = await until(async () => A.frames().find(f => /Tetris\/index/.test(f.url())), 30000);
+  for (const P of [A, B]) await P.evaluate(() => { showTab('games'); playNow(GAMES.find(g => g.dir === 'Sketch')); });
+  check('opening a game puts you in its game chat', !!(await until(() => A.evaluate(() => !document.getElementById('gchat').hidden && /Everyone in Sketch/.test(document.querySelector('#gchat .gc-ch').textContent)), 20000)));
+  const tf = await until(async () => A.frames().find(f => /Sketch\/index/.test(f.url())), 30000);
   await sleep(2500);
   await tf.evaluate(() => document.body.dispatchEvent(new KeyboardEvent('keydown', { key: 't', code: 'KeyT', bubbles: true })));
   check('T opens the chat line over the game', !!(await until(() => A.evaluate(() => document.getElementById('gchat').classList.contains('open') && document.activeElement === document.querySelector('#gchat input')), 5000)));

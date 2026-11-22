@@ -166,7 +166,7 @@ try {
   await A.evaluate(() => [...document.querySelectorAll('#hgt-host .hgt button.go')][0].click());
   check('Accept in the pop-up makes them friends', !!(await until(() => A.evaluate(() => HGGrapevine.friendState('NtBob') === 'friend'), 20000)));
   await A.evaluate(() => document.getElementById('back').click());
-  check('the launcher flags games that keep their own T', await A.evaluate(() => { const g = (window.GAMES || []).concat(window.EXPERIMENTAL || []); return g.some(x => x.dir === 'Frontline' && x.chatShift) && g.some(x => /Levi Dash/.test(x.dir) && x.noChat); }));
+  check('the launcher flags games that keep their own T', await A.evaluate(() => { const g = (window.GAMES || []).concat(window.EXPERIMENTAL || []); return g.some(x => x.dir === 'Frontline' && x.chatShift) && g.some(x => /Cursed Dash/.test(x.dir) && x.noChat); }));
 } catch (e) { console.log('ERROR', e && e.stack || e); failures++; }
 await browser.close();
 console.log(failures ? `\n${failures} FAILED` : '\nALL PASSED');

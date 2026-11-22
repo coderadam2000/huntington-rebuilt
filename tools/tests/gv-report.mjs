@@ -72,13 +72,13 @@ try {
   console.log('\n=== 1. the button is always there ===');
   check('a Report button sits in the top bar', await A.evaluate(() => { const b = document.getElementById('reportBtn'), r = b.getBoundingClientRect(); return /Report/.test(b.textContent) && r.width > 40 && r.top < 80; }));
   check('the top bar is still one line at 1280', await A.evaluate(() => { const t = [...document.querySelectorAll('#topbar > *')].filter(e => e.offsetParent).map(e => Math.round(e.getBoundingClientRect().top + e.getBoundingClientRect().height / 2)); return Math.max(...t) - Math.min(...t) < 24; }));
-  await A.evaluate(() => { document.querySelector('.game[data-dir="Tetris"]').click(); }); await A.waitForSelector('#player.open', { timeout: 20000 });
+  await A.evaluate(() => { document.querySelector('.game[data-dir="Sketch"]').click(); }); await A.waitForSelector('#player.open', { timeout: 20000 });
   check('...and in the bar above a game', await A.evaluate(() => { const b = document.getElementById('preport'); return b.offsetParent !== null && /Report/.test(b.textContent); }));
   console.log('\n=== 2. reporting a player from inside a game ===');
   await A.click('#preport');
   check('it asks what the report is about', /What do you want to report/.test(await dlg(A)) && await A.evaluate(() => document.querySelectorAll('.rp-kind').length === 4));
   await A.click('[data-rpk="player"]');
-  check('the game you are in is already filled in', await A.evaluate(() => /Tetris/.test(document.getElementById('rp-game').value)));
+  check('the game you are in is already filled in', await A.evaluate(() => /Sketch/.test(document.getElementById('rp-game').value)));
   await A.click('[data-rp="send"]');
   check('a name is asked for', /name/i.test(await A.evaluate(() => document.getElementById('rp-err').textContent)));
   await A.fill('#rp-who', 'RepBob'); await A.click('[data-rp="send"]');
@@ -105,7 +105,7 @@ try {
   check('the admin\'s button shows how many are waiting', !!(await until(() => D.evaluate(() => /Reports\s*\d/.test(document.getElementById('reportBtn').textContent)), 10000)), await D.evaluate(() => document.getElementById('reportBtn').textContent));
   await D.click('#reportBtn');
   const inbox = await until(async () => { const t = await dlg(D); return /RepBob/.test(t) ? t : null; }, 8000);
-  check('the inbox lists the report: who, about whom, where, why, what', /Player/.test(inbox || '') && /Cheating/.test(inbox) && /RepBob/.test(inbox) && /Tetris/.test(inbox) && /flies through walls/.test(inbox) && /RepAnn/.test(inbox), (inbox || '').slice(0, 300));
+  check('the inbox lists the report: who, about whom, where, why, what', /Player/.test(inbox || '') && /Cheating/.test(inbox) && /RepBob/.test(inbox) && /Sketch/.test(inbox) && /flies through walls/.test(inbox) && /RepAnn/.test(inbox), (inbox || '').slice(0, 300));
   const n0 = await D.evaluate(() => document.querySelectorAll('.rp-item:not(.closed)').length);
   await D.evaluate(() => { [...document.querySelectorAll('.rp-item')].find(e => /flies through walls/.test(e.textContent)).querySelector('[data-adm-send]').click(); });      // (Send with the default: dismiss)
   check('marking one as handled takes it off the open pile', !!(await until(() => D.evaluate(n => document.querySelectorAll('.rp-item:not(.closed)').length === n - 1, n0), 8000)));
