@@ -36,6 +36,7 @@ var BUNDLE = window.HG_BUNDLE || null; // only set inside the saved "Taco Games 
 var local = !BUNDLE && !window.HG_VERSION && (location.protocol === 'file:' || /github\.io$/.test(location.hostname) || location.hostname === '127.0.0.1' || location.hostname === 'localhost');
 
 var GAMES = [
+  { dir: 'DoomsDay', name: 'DoomsDay', img: 'doomsday', tags: ['New', '3D', 'Shooter', 'Action'], desc: "NEW: a first-person arena shooter under a burning sky. Four arenas, five waves each and a boss at the end: husks, gunners, drones and chargers. Blaster, scattergun, plasma rifle and rocket launcher." },
   { dir: 'Zombie vs You', name: 'Zombie vs. You', img: 'zombie', tags: ['New', 'Action', 'Shooter'], desc: "NEW: the city has fallen. Fight your way across five zombie-filled maps to the evac helicopter: walkers, runners, brutes, spitters and screamers, four guns, a flashlight and a horde that never stops. Then Endless." },
   { dir: 'Slither', name: 'Slither', img: 'slither', tags: ['New', 'Arena', 'Action'], desc: "NEW: a glowing arena full of hungry snakes. Eat orbs, grow long, boost to cut others off and make them crash into you. 22 bot snakes that feed, hunt and coil; skins unlock as you grow." },
   { dir: 'Edible Light Bulb Clicker', name: 'Edible Light Bulb Clicker', img: 'bulb', tags: ['New', 'Clicker'], desc: "NEW: bake light bulbs you can eat. 12 bakeries from a Snacking Hand to a Bright Idea Engine, 100+ upgrades, golden bulbs, 53 achievements and Rewiring for filaments. Keeps baking while you are away." },
