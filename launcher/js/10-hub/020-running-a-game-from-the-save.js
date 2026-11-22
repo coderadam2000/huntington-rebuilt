@@ -157,14 +157,42 @@ window.HG_shareAch = function (id, convId) {
 };
 var skipWait = null;
 window.HG_skipWait = function () { if (skipWait) skipWait(); };
+// ---- External Games (cat: 'ext', extern: true): other people's games that load code from other sites ----
+// They run in a sandboxed frame with its own (opaque) origin, so they can never reach the launcher, its storage or your
+// Grapevine account. A sandboxed page has no storage of its own, so a small shim gives it localStorage/sessionStorage in
+// memory, filled from 'hgext:<dir>' on this device and written back through postMessage (only from that frame, 1 MB max).
+var EXT_SANDBOX = 'allow-scripts allow-pointer-lock allow-forms allow-modals allow-orientation-lock allow-presentation allow-downloads';
+function extShim(g) {
+  var saved = '{}'; try { saved = localStorage.getItem('hgext:' + g.dir) || '{}'; } catch (e) {}
+  return '<script>(function(){var D=' + JSON.stringify(saved).replace(/</g, '\\u003c') + ',S={};try{S=JSON.parse(D)||{};}catch(e){}' +
+    'function mk(p){var o={},t=0;function k(){return Object.keys(o);}var st={getItem:function(a){a=String(a);return a in o?o[a]:null;},setItem:function(a,b){o[String(a)]=String(b);ch();},removeItem:function(a){delete o[String(a)];ch();},clear:function(){o={};ch();},key:function(i){return k()[i]||null;}};' +
+    'Object.defineProperty(st,"length",{get:function(){return k().length;}});function ch(){if(!p)return;clearTimeout(t);t=setTimeout(function(){try{parent.postMessage({hgExtSave:JSON.stringify(o)},"*");}catch(e){}},400);}if(p)for(var q in S)o[q]=S[q];return st;}' +
+    'try{Object.defineProperty(window,"localStorage",{value:mk(1),configurable:true});}catch(e){}try{Object.defineProperty(window,"sessionStorage",{value:mk(0),configurable:true});}catch(e){}' +
+    'try{Object.defineProperty(window,"indexedDB",{value:undefined,configurable:true});}catch(e){}try{Object.defineProperty(document,"cookie",{get:function(){return"";},set:function(){},configurable:true});}catch(e){}' +
+    '})();<\/script>';
+}
+function extHtml(html, g) { var sh = extShim(g), m = /<head[^>]*>/i.exec(html); return m ? html.slice(0, m.index + m[0].length) + sh + html.slice(m.index + m[0].length) : sh + html; }
+addEventListener('message', function (e) {
+  if (!e.data || typeof e.data.hgExtSave !== 'string' || !current || !current.game || !current.game.extern || e.source !== frame.contentWindow) return;
+  if (e.data.hgExtSave.length < 1000000) try { localStorage.setItem('hgext:' + current.game.dir, e.data.hgExtSave); } catch (err) {}
+});
+function playExtern(g, id) {
+  frame.setAttribute('sandbox', EXT_SANDBOX);
+  frame.srcdoc = message('Loading ' + g.name + '...');
+  var get = local ? fetch(path(g)).then(function (r) { if (!r.ok) throw new Error('HTTP ' + r.status); return r.text(); }) : loadGameHtml(g, function () { return id === loadId; }).then(function (r) { return typeof r.html === 'string' ? r.html : r.html.text(); });
+  get.then(function (h) { if (id !== loadId) return; current.html = extHtml(h, g); frame.srcdoc = current.html; if (typeof glStage === 'function') glStage('Starting'); },
+    function () { if (id === loadId) frame.srcdoc = message('Could not load ' + g.name + '. It comes from another website, which may be blocked on this network.'); });
+}
 function playNow(g) {
   var id = ++loadId;
+  if (!g.extern) frame.removeAttribute('sandbox');
   current = { game: g, html: null };
   document.getElementById('ptitle').textContent = g.name;
   var hint = document.getElementById('chathint'), Lg = window.HGGrapevine;
   hint.textContent = g.noChat || !(Lg && Lg.me()) ? '' : (g.chatShift ? 'Shift+T to chat' : 'T to chat');
   document.getElementById('player').classList.add('open'); document.documentElement.classList.add('playing');
   try { history.replaceState(null, '', '#' + encodeURIComponent(g.dir)); } catch (e) {}
+  if (g.extern) { playExtern(g, id); return; }
   if (local) { HG_set(g); frame.removeAttribute('srcdoc'); frame.src = path(g) + (window.HG_TEST_QUERY || ''); return; }   // HG_TEST_QUERY: tests only (local copies)
   frame.srcdoc = message('Loading ' + g.name + '...');
   var alive = function () { return id === loadId; };
@@ -197,7 +225,7 @@ function closePlayer() {
   if (MP.live) liveStop();
   loadId++; current = null;
   document.getElementById('player').classList.remove('open'); document.documentElement.classList.remove('playing');
-  frame.removeAttribute('srcdoc'); frame.src = 'about:blank';
+  frame.removeAttribute('srcdoc'); frame.src = 'about:blank'; frame.removeAttribute('sandbox');
   try { history.replaceState(null, '', location.pathname + location.search); } catch (e) {}
   if (wasOpen) gvAfterPlay();
 }

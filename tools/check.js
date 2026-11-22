@@ -53,7 +53,8 @@ try {
   while ((m = re.exec(main))) {
     n++; const dir = m[1].replace(/\\'/g, "'"), img = (/img: '([^']*)'/.exec(main.slice(m.index, main.indexOf('\n', m.index))) || [])[1];
     if (!fs.existsSync(path.join(ROOT, dir, 'index.html'))) problems.push(`launcher card "${dir}": no such game folder`);
-    if (!rel.includes(dir)) problems.push(`"${dir}" is on the launcher but not in tools/build-release.py GAMES: it would be released without its licence block`);
+    const ext = /extern: true/.test(main.slice(m.index, main.indexOf('\n', m.index)));      // External Games: not ours, no licence block
+    if (!ext && !rel.includes(dir)) problems.push(`"${dir}" is on the launcher but not in tools/build-release.py GAMES: it would be released without its licence block`);
     if (img && !fs.existsSync(path.join(ROOT, 'hub', img + '.jpg'))) problems.push(`"${dir}": hub/${img}.jpg is missing (the card would have no picture)`);
   }
   if (n < 10) problems.push('could not read the launcher\'s GAMES list (check.js needs updating)');

@@ -904,7 +904,7 @@ function setVersion(v) { MIRRORS = MIRROR_HOSTS.map(function (m) { return m + RE
 // If GitHub cannot be reached (blocked, or its 60-an-hour limit for one school network), it falls back to '@main'.
 // (A hub cannot swap itself for a newer one in the same page: its scripts have already declared their names. Players get a
 // newer launcher itself through the loader, which pins it; HG_HUB_ID tells which build is running.)
-var HG_HUB_ID = 'fa38a4ae3bc3';      // the build fills in a fingerprint of this file
+var HG_HUB_ID = '1841e726b791';      // the build fills in a fingerprint of this file
 var HG_SHA_RE = /^[0-9a-f]{40}$/;
 function latestSha() {
   try { var c = JSON.parse(localStorage.getItem('hgv:sha') || 'null'); if (c && HG_SHA_RE.test(c.s) && Date.now() - c.t < 120000) return Promise.resolve(c.s); } catch (e) {}
@@ -942,11 +942,8 @@ var GAMES = [
   { dir: 'Zoom', hero: 'Brand new: 3D kart and bike racing. 12 tracks, 15 items, drift for mini-turbos, build your ride in the garage and race your friends online.', name: 'Zoom', img: 'zoom', tags: ['New', '3D', 'Racing', 'Multiplayer'], desc: "NEW: 3D kart and bike racing. 12 tracks in 3 cups, 15 items, 6 modes (Grand Prix, Quick Race, Time Trial, Knockout, Coin Rush, Balloon Battle). Drift for mini-turbos, earn coins, build your ride in the garage, and race your friends online." },
   { dir: 'Imposter', name: 'Imposter: Shades in the Lighthouse', img: 'imposter', tags: ['New', 'Multiplayer', 'Party'], desc: "NEW: one or more Shades hide among the lighthouse keepers. Do your chores, ring the bell, call a gathering and vote them into the fog before the lights go out. Up to 10 players with a 6-digit code (bots fill the empty seats), or play alone against 9 bots, on two maps." },
   { dir: 'Casino', name: 'The Lucky Taco Casino', img: 'casino', tags: ['New', 'Casino', 'Multiplayer', 'Party'], desc: "NEW: turn tacos into chips (1 taco = 100 chips) and play blackjack, roulette, slots, plinko, mines, baccarat, craps, video poker and more. Live tables with everyone who is in: Live Roulette, the Rocket, Horse Racing, The Pot and coin-flip Duels. A free spin every day. Play money only: tacos and chips are not worth anything outside Taco Games." },
-  { dir: 'Tetris', cat: 'ext', name: 'Tetris Surge 2.0', img: 'tetris', credit: 'Made by Hunter', tags: ['New', 'Puzzle'], desc: 'NEW 2.0: climb the rank ladder in Surge, Sprint, Ultra and Marathon. 14 new perks, 5 new bosses, a Daily Challenge with streaks, 55 achievements, and a 70-puzzle Puzzle mode with stars, undo and hints. Plus 12 block skins, 8 backgrounds and Hold and T-Spin tutorials. Still a rogue-lite run with power blocks, plus Marathon, Sprint, Ultra and Zen.' },
   { dir: 'Market Life 1.9', name: 'Market & Life 2.2', img: 'market', tags: ['New', 'Sim'], desc: 'Away for 30 minutes pauses progress. NEW 2.1: join the military (enlist, or become an officer through the Academy, ROTC or Officer Training School), transfer from community college, stay for a master\'s, and 14 new life events. 2.0: live a whole life, from school and 22 degree programs to careers, homes, cars, family and retirement, then see your Life Score in the Hall of Lives. Trade 42 stocks and cryptos with charts, news, dividends and limit orders, save in bonds, and run 10 kinds of business. Plus 33 achievements and a Stats page.', credit: 'Original game by Robbie' },
   { dir: '50 Levels Of Spikes 1.2', name: '100 Levels of Spikes 2.3', img: 'spikes', tags: ['New', 'Platformer', 'Multiplayer'], desc: 'NEW 2.3: beat all 100 for a Victor spot on the leaderboard, auto respawn, a cube that gets bored when you stand still, and roasts that never repeat too soon. 2.2: Multiplayer! Race your friends or beat levels together in Co-op, and fill the room with bots (the host picks how many people and bots). Plus music, a new world every 20 levels (sunset dunes, deep sea, toxic lab, inferno) and a lot more roasts when you die.' },
-  { dir: 'Coffee Shop Tycoon Legacy', cat: 'ext', name: 'Bean & Brew Classic', img: 'legacy', tags: ['Tycoon'], desc: 'The original coffee shop tycoon. Away for 30 minutes pauses progress.', credit: 'Made by Robbie' },
-  { dir: 'Levi Dash By Levi 2.0', cat: 'ext', noChat: true, name: 'Neon Dash 2.1', img: 'neondash', tags: ['Platformer'], desc: 'NEW 2.1: a World leaderboard next to your Hall of Fame. Neon Dash: Ultimate Edition. Jump the neon spikes, keep your streak going, beat your score and sign the Hall of Fame.', credit: 'Made by Levi' },
   { dir: 'Minigames/Reaction Duel', name: 'Reaction Duel', img: 'mg-reaction', cat: 'mini', tags: ['New', 'Multiplayer', 'Minigame'], desc: "Wait for green, then tap faster than everyone. First to 5. Up to 8 players and bots." },
   { dir: 'Minigames/Snake Arena', name: 'Snake Arena', img: 'mg-snake', cat: 'mini', tags: ['New', 'Multiplayer', 'Minigame'], desc: "Every snake on one board: eat, grow, don't crash. Last one slithering wins. Up to 8 players and bots." },
   { dir: 'Minigames/Typing Race', name: 'Typing Race', img: 'mg-typing', cat: 'mini', tags: ['New', 'Multiplayer', 'Minigame'], desc: "Race your friends by typing the same passage: every correct letter moves your car. Up to 8 players and bots." },
@@ -957,6 +954,9 @@ var GAMES = [
   { dir: 'Minigames/Battleship', name: 'Battleship', img: 'mg-battleship', cat: 'mini', tags: ['New', 'Multiplayer', 'Minigame', 'Strategy'], desc: "NEW: hide your fleet, hunt theirs. Classic naval strategy against a friend or three levels of bot. A hit fires again." },
   { dir: 'Minigames/Rock Simulator', name: 'Rock Simulator', img: 'mg-rock', cat: 'mini', tags: ['New', 'Minigame', 'Chill'], desc: "NEW: be a rock. Regular mode: look around a quiet meadow from a rock's eye view (you cannot move). Realistic mode: a completely black screen." },
   { dir: 'Minigames/Tic-Tac-Toe', name: 'Tic-Tac-Toe', img: 'mg-tictactoe', cat: 'mini', tags: ['New', 'Multiplayer', 'Minigame'], desc: "NEW: Ultimate Tic-Tac-Toe, nine boards in one where every move picks your opponent's next board. Or classic three in a row. Against a friend or the bot." },
+  { dir: 'External Games/Baseball Bros', extern: true, cat: 'ext', name: 'Baseball Bros', img: 'ext-baseballbros', credit: 'By Blue Wizard Digital', tags: ['External', 'Sports'], desc: 'Arcade baseball: pitch, hit nukes, steal bases. Arrow keys or WASD and SPACE.' },
+  { dir: 'External Games/Rocket League', extern: true, cat: 'ext', name: 'Rocket League 2D', img: 'ext-rocketleague', credit: 'A fan-made 2D version', tags: ['External', 'Sports'], desc: 'Rocket cars and a giant ball, in 2D. Click the text under the game if the keys stop working.' },
+  { dir: 'External Games/Snowball.io', extern: true, cat: 'ext', name: 'Snowball.io', img: 'ext-snowball', credit: 'By Casual Azur Games', tags: ['External', 'Arena'], desc: 'Roll a snowball, grow it, and knock everyone off the ice.' },
 ];
 var EXPERIMENTAL = [
   { dir: 'Cursed Dash', noChat: true, name: 'Cursed Dash', desc: 'Neon Dash, but cursed.' },
@@ -1438,14 +1438,42 @@ window.HG_shareAch = function (id, convId) {
 };
 var skipWait = null;
 window.HG_skipWait = function () { if (skipWait) skipWait(); };
+// ---- External Games (cat: 'ext', extern: true): other people's games that load code from other sites ----
+// They run in a sandboxed frame with its own (opaque) origin, so they can never reach the launcher, its storage or your
+// Grapevine account. A sandboxed page has no storage of its own, so a small shim gives it localStorage/sessionStorage in
+// memory, filled from 'hgext:<dir>' on this device and written back through postMessage (only from that frame, 1 MB max).
+var EXT_SANDBOX = 'allow-scripts allow-pointer-lock allow-forms allow-modals allow-orientation-lock allow-presentation allow-downloads';
+function extShim(g) {
+  var saved = '{}'; try { saved = localStorage.getItem('hgext:' + g.dir) || '{}'; } catch (e) {}
+  return '<script>(function(){var D=' + JSON.stringify(saved).replace(/</g, '\\u003c') + ',S={};try{S=JSON.parse(D)||{};}catch(e){}' +
+    'function mk(p){var o={},t=0;function k(){return Object.keys(o);}var st={getItem:function(a){a=String(a);return a in o?o[a]:null;},setItem:function(a,b){o[String(a)]=String(b);ch();},removeItem:function(a){delete o[String(a)];ch();},clear:function(){o={};ch();},key:function(i){return k()[i]||null;}};' +
+    'Object.defineProperty(st,"length",{get:function(){return k().length;}});function ch(){if(!p)return;clearTimeout(t);t=setTimeout(function(){try{parent.postMessage({hgExtSave:JSON.stringify(o)},"*");}catch(e){}},400);}if(p)for(var q in S)o[q]=S[q];return st;}' +
+    'try{Object.defineProperty(window,"localStorage",{value:mk(1),configurable:true});}catch(e){}try{Object.defineProperty(window,"sessionStorage",{value:mk(0),configurable:true});}catch(e){}' +
+    'try{Object.defineProperty(window,"indexedDB",{value:undefined,configurable:true});}catch(e){}try{Object.defineProperty(document,"cookie",{get:function(){return"";},set:function(){},configurable:true});}catch(e){}' +
+    '})();<\/script>';
+}
+function extHtml(html, g) { var sh = extShim(g), m = /<head[^>]*>/i.exec(html); return m ? html.slice(0, m.index + m[0].length) + sh + html.slice(m.index + m[0].length) : sh + html; }
+addEventListener('message', function (e) {
+  if (!e.data || typeof e.data.hgExtSave !== 'string' || !current || !current.game || !current.game.extern || e.source !== frame.contentWindow) return;
+  if (e.data.hgExtSave.length < 1000000) try { localStorage.setItem('hgext:' + current.game.dir, e.data.hgExtSave); } catch (err) {}
+});
+function playExtern(g, id) {
+  frame.setAttribute('sandbox', EXT_SANDBOX);
+  frame.srcdoc = message('Loading ' + g.name + '...');
+  var get = local ? fetch(path(g)).then(function (r) { if (!r.ok) throw new Error('HTTP ' + r.status); return r.text(); }) : loadGameHtml(g, function () { return id === loadId; }).then(function (r) { return typeof r.html === 'string' ? r.html : r.html.text(); });
+  get.then(function (h) { if (id !== loadId) return; current.html = extHtml(h, g); frame.srcdoc = current.html; if (typeof glStage === 'function') glStage('Starting'); },
+    function () { if (id === loadId) frame.srcdoc = message('Could not load ' + g.name + '. It comes from another website, which may be blocked on this network.'); });
+}
 function playNow(g) {
   var id = ++loadId;
+  if (!g.extern) frame.removeAttribute('sandbox');
   current = { game: g, html: null };
   document.getElementById('ptitle').textContent = g.name;
   var hint = document.getElementById('chathint'), Lg = window.HGGrapevine;
   hint.textContent = g.noChat || !(Lg && Lg.me()) ? '' : (g.chatShift ? 'Shift+T to chat' : 'T to chat');
   document.getElementById('player').classList.add('open'); document.documentElement.classList.add('playing');
   try { history.replaceState(null, '', '#' + encodeURIComponent(g.dir)); } catch (e) {}
+  if (g.extern) { playExtern(g, id); return; }
   if (local) { HG_set(g); frame.removeAttribute('srcdoc'); frame.src = path(g) + (window.HG_TEST_QUERY || ''); return; }   // HG_TEST_QUERY: tests only (local copies)
   frame.srcdoc = message('Loading ' + g.name + '...');
   var alive = function () { return id === loadId; };
@@ -1478,7 +1506,7 @@ function closePlayer() {
   if (MP.live) liveStop();
   loadId++; current = null;
   document.getElementById('player').classList.remove('open'); document.documentElement.classList.remove('playing');
-  frame.removeAttribute('srcdoc'); frame.src = 'about:blank';
+  frame.removeAttribute('srcdoc'); frame.src = 'about:blank'; frame.removeAttribute('sandbox');
   try { history.replaceState(null, '', location.pathname + location.search); } catch (e) {}
   if (wasOpen) gvAfterPlay();
 }
