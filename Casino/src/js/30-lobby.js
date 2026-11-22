@@ -33,7 +33,7 @@ function openLobby() {
       h('button', { class: 'btn ' + (S.daily ? 'gold' : ''), disabled: !S.daily, onclick: dailySpin }, S.daily ? 'Spin for free' : 'Done for today')),
     h('div', { class: 'panel' }, h('h3', null, '📊 Your stats'),
       h('div', { class: 'stats' }, stat('Plays', fmt(st.plays)), stat('Wagered', fmt(st.wag)), stat('Won back', fmt(st.won)), stat('Biggest win', '+' + fmt(st.big)))),
-    h('div', { class: 'panel' }, h('h3', null, '🏦 The cage'), h('p', { class: 'small' }, h('b', null, '1 goon = 100 chips.'), ' Buy chips with goons and cash them back any time at the same rate.'),
+    h('div', { class: 'panel' }, h('h3', null, '🏦 The cage'), h('p', { class: 'small' }, h('b', null, '1 taco = 100 chips.'), ' Buy chips with tacos and cash them back any time at the same rate.'),
       h('div', { class: 'mrow' }, h('button', { class: 'btn gold sm', onclick: () => cage('buy') }, 'Buy chips'), h('button', { class: 'btn sm', onclick: () => cage('cash') }, 'Cash out'), h('button', { class: 'btn sm', onclick: openOdds }, 'The odds'))),
     h('div', { class: 'panel feedp' }, h('h3', null, '✨ Recent big wins'), h('div', { class: 'feedl', id: 'feedl' })));
   root.append(ticker, h('div', { class: 'lb-cols' }, left, right));
@@ -77,18 +77,18 @@ function cage(kind) {
   if (maxG > 0 && !dev) quick.push(h('button', { class: 'btn sm', onclick: () => { n = maxG; inp.value = maxG; upd(); } }, 'All (' + fmt(maxG) + ')'));
   function upd() {
     const okN = n >= 1 && n <= maxG;
-    out.innerHTML = okN ? (buy ? `Pay <b>${fmt(n)} goon${n === 1 ? '' : 's'}</b>, get <b class="gold">${fmt(n * rate)} chips</b>.` : `Hand in <b class="gold">${fmt(n * rate)} chips</b>, get <b>${fmt(n)} goon${n === 1 ? '' : 's'}</b> back.`) : (maxG < 1 ? (buy ? 'You have no goons to swap.' : 'You need at least ' + rate + ' chips to cash out 1 goon.') : 'Pick 1 to ' + fmt(maxG) + '.');
-    go.disabled = !okN; go.textContent = buy ? 'Buy ' + (okN ? fmt(n * rate) + ' chips' : 'chips') : 'Cash out ' + (okN ? fmt(n) + ' goon' + (n === 1 ? '' : 's') : '');
+    out.innerHTML = okN ? (buy ? `Pay <b>${fmt(n)} taco${n === 1 ? '' : 's'}</b>, get <b class="gold">${fmt(n * rate)} chips</b>.` : `Hand in <b class="gold">${fmt(n * rate)} chips</b>, get <b>${fmt(n)} taco${n === 1 ? '' : 's'}</b> back.`) : (maxG < 1 ? (buy ? 'You have no tacos to swap.' : 'You need at least ' + rate + ' chips to cash out 1 taco.') : 'Pick 1 to ' + fmt(maxG) + '.');
+    go.disabled = !okN; go.textContent = buy ? 'Buy ' + (okN ? fmt(n * rate) + ' chips' : 'chips') : 'Cash out ' + (okN ? fmt(n) + ' taco' + (n === 1 ? '' : 's') : '');
   }
   async function doIt() {
     if (go.disabled) return; go.disabled = true;
-    await act(async () => { await call(kind, { goons: n }); sfx.chip(); sfx.coin(); toast(buy ? 'Bought ' + fmt(n * rate) + ' chips' : 'Cashed out ' + fmt(n) + ' goon' + (n === 1 ? '' : 's'), 'win'); closeModal(); if (view && view.kind === 'lobby') openLobby(); });
+    await act(async () => { await call(kind, { goons: n }); sfx.chip(); sfx.coin(); toast(buy ? 'Bought ' + fmt(n * rate) + ' chips' : 'Cashed out ' + fmt(n) + ' taco' + (n === 1 ? '' : 's'), 'win'); closeModal(); if (view && view.kind === 'lobby') openLobby(); });
     go.disabled = false;
   }
   modal(h('h2', null, buy ? '🏦 Buy chips' : '🏦 Cash out'),
-    h('p', null, h('b', { class: 'gold' }, '1 goon = ' + rate + ' chips'), ' both ways. ', buy ? (dev ? 'Developer: unlimited goons.' : 'You have ' + fmt(S.bal.goons) + ' goons.') : 'You have ' + fmt(S.bal.chips) + ' chips.'),
-    h('div', { class: 'mrow' }, h('span', null, 'Goons:'), inp, ...quick), out,
-    h('p', { class: 'small' }, 'Play money only: goons and chips cannot be bought with or swapped for real money or anything outside Taco Games.'),
+    h('p', null, h('b', { class: 'gold' }, '1 taco = ' + rate + ' chips'), ' both ways. ', buy ? (dev ? 'Developer: unlimited tacos.' : 'You have ' + fmt(S.bal.goons) + ' tacos.') : 'You have ' + fmt(S.bal.chips) + ' chips.'),
+    h('div', { class: 'mrow' }, h('span', null, 'Tacos:'), inp, ...quick), out,
+    h('p', { class: 'small' }, 'Play money only: tacos and chips cannot be bought with or swapped for real money or anything outside Taco Games.'),
     h('div', { class: 'mrow end' }, h('button', { class: 'btn', onclick: closeModal }, 'Cancel'), go));
   upd(); inp.focus(); inp.select();
 }
@@ -157,9 +157,9 @@ function openOdds() {
   const rows = ids.map(k => h('tr', null, h('td', null, h('b', null, gName(k))), h('td', { class: 'num' }, S.edge[k] != null ? S.edge[k] + '%' : '–'), h('td', { class: 'num' }, S.edge[k] != null ? (100 - S.edge[k]).toFixed(1) + '%' : '–'), h('td', null, HOW[k])));
   $('#main').append(h('div', { class: 'odds' }, h('div', { class: 'odds-in' },
     h('h2', null, '❓ How it works and the odds'),
-    h('div', { class: 'warn' }, h('b', null, 'Play money only. '), 'Goons and chips are a toy currency for Taco Games. They have no real-money value and cannot be bought, sold, or cashed out for money or anything outside the games.'),
+    h('div', { class: 'warn' }, h('b', null, 'Play money only. '), 'Tacos and chips are a toy currency for Taco Games. They have no real-money value and cannot be bought, sold, or cashed out for money or anything outside the games.'),
     h('ul', null,
-      h('li', null, h('b', null, '1 goon = ' + (S.limits.rate || 100) + ' chips'), ', both ways, at the cage (top right).'),
+      h('li', null, h('b', null, '1 taco = ' + (S.limits.rate || 100) + ' chips'), ', both ways, at the cage (top right).'),
       h('li', null, 'Bets are ' + S.limits.min + ' to ' + fmt(S.limits.max) + ' chips. Every result is decided on the Grapevine server, never in this page.'),
       h('li', null, 'Every game has a ', h('b', null, 'house edge'), ': the share of each chip bet the casino keeps on average. Over many plays you get back the "returns" figure, so in the long run the house wins.'),
       h('li', null, 'Take breaks. It is only for fun: if it stops being fun, stop.')),

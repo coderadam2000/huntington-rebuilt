@@ -2,7 +2,7 @@
 // ===== The Admin menu (2026-11-17): everything an admin or the owner can do, in one place, from the top bar =====
 // The 🛡️ Admin tab shows only for accounts with admin powers. Sections, left to right in the order you need them:
 //   Overview (your powers, your tag, what needs you)  ·  Reports (answer them: act or dismiss, with a note to the reporter)
-//   Players (one player: warnings, mutes, bans, then their progress, goons and titles)  ·  Muted & banned  ·  Admins  ·  Server
+//   Players (one player: warnings, mutes, bans, then their progress, tacos and titles)  ·  Muted & banned  ·  Admins  ·  Server
 // Every power is still checked by the server; this only draws what you may use. The buttons reuse the admin tools in
 // 098-admin.js (data-padm), so the profile click handler (040) serves them here too.
 var ADM = { sec: 'home', reps: null, repFilter: 'open', info: null };
@@ -74,9 +74,9 @@ function admSection(k, c) {
     }
     var pt = H('accounts') || H('progress') || H('leaderboards') || H('goons') || H('titles');
     if (pt) {
-      h += '<h4>Account and progress</h4><div class="prow">' + (H('accounts') ? '<button class="pb" data-padm="look">Saves, goons and boards</button>' : '') +
+      h += '<h4>Account and progress</h4><div class="prow">' + (H('accounts') ? '<button class="pb" data-padm="look">Saves, tacos and boards</button>' : '') +
         (H('progress') ? '<button class="pb" data-padm="edit">Edit progress</button>' : '') + (H('leaderboards') ? '<button class="pb" data-padm="lbtools">Leaderboards</button>' : '') + '</div>';
-      if (H('goons')) h += '<div class="prow"><input id="pa-n" type="number" min="-100000" max="1000000" value="5" style="width:110px"><button class="pb" data-padm="goons">Give goons</button><button class="pb" data-padm="chips">Give casino chips</button></div>';
+      if (H('goons')) h += '<div class="prow"><input id="pa-n" type="number" min="-100000" max="1000000" value="5" style="width:110px"><button class="pb" data-padm="goons">Give tacos</button><button class="pb" data-padm="chips">Give casino chips</button></div>';
       if (H('titles')) {
         var titles = c.items.filter(function (i) { return i.k === 'title' && (i.x === 'Given by an admin' || i.ra); });
         h += '<div class="prow"><select id="pa-title">' + titles.map(function (t) { return '<option value="' + profEsc(t.id) + '">' + profEsc(t.n) + (t.ra ? ' (earned in a game)' : '') + '</option>'; }).join('') + '</select>' +

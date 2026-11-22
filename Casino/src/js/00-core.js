@@ -1,4 +1,4 @@
-// The Lucky Goon: a play-money casino for goons. Every outcome and every chip lives on the Grapevine server
+// The Lucky Taco: a play-money casino for tacos. Every outcome and every chip lives on the Grapevine server
 // (or, in practice mode, in the mock in 05-mock.js); this page only asks and shows.
 
 // ---------- tiny DOM helpers ----------

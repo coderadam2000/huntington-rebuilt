@@ -138,7 +138,7 @@ try {
   const a0 = (await eco(A)).goons, b0 = (await eco(B)).goons; await A.evaluate(() => HGGrapevine.eco.gift('ShopBob', 4));
   check('a gift moves the goons to the friend', !!(await until(async () => (await eco(A)).goons === a0 - 4 && (await eco(B)).goons === b0 + 4, 8000)), JSON.stringify([(await eco(A)).goons - a0, (await eco(B)).goons - b0]));
   err = await A.evaluate(() => new Promise(res => { HGGrapevine.on('ecoError', m => res(m.text)); HGGrapevine.eco.gift('ShopBob', 20); setTimeout(() => res('none'), 3000); }));
-  check('...up to 20 a day', /20 goons a day|left today/.test(err), err);
+  check('...up to 20 a day', /20 (goons|tacos) a day|left today/.test(err), err);
   if (process.env.SHOT) { await A.click('[data-ptab="locker"]'); await A.click('[data-pcat="title"]'); await A.waitForTimeout(500); await A.screenshot({ path: process.env.SHOT }); }
 
   console.log('\n=== 5. things that left the shop (name colours, "Your Own Title") are refunded when the server next loads the wallet ===');

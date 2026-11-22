@@ -75,7 +75,7 @@ try {
   r = await cas(A, 'coin', { bet: 10, pick: 'h' });
   check('...and cannot bet without them', /Not enough chips/.test(r.err || ''), JSON.stringify(r));
   r = await cas(A, 'buy', { goons: 5 });
-  check('...or buy chips with goons they do not have', /You have \d+ goon/.test(r.err || ''), JSON.stringify(r));
+  check('...or buy chips with goons they do not have', /You have \d+ (goon|taco)/.test(r.err || ''), JSON.stringify(r));
   await D.evaluate(() => HGGrapevine.eco.admin('goons', 'CasAnn', null, 30)); await A.waitForTimeout(1500);
   const g0 = await A.evaluate(() => HGGrapevine.eco.state().goons);
   r = await cas(A, 'buy', { goons: 20 });

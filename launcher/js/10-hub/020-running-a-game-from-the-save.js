@@ -192,7 +192,7 @@ window.HG_retryGame = function () { if (current && current.game && !current.html
 function closePlayer() {
   if (document.body.classList.contains('fillpage')) fillPage(false);
   if (typeof DOCK !== 'undefined' && DOCK && DOCK.open) dockClose();      // (closePlayer also runs while the page is still loading)
-  setTimeout(function () { if (typeof feedNow === 'function') feedNow(); }, 4000);      // new bests and achievements -> goons and leaderboards
+  setTimeout(function () { if (typeof feedNow === 'function') feedNow(); }, 4000);      // new bests and achievements -> tacos and leaderboards
   var wasOpen = !!current;
   if (MP.live) liveStop();
   loadId++; current = null;
@@ -359,10 +359,10 @@ function paintChip() {
   document.getElementById('chip-nm').textContent = name; document.getElementById('chip-nm').className = 'nm' + (hgRole(name) ? ' un-' + hgRole(name) : '');
   var s = L ? L.status().status : 'connecting';
   document.getElementById('chip-dot').className = 'cdot' + (s === 'online' ? ' on' : s === 'signed-out' || s === 'error' ? '' : ' wait');
-  // your picture and goons on the chip: the way into your profile and the shop
+  // your picture and tacos on the chip: the way into your profile and the shop
   var e = L && L.eco && L.eco.state();
   document.getElementById('chip-pfp').innerHTML = e && e.equip && e.equip.pfp && typeof profPfp === 'function' ? profPfp(e.equip.pfp, 22) : '';
-  document.getElementById('chip-goons').textContent = e ? (e.dev ? '∞' : e.goons) + ' goons' : '';
+  document.getElementById('chip-goons').textContent = e ? (e.dev ? '∞' : e.goons) + ' tacos' : '';
 }
 function onGvChange() {
   paintChip(); applyGvTheme();

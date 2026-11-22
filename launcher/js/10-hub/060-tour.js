@@ -1,7 +1,7 @@
 
 // ===== The tour: ONE walkthrough for the launcher and Grapevine =====
 // It used to be two (a slideshow here, and Grapevine's own point-and-press tour). Now this one goes through the games,
-// your profile, the Goon Shop, the leaderboards and multiplayer, then into Grapevine itself (targets inside its frame),
+// your profile, the Taco Shop, the leaderboards and multiplayer, then into Grapevine itself (targets inside its frame),
 // in one style, one counter. Grapevine hands /guide and its welcome offer to this (window.HG_tour) and reports what you
 // do in it (HG_tour.event: 'sent', 'closed', ...). The ? in the top bar replays it any time.
 var HT = { on: false, i: 0, steps: [], target: null, raf: 0, lastBox: '', clickOff: null };
@@ -11,8 +11,8 @@ function htSteps() {
   return [
     { title: 'Welcome to Taco Games', text: 'One account for every game, your profile, and Grapevine chat. Two minutes: we point at things, you press them. Skip any time.', center: true, next: 'Start' },
     { target: '#grid .game', title: 'Games', text: 'Every card is a game. Press one to play: it saves to your account by itself, on any computer you sign in on.', next: 'Next' },
-    { target: '#chip', title: 'Your profile', text: 'This is you: your picture, your goons and your title. Press it.', wait: 'click' },
-    { target: '[data-ptab="shop"]', title: 'The Goon Shop', text: '<b>Goons</b> come from playing: every achievement, 15 minutes of play, Blocky waves and ranks, daily top spots. Spend them here on pictures, banners, titles and Blocky skins. Press it.', wait: 'click' },
+    { target: '#chip', title: 'Your profile', text: 'This is you: your picture, your tacos and your title. Press it.', wait: 'click' },
+    { target: '[data-ptab="shop"]', title: 'The Taco Shop', text: '<b>Tacos</b> come from playing: every achievement, 15 minutes of play, Blocky waves and ranks, daily top spots. Spend them here on pictures, banners, titles and Blocky skins. Press it.', wait: 'click' },
     { target: '#tab-lb', title: 'Leaderboards', text: 'Every game has global leaderboards, all in this tab. Your rank (R1 is the best, R5 the lowest) shows next to your name in chat, and first place is the <b>Record Holder</b>. Press it.', wait: 'click' },
     { target: '#tab-mp', title: 'Multiplayer', text: 'Type <b>any 6-digit code</b> and you are in a room with whoever types the same one: chat, then start a game together. Press it.', wait: 'click' },
     { target: '#tab-chat', title: 'Grapevine', text: 'Chat rooms, DMs and friends, built in. Press it and we will show you around inside.', wait: 'click' },

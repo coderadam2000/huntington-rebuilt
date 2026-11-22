@@ -5,7 +5,7 @@ function homePaint() {
   var L = window.HGGrapevine, me = L && L.me(), e = L && L.eco && L.eco.state(), h = document.getElementById('hello'), j = document.getElementById('jump');
   if (!h || !j || !hubShown()) return;
   var hr = new Date().getHours(), part = hr < 12 ? 'Good morning' : hr < 18 ? 'Good afternoon' : 'Good evening';
-  setHtml(h, me ? part + ', <b>' + hgNameHtml(me.name) + '</b>.' + (e ? ' You have <b class="hgoons">' + (e.dev ? '∞' : e.goons) + ' goons</b> to spend in your <a href="#" id="hello-prof">Profile</a>.' : '') + ' Pick a game.' : 'Pick a game.');
+  setHtml(h, me ? part + ', <b>' + hgNameHtml(me.name) + '</b>.' + (e ? ' You have <b class="hgoons">' + (e.dev ? '∞' : e.goons) + ' tacos</b> to spend in your <a href="#" id="hello-prof">Profile</a>.' : '') + ' Pick a game.' : 'Pick a game.');
   var hp = document.getElementById('hello-prof'); if (hp) hp.onclick = function (ev) { ev.preventDefault(); showTab('prof'); };
   var r = []; try { r = JSON.parse(localStorage.getItem('hgv:recent') || '[]'); } catch (x) {}
   var gs = r.map(function (d) { return GAMES.filter(function (g) { return g.dir === d; })[0]; }).filter(Boolean).slice(0, 4);

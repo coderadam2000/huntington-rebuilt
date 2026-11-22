@@ -1,5 +1,5 @@
 // ---------- 5.2 LOOK: goon-shop skins + avatars, gamer tags, better player models, the weapon in their hands ----------
-// Players buy skins / avatars / titles with goons in the launcher (Profile tab) and wear them there. The game only READS them
+// Players buy skins / avatars / titles with tacos in the launcher (Profile tab) and wear them there. The game only READS them
 // (window.parent.HGGrapevine.eco) and draws them: on your own first-person arms, and on your third-person model for everyone else.
 // Everything works with defaults when the game runs on its own: every parent access is wrapped in try/catch.
 const SKIN_PATS = ['solid', 'camo', 'stripe', 'glow', 'metal', 'check'];
@@ -367,7 +367,7 @@ function netUpdateAvatars(dt) {
     }
 }
 
-// ---------- the launcher's goons screen link + a slow refresh so a skin you just put on shows up ----------
+// ---------- the launcher's tacos screen link + a slow refresh so a skin you just put on shows up ----------
 setInterval(() => { try { updateMyLook(); } catch (e) {} }, 2500);
 setInterval(() => { try { refreshStanding(); } catch (e) {} }, 60000);
 setTimeout(() => { try { updateMyLook(); refreshStanding(); } catch (e) {} }, 400);

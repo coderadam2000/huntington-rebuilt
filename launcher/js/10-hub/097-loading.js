@@ -7,11 +7,11 @@
 //    calling parent.HG_gameReady() after their first frame; the others are "ready" once the page has loaded and is
 //    drawing smoothly (a few quick animation frames in a row). Never more than 45 s either way.
 var GL_SIGNAL = { 'Blocky Shooter V2': 1, Sovereign: 1, 'Steel Storm': 1 };
-var GL_QUIPS = ['Sharpening the spikes', 'Feeding the goons', 'Teaching the bots to aim (badly)', 'Polishing every pixel', 'Untangling the wires',
+var GL_QUIPS = ['Sharpening the spikes', 'Feeding the tacos', 'Teaching the bots to aim (badly)', 'Polishing every pixel', 'Untangling the wires',
   'Waking up the hamsters', 'Reticulating splines', 'Bribing the final boss', 'Counting to infinity (twice)', 'Loading loading screen', 'Finding the any key',
   'Warming up the lasers', 'Blowing on the cartridge', 'Spawning dramatic music', 'Inflating the hitboxes', 'Herding the pixels', 'Charging the flux capacitor',
   'Buffering the vibes', 'Asking the cube nicely', 'Tightening the bolts'];
-var GL_TIPS = ['Press T in any game to chat without leaving it.', 'Play every day: the daily check-in gives you a goon.', 'Goons buy pets, frames and chat bubbles in the Profile shop.',
+var GL_TIPS = ['Press T in any game to chat without leaving it.', 'Play every day: the daily check-in gives you a taco.', 'Tacos buy pets, frames and chat bubbles in the Profile shop.',
   'Start a party in Multiplayer and your friends join your game in one click.', 'Every game has a leaderboard. Can you get on one?', 'Your saves live in your account: sign in on any device and keep playing.',
   'Found a bug? Tell us in #bugs-and-ideas or with the Report button.', 'Rare titles shimmer, and you only get them by playing.', 'Make your own songs in Beat Lab and share them in #music.'];
 var GL_GAME_TIPS = {

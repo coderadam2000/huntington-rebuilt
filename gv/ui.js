@@ -336,7 +336,7 @@
       }, function (e) { toast('Could not read your saves: ' + (e && e.message || e), true); }).then(function () { dl.disabled = false; });
     } });
     box.appendChild(h('div', { style: 'margin-top:12px' }, b, d, rb, dl));
-    box.appendChild(h('p', { class: 'hint', text: 'Download all my data gives you one file with your saves, goons, items, friends and who you have met. Your recovery key is not in it; keep that with Download key above.' }));
+    box.appendChild(h('p', { class: 'hint', text: 'Download all my data gives you one file with your saves, tacos, items, friends and who you have met. Your recovery key is not in it; keep that with Download key above.' }));
     box.appendChild(det);
     return box;
   }

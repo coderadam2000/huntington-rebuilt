@@ -48,11 +48,11 @@ function partyCard(p, friend) {
 }
 function partyBonus(b) {
   var box = document.getElementById('mp-bonus'); if (!box) return;
-  if (!b) { box.innerHTML = '<div class="mp-bring"><i style="--v:0"></i><span>🎁</span></div><div><b>Multiplayer bonus</b><span>Goons for every 10 minutes you play with other people.</span></div>'; return; }
+  if (!b) { box.innerHTML = '<div class="mp-bring"><i style="--v:0"></i><span>🎁</span></div><div><b>Multiplayer bonus</b><span>Tacos for every 10 minutes you play with other people.</span></div>'; return; }
   var v = b.today >= b.cap ? 1 : b.min / b.every;
   box.className = 'mp-bonus' + (b.happy ? ' happy' : '') + (b.playing ? ' on' : '');
-  box.innerHTML = '<div class="mp-bring"><i style="--v:' + v.toFixed(2) + '"></i><span>' + (b.happy ? '×2' : '🎁') + '</span></div><div><b>' + (b.happy ? 'Double goons right now!' : 'Multiplayer bonus') + '</b>' +
-    '<span>' + (b.today >= b.cap ? 'All ' + b.cap + ' bonus goons earned today. Back tomorrow!' : (b.playing ? (b.every - b.min) + ' min to +' + b.pay + ' goons' : '+' + b.pay + ' goons every ' + b.every + ' min you play with others')) + '</span>' +
+  box.innerHTML = '<div class="mp-bring"><i style="--v:' + v.toFixed(2) + '"></i><span>' + (b.happy ? '×2' : '🎁') + '</span></div><div><b>' + (b.happy ? 'Double tacos right now!' : 'Multiplayer bonus') + '</b>' +
+    '<span>' + (b.today >= b.cap ? 'All ' + b.cap + ' bonus tacos earned today. Back tomorrow!' : (b.playing ? (b.every - b.min) + ' min to +' + b.pay + ' tacos' : '+' + b.pay + ' tacos every ' + b.every + ' min you play with others')) + '</span>' +
     '<span class="mp-today">' + b.today + ' / ' + b.cap + ' today</span></div>';
 }
 function partyPaint() {

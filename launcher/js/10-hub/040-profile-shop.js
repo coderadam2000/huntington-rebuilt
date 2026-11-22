@@ -1,7 +1,7 @@
 
-// ===== Profile: your picture, banner and title; the Goon shop; global leaderboards =====
+// ===== Profile: your picture, banner and title; the Taco shop; global leaderboards =====
 // Everything here talks to Grapevine (HGGrapevine.eco, see gv/core.js) and the server's catalog and prices
-// (grapevine src/archive/074-catalog.js): this file only draws it. Goons can only be changed by the server.
+// (grapevine src/archive/074-catalog.js): this file only draws it. Tacos can only be changed by the server.
 var PROF = { tab: 'locker', cat: 'pfp', grp: '', lbGame: '', lbBoard: '', lbData: null, lbAsked: '' };
 function profEsc(s) { return String(s == null ? '' : s).replace(/[&<>"]/g, function (c) { return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]; }); }
 function profItem(id) {
@@ -72,8 +72,8 @@ function profRender() {
     (title ? cosTitle(title) : '<span class="ptag dim">no title yet</span>') +
     ((mine.rec || []).length ? '<span class="ptag rec">🏆 Record Holder</span>' : '') +
     ranks.slice(0, 4).map(function (g) { return '<span class="ptag rank t' + mine.ranks[g] + '">R' + mine.ranks[g] + ' · ' + profEsc(g) + '</span>'; }).join('') +
-    '</div><div class="pgoons"><b>' + (e.dev ? '∞' : e.goons) + '</b><span>goons</span><small>' + profFmt(e.playSec, 'dur') + ' played</small></div></div>';
-  h += '<div class="psub">' + [['locker', 'Locker'], ['shop', 'Goon Shop'], ['earn', 'Earn goons']].concat(e.perms && e.perms.length ? [['admin', 'Admin tools']] : []).map(function (t) {
+    '</div><div class="pgoons"><b>' + (e.dev ? '∞' : e.goons) + '</b><span>tacos</span><small>' + profFmt(e.playSec, 'dur') + ' played</small></div></div>';
+  h += '<div class="psub">' + [['locker', 'Locker'], ['shop', 'Taco Shop'], ['earn', 'Earn tacos']].concat(e.perms && e.perms.length ? [['admin', 'Admin tools']] : []).map(function (t) {
     return '<button data-ptab="' + t[0] + '" class="' + (PROF.tab === t[0] ? 'on' : '') + '">' + t[1] + '</button>'; }).join('') + '</div>';
   if (PROF.tab === 'shop' || PROF.tab === 'locker') h += profItems(e, c, PROF.tab === 'shop');
   else if (PROF.tab === 'lb') h += profBoards(c);
@@ -94,7 +94,7 @@ function profItems(e, c, shop) {
   if (PROF.grp) list = list.filter(function (i) { return profSect(i.g) === PROF.grp; });
   if (PROF.cat === 'music' && !shop) h += '<div class="pnote">The track you wear plays on the launcher (never over a game). <button class="pb" data-mtoggle="1">' + (window.HG_music && localStorage.getItem('hgv:music') === 'off' ? 'Music is off: turn on' : 'Music is on: turn off') + '</button></div>';
   if (PROF.cat === 'perk') return h + profExtras(e, c, shop);
-  if (!list.length) return h + '<div class="pempty">' + (shop ? 'You own everything here. Nice.' : 'Nothing here yet: the Goon Shop has plenty.') + '</div>';
+  if (!list.length) return h + '<div class="pempty">' + (shop ? 'You own everything here. Nice.' : 'Nothing here yet: the Taco Shop has plenty.') + '</div>';
   // one grid per group, with the game's name over its pictures ("Games: Last Light" -> "Last Light")
   var blocks = [], at = {};
   list.forEach(function (i) { var g = i.g || ''; if (!(g in at)) { at[g] = blocks.length; blocks.push({ g: g, items: [] }); } blocks[at[g]].items.push(i); });
@@ -108,23 +108,23 @@ function profItems(e, c, shop) {
       : '<span class="ppfp" style="width:54px;height:54px;font-size:30px;background:linear-gradient(135deg,' + i.c[0] + ',' + i.c[1] + ')">' + profEsc(i.e || '🎨') + '</span>';
     var btn = locked ? '<span class="plock" title="' + profEsc(i.x) + '">🔒 ' + profEsc(String(i.x).replace(/^(ach|tag):/, '').replace(/^\w/, function (x) { return x.toUpperCase(); })) + '</span>'
       : own ? (on ? '<button data-unequip="' + i.k + '" class="pb on">Wearing</button>' : '<button data-equip="' + i.id + '" class="pb">Wear</button>')
-      : '<button data-buy="' + i.id + '" class="pb buy">' + i.p + ' goon' + (i.p === 1 ? '' : 's') + '</button>';
+      : '<button data-buy="' + i.id + '" class="pb buy">' + i.p + ' taco' + (i.p === 1 ? '' : 's') + '</button>';
     return '<div class="pcard r-' + i.r + (locked ? ' locked' : '') + '">' + prev + '<div class="pcn">' + (i.k === 'title' ? '' : profEsc(i.n)) + '</div><div class="pcr">' + RAR[i.r] +
       (buys[i.id] ? ' · ' + buys[i.id] + ' bought' : '') + '</div>' + btn + '</div>';
   };
   blocks.forEach(function (b) { h += (blocks.length > 1 && b.g ? '<h4 class="psec">' + profEsc(b.g.replace(/^Games: /, '')) + '</h4>' : '') + '<div class="pgrid">' + b.items.map(card).join('') + '</div>'; });
   return h;
 }
-// Extras: things to do with goons that are not something to wear
+// Extras: things to do with tacos that are not something to wear
 function profExtras(e, c, shop) {
   var P = c.prices || { crate: 6, giftMax: 20 }, L = window.HGGrapevine, friends = []; try { friends = (L.friends().friends || []).map(function (f) { return f.name; }); } catch (x) {}
   var left = c.items.filter(function (i) { return i.p > 0 && i.k !== 'perk' && !profOwns(e, i); }).length;
   return '<div class="pextras">' +
     '<div class="pex"><span class="pexi">&#127873;</span><div><b>Mystery crate</b><p>One random thing from the shop that you do not own yet. Rare things are rarer: about 1 in 30 is legendary. ' + left + ' thing' + (left === 1 ? '' : 's') + ' left for you to find.</p>' +
-      '<button class="pb buy" data-pex="crate"' + (left ? '' : ' disabled') + '>Open a crate (' + P.crate + ' goons)</button></div></div>' +
-    '<div class="pex"><span class="pexi">&#128157;</span><div><b>Give goons to a friend</b><p>A present for a friend, up to ' + P.giftMax + ' goons a day.</p>' +
+      '<button class="pb buy" data-pex="crate"' + (left ? '' : ' disabled') + '>Open a crate (' + P.crate + ' tacos)</button></div></div>' +
+    '<div class="pex"><span class="pexi">&#128157;</span><div><b>Give tacos to a friend</b><p>A present for a friend, up to ' + P.giftMax + ' tacos a day.</p>' +
       (friends.length ? '<div class="prow"><select id="px-friend">' + friends.map(function (n) { return '<option>' + profEsc(n) + '</option>'; }).join('') + '</select><input id="px-n" type="number" min="1" max="' + P.giftMax + '" value="1" style="width:76px"><button class="pb" data-pex="gift">Give</button></div>' : '<p class="pnote">Add a friend in Grapevine first.</p>') + '</div></div>' +
-    '<div class="pex"><span class="pexi">&#127920;</span><div><b>The casino</b><p>Swap goons for chips (1 goon = 100 chips) and play slots, blackjack, roulette and more, or sit at a live table with everyone. Goons are play money: they are not worth anything outside Taco Games.</p>' +
+    '<div class="pex"><span class="pexi">&#127920;</span><div><b>The casino</b><p>Swap tacos for chips (1 taco = 100 chips) and play slots, blackjack, roulette and more, or sit at a live table with everyone. Tacos are play money: they are not worth anything outside Taco Games.</p>' +
       '<button class="pb" data-pex="casino">Open the casino</button></div></div></div>';
 }
 function profBoards(c) {
@@ -238,14 +238,14 @@ function lbFindApply() {
 }
 document.addEventListener('input', function (e) { if (e.target && e.target.id === 'lb-find') { PROF.lbFind = e.target.value; lbFindApply(); } });
 function profEarn(e) {
-  var rows = [['📅', 'Open the launcher every day', '1 goon a day, 3 on every 7th day in a row' + (e.streak ? ' (you: ' + e.streak + ' in a row)' : '')], ['🏆', 'Every achievement', '1 goon each (the Account tab lists them all)'], ['🌊', 'Clear 15 waves in Blocky Shooter', '1 goon'],
-    ['⬆️', 'Rank up in Blocky Shooter', '1 goon per rank'], ['⏱️', '15 minutes of active play, any game', '1 goon'],
-    ['🕯️', 'First in Last Light (full game) at the end of the day', '1 goon'], ['🥇', 'Top 3 in playtime for the day', '5 goons each'],
-    ['⌛', 'First in daily playtime every day for a week', 'the Timeless Gooner title'], ['💰', 'The top of the goon leaderboard', 'Godly / Goated / Great Gooner titles']];
+  var rows = [['📅', 'Open the launcher every day', '1 taco a day, 3 on every 7th day in a row' + (e.streak ? ' (you: ' + e.streak + ' in a row)' : '')], ['🏆', 'Every achievement', '1 taco each (the Account tab lists them all)'], ['🌊', 'Clear 15 waves in Blocky Shooter', '1 taco'],
+    ['⬆️', 'Rank up in Blocky Shooter', '1 taco per rank'], ['⏱️', '15 minutes of active play, any game', '1 taco'],
+    ['🕯️', 'First in Last Light (full game) at the end of the day', '1 taco'], ['🥇', 'Top 3 in playtime for the day', '5 tacos each'],
+    ['⌛', 'First in daily playtime every day for a week', 'the Timeless Gooner title'], ['💰', 'The top of the taco leaderboard', 'Godly / Goated / Great Gooner titles']];
   return '<div class="pearn">' + rows.map(function (r) { return '<div><span>' + r[0] + '</span><b>' + profEsc(r[1]) + '</b><em>' + profEsc(r[2]) + '</em></div>'; }).join('') + '</div>' +
     '<div class="plog"><h4>Recent</h4>' + ((e.log || []).slice().reverse().map(function (l) { return '<div><b class="' + (l.n < 0 ? 'neg' : '') + '">' + (l.n > 0 ? '+' : '') + l.n + '</b> ' + profEsc(l.why) + ' <i>' + hgTime(l.at) + '</i></div>'; }).join('') || '<div class="pempty">Nothing yet.</div>') + '</div>';
 }
-// developers only: give someone an admin-only title (Tomato, VIP, Beta Tester...) or goons, or take a title back
+// developers only: give someone an admin-only title (Tomato, VIP, Beta Tester...) or tacos, or take a title back
 function profAdmin(c) { return '<div class="padmin"><p class="pnote">The admin tools have their own menu now: the &#128737;&#65039; Admin tab in the top bar.</p><div class="prow"><button class="pb" data-padm="openmenu">Open the Admin menu</button></div></div>'; }      // (2026-11-17: 100-admin-menu.js)
 // developers only: a picture of their own (squeezed to 96 px)
 function profDevUpload(box) {
@@ -268,13 +268,13 @@ document.addEventListener('click', function (ev) {
   else if (d.pgrp !== undefined) PROF.grp = d.pgrp;
   else if (d.lbg) { PROF.lbGame = d.lbg; PROF.lbBoard = ''; PROF.lbData = null; }
   else if (d.lbb) { PROF.lbBoard = d.lbb; PROF.lbData = null; }
-  else if (d.buy) { var it = profItem(d.buy); if (it && confirm('Buy ' + it.n + ' for ' + it.p + ' goon' + (it.p === 1 ? '' : 's') + '?')) L.eco.buy(d.buy); return; }
+  else if (d.buy) { var it = profItem(d.buy); if (it && confirm('Buy ' + it.n + ' for ' + it.p + ' taco' + (it.p === 1 ? '' : 's') + '?')) L.eco.buy(d.buy); return; }
   else if (d.equip) { L.eco.equip(profItem(d.equip).k, d.equip); return; }
   else if (d.unequip) { L.eco.equip(d.unequip, null); return; }
   else if (d.mtoggle) { if (window.HG_music) HG_music.toggle(); }
   else if (d.pex) {
     if (d.pex === 'crate') { if (confirm('Open a mystery crate?')) L.eco.crate(); }
-    else if (d.pex === 'gift') { var fn = document.getElementById('px-friend').value, gn = Math.floor(+document.getElementById('px-n').value || 0); if (gn < 1) return; if (confirm('Give ' + gn + ' goon' + (gn === 1 ? '' : 's') + ' to ' + fn + '?')) L.eco.gift(fn, gn); }
+    else if (d.pex === 'gift') { var fn = document.getElementById('px-friend').value, gn = Math.floor(+document.getElementById('px-n').value || 0); if (gn < 1) return; if (confirm('Give ' + gn + ' taco' + (gn === 1 ? '' : 's') + ' to ' + fn + '?')) L.eco.gift(fn, gn); }
     else if (d.pex === 'casino') { var cg = GAMES.filter(function (g) { return g.dir === 'Casino'; })[0]; if (cg) { homeRecent(cg); play(cg); } }
     return;
   }
@@ -301,7 +301,7 @@ document.addEventListener('click', function (ev) {
       if (r.saves) PROF.look = r;
       if (r.restored != null) { lo.textContent = 'Put back ' + r.restored + ' save(s) for ' + r.name + '. They load on their device within a minute (or when they close the game).'; return; }
       var when = function (t) { return t ? hgTime(t) : '?'; };
-      lo.innerHTML = '<b>' + profEsc(r.name) + '</b> \u00b7 last seen ' + profEsc(when(r.lastSeen)) + '<br>' + profFmt(r.goons, 'int') + ' goons, ' + profFmt(r.chips, 'int') + ' chips, ' + r.owned + ' shop items, ' + r.earned + ' earned<br>' +
+      lo.innerHTML = '<b>' + profEsc(r.name) + '</b> \u00b7 last seen ' + profEsc(when(r.lastSeen)) + '<br>' + profFmt(r.goons, 'int') + ' tacos, ' + profFmt(r.chips, 'int') + ' chips, ' + r.owned + ' shop items, ' + r.earned + ' earned<br>' +
         r.saves.length + ' saves (' + Math.round(r.saves.reduce(function (t, x) { return t + (x.bytes || 0); }, 0) / 1024) + ' KB), newest ' + profEsc(when(Math.max.apply(null, r.saves.map(function (x) { return x.at; }).concat([0])))) + '<br>' +
         'On ' + r.boards.length + ' leaderboards' + (r.boards.length ? ': ' + r.boards.slice(0, 12).map(function (b) { return profEsc(b.key) + ' #' + b.pos + ' (' + profFmt(b.s, 'int') + ')'; }).join(', ') : '') + '<br>' +
         '<button class="pb" data-padm="rebuild">Rebuild from leaderboards</button><br>' +
@@ -322,7 +322,7 @@ document.addEventListener('click', function (ev) {
   else if (d.padm) {
     var nm = paName(); if (!nm) { hubToast('Type their name first.'); return; }
     if (d.padm === 'custom') { var ct = (document.getElementById('pa-ctext').value || '').trim(); if (ct.length < 2) { hubToast('Type the title first (2 to 24 characters).'); return; } L.eco.admin('custom', nm, null, 0, ct); hubToast('Gave the title "' + ct + '" to ' + nm + '.'); return; }
-    if (d.padm === 'goons') { var n = Math.round(+document.getElementById('pa-n').value || 0); if (!n) return; L.eco.admin('goons', nm, null, n); hubToast('Sent ' + n + ' goons to ' + nm + '.'); return; }
+    if (d.padm === 'goons') { var n = Math.round(+document.getElementById('pa-n').value || 0); if (!n) return; L.eco.admin('goons', nm, null, n); hubToast('Sent ' + n + ' tacos to ' + nm + '.'); return; }
     var t = document.getElementById('pa-title').value, it = profItem(t);
     L.eco.admin(d.padm, nm, t); hubToast((d.padm === 'give' ? 'Gave ' : 'Took back ') + (it ? it.n : t) + (d.padm === 'give' ? ' to ' : ' from ') + nm + '.'); return;
   }
@@ -335,7 +335,7 @@ function profMount() {
     profRender(); lbRender(); paintChip(); if (!m) return;
     if (m.bought) { var it = profItem(m.bought); if (it) hubToast('Bought ' + it.n + '!'); }
     if (m.crate) { var ci = profItem0(m.crate); if (ci) { PROF.tab = 'locker'; PROF.cat = ci.k; PROF.grp = ''; profRender(); hubToast('The crate had: ' + ci.n + ' (' + (RAR[ci.r] || ci.r) + ')! It is in your Locker.'); } }
-    if (m.gifted) hubToast('Gave ' + m.gifted.n + ' goon' + (m.gifted.n === 1 ? '' : 's') + ' to ' + m.gifted.to + '.');
+    if (m.gifted) hubToast('Gave ' + m.gifted.n + ' taco' + (m.gifted.n === 1 ? '' : 's') + ' to ' + m.gifted.to + '.');
   });
   L.on('cos', function () { if (PROF.tab === 'lb') profRender(); });
   L.on('ecoError', function (m) { hubToast(m.text || 'That did not work.'); });

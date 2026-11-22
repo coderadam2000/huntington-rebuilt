@@ -1,7 +1,7 @@
 
 // ===== Admin tools (2026-11-15): what you see is what the owner allowed you =====
 // Every admin power is checked by the server (ADMIN_PERMS in Grapevine's 020); this only draws the parts you may use.
-// Sections: your powers and tags; one player box (look up, rebuild, put back, edit progress, leaderboards, goons, titles);
+// Sections: your powers and tags; one player box (look up, rebuild, put back, edit progress, leaderboards, tacos, titles);
 // admins and their powers (owner); reports; database use.
 var PA = { out: '', admins: null, edit: null };
 var PA_GAME = {      // a save, its game, and the leaderboards its numbers feed (for "count on the leaderboards?")
@@ -33,7 +33,7 @@ function paRender(c) {
       (H('accounts') ? '<button class="pb" data-padm="look">Look up</button>' : '') +
       (H('progress') ? '<button class="pb" data-padm="edit">Edit progress</button>' : '') +
       (H('leaderboards') ? '<button class="pb" data-padm="lbtools">Leaderboards</button>' : '') + '</div>';
-    if (H('goons')) h += '<div class="prow"><input id="pa-n" type="number" min="-100000" max="1000000" value="5" style="width:110px"><button class="pb" data-padm="goons">Give goons</button><button class="pb" data-padm="chips">Give casino chips</button></div>';
+    if (H('goons')) h += '<div class="prow"><input id="pa-n" type="number" min="-100000" max="1000000" value="5" style="width:110px"><button class="pb" data-padm="goons">Give tacos</button><button class="pb" data-padm="chips">Give casino chips</button></div>';
     if (H('titles')) {
       var titles = c.items.filter(function (i) { return i.k === 'title' && (i.x === 'Given by an admin' || i.ra); });
       h += '<div class="prow"><select id="pa-title">' + titles.map(function (t) { return '<option value="' + profEsc(t.id) + '">' + profEsc(t.n) + (t.ra ? ' (earned in a game)' : '') + '</option>'; }).join('') + '</select>' +

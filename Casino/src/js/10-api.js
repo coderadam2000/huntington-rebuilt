@@ -57,7 +57,7 @@ function drawBal() {
   const steps = 14; let i = 0; clearInterval(drawBal.t);
   drawBal.t = setInterval(() => { i++; el.textContent = fmt(from + (target - from) * Math.min(1, i / steps)); if (i >= steps) clearInterval(drawBal.t); }, 25);
   $('#bal-goons').textContent = S.bal.goons < 0 ? '∞' : fmt(S.bal.goons);
-  $('#bal-goons').title = S.bal.goons < 0 ? 'Developer: unlimited goons' : '';
+  $('#bal-goons').title = S.bal.goons < 0 ? 'Developer: unlimited tacos' : '';
   for (const f of balWatchers) try { f(); } catch {}
 }
 const balWatchers = new Set();

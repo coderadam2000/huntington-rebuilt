@@ -263,8 +263,8 @@ function makeMock() {
     if (op === 'leave') { clearInterval(timer); timer = null; return ok(); }
     if (op === 'live') return ok({ live: liveView(t) });
     if (op === 'buy' || op === 'cash') {
-      const n = Number(a.goons); if (!Number.isInteger(n) || n < 1 || n > 10000) no('How many goons?');
-      if (op === 'buy') { if (me.goons < n) no(`You have ${me.goons} goon${me.goons === 1 ? '' : 's'}.`); me.goons -= n; me.chips += n * 100; }
+      const n = Number(a.goons); if (!Number.isInteger(n) || n < 1 || n > 10000) no('How many tacos?');
+      if (op === 'buy') { if (me.goons < n) no(`You have ${me.goons} taco${me.goons === 1 ? '' : 's'}.`); me.goons -= n; me.chips += n * 100; }
       else { if (me.chips < n * 100) no(`That needs ${n * 100} chips.`); me.chips -= n * 100; me.goons += n; }
       return ok();
     }

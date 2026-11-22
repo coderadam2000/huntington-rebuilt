@@ -1,5 +1,5 @@
 
-// ===== Launcher music: the track you wear (bought in the Goon Shop) plays on the launcher's pages =====
+// ===== Launcher music: the track you wear (bought in the Taco Shop) plays on the launcher's pages =====
 // Original tracks made right here with Web Audio (no files): 'tidal' (fast, bright, 140 bpm) and 'nightdrive'
 // (synthwave, 100 bpm). Never over a game: it stops while one is open and comes back after. The first press anywhere
 // on the page starts it (browsers do not allow sound before that).

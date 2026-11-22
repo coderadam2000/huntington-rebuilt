@@ -69,7 +69,7 @@ try {
   check('the old slideshow is gone', await A.evaluate(() => document.getElementById('tour').hidden));
   await press(A, '#htNext'); check('games', !!(await waitStep(A, /Games/)));
   await press(A, '#htNext'); check('your profile', !!(await waitStep(A, /Your profile/)));
-  await press(A, '#chip'); check('...pressing it opens the profile and goes on to the shop', !!(await waitStep(A, /Goon Shop/)));
+  await press(A, '#chip'); check('...pressing it opens the profile and goes on to the shop', !!(await waitStep(A, /Taco Shop/)));
   await A.waitForSelector('[data-ptab="shop"]'); await press(A, '[data-ptab="shop"]'); check('leaderboards', !!(await waitStep(A, /Leaderboards/)));
   await press(A, '#tab-lb'); check('multiplayer', !!(await waitStep(A, /Multiplayer/)));
   await press(A, '#tab-mp'); check('grapevine', !!(await waitStep(A, /Grapevine/)));

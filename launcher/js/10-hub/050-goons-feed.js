@@ -1,12 +1,12 @@
 
-// ===== What the server is told, so goons and leaderboards follow your play =====
+// ===== What the server is told, so tacos and leaderboards follow your play =====
 // - playtime: once a minute while a game is open AND you touched it (key, click, tap) in that minute
 // - claims: unlocked achievements (gv/ach.js keeps them in 'hgach:v1'), Blocky waves cleared and ranks gained
 // - leaderboards: each game's best numbers, read from its own save (games do not have to report anything)
 // The server checks and caps every claim; this only says what happened.
 var FEED = { lastInput: Date.now(), sent: {}, left: {}, uid: '' };
 // AFK rule (2026-11-17): after 30 minutes with no key, click, tap or mouse movement (in a game or the launcher) you
-// stop progressing: no play time, no goons for playing, no multiplayer bonus. The next input starts it again.
+// stop progressing: no play time, no tacos for playing, no multiplayer bonus. The next input starts it again.
 var HG_IDLE_MS = 30 * 60000;
 function hgIdle() { return Date.now() - FEED.lastInput >= HG_IDLE_MS; }
 (function () { var mk = function () { FEED.lastInput = Date.now(); }; ['keydown', 'pointerdown', 'touchstart', 'wheel'].forEach(function (t) { document.addEventListener(t, mk, { passive: true, capture: true }); }); var n = 0; document.addEventListener('mousemove', function () { if (++n % 20 === 0) mk(); }, { passive: true, capture: true }); })();
@@ -135,7 +135,7 @@ function feedNow() {
   }, function () {      // a server from before lbBatch never answers it: send them one by one, as before
     if (FEED.uid === uid && L.online()) items.forEach(function (it) { FEED.sent[it.b] = it.s; L.eco.lbSubmit(it.b, it.s, it.d); });
   });
-  // goon claims: exactly the achievements the server does not have yet (it tells us which it has)
+  // taco claims: exactly the achievements the server does not have yet (it tells us which it has)
   var got = feedRd('hgach:v1') || {}, e = L.eco.state() || {}, has = {}, n = 0;
   if (Array.isArray(e.achIds)) e.achIds.forEach(function (id) { has[id] = 1; });
   else { try { has = JSON.parse(localStorage.getItem('hgv:claimed:' + uid) || '{}'); } catch (x) { has = {}; } }
@@ -154,7 +154,7 @@ function feedMount() {
   var L = window.HGGrapevine; if (!L || feedMount.done) return; feedMount.done = true;
   L.on('eco', function () {
     if (!FEED.first) { FEED.first = 1; setTimeout(feedNow, 1500); }
-    var e = L.eco.state(); if (e && !e.checkedIn && !FEED.daily) { FEED.daily = 1; L.eco.claim('daily'); }      // the daily check-in goon (once a day, the server decides)
+    var e = L.eco.state(); if (e && !e.checkedIn && !FEED.daily) { FEED.daily = 1; L.eco.claim('daily'); }      // the daily check-in taco (once a day, the server decides)
   });
   // the wheel, for the launcher's own chats (the hub rooms): the server spins it and may ban
   L.on('spin', function (m) { if (!document.querySelector('#gvapp') || document.getElementById('view-chat').hidden) hubWheel(m); });

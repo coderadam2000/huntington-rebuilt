@@ -227,7 +227,7 @@ body.chat { overflow: hidden; }
 .wscreen video, .wscreen img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: contain; }
 #w-wait { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; color: var(--dim); font: 13px var(--mono); }
 
-/* ---- Profile: header card, locker, Goon shop, leaderboards ---- */
+/* ---- Profile: header card, locker, Taco shop, leaderboards ---- */
 #view-prof { max-width: 1060px; margin: 0 auto; padding: 18px 16px 60px; }
 .pempty { text-align: center; color: var(--dim); padding: 30px 0; }
 .phead { display: flex; align-items: center; gap: 18px; border-radius: 14px; padding: 22px 22px; box-shadow: inset 0 -60px 80px rgba(0,0,0,.35); position: relative; overflow: hidden; }
@@ -727,13 +727,13 @@ body.hubbonked{animation:hbonkshake .5s}
 </style>
 </head>
 <body>
-<div id="boot"><div class="bt-neb"><i></i><i></i><i></i></div><div class="bt-stars"></div><div class="bt-in"><div class="bt-emb"><svg viewBox="0 0 120 120" aria-hidden="true"><defs><linearGradient id="bt-grad" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#a78bfa"/><stop offset=".55" stop-color="#f97316"/><stop offset="1" stop-color="#2dd4bf"/></linearGradient></defs><polygon class="bt-hex" points="60,6 107,33 107,87 60,114 13,87 13,33"/></svg><b>TG</b><span class="bt-orb"><i></i><i></i><i></i><i></i><i></i></span></div><div class="bt-title">TACO GAMES</div><div class="bt-bar"><span></span></div><div class="bt-stage" id="msg">Starting</div><div class="bt-tip"></div><div class="bt-welcome">Welcome! Pick a game, make your profile and earn goons.</div></div></div>
+<div id="boot"><div class="bt-neb"><i></i><i></i><i></i></div><div class="bt-stars"></div><div class="bt-in"><div class="bt-emb"><svg viewBox="0 0 120 120" aria-hidden="true"><defs><linearGradient id="bt-grad" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#a78bfa"/><stop offset=".55" stop-color="#f97316"/><stop offset="1" stop-color="#2dd4bf"/></linearGradient></defs><polygon class="bt-hex" points="60,6 107,33 107,87 60,114 13,87 13,33"/></svg><b>TG</b><span class="bt-orb"><i></i><i></i><i></i><i></i><i></i></span></div><div class="bt-title">TACO GAMES</div><div class="bt-bar"><span></span></div><div class="bt-stage" id="msg">Starting</div><div class="bt-tip"></div><div class="bt-welcome">Welcome! Pick a game, make your profile and earn tacos.</div></div></div>
 <script>window.HG_BOOT_T0 = Date.now();</script>
 <div id="hub">
   <div id="topbar">
     <h1>TACO GAMES</h1>
     <nav id="tabs"><button class="tab on" id="tab-games">Games</button><button class="tab" id="tab-prof">Profile</button><button class="tab" id="tab-lb">Leaderboards</button><button class="tab" id="tab-mp">Multiplayer</button><button class="tab" id="tab-act">Activity</button><button class="tab" id="tab-chat">Grapevine</button><button class="tab" id="tab-acct">Account</button><button class="tab" id="tab-admin" hidden>&#128737;&#65039; Admin</button></nav>
-    <button id="reportBtn" title="Report a player, a message or a bug to the admins">&#128681; Report</button><button id="rulesBtn" title="The rules, and what you can report">&#128220; Rules</button><button id="tourBtn" title="Take the tour (how everything works)">?</button><button id="chip" title="Your profile, goons and the shop"><span class="cdot" id="chip-dot"></span><span id="chip-pfp"></span><span class="nm" id="chip-nm"></span><span id="chip-goons"></span></button>
+    <button id="reportBtn" title="Report a player, a message or a bug to the admins">&#128681; Report</button><button id="rulesBtn" title="The rules, and what you can report">&#128220; Rules</button><button id="tourBtn" title="Take the tour (how everything works)">?</button><button id="chip" title="Your profile, tacos and the shop"><span class="cdot" id="chip-dot"></span><span id="chip-pfp"></span><span class="nm" id="chip-nm"></span><span id="chip-goons"></span></button>
   </div>
   <div id="view-games">
   <div id="whatsnew" hidden></div>
@@ -760,7 +760,7 @@ body.hubbonked{animation:hbonkshake .5s}
     <div id="mp-home">
       <div class="mp-head">
         <div class="mp-headl"><h2>Multiplayer</h2><div id="mp-live" class="mp-live"><span class="mp-livedot"></span>Looking for games...</div></div>
-        <div id="mp-bonus" class="mp-bonus" title="Goons for playing with other people"></div>
+        <div id="mp-bonus" class="mp-bonus" title="Tacos for playing with other people"></div>
       </div>
       <div class="mp-actions">
         <div class="mp-act mp-act-quick"><div class="mp-ico">&#9889;</div><b>Quick Play</b><span>Pick a game below. You join an open match, or start one others can join.</span></div>
@@ -771,7 +771,7 @@ body.hubbonked{animation:hbonkshake .5s}
       <div class="mp-sec"><div class="mp-lbl">Live now <span id="mp-pnote" class="rdesc"></span></div><div id="mp-friends" class="mp-pgrid"></div><div id="mp-parties" class="mp-pgrid"></div>
         <label class="mp-pub"><input type="checkbox" id="mp-pub" checked> Let everyone find the games I host (people on the same Wi-Fi always can)</label></div>
       <div class="mp-sec mp-how"><div class="mp-lbl">How it works</div><div class="mp-steps">
-        <div><b>1</b>Quick Play, a friend's code, or your own room.</div><div><b>2</b>Everyone in the room picks the game together and plays.</div><div><b>3</b>Every 10 minutes you play with other people earns goons, double from 3 to 5 pm.</div></div></div>
+        <div><b>1</b>Quick Play, a friend's code, or your own room.</div><div><b>2</b>Everyone in the room picks the game together and plays.</div><div><b>3</b>Every 10 minutes you play with other people earns tacos, double from 3 to 5 pm.</div></div></div>
     </div>
     <div id="mp-room" hidden>
       <div class="mp-roomtop"><div><div class="mp-lbl">Room</div><div id="mp-roomcode" class="mp-big"></div></div><button id="mp-leave" class="mp-ghost">Leave room</button></div>
@@ -896,7 +896,7 @@ function setVersion(v) { MIRRORS = MIRROR_HOSTS.map(function (m) { return m + RE
 // If GitHub cannot be reached (blocked, or its 60-an-hour limit for one school network), it falls back to '@main'.
 // (A hub cannot swap itself for a newer one in the same page: its scripts have already declared their names. Players get a
 // newer launcher itself through the loader, which pins it; HG_HUB_ID tells which build is running.)
-var HG_HUB_ID = '316529f98f07';      // the build fills in a fingerprint of this file
+var HG_HUB_ID = '2ca5eed51b8d';      // the build fills in a fingerprint of this file
 var HG_SHA_RE = /^[0-9a-f]{40}$/;
 function latestSha() {
   try { var c = JSON.parse(localStorage.getItem('hgv:sha') || 'null'); if (c && HG_SHA_RE.test(c.s) && Date.now() - c.t < 120000) return Promise.resolve(c.s); } catch (e) {}
@@ -923,7 +923,7 @@ var local = !BUNDLE && !window.HG_VERSION && (location.protocol === 'file:' || /
 var GAMES = [
   { dir: 'Zoom', hero: 'Brand new: 3D kart and bike racing. 12 tracks, 15 items, drift for mini-turbos, build your ride in the garage and race your friends online.', name: 'Zoom', img: 'zoom', tags: ['New', '3D', 'Racing', 'Multiplayer'], desc: "NEW: 3D kart and bike racing. 12 tracks in 3 cups, 15 items, 6 modes (Grand Prix, Quick Race, Time Trial, Knockout, Coin Rush, Balloon Battle). Drift for mini-turbos, earn coins, build your ride in the garage, and race your friends online." },
   { dir: 'Imposter', name: 'Imposter: Shades in the Lighthouse', img: 'imposter', tags: ['New', 'Multiplayer', 'Party'], desc: "NEW: one or more Shades hide among the lighthouse keepers. Do your chores, ring the bell, call a gathering and vote them into the fog before the lights go out. Up to 10 players with a 6-digit code (bots fill the empty seats), or play alone against 9 bots, on two maps." },
-  { dir: 'Casino', name: 'The Lucky Goon Casino', img: 'casino', tags: ['New', 'Casino', 'Multiplayer', 'Party'], desc: "NEW: turn goons into chips (1 goon = 100 chips) and play blackjack, roulette, slots, plinko, mines, baccarat, craps, video poker and more. Live tables with everyone who is in: Live Roulette, the Rocket, Horse Racing, The Pot and coin-flip Duels. A free spin every day. Play money only: goons and chips are not worth anything outside Taco Games." },
+  { dir: 'Casino', name: 'The Lucky Taco Casino', img: 'casino', tags: ['New', 'Casino', 'Multiplayer', 'Party'], desc: "NEW: turn tacos into chips (1 taco = 100 chips) and play blackjack, roulette, slots, plinko, mines, baccarat, craps, video poker and more. Live tables with everyone who is in: Live Roulette, the Rocket, Horse Racing, The Pot and coin-flip Duels. A free spin every day. Play money only: tacos and chips are not worth anything outside Taco Games." },
   { dir: 'Tetris', name: 'Tetris Surge 2.0', img: 'tetris', credit: 'Made by Hunter', tags: ['New', 'Puzzle'], desc: 'NEW 2.0: climb the rank ladder in Surge, Sprint, Ultra and Marathon. 14 new perks, 5 new bosses, a Daily Challenge with streaks, 55 achievements, and a 70-puzzle Puzzle mode with stars, undo and hints. Plus 12 block skins, 8 backgrounds and Hold and T-Spin tutorials. Still a rogue-lite run with power blocks, plus Marathon, Sprint, Ultra and Zen.' },
   { dir: 'Market Life 1.9', name: 'Market & Life 2.2', img: 'market', tags: ['New', 'Sim'], desc: 'Away for 30 minutes pauses progress. NEW 2.1: join the military (enlist, or become an officer through the Academy, ROTC or Officer Training School), transfer from community college, stay for a master\'s, and 14 new life events. 2.0: live a whole life, from school and 22 degree programs to careers, homes, cars, family and retirement, then see your Life Score in the Hall of Lives. Trade 42 stocks and cryptos with charts, news, dividends and limit orders, save in bonds, and run 10 kinds of business. Plus 33 achievements and a Stats page.', credit: 'Original game by Robbie' },
   { dir: '50 Levels Of Spikes 1.2', name: '100 Levels of Spikes 2.3', img: 'spikes', tags: ['New', 'Platformer', 'Multiplayer'], desc: 'NEW 2.3: beat all 100 for a Victor spot on the leaderboard, auto respawn, a cube that gets bored when you stand still, and roasts that never repeat too soon. 2.2: Multiplayer! Race your friends or beat levels together in Co-op, and fill the room with bots (the host picks how many people and bots). Plus music, a new world every 20 levels (sunset dunes, deep sea, toxic lab, inferno) and a lot more roasts when you die.' },
@@ -1452,7 +1452,7 @@ window.HG_retryGame = function () { if (current && current.game && !current.html
 function closePlayer() {
   if (document.body.classList.contains('fillpage')) fillPage(false);
   if (typeof DOCK !== 'undefined' && DOCK && DOCK.open) dockClose();      // (closePlayer also runs while the page is still loading)
-  setTimeout(function () { if (typeof feedNow === 'function') feedNow(); }, 4000);      // new bests and achievements -> goons and leaderboards
+  setTimeout(function () { if (typeof feedNow === 'function') feedNow(); }, 4000);      // new bests and achievements -> tacos and leaderboards
   var wasOpen = !!current;
   if (MP.live) liveStop();
   loadId++; current = null;
@@ -1619,10 +1619,10 @@ function paintChip() {
   document.getElementById('chip-nm').textContent = name; document.getElementById('chip-nm').className = 'nm' + (hgRole(name) ? ' un-' + hgRole(name) : '');
   var s = L ? L.status().status : 'connecting';
   document.getElementById('chip-dot').className = 'cdot' + (s === 'online' ? ' on' : s === 'signed-out' || s === 'error' ? '' : ' wait');
-  // your picture and goons on the chip: the way into your profile and the shop
+  // your picture and tacos on the chip: the way into your profile and the shop
   var e = L && L.eco && L.eco.state();
   document.getElementById('chip-pfp').innerHTML = e && e.equip && e.equip.pfp && typeof profPfp === 'function' ? profPfp(e.equip.pfp, 22) : '';
-  document.getElementById('chip-goons').textContent = e ? (e.dev ? '∞' : e.goons) + ' goons' : '';
+  document.getElementById('chip-goons').textContent = e ? (e.dev ? '∞' : e.goons) + ' tacos' : '';
 }
 function onGvChange() {
   paintChip(); applyGvTheme();
@@ -2255,9 +2255,9 @@ if (!BUNDLE) {
 }
 if (start === 'chat') showTab('chat'); else if (start === 'account') showTab('acct');
 
-// ===== Profile: your picture, banner and title; the Goon shop; global leaderboards =====
+// ===== Profile: your picture, banner and title; the Taco shop; global leaderboards =====
 // Everything here talks to Grapevine (HGGrapevine.eco, see gv/core.js) and the server's catalog and prices
-// (grapevine src/archive/074-catalog.js): this file only draws it. Goons can only be changed by the server.
+// (grapevine src/archive/074-catalog.js): this file only draws it. Tacos can only be changed by the server.
 var PROF = { tab: 'locker', cat: 'pfp', grp: '', lbGame: '', lbBoard: '', lbData: null, lbAsked: '' };
 function profEsc(s) { return String(s == null ? '' : s).replace(/[&<>"]/g, function (c) { return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]; }); }
 function profItem(id) {
@@ -2328,8 +2328,8 @@ function profRender() {
     (title ? cosTitle(title) : '<span class="ptag dim">no title yet</span>') +
     ((mine.rec || []).length ? '<span class="ptag rec">🏆 Record Holder</span>' : '') +
     ranks.slice(0, 4).map(function (g) { return '<span class="ptag rank t' + mine.ranks[g] + '">R' + mine.ranks[g] + ' · ' + profEsc(g) + '</span>'; }).join('') +
-    '</div><div class="pgoons"><b>' + (e.dev ? '∞' : e.goons) + '</b><span>goons</span><small>' + profFmt(e.playSec, 'dur') + ' played</small></div></div>';
-  h += '<div class="psub">' + [['locker', 'Locker'], ['shop', 'Goon Shop'], ['earn', 'Earn goons']].concat(e.perms && e.perms.length ? [['admin', 'Admin tools']] : []).map(function (t) {
+    '</div><div class="pgoons"><b>' + (e.dev ? '∞' : e.goons) + '</b><span>tacos</span><small>' + profFmt(e.playSec, 'dur') + ' played</small></div></div>';
+  h += '<div class="psub">' + [['locker', 'Locker'], ['shop', 'Taco Shop'], ['earn', 'Earn tacos']].concat(e.perms && e.perms.length ? [['admin', 'Admin tools']] : []).map(function (t) {
     return '<button data-ptab="' + t[0] + '" class="' + (PROF.tab === t[0] ? 'on' : '') + '">' + t[1] + '</button>'; }).join('') + '</div>';
   if (PROF.tab === 'shop' || PROF.tab === 'locker') h += profItems(e, c, PROF.tab === 'shop');
   else if (PROF.tab === 'lb') h += profBoards(c);
@@ -2350,7 +2350,7 @@ function profItems(e, c, shop) {
   if (PROF.grp) list = list.filter(function (i) { return profSect(i.g) === PROF.grp; });
   if (PROF.cat === 'music' && !shop) h += '<div class="pnote">The track you wear plays on the launcher (never over a game). <button class="pb" data-mtoggle="1">' + (window.HG_music && localStorage.getItem('hgv:music') === 'off' ? 'Music is off: turn on' : 'Music is on: turn off') + '</button></div>';
   if (PROF.cat === 'perk') return h + profExtras(e, c, shop);
-  if (!list.length) return h + '<div class="pempty">' + (shop ? 'You own everything here. Nice.' : 'Nothing here yet: the Goon Shop has plenty.') + '</div>';
+  if (!list.length) return h + '<div class="pempty">' + (shop ? 'You own everything here. Nice.' : 'Nothing here yet: the Taco Shop has plenty.') + '</div>';
   // one grid per group, with the game's name over its pictures ("Games: Last Light" -> "Last Light")
   var blocks = [], at = {};
   list.forEach(function (i) { var g = i.g || ''; if (!(g in at)) { at[g] = blocks.length; blocks.push({ g: g, items: [] }); } blocks[at[g]].items.push(i); });
@@ -2364,23 +2364,23 @@ function profItems(e, c, shop) {
       : '<span class="ppfp" style="width:54px;height:54px;font-size:30px;background:linear-gradient(135deg,' + i.c[0] + ',' + i.c[1] + ')">' + profEsc(i.e || '🎨') + '</span>';
     var btn = locked ? '<span class="plock" title="' + profEsc(i.x) + '">🔒 ' + profEsc(String(i.x).replace(/^(ach|tag):/, '').replace(/^\w/, function (x) { return x.toUpperCase(); })) + '</span>'
       : own ? (on ? '<button data-unequip="' + i.k + '" class="pb on">Wearing</button>' : '<button data-equip="' + i.id + '" class="pb">Wear</button>')
-      : '<button data-buy="' + i.id + '" class="pb buy">' + i.p + ' goon' + (i.p === 1 ? '' : 's') + '</button>';
+      : '<button data-buy="' + i.id + '" class="pb buy">' + i.p + ' taco' + (i.p === 1 ? '' : 's') + '</button>';
     return '<div class="pcard r-' + i.r + (locked ? ' locked' : '') + '">' + prev + '<div class="pcn">' + (i.k === 'title' ? '' : profEsc(i.n)) + '</div><div class="pcr">' + RAR[i.r] +
       (buys[i.id] ? ' · ' + buys[i.id] + ' bought' : '') + '</div>' + btn + '</div>';
   };
   blocks.forEach(function (b) { h += (blocks.length > 1 && b.g ? '<h4 class="psec">' + profEsc(b.g.replace(/^Games: /, '')) + '</h4>' : '') + '<div class="pgrid">' + b.items.map(card).join('') + '</div>'; });
   return h;
 }
-// Extras: things to do with goons that are not something to wear
+// Extras: things to do with tacos that are not something to wear
 function profExtras(e, c, shop) {
   var P = c.prices || { crate: 6, giftMax: 20 }, L = window.HGGrapevine, friends = []; try { friends = (L.friends().friends || []).map(function (f) { return f.name; }); } catch (x) {}
   var left = c.items.filter(function (i) { return i.p > 0 && i.k !== 'perk' && !profOwns(e, i); }).length;
   return '<div class="pextras">' +
     '<div class="pex"><span class="pexi">&#127873;</span><div><b>Mystery crate</b><p>One random thing from the shop that you do not own yet. Rare things are rarer: about 1 in 30 is legendary. ' + left + ' thing' + (left === 1 ? '' : 's') + ' left for you to find.</p>' +
-      '<button class="pb buy" data-pex="crate"' + (left ? '' : ' disabled') + '>Open a crate (' + P.crate + ' goons)</button></div></div>' +
-    '<div class="pex"><span class="pexi">&#128157;</span><div><b>Give goons to a friend</b><p>A present for a friend, up to ' + P.giftMax + ' goons a day.</p>' +
+      '<button class="pb buy" data-pex="crate"' + (left ? '' : ' disabled') + '>Open a crate (' + P.crate + ' tacos)</button></div></div>' +
+    '<div class="pex"><span class="pexi">&#128157;</span><div><b>Give tacos to a friend</b><p>A present for a friend, up to ' + P.giftMax + ' tacos a day.</p>' +
       (friends.length ? '<div class="prow"><select id="px-friend">' + friends.map(function (n) { return '<option>' + profEsc(n) + '</option>'; }).join('') + '</select><input id="px-n" type="number" min="1" max="' + P.giftMax + '" value="1" style="width:76px"><button class="pb" data-pex="gift">Give</button></div>' : '<p class="pnote">Add a friend in Grapevine first.</p>') + '</div></div>' +
-    '<div class="pex"><span class="pexi">&#127920;</span><div><b>The casino</b><p>Swap goons for chips (1 goon = 100 chips) and play slots, blackjack, roulette and more, or sit at a live table with everyone. Goons are play money: they are not worth anything outside Taco Games.</p>' +
+    '<div class="pex"><span class="pexi">&#127920;</span><div><b>The casino</b><p>Swap tacos for chips (1 taco = 100 chips) and play slots, blackjack, roulette and more, or sit at a live table with everyone. Tacos are play money: they are not worth anything outside Taco Games.</p>' +
       '<button class="pb" data-pex="casino">Open the casino</button></div></div></div>';
 }
 function profBoards(c) {
@@ -2494,14 +2494,14 @@ function lbFindApply() {
 }
 document.addEventListener('input', function (e) { if (e.target && e.target.id === 'lb-find') { PROF.lbFind = e.target.value; lbFindApply(); } });
 function profEarn(e) {
-  var rows = [['📅', 'Open the launcher every day', '1 goon a day, 3 on every 7th day in a row' + (e.streak ? ' (you: ' + e.streak + ' in a row)' : '')], ['🏆', 'Every achievement', '1 goon each (the Account tab lists them all)'], ['🌊', 'Clear 15 waves in Blocky Shooter', '1 goon'],
-    ['⬆️', 'Rank up in Blocky Shooter', '1 goon per rank'], ['⏱️', '15 minutes of active play, any game', '1 goon'],
-    ['🕯️', 'First in Last Light (full game) at the end of the day', '1 goon'], ['🥇', 'Top 3 in playtime for the day', '5 goons each'],
-    ['⌛', 'First in daily playtime every day for a week', 'the Timeless Gooner title'], ['💰', 'The top of the goon leaderboard', 'Godly / Goated / Great Gooner titles']];
+  var rows = [['📅', 'Open the launcher every day', '1 taco a day, 3 on every 7th day in a row' + (e.streak ? ' (you: ' + e.streak + ' in a row)' : '')], ['🏆', 'Every achievement', '1 taco each (the Account tab lists them all)'], ['🌊', 'Clear 15 waves in Blocky Shooter', '1 taco'],
+    ['⬆️', 'Rank up in Blocky Shooter', '1 taco per rank'], ['⏱️', '15 minutes of active play, any game', '1 taco'],
+    ['🕯️', 'First in Last Light (full game) at the end of the day', '1 taco'], ['🥇', 'Top 3 in playtime for the day', '5 tacos each'],
+    ['⌛', 'First in daily playtime every day for a week', 'the Timeless Gooner title'], ['💰', 'The top of the taco leaderboard', 'Godly / Goated / Great Gooner titles']];
   return '<div class="pearn">' + rows.map(function (r) { return '<div><span>' + r[0] + '</span><b>' + profEsc(r[1]) + '</b><em>' + profEsc(r[2]) + '</em></div>'; }).join('') + '</div>' +
     '<div class="plog"><h4>Recent</h4>' + ((e.log || []).slice().reverse().map(function (l) { return '<div><b class="' + (l.n < 0 ? 'neg' : '') + '">' + (l.n > 0 ? '+' : '') + l.n + '</b> ' + profEsc(l.why) + ' <i>' + hgTime(l.at) + '</i></div>'; }).join('') || '<div class="pempty">Nothing yet.</div>') + '</div>';
 }
-// developers only: give someone an admin-only title (Tomato, VIP, Beta Tester...) or goons, or take a title back
+// developers only: give someone an admin-only title (Tomato, VIP, Beta Tester...) or tacos, or take a title back
 function profAdmin(c) { return '<div class="padmin"><p class="pnote">The admin tools have their own menu now: the &#128737;&#65039; Admin tab in the top bar.</p><div class="prow"><button class="pb" data-padm="openmenu">Open the Admin menu</button></div></div>'; }      // (2026-11-17: 100-admin-menu.js)
 // developers only: a picture of their own (squeezed to 96 px)
 function profDevUpload(box) {
@@ -2524,13 +2524,13 @@ document.addEventListener('click', function (ev) {
   else if (d.pgrp !== undefined) PROF.grp = d.pgrp;
   else if (d.lbg) { PROF.lbGame = d.lbg; PROF.lbBoard = ''; PROF.lbData = null; }
   else if (d.lbb) { PROF.lbBoard = d.lbb; PROF.lbData = null; }
-  else if (d.buy) { var it = profItem(d.buy); if (it && confirm('Buy ' + it.n + ' for ' + it.p + ' goon' + (it.p === 1 ? '' : 's') + '?')) L.eco.buy(d.buy); return; }
+  else if (d.buy) { var it = profItem(d.buy); if (it && confirm('Buy ' + it.n + ' for ' + it.p + ' taco' + (it.p === 1 ? '' : 's') + '?')) L.eco.buy(d.buy); return; }
   else if (d.equip) { L.eco.equip(profItem(d.equip).k, d.equip); return; }
   else if (d.unequip) { L.eco.equip(d.unequip, null); return; }
   else if (d.mtoggle) { if (window.HG_music) HG_music.toggle(); }
   else if (d.pex) {
     if (d.pex === 'crate') { if (confirm('Open a mystery crate?')) L.eco.crate(); }
-    else if (d.pex === 'gift') { var fn = document.getElementById('px-friend').value, gn = Math.floor(+document.getElementById('px-n').value || 0); if (gn < 1) return; if (confirm('Give ' + gn + ' goon' + (gn === 1 ? '' : 's') + ' to ' + fn + '?')) L.eco.gift(fn, gn); }
+    else if (d.pex === 'gift') { var fn = document.getElementById('px-friend').value, gn = Math.floor(+document.getElementById('px-n').value || 0); if (gn < 1) return; if (confirm('Give ' + gn + ' taco' + (gn === 1 ? '' : 's') + ' to ' + fn + '?')) L.eco.gift(fn, gn); }
     else if (d.pex === 'casino') { var cg = GAMES.filter(function (g) { return g.dir === 'Casino'; })[0]; if (cg) { homeRecent(cg); play(cg); } }
     return;
   }
@@ -2557,7 +2557,7 @@ document.addEventListener('click', function (ev) {
       if (r.saves) PROF.look = r;
       if (r.restored != null) { lo.textContent = 'Put back ' + r.restored + ' save(s) for ' + r.name + '. They load on their device within a minute (or when they close the game).'; return; }
       var when = function (t) { return t ? hgTime(t) : '?'; };
-      lo.innerHTML = '<b>' + profEsc(r.name) + '</b> \u00b7 last seen ' + profEsc(when(r.lastSeen)) + '<br>' + profFmt(r.goons, 'int') + ' goons, ' + profFmt(r.chips, 'int') + ' chips, ' + r.owned + ' shop items, ' + r.earned + ' earned<br>' +
+      lo.innerHTML = '<b>' + profEsc(r.name) + '</b> \u00b7 last seen ' + profEsc(when(r.lastSeen)) + '<br>' + profFmt(r.goons, 'int') + ' tacos, ' + profFmt(r.chips, 'int') + ' chips, ' + r.owned + ' shop items, ' + r.earned + ' earned<br>' +
         r.saves.length + ' saves (' + Math.round(r.saves.reduce(function (t, x) { return t + (x.bytes || 0); }, 0) / 1024) + ' KB), newest ' + profEsc(when(Math.max.apply(null, r.saves.map(function (x) { return x.at; }).concat([0])))) + '<br>' +
         'On ' + r.boards.length + ' leaderboards' + (r.boards.length ? ': ' + r.boards.slice(0, 12).map(function (b) { return profEsc(b.key) + ' #' + b.pos + ' (' + profFmt(b.s, 'int') + ')'; }).join(', ') : '') + '<br>' +
         '<button class="pb" data-padm="rebuild">Rebuild from leaderboards</button><br>' +
@@ -2578,7 +2578,7 @@ document.addEventListener('click', function (ev) {
   else if (d.padm) {
     var nm = paName(); if (!nm) { hubToast('Type their name first.'); return; }
     if (d.padm === 'custom') { var ct = (document.getElementById('pa-ctext').value || '').trim(); if (ct.length < 2) { hubToast('Type the title first (2 to 24 characters).'); return; } L.eco.admin('custom', nm, null, 0, ct); hubToast('Gave the title "' + ct + '" to ' + nm + '.'); return; }
-    if (d.padm === 'goons') { var n = Math.round(+document.getElementById('pa-n').value || 0); if (!n) return; L.eco.admin('goons', nm, null, n); hubToast('Sent ' + n + ' goons to ' + nm + '.'); return; }
+    if (d.padm === 'goons') { var n = Math.round(+document.getElementById('pa-n').value || 0); if (!n) return; L.eco.admin('goons', nm, null, n); hubToast('Sent ' + n + ' tacos to ' + nm + '.'); return; }
     var t = document.getElementById('pa-title').value, it = profItem(t);
     L.eco.admin(d.padm, nm, t); hubToast((d.padm === 'give' ? 'Gave ' : 'Took back ') + (it ? it.n : t) + (d.padm === 'give' ? ' to ' : ' from ') + nm + '.'); return;
   }
@@ -2591,21 +2591,21 @@ function profMount() {
     profRender(); lbRender(); paintChip(); if (!m) return;
     if (m.bought) { var it = profItem(m.bought); if (it) hubToast('Bought ' + it.n + '!'); }
     if (m.crate) { var ci = profItem0(m.crate); if (ci) { PROF.tab = 'locker'; PROF.cat = ci.k; PROF.grp = ''; profRender(); hubToast('The crate had: ' + ci.n + ' (' + (RAR[ci.r] || ci.r) + ')! It is in your Locker.'); } }
-    if (m.gifted) hubToast('Gave ' + m.gifted.n + ' goon' + (m.gifted.n === 1 ? '' : 's') + ' to ' + m.gifted.to + '.');
+    if (m.gifted) hubToast('Gave ' + m.gifted.n + ' taco' + (m.gifted.n === 1 ? '' : 's') + ' to ' + m.gifted.to + '.');
   });
   L.on('cos', function () { if (PROF.tab === 'lb') profRender(); });
   L.on('ecoError', function (m) { hubToast(m.text || 'That did not work.'); });
 }
 function hubToast(t) { var el = document.createElement('div'); el.className = 'htoast'; el.textContent = t; document.body.appendChild(el); setTimeout(function () { el.remove(); }, 3200); }
 
-// ===== What the server is told, so goons and leaderboards follow your play =====
+// ===== What the server is told, so tacos and leaderboards follow your play =====
 // - playtime: once a minute while a game is open AND you touched it (key, click, tap) in that minute
 // - claims: unlocked achievements (gv/ach.js keeps them in 'hgach:v1'), Blocky waves cleared and ranks gained
 // - leaderboards: each game's best numbers, read from its own save (games do not have to report anything)
 // The server checks and caps every claim; this only says what happened.
 var FEED = { lastInput: Date.now(), sent: {}, left: {}, uid: '' };
 // AFK rule (2026-11-17): after 30 minutes with no key, click, tap or mouse movement (in a game or the launcher) you
-// stop progressing: no play time, no goons for playing, no multiplayer bonus. The next input starts it again.
+// stop progressing: no play time, no tacos for playing, no multiplayer bonus. The next input starts it again.
 var HG_IDLE_MS = 30 * 60000;
 function hgIdle() { return Date.now() - FEED.lastInput >= HG_IDLE_MS; }
 (function () { var mk = function () { FEED.lastInput = Date.now(); }; ['keydown', 'pointerdown', 'touchstart', 'wheel'].forEach(function (t) { document.addEventListener(t, mk, { passive: true, capture: true }); }); var n = 0; document.addEventListener('mousemove', function () { if (++n % 20 === 0) mk(); }, { passive: true, capture: true }); })();
@@ -2734,7 +2734,7 @@ function feedNow() {
   }, function () {      // a server from before lbBatch never answers it: send them one by one, as before
     if (FEED.uid === uid && L.online()) items.forEach(function (it) { FEED.sent[it.b] = it.s; L.eco.lbSubmit(it.b, it.s, it.d); });
   });
-  // goon claims: exactly the achievements the server does not have yet (it tells us which it has)
+  // taco claims: exactly the achievements the server does not have yet (it tells us which it has)
   var got = feedRd('hgach:v1') || {}, e = L.eco.state() || {}, has = {}, n = 0;
   if (Array.isArray(e.achIds)) e.achIds.forEach(function (id) { has[id] = 1; });
   else { try { has = JSON.parse(localStorage.getItem('hgv:claimed:' + uid) || '{}'); } catch (x) { has = {}; } }
@@ -2753,7 +2753,7 @@ function feedMount() {
   var L = window.HGGrapevine; if (!L || feedMount.done) return; feedMount.done = true;
   L.on('eco', function () {
     if (!FEED.first) { FEED.first = 1; setTimeout(feedNow, 1500); }
-    var e = L.eco.state(); if (e && !e.checkedIn && !FEED.daily) { FEED.daily = 1; L.eco.claim('daily'); }      // the daily check-in goon (once a day, the server decides)
+    var e = L.eco.state(); if (e && !e.checkedIn && !FEED.daily) { FEED.daily = 1; L.eco.claim('daily'); }      // the daily check-in taco (once a day, the server decides)
   });
   // the wheel, for the launcher's own chats (the hub rooms): the server spins it and may ban
   L.on('spin', function (m) { if (!document.querySelector('#gvapp') || document.getElementById('view-chat').hidden) hubWheel(m); });
@@ -2772,7 +2772,7 @@ function hubWheel(m) {
 
 // ===== The tour: ONE walkthrough for the launcher and Grapevine =====
 // It used to be two (a slideshow here, and Grapevine's own point-and-press tour). Now this one goes through the games,
-// your profile, the Goon Shop, the leaderboards and multiplayer, then into Grapevine itself (targets inside its frame),
+// your profile, the Taco Shop, the leaderboards and multiplayer, then into Grapevine itself (targets inside its frame),
 // in one style, one counter. Grapevine hands /guide and its welcome offer to this (window.HG_tour) and reports what you
 // do in it (HG_tour.event: 'sent', 'closed', ...). The ? in the top bar replays it any time.
 var HT = { on: false, i: 0, steps: [], target: null, raf: 0, lastBox: '', clickOff: null };
@@ -2782,8 +2782,8 @@ function htSteps() {
   return [
     { title: 'Welcome to Taco Games', text: 'One account for every game, your profile, and Grapevine chat. Two minutes: we point at things, you press them. Skip any time.', center: true, next: 'Start' },
     { target: '#grid .game', title: 'Games', text: 'Every card is a game. Press one to play: it saves to your account by itself, on any computer you sign in on.', next: 'Next' },
-    { target: '#chip', title: 'Your profile', text: 'This is you: your picture, your goons and your title. Press it.', wait: 'click' },
-    { target: '[data-ptab="shop"]', title: 'The Goon Shop', text: '<b>Goons</b> come from playing: every achievement, 15 minutes of play, Blocky waves and ranks, daily top spots. Spend them here on pictures, banners, titles and Blocky skins. Press it.', wait: 'click' },
+    { target: '#chip', title: 'Your profile', text: 'This is you: your picture, your tacos and your title. Press it.', wait: 'click' },
+    { target: '[data-ptab="shop"]', title: 'The Taco Shop', text: '<b>Tacos</b> come from playing: every achievement, 15 minutes of play, Blocky waves and ranks, daily top spots. Spend them here on pictures, banners, titles and Blocky skins. Press it.', wait: 'click' },
     { target: '#tab-lb', title: 'Leaderboards', text: 'Every game has global leaderboards, all in this tab. Your rank (R1 is the best, R5 the lowest) shows next to your name in chat, and first place is the <b>Record Holder</b>. Press it.', wait: 'click' },
     { target: '#tab-mp', title: 'Multiplayer', text: 'Type <b>any 6-digit code</b> and you are in a room with whoever types the same one: chat, then start a game together. Press it.', wait: 'click' },
     { target: '#tab-chat', title: 'Grapevine', text: 'Chat rooms, DMs and friends, built in. Press it and we will show you around inside.', wait: 'click' },
@@ -2972,7 +2972,7 @@ function dockSend(text) {
   setInterval(dockBadge, 3000);
 })();
 
-// ===== Launcher music: the track you wear (bought in the Goon Shop) plays on the launcher's pages =====
+// ===== Launcher music: the track you wear (bought in the Taco Shop) plays on the launcher's pages =====
 // Original tracks made right here with Web Audio (no files): 'tidal' (fast, bright, 140 bpm) and 'nightdrive'
 // (synthwave, 100 bpm). Never over a game: it stops while one is open and comes back after. The first press anywhere
 // on the page starts it (browsers do not allow sound before that).
@@ -3113,11 +3113,11 @@ function partyCard(p, friend) {
 }
 function partyBonus(b) {
   var box = document.getElementById('mp-bonus'); if (!box) return;
-  if (!b) { box.innerHTML = '<div class="mp-bring"><i style="--v:0"></i><span>🎁</span></div><div><b>Multiplayer bonus</b><span>Goons for every 10 minutes you play with other people.</span></div>'; return; }
+  if (!b) { box.innerHTML = '<div class="mp-bring"><i style="--v:0"></i><span>🎁</span></div><div><b>Multiplayer bonus</b><span>Tacos for every 10 minutes you play with other people.</span></div>'; return; }
   var v = b.today >= b.cap ? 1 : b.min / b.every;
   box.className = 'mp-bonus' + (b.happy ? ' happy' : '') + (b.playing ? ' on' : '');
-  box.innerHTML = '<div class="mp-bring"><i style="--v:' + v.toFixed(2) + '"></i><span>' + (b.happy ? '×2' : '🎁') + '</span></div><div><b>' + (b.happy ? 'Double goons right now!' : 'Multiplayer bonus') + '</b>' +
-    '<span>' + (b.today >= b.cap ? 'All ' + b.cap + ' bonus goons earned today. Back tomorrow!' : (b.playing ? (b.every - b.min) + ' min to +' + b.pay + ' goons' : '+' + b.pay + ' goons every ' + b.every + ' min you play with others')) + '</span>' +
+  box.innerHTML = '<div class="mp-bring"><i style="--v:' + v.toFixed(2) + '"></i><span>' + (b.happy ? '×2' : '🎁') + '</span></div><div><b>' + (b.happy ? 'Double tacos right now!' : 'Multiplayer bonus') + '</b>' +
+    '<span>' + (b.today >= b.cap ? 'All ' + b.cap + ' bonus tacos earned today. Back tomorrow!' : (b.playing ? (b.every - b.min) + ' min to +' + b.pay + ' tacos' : '+' + b.pay + ' tacos every ' + b.every + ' min you play with others')) + '</span>' +
     '<span class="mp-today">' + b.today + ' / ' + b.cap + ' today</span></div>';
 }
 function partyPaint() {
@@ -3175,7 +3175,7 @@ function homePaint() {
   var L = window.HGGrapevine, me = L && L.me(), e = L && L.eco && L.eco.state(), h = document.getElementById('hello'), j = document.getElementById('jump');
   if (!h || !j || !hubShown()) return;
   var hr = new Date().getHours(), part = hr < 12 ? 'Good morning' : hr < 18 ? 'Good afternoon' : 'Good evening';
-  setHtml(h, me ? part + ', <b>' + hgNameHtml(me.name) + '</b>.' + (e ? ' You have <b class="hgoons">' + (e.dev ? '∞' : e.goons) + ' goons</b> to spend in your <a href="#" id="hello-prof">Profile</a>.' : '') + ' Pick a game.' : 'Pick a game.');
+  setHtml(h, me ? part + ', <b>' + hgNameHtml(me.name) + '</b>.' + (e ? ' You have <b class="hgoons">' + (e.dev ? '∞' : e.goons) + ' tacos</b> to spend in your <a href="#" id="hello-prof">Profile</a>.' : '') + ' Pick a game.' : 'Pick a game.');
   var hp = document.getElementById('hello-prof'); if (hp) hp.onclick = function (ev) { ev.preventDefault(); showTab('prof'); };
   var r = []; try { r = JSON.parse(localStorage.getItem('hgv:recent') || '[]'); } catch (x) {}
   var gs = r.map(function (d) { return GAMES.filter(function (g) { return g.dir === d; })[0]; }).filter(Boolean).slice(0, 4);
@@ -3587,11 +3587,11 @@ setInterval(gcSync, 3000);
 //    calling parent.HG_gameReady() after their first frame; the others are "ready" once the page has loaded and is
 //    drawing smoothly (a few quick animation frames in a row). Never more than 45 s either way.
 var GL_SIGNAL = { 'Blocky Shooter V2': 1, Sovereign: 1, 'Steel Storm': 1 };
-var GL_QUIPS = ['Sharpening the spikes', 'Feeding the goons', 'Teaching the bots to aim (badly)', 'Polishing every pixel', 'Untangling the wires',
+var GL_QUIPS = ['Sharpening the spikes', 'Feeding the tacos', 'Teaching the bots to aim (badly)', 'Polishing every pixel', 'Untangling the wires',
   'Waking up the hamsters', 'Reticulating splines', 'Bribing the final boss', 'Counting to infinity (twice)', 'Loading loading screen', 'Finding the any key',
   'Warming up the lasers', 'Blowing on the cartridge', 'Spawning dramatic music', 'Inflating the hitboxes', 'Herding the pixels', 'Charging the flux capacitor',
   'Buffering the vibes', 'Asking the cube nicely', 'Tightening the bolts'];
-var GL_TIPS = ['Press T in any game to chat without leaving it.', 'Play every day: the daily check-in gives you a goon.', 'Goons buy pets, frames and chat bubbles in the Profile shop.',
+var GL_TIPS = ['Press T in any game to chat without leaving it.', 'Play every day: the daily check-in gives you a taco.', 'Tacos buy pets, frames and chat bubbles in the Profile shop.',
   'Start a party in Multiplayer and your friends join your game in one click.', 'Every game has a leaderboard. Can you get on one?', 'Your saves live in your account: sign in on any device and keep playing.',
   'Found a bug? Tell us in #bugs-and-ideas or with the Report button.', 'Rare titles shimmer, and you only get them by playing.', 'Make your own songs in Beat Lab and share them in #music.'];
 var GL_GAME_TIPS = {
@@ -3773,7 +3773,7 @@ document.getElementById('tab-act').addEventListener('click', function () { showT
 
 // ===== Admin tools (2026-11-15): what you see is what the owner allowed you =====
 // Every admin power is checked by the server (ADMIN_PERMS in Grapevine's 020); this only draws the parts you may use.
-// Sections: your powers and tags; one player box (look up, rebuild, put back, edit progress, leaderboards, goons, titles);
+// Sections: your powers and tags; one player box (look up, rebuild, put back, edit progress, leaderboards, tacos, titles);
 // admins and their powers (owner); reports; database use.
 var PA = { out: '', admins: null, edit: null };
 var PA_GAME = {      // a save, its game, and the leaderboards its numbers feed (for "count on the leaderboards?")
@@ -3805,7 +3805,7 @@ function paRender(c) {
       (H('accounts') ? '<button class="pb" data-padm="look">Look up</button>' : '') +
       (H('progress') ? '<button class="pb" data-padm="edit">Edit progress</button>' : '') +
       (H('leaderboards') ? '<button class="pb" data-padm="lbtools">Leaderboards</button>' : '') + '</div>';
-    if (H('goons')) h += '<div class="prow"><input id="pa-n" type="number" min="-100000" max="1000000" value="5" style="width:110px"><button class="pb" data-padm="goons">Give goons</button><button class="pb" data-padm="chips">Give casino chips</button></div>';
+    if (H('goons')) h += '<div class="prow"><input id="pa-n" type="number" min="-100000" max="1000000" value="5" style="width:110px"><button class="pb" data-padm="goons">Give tacos</button><button class="pb" data-padm="chips">Give casino chips</button></div>';
     if (H('titles')) {
       var titles = c.items.filter(function (i) { return i.k === 'title' && (i.x === 'Given by an admin' || i.ra); });
       h += '<div class="prow"><select id="pa-title">' + titles.map(function (t) { return '<option value="' + profEsc(t.id) + '">' + profEsc(t.n) + (t.ra ? ' (earned in a game)' : '') + '</option>'; }).join('') + '</select>' +
@@ -4337,7 +4337,7 @@ window.HG_rules = rulesOpen;
 // ===== The Admin menu (2026-11-17): everything an admin or the owner can do, in one place, from the top bar =====
 // The 🛡️ Admin tab shows only for accounts with admin powers. Sections, left to right in the order you need them:
 //   Overview (your powers, your tag, what needs you)  ·  Reports (answer them: act or dismiss, with a note to the reporter)
-//   Players (one player: warnings, mutes, bans, then their progress, goons and titles)  ·  Muted & banned  ·  Admins  ·  Server
+//   Players (one player: warnings, mutes, bans, then their progress, tacos and titles)  ·  Muted & banned  ·  Admins  ·  Server
 // Every power is still checked by the server; this only draws what you may use. The buttons reuse the admin tools in
 // 098-admin.js (data-padm), so the profile click handler (040) serves them here too.
 var ADM = { sec: 'home', reps: null, repFilter: 'open', info: null };
@@ -4409,9 +4409,9 @@ function admSection(k, c) {
     }
     var pt = H('accounts') || H('progress') || H('leaderboards') || H('goons') || H('titles');
     if (pt) {
-      h += '<h4>Account and progress</h4><div class="prow">' + (H('accounts') ? '<button class="pb" data-padm="look">Saves, goons and boards</button>' : '') +
+      h += '<h4>Account and progress</h4><div class="prow">' + (H('accounts') ? '<button class="pb" data-padm="look">Saves, tacos and boards</button>' : '') +
         (H('progress') ? '<button class="pb" data-padm="edit">Edit progress</button>' : '') + (H('leaderboards') ? '<button class="pb" data-padm="lbtools">Leaderboards</button>' : '') + '</div>';
-      if (H('goons')) h += '<div class="prow"><input id="pa-n" type="number" min="-100000" max="1000000" value="5" style="width:110px"><button class="pb" data-padm="goons">Give goons</button><button class="pb" data-padm="chips">Give casino chips</button></div>';
+      if (H('goons')) h += '<div class="prow"><input id="pa-n" type="number" min="-100000" max="1000000" value="5" style="width:110px"><button class="pb" data-padm="goons">Give tacos</button><button class="pb" data-padm="chips">Give casino chips</button></div>';
       if (H('titles')) {
         var titles = c.items.filter(function (i) { return i.k === 'title' && (i.x === 'Given by an admin' || i.ra); });
         h += '<div class="prow"><select id="pa-title">' + titles.map(function (t) { return '<option value="' + profEsc(t.id) + '">' + profEsc(t.n) + (t.ra ? ' (earned in a game)' : '') + '</option>'; }).join('') + '</select>' +

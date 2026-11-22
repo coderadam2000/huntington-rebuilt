@@ -162,7 +162,7 @@
         send({ type: 'friendsList' });
         startSync();
         if (st.ach) send({ type: 'achSet', ach: st.ach });   // the achievements showcase, after every (re)connect
-        send({ type: 'eco', cat: !st.cat });                  // goons, what you own and wear (and the shop catalog, once)
+        send({ type: 'eco', cat: !st.cat });                  // tacos, what you own and wear (and the shop catalog, once)
         var a = st.auth; st.auth = null; if (a) a.resolve({ name: st.name, userId: st.userId });
         return;
       }
@@ -187,10 +187,10 @@
         if (cb) { delete st.lookups[m.name]; cb.forEach(function (f) { f(m); }); }
         return;
       }
-      // goons and the shop (see grapevine 075-economy.js): your wallet, the catalog, what others wear, leaderboards, the wheel
+      // tacos and the shop (see grapevine 075-economy.js): your wallet, the catalog, what others wear, leaderboards, the wheel
       case 'eco':
         st.eco = m.eco; if (m.cat) st.cat = m.cat; if (m.buys) { st.buys = st.buys || {}; for (var bk in m.buys) st.buys[bk] = m.buys[bk]; }
-        if (m.gained && m.gained.n > 0) emit('notify', { kind: 'goon', title: '+' + m.gained.n + ' goon' + (m.gained.n === 1 ? '' : 's'), text: m.gained.why });
+        if (m.gained && m.gained.n > 0) emit('notify', { kind: 'goon', title: '+' + m.gained.n + ' taco' + (m.gained.n === 1 ? '' : 's'), text: tacoWords(m.gained.why) });
         emit('eco', m); emit('change'); return;
       case 'lb': return rpcDone('lb:' + m.board, m);
       case 'lbAck': return rpcDone('lbAck', m);
@@ -223,8 +223,13 @@
     }
   }
 
+  // The server still says "goons" (its field names and some of its words); the players see Tacos (2026-11-21 rename).
+  function tacoWords(t) {
+    return typeof t !== 'string' ? t : t.replace(/\b(goon|Goon|GOON)(s?)\b/g, function (w, g, s2) { return (g === 'goon' ? 'taco' : g === 'Goon' ? 'Taco' : 'TACO') + s2; });
+  }
   function onError(c, m) {
     var code = m.code || '';
+    if (m.text) m.text = tacoWords(m.text);
     if (/^(goons|not-owned|not-for-sale|owned|not-admin|bad-title|gift|no-such-name|self)$/.test(code)) { emit('ecoError', m); return; }
     if (code === 'rate') { rpcFail(new Error('Slow down a little.')); settlePending(new Error('Slow down a little.')); return; }
     if (code === 'rebind' && !st.sendKey && st.auth) { st.sendKey = true; try { c.close(); } catch (e) {} return; }   // retry once, sending the key to bind it
@@ -364,7 +369,7 @@
   }
 
   // ---- paced frames ----
-  // Scores and goon claims come in bursts (a new device sends every leaderboard and achievement at once). They go out
+  // Scores and taco claims come in bursts (a new device sends every leaderboard and achievement at once). They go out
   // at most 3 a second so a launcher never meets the server's limits; a frame the queue holds when the connection drops
   // is sent once it is back (scores and claims are safe to send twice).
   var pace = { q: [], t: null };
@@ -758,7 +763,7 @@
       // the multiplayer bonus: ask for it (an 'mpBonus' event answers, and comes by itself every minute while you play with people)
       bonus: function () { if (st.ready) send({ type: 'mpStatus' }); return st.mpBonus || null; }
     },
-    // ---- goons, the shop, profiles on show, leaderboards ----
+    // ---- tacos, the shop, profiles on show, leaderboards ----
     eco: {
       state: function () { return st.eco || null; },
       catalog: function () { return st.cat || null; },
@@ -801,11 +806,11 @@
       reportResolve: function (id, act, o) { o = o || {}; return st.ready ? rpc0({ type: 'reportAdmin', op: 'resolve', id: String(id), act: String(act || 'dismiss'), mins: o.mins || undefined, reason: o.reason ? String(o.reason).slice(0, 200) : null, note: o.note ? String(o.note).slice(0, 300) : null }, 'reports') : Promise.reject(new Error('Not connected to Grapevine.')); },
       reports: function (op, id, note) { return st.ready ? rpc0({ type: 'reportAdmin', op: op || 'list', id: id || null, note: note || null }, 'reports') : Promise.reject(new Error('Not connected to Grapevine.')); },
       // the casino (grapevine 077-casino.js): every bet is a question to the server. Resolves with its answer
-      // ({ bal: { chips, goons }, r: result, now }), rejects with the server's words. Live tables arrive as 'casino' events.
+      // ({ bal: { chips, tacos }, r: result, now }), rejects with the server's words. Live tables arrive as 'casino' events.
       casino: function (op, a) {
         if (!st.ready) return Promise.reject(new Error('Not connected to Grapevine.'));
         var rid = randHex(6);
-        return rpc0({ type: 'casino', op: String(op), rid: rid, a: a || {} }, 'cas:' + rid).then(function (m) { if (!m.ok) { var e = new Error(m.err || 'The casino said no.'); e.casino = true; throw e; } return m; });
+        return rpc0({ type: 'casino', op: String(op), rid: rid, a: a || {} }, 'cas:' + rid).then(function (m) { if (!m.ok) { var e = new Error(tacoWords(m.err) || 'The casino said no.'); e.casino = true; throw e; } return m; });
       },
       // what other people wear: cached for 10 minutes, fetched in one batch
       cos: function (ids) {

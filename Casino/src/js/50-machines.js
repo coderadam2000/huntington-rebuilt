@@ -19,7 +19,7 @@ defGame({ id: 'slots', title: 'Slots', group: 'machine', icon: '🎰', c1: '#c21
     const reels = [0, 1, 2].map(() => h('div', { class: 'reel' }, h('div', { class: 'strip' })));
     const svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg'); svg.setAttribute('viewBox', '0 0 300 300'); svg.setAttribute('preserveAspectRatio', 'none'); svg.classList.add('slines');
     const win = h('div', { class: 'slwin' }, 'Good luck!');
-    F.main.append(h('div', { class: 'cabinet' }, h('div', { class: 'cab-top' }, '★ LUCKY GOON SLOTS ★'), h('div', { class: 'reels' }, ...reels, svg), win));
+    F.main.append(h('div', { class: 'cabinet' }, h('div', { class: 'cab-top' }, '★ LUCKY TACO SLOTS ★'), h('div', { class: 'reels' }, ...reels, svg), win));
     const symEl = k => h('div', { class: 'cell' }, h('span', { class: 'sym s' + k }, SYM[k]));
     const keys = Object.keys(SYM); let grid = [['C', 'L', 'B'], ['S', '7', 'D'], ['W', 'C', 'L']];
     const setReel = (i, col) => { const st = reels[i].firstChild; st.innerHTML = ''; col.forEach(k => st.append(symEl(k))); st.style.transform = 'translateY(0)'; };
