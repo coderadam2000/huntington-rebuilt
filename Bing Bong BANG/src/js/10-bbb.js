@@ -1,0 +1,230 @@
+// ==========================================
+// BING BONG BANG!: a four-lane rhythm game. Notes fall down a neon highway; hit them as they cross the line.
+//   Keys D F J K (or the arrow keys, or tap the lanes). Hold notes: keep the key down to the end.
+//   Eight songs, each a level; finish one with a C or better to open the next. Easy / Normal / Hard.
+//   Every song is played live by the game (Web Audio): kick, snare, hats, a bassline, bells (BING), toms (BONG) and
+//   crashes (BANG!). The notes are written from the same pattern, so every note is on something you hear.
+//   Timing: Perfect 45 ms, Great 90 ms, Good 135 ms. Misses drain the energy bar; empty = song failed (or turn on No Fail).
+// Save (synced, prefix taco): taco.bbb.v1 = { best: { 'song-diff': { s, acc, g, fc } }, open, diff, offset, nofail, speed }
+// ==========================================
+const cv = document.getElementById('cv'), g = cv.getContext('2d'), ui = document.getElementById('ui');
+const KEY = 'taco.bbb.v1';
+let SV = { best: {}, open: 1, diff: 1, offset: 0, nofail: false, speed: 1 };
+try { SV = Object.assign(SV, JSON.parse(localStorage.getItem(KEY) || '{}') || {}); } catch (e) {}
+const save = () => { try { localStorage.setItem(KEY, JSON.stringify(SV)); } catch (e) {} };
+const SONGS = [
+    { n: 'Bing Bong Basics', bpm: 92, bars: 24, root: 60, scale: [0, 2, 4, 7, 9], drum: 0, seed: 11, col: '#22d3ee' },
+    { n: 'Tick Tock Pop', bpm: 104, bars: 28, root: 62, scale: [0, 2, 4, 7, 9], drum: 1, seed: 23, col: '#a3e635' },
+    { n: 'Bongo Bounce', bpm: 112, bars: 28, root: 57, scale: [0, 3, 5, 7, 10], drum: 2, seed: 37, col: '#fb923c' },
+    { n: 'Neon Bang', bpm: 122, bars: 32, root: 64, scale: [0, 2, 3, 7, 8], drum: 1, seed: 41, col: '#f472b6' },
+    { n: 'Gong Show', bpm: 132, bars: 32, root: 55, scale: [0, 2, 4, 7, 11], drum: 3, seed: 53, col: '#facc15' },
+    { n: 'Thunder Bong', bpm: 144, bars: 32, root: 52, scale: [0, 3, 5, 6, 7, 10], drum: 2, seed: 67, col: '#818cf8' },
+    { n: 'Hyper Bing', bpm: 158, bars: 36, root: 67, scale: [0, 2, 4, 5, 7, 9, 11], drum: 3, seed: 71, col: '#34d399' },
+    { n: 'BANG BANG BANG', bpm: 174, bars: 36, root: 50, scale: [0, 1, 4, 5, 7, 8, 10], drum: 3, seed: 89, col: '#ef4444' }];
+const DIFFS = ['Easy', 'Normal', 'Hard'];
+// drum grooves: 16 steps per bar. k kick, s snare, h hat, t tom (BONG), c crash (BANG)
+const GROOVES = [
+    { k: 'x...x...x...x...', s: '....x.......x...', h: 'x.x.x.x.x.x.x.x.' },
+    { k: 'x.....x.x.......', s: '....x.......x...', h: 'xxxxxxxxxxxxxxxx' },
+    { k: 'x..x..x...x..x..', s: '....x..x....x...', h: '..x...x...x...x.' },
+    { k: 'x.x...x.x.x...x.', s: '....x.......x.xx', h: 'x.xxx.xxx.xxx.xx' }];
+function rng(seed) { let s = seed >>> 0 || 1; return () => { s ^= s << 13; s >>>= 0; s ^= s >> 17; s ^= s << 5; s >>>= 0; return s / 4294967296; }; }
+// ---- the song: a list of sounds (for the speakers) and a chart (for you), from one pattern ----
+function compose(song, diff) {
+    const R = rng(song.seed), step = 60 / song.bpm / 4, G2 = GROOVES[song.drum], sounds = [], notes = [];
+    const lead = 2.2;      // seconds of count-in before bar 1
+    // a melody of 4-bar phrases that repeat with variation; a bassline on the roots
+    const phrase = []; let deg = 0;
+    for (let i = 0; i < 64; i++) { if (R() < .55) { deg = Math.max(0, Math.min(song.scale.length * 2 - 1, deg + Math.floor(R() * 5) - 2)); phrase.push({ d: deg, len: R() < .2 ? 4 : R() < .5 ? 2 : 1 }); } else phrase.push(null); }
+    const prog = [0, 3, 4, 2].map(i => song.scale[i % song.scale.length]);
+    for (let bar = 0; bar < song.bars; bar++) {
+        const sec = bar < 2 ? 0 : bar < song.bars - 4 ? 1 + Math.floor((bar - 2) / 8) % 2 : 3;      // intro, verse/chorus, outro
+        for (let st = 0; st < 16; st++) {
+            const t = lead + (bar * 16 + st) * step, i16 = st;
+            const kick = G2.k[i16] === 'x', snare = G2.s[i16] === 'x' && sec > 0, hat = G2.h[i16] === 'x' && sec > 0;
+            const crash = st === 0 && bar % 8 === 2, tom = sec === 2 && (st === 14 || st === 15) && bar % 2 === 1;
+            if (kick) sounds.push({ t, k: 'kick' }); if (snare) sounds.push({ t, k: 'snare' }); if (hat) sounds.push({ t, k: 'hat' });
+            if (crash) sounds.push({ t, k: 'crash' }); if (tom) sounds.push({ t, k: 'tom', f: st === 14 ? 140 : 105 });
+            if (st % 8 === 0) sounds.push({ t, k: 'bass', f: song.root - 24 + prog[Math.floor(bar / 2) % 4], len: step * 7 });
+            const m = sec > 0 ? phrase[(bar % 4) * 16 + st] : null, bell = m && sec !== 3;
+            if (bell) { const note = song.root + song.scale[m.d % song.scale.length] + 12 * Math.floor(m.d / song.scale.length); sounds.push({ t, k: 'bell', f: note, len: m.len * step }); }
+            // the chart: which of these become notes, by difficulty
+            const onBeat = st % 4 === 0, onEighth = st % 2 === 0;
+            const add = (lane, len) => notes.push({ t, lane, len: len || 0 });
+            if (crash) add(R() < .5 ? 0 : 3);
+            else if (bell && (diff === 2 || (diff === 1 && onEighth) || (diff === 0 && onBeat))) add(2 + (m.d % 2), diff > 0 && m.len >= 4 ? m.len * step * .85 : 0);
+            else if (kick && (diff > 0 || onBeat) && (sec > 0 || onBeat)) add(st % 8 === 0 ? 0 : 1);
+            else if (snare && diff > 0) add(1 + (bar % 2));
+            else if (tom) add(st === 14 ? 1 : 2);
+            else if (hat && diff === 2 && st % 4 === 2 && R() < .35) add(Math.floor(R() * 4));
+        }
+    }
+    // no two notes in one lane too close together, and no chords on Easy
+    notes.sort((a, b) => a.t - b.t || a.lane - b.lane);
+    const out = [], lastIn = [-9, -9, -9, -9]; let lastT = -9;
+    for (const n of notes) { if (n.t - lastIn[n.lane] < (diff === 0 ? .32 : .14)) continue; if (diff === 0 && n.t - lastT < .3) continue; if (lastIn[n.lane] > n.t - .01) continue; out.push(n); lastIn[n.lane] = n.t + n.len; lastT = n.t; }
+    return { sounds, notes: out, end: lead + song.bars * 16 * step + 1.5, step };
+}
+// ---- the synth ----
+let AC = null, master = null;
+function audio() { if (!AC) { AC = new (window.AudioContext || window.webkitAudioContext)(); master = AC.createGain(); master.gain.value = .55; master.connect(AC.destination); } if (AC.state === 'suspended') AC.resume(); return AC; }
+const mtof = m => 440 * Math.pow(2, (m - 69) / 12);
+let noiseBuf = null;
+function play(s, at) {
+    const a = AC, o = a.createOscillator(), v = a.createGain(); v.connect(master);
+    if (s.k === 'kick') { o.frequency.setValueAtTime(150, at); o.frequency.exponentialRampToValueAtTime(40, at + .15); v.gain.setValueAtTime(.9, at); v.gain.exponentialRampToValueAtTime(.001, at + .3); o.connect(v); o.start(at); o.stop(at + .32); return; }
+    if (s.k === 'snare' || s.k === 'hat' || s.k === 'crash') {
+        if (!noiseBuf) { noiseBuf = a.createBuffer(1, a.sampleRate, a.sampleRate); const d = noiseBuf.getChannelData(0); for (let i = 0; i < d.length; i++) d[i] = Math.random() * 2 - 1; }
+        const n = a.createBufferSource(), f = a.createBiquadFilter(); n.buffer = noiseBuf; f.type = s.k === 'snare' ? 'bandpass' : 'highpass'; f.frequency.value = s.k === 'snare' ? 1800 : s.k === 'hat' ? 7000 : 4000;
+        const len = s.k === 'hat' ? .05 : s.k === 'snare' ? .18 : 1.4; v.gain.setValueAtTime(s.k === 'hat' ? .18 : s.k === 'snare' ? .5 : .35, at); v.gain.exponentialRampToValueAtTime(.001, at + len);
+        n.connect(f); f.connect(v); n.start(at); n.stop(at + len + .05);
+        if (s.k === 'snare') { o.type = 'triangle'; o.frequency.setValueAtTime(220, at); const v2 = a.createGain(); v2.gain.setValueAtTime(.3, at); v2.gain.exponentialRampToValueAtTime(.001, at + .1); o.connect(v2); v2.connect(master); o.start(at); o.stop(at + .12); }
+        return;
+    }
+    if (s.k === 'tom') { o.frequency.setValueAtTime(s.f, at); o.frequency.exponentialRampToValueAtTime(s.f * .55, at + .3); v.gain.setValueAtTime(.6, at); v.gain.exponentialRampToValueAtTime(.001, at + .35); o.connect(v); o.start(at); o.stop(at + .4); return; }
+    if (s.k === 'bass') { o.type = 'sawtooth'; o.frequency.value = mtof(s.f); const f = a.createBiquadFilter(); f.type = 'lowpass'; f.frequency.setValueAtTime(900, at); f.frequency.exponentialRampToValueAtTime(200, at + s.len); v.gain.setValueAtTime(.25, at); v.gain.setValueAtTime(.25, at + s.len * .8); v.gain.exponentialRampToValueAtTime(.001, at + s.len); o.connect(f); f.connect(v); o.start(at); o.stop(at + s.len + .02); return; }
+    if (s.k === 'bell') { o.type = 'sine'; o.frequency.value = mtof(s.f); const o2 = a.createOscillator(); o2.type = 'sine'; o2.frequency.value = mtof(s.f) * 2.76; const v2 = a.createGain(); v2.gain.setValueAtTime(.06, at); v2.gain.exponentialRampToValueAtTime(.001, at + .4); o2.connect(v2); v2.connect(master); o2.start(at); o2.stop(at + .45);
+        const len = Math.max(.25, s.len + .2); v.gain.setValueAtTime(.22, at); v.gain.exponentialRampToValueAtTime(.001, at + len); o.connect(v); o.start(at); o.stop(at + len + .02); return; }
+}
+function blip(f) { try { audio(); const o = AC.createOscillator(), v = AC.createGain(); o.frequency.value = f; v.gain.setValueAtTime(.06, AC.currentTime); v.gain.exponentialRampToValueAtTime(.001, AC.currentTime + .12); o.connect(v); v.connect(master); o.start(); o.stop(AC.currentTime + .13); } catch (e) {} }
+// ---- a play ----
+const S = { on: false, song: 0, diff: 1, chart: null, t0: 0, si: 0, notes: [], next: 0, score: 0, combo: 0, maxCombo: 0, hits: [0, 0, 0, 0], energy: 1, held: [null, null, null, null], down: [false, false, false, false], fx: [], judge: '', judgeT: 0, failed: false, words: [], paused: false };
+window.__bbb = S;
+const WIN = [.045, .09, .135], PTS = [300, 200, 100];
+const now = () => AC.currentTime - S.t0 - SV.offset / 1000;
+function start(si, diff) {
+    audio(); S.song = si; S.diff = diff; S.chart = compose(SONGS[si], diff);
+    S.notes = S.chart.notes.map(n => Object.assign({ hit: 0, judged: 0 }, n));
+    Object.assign(S, { on: true, si: 0, next: 0, score: 0, combo: 0, maxCombo: 0, hits: [0, 0, 0, 0], energy: 1, held: [null, null, null, null], fx: [], judge: '', judgeT: 0, failed: false, words: [], paused: false });
+    S.t0 = AC.currentTime + .25;
+    ui.innerHTML = '';
+}
+function schedule() {      // look 0.2 s ahead and queue the sounds
+    if (!S.on) return; const ahead = AC.currentTime + .2, sounds = S.chart.sounds;
+    while (S.si < sounds.length && S.t0 + sounds[S.si].t < ahead) { const s = sounds[S.si++]; if (S.t0 + s.t >= AC.currentTime - .02) play(s, S.t0 + s.t); }
+}
+setInterval(schedule, 25);
+function judge(lane) {
+    const t = now(); let best = null, bd = 1;
+    for (const n of S.notes) { if (n.judged || n.lane !== lane) continue; const d = Math.abs(n.t - t); if (d < bd) { bd = d; best = n; } if (n.t > t + .3) break; }
+    if (!best || bd > WIN[2]) return;
+    const q = bd <= WIN[0] ? 0 : bd <= WIN[1] ? 1 : 2;
+    best.judged = 1; best.q = q; if (best.len) { S.held[lane] = best; best.holding = true; }
+    hit(q, lane);
+}
+function hit(q, lane) {
+    S.hits[q]++; S.combo++; S.maxCombo = Math.max(S.maxCombo, S.combo); S.score += PTS[q] * (1 + Math.min(3, Math.floor(S.combo / 25)) * .5);
+    S.energy = Math.min(1, S.energy + [.025, .015, .005][q]); S.judge = ['PERFECT', 'GREAT', 'GOOD'][q]; S.judgeT = .5;
+    S.fx.push({ lane, t: .3, q });
+    if (S.combo % 50 === 0) S.words.push({ w: ['BING!', 'BONG!', 'BANG!'][(S.combo / 50 - 1) % 3], t: 1.2 });
+}
+function miss() { S.hits[3]++; S.combo = 0; S.energy -= .07; S.judge = 'MISS'; S.judgeT = .5; if (S.energy <= 0 && !SV.nofail) fail(); }
+function step() {
+    if (!S.on || S.paused) return;
+    const t = now();
+    for (const n of S.notes) {
+        if (n.t > t + .2) break;
+        if (!n.judged && t - n.t > WIN[2]) { n.judged = 1; n.q = 3; miss(); }
+        if (n.holding) { if (!S.down[n.lane]) { n.holding = false; if (t < n.t + n.len - .12) { S.combo = 0; S.judge = 'DROPPED'; S.judgeT = .4; } S.held[n.lane] = null; } else if (t >= n.t + n.len) { n.holding = false; S.held[n.lane] = null; S.score += 150; S.fx.push({ lane: n.lane, t: .3, q: 0 }); } else S.score += 2; }
+    }
+    if (t > S.chart.end) finish();
+}
+function fail() { S.on = false; S.failed = true; master.gain.setTargetAtTime(0, AC.currentTime, .3); setTimeout(() => { master.gain.value = .55; }, 900); blip(150); setTimeout(() => results(), 900); }
+function finish() { S.on = false; results(); }
+function grade(acc, failed) { return failed ? 'F' : acc >= .97 ? 'S' : acc >= .92 ? 'A' : acc >= .85 ? 'B' : acc >= .75 ? 'C' : 'D'; }
+function accuracy() { const n = S.hits[0] + S.hits[1] + S.hits[2] + S.hits[3]; return n ? (S.hits[0] + S.hits[1] * .7 + S.hits[2] * .4) / n : 0; }
+// ---- drawing ----
+function fit() { const d = Math.min(2, devicePixelRatio || 1); cv.width = innerWidth * d; cv.height = innerHeight * d; }
+addEventListener('resize', fit); fit();
+const LANE_COL = ['#22d3ee', '#a78bfa', '#f472b6', '#facc15'], KEYS = ['D', 'F', 'J', 'K'];
+function laneGeo() { const w = cv.width, h = cv.height, hitY = h * .84, top = h * .08, bw = Math.min(w * .46, h * .62), cx = w / 2; return { w, h, hitY, top, bw, cx }; }
+function proj(L, lane, z) {      // z: 0 at the hit line, 1 at the horizon
+    const k = 1 - z * .72, y = L.hitY - (L.hitY - L.top) * (1 - Math.pow(1 - z, 1.6)), lw = L.bw / 4 * k, x = L.cx + (lane - 1.5) * lw;
+    return { x, y, lw, k };
+}
+function draw() {
+    const L = laneGeo(), w = L.w, h = L.h, song = SONGS[S.song], t = AC && S.chart ? now() : 0;
+    const beat = S.chart ? ((t - 2.2) / (60 / song.bpm)) : 0, pulse = Math.max(0, 1 - ((beat % 1) + 1) % 1 * 3);
+    const bg = g.createRadialGradient(w / 2, h * .1, 10, w / 2, h * .3, h); bg.addColorStop(0, S.on ? song.col + '55' : '#2e1065'); bg.addColorStop(1, '#07040f'); g.fillStyle = bg; g.fillRect(0, 0, w, h);
+    // background beat rings
+    g.strokeStyle = (S.on ? song.col : '#7c3aed') + '33'; g.lineWidth = 3;
+    for (let i = 0; i < 6; i++) { const r = ((((beat % 1) + 1) % 1 + i) / 6) * w * .7; g.beginPath(); g.arc(w / 2, h * .08, r, 0, Math.PI); g.stroke(); }
+    if (!S.chart) return;
+    const look = 1.5 / SV.speed;
+    // the highway
+    for (let lane = 0; lane < 4; lane++) {
+        const a = proj(L, lane - .5, 0), b = proj(L, lane + .5, 0), c = proj(L, lane + .5, 1), d = proj(L, lane - .5, 1);
+        g.beginPath(); g.moveTo(a.x, a.y); g.lineTo(b.x, b.y); g.lineTo(c.x, c.y); g.lineTo(d.x, d.y); g.closePath();
+        g.fillStyle = S.down[lane] ? LANE_COL[lane] + '30' : 'rgba(20,10,40,.75)'; g.fill(); g.strokeStyle = 'rgba(255,255,255,.12)'; g.lineWidth = 2; g.stroke();
+    }
+    // beat lines
+    const sp = 60 / song.bpm;
+    for (let k = Math.ceil((t - 2.2) / sp); k < (t - 2.2 + look) / sp; k++) { const z = (2.2 + k * sp - t) / look; if (z < 0) continue; const a = proj(L, -.5, z), b = proj(L, 3.5, z); g.strokeStyle = k % 4 === 0 ? 'rgba(255,255,255,.3)' : 'rgba(255,255,255,.1)'; g.lineWidth = k % 4 === 0 ? 3 : 1.5; g.beginPath(); g.moveTo(a.x, a.y); g.lineTo(b.x, b.y); g.stroke(); }
+    // hit line and keys
+    const hl = proj(L, -.5, 0), hr = proj(L, 3.5, 0); g.strokeStyle = '#fff'; g.lineWidth = 4 + pulse * 3; g.shadowColor = song.col; g.shadowBlur = 20 * pulse; g.beginPath(); g.moveTo(hl.x, hl.y); g.lineTo(hr.x, hr.y); g.stroke(); g.shadowBlur = 0;
+    for (let lane = 0; lane < 4; lane++) { const p = proj(L, lane, 0); g.fillStyle = S.down[lane] ? LANE_COL[lane] : 'rgba(255,255,255,.08)'; g.beginPath(); g.ellipse(p.x, p.y, p.lw * .38, p.lw * .14, 0, 0, 7); g.fill(); g.strokeStyle = LANE_COL[lane]; g.lineWidth = 3; g.stroke(); g.fillStyle = '#fff'; g.font = `bold ${p.lw * .22}px Trebuchet MS`; g.textAlign = 'center'; g.fillText(KEYS[lane], p.x, p.y + p.lw * .45); }
+    // notes, far ones first
+    for (let i = S.notes.length - 1; i >= 0; i--) {
+        const n = S.notes[i]; if (n.t - t > look || (n.judged && !n.holding && (!n.len || n.q === 3)) && n.t + n.len < t) continue;
+        if (n.judged && !n.len) continue;
+        const z0 = Math.max(0, (n.t - t) / look), z1 = Math.min(1, (n.t + n.len - t) / look), p0 = proj(L, n.lane, z0);
+        if (n.len) { const p1 = proj(L, n.lane, Math.max(0, z1)); g.fillStyle = LANE_COL[n.lane] + (n.holding ? 'cc' : n.q === 3 ? '33' : '88'); g.beginPath(); g.moveTo(p0.x - p0.lw * .16, p0.y); g.lineTo(p1.x - p1.lw * .16, p1.y); g.lineTo(p1.x + p1.lw * .16, p1.y); g.lineTo(p0.x + p0.lw * .16, p0.y); g.fill(); }
+        if (!n.judged || n.holding) { g.fillStyle = LANE_COL[n.lane]; g.shadowColor = LANE_COL[n.lane]; g.shadowBlur = 14; g.beginPath(); g.ellipse(p0.x, p0.y, p0.lw * .36, p0.lw * .13, 0, 0, 7); g.fill(); g.shadowBlur = 0; g.fillStyle = 'rgba(255,255,255,.75)'; g.beginPath(); g.ellipse(p0.x, p0.y - p0.lw * .03, p0.lw * .2, p0.lw * .05, 0, 0, 7); g.fill(); }
+    }
+    // hit sparks
+    for (const f of S.fx) { const p = proj(L, f.lane, 0); g.strokeStyle = ['#fde047', '#4ade80', '#60a5fa'][f.q]; g.lineWidth = 4; g.globalAlpha = f.t / .3; g.beginPath(); g.arc(p.x, p.y, p.lw * (.6 - f.t), 0, 7); g.stroke(); g.globalAlpha = 1; }
+    // score, combo, judgement, energy
+    g.textAlign = 'center'; g.fillStyle = '#fff'; g.font = `900 ${h * .05}px Arial Black`; if (S.combo > 3) g.fillText(S.combo, w / 2, h * .42);
+    if (S.combo > 3) { g.font = `bold ${h * .02}px Trebuchet MS`; g.fillStyle = '#c4b5fd'; g.fillText('COMBO', w / 2, h * .45); }
+    if (S.judgeT > 0) { g.globalAlpha = Math.min(1, S.judgeT * 3); g.font = `900 ${h * .04}px Arial Black`; g.fillStyle = { PERFECT: '#fde047', GREAT: '#4ade80', GOOD: '#60a5fa', MISS: '#f87171', DROPPED: '#f87171' }[S.judge]; g.fillText(S.judge, w / 2, h * .55); g.globalAlpha = 1; }
+    for (const wd of S.words) { g.globalAlpha = Math.min(1, wd.t); g.font = `900 ${h * (.1 + (1.2 - wd.t) * .05)}px Arial Black`; g.fillStyle = song.col; g.shadowColor = '#fff'; g.shadowBlur = 20; g.fillText(wd.w, w / 2, h * .3); g.shadowBlur = 0; g.globalAlpha = 1; }
+    g.textAlign = 'left'; g.font = `bold ${h * .028}px Trebuchet MS`; g.fillStyle = '#fff'; g.fillText(Math.round(S.score).toLocaleString(), 20, 40 * (h / 700)); g.font = `${h * .02}px Trebuchet MS`; g.fillStyle = '#c4b5fd'; g.fillText(song.n + ' · ' + DIFFS[S.diff] + ' · ' + Math.round(accuracy() * 100) + '%', 20, 66 * (h / 700));
+    const eh = h * .5, ex = w - 34, ey = h * .25; g.fillStyle = 'rgba(0,0,0,.5)'; g.fillRect(ex, ey, 14, eh); g.fillStyle = S.energy < .3 ? '#ef4444' : '#22c55e'; g.fillRect(ex, ey + eh * (1 - Math.max(0, S.energy)), 14, eh * Math.max(0, S.energy));
+    const prog = Math.max(0, Math.min(1, t / S.chart.end)); g.fillStyle = 'rgba(255,255,255,.15)'; g.fillRect(0, h - 6, w, 6); g.fillStyle = song.col; g.fillRect(0, h - 6, w * prog, 6);
+    if (S.on && t < 2.2) { g.textAlign = 'center'; g.font = `900 ${h * .08}px Arial Black`; g.fillStyle = '#fff'; g.fillText(t < 0 ? 'READY' : Math.ceil(2.2 - t), w / 2, h * .35); }
+}
+// ---- menus ----
+function menu() {
+    S.on = false; S.chart = null;
+    const card = (s, i) => { const b = SV.best[i + '-' + SV.diff]; return `<button class="song ${i === S.song ? 'on' : ''}" data-s="${i}" ${i < SV.open ? '' : 'disabled'}><span class="gr">${b ? b.g : i < SV.open ? '' : '🔒'}</span><b>${s.n}</b><small>${s.bpm} BPM${b ? ' · ' + Math.round(b.s).toLocaleString() : ''}</small></button>`; };
+    ui.innerHTML = `<div class="bp"><h1>Bing Bong BANG!</h1><div class="small">Hit the notes as they cross the line. Finish a song with a C or better to open the next one.</div>
+      <div class="songs">${SONGS.map(card).join('')}</div>
+      <div class="diffs">${DIFFS.map((d, i) => `<button class="bb ${SV.diff === i ? 'on' : ''}" data-d="${i}">${d}</button>`).join('')}</div>
+      <button class="bb big" id="b-go">Play ▶</button>
+      <div class="small"><kbd>D</kbd> <kbd>F</kbd> <kbd>J</kbd> <kbd>K</kbd> (or arrow keys, or tap the lanes) · hold the key on long notes · Esc pauses</div>
+      <div class="diffs" style="font-size:13px"><button class="bb" id="b-sp">Note speed ${SV.speed}x</button><button class="bb" id="b-off">Audio offset ${SV.offset} ms</button><button class="bb ${SV.nofail ? 'on' : ''}" id="b-nf">No Fail ${SV.nofail ? 'on' : 'off'}</button></div></div>`;
+    ui.querySelectorAll('[data-s]').forEach(b => b.onclick = () => { S.song = +b.dataset.s; menu(); });
+    ui.querySelectorAll('[data-d]').forEach(b => b.onclick = () => { SV.diff = +b.dataset.d; save(); menu(); });
+    document.getElementById('b-go').onclick = () => start(S.song, SV.diff);
+    document.getElementById('b-sp').onclick = () => { SV.speed = SV.speed >= 2 ? .75 : Math.round((SV.speed + .25) * 100) / 100; save(); menu(); };
+    document.getElementById('b-off').onclick = () => { SV.offset = SV.offset >= 150 ? -100 : SV.offset + 25; save(); menu(); };
+    document.getElementById('b-nf').onclick = () => { SV.nofail = !SV.nofail; save(); menu(); };
+}
+function results() {
+    const acc = accuracy(), gr = grade(acc, S.failed), k = S.song + '-' + S.diff, b = SV.best[k], fc = !S.failed && S.hits[3] === 0;
+    if (!S.failed && (!b || S.score > b.s)) SV.best[k] = { s: Math.round(S.score), acc: Math.round(acc * 1000) / 10, g: gr, fc };
+    let opened = false; if (!S.failed && 'SABC'.includes(gr) && S.song + 2 > SV.open && S.song + 1 < SONGS.length) { SV.open = S.song + 2; opened = true; }
+    save();
+    const col = { S: '#fde047', A: '#4ade80', B: '#60a5fa', C: '#c4b5fd', D: '#fb923c', F: '#ef4444' }[gr];
+    ui.innerHTML = `<div class="bp"><div class="small">${SONGS[S.song].n} · ${DIFFS[S.diff]}</div><div class="res-grade" style="color:${col}">${gr}</div>${S.failed ? '<p>Song failed. The energy ran out.</p>' : fc ? '<p style="color:#fde047"><b>FULL COMBO!</b></p>' : ''}
+      <div class="res-row"><span><b>${Math.round(S.score).toLocaleString()}</b>score</span><span><b>${Math.round(acc * 100)}%</b>accuracy</span><span><b>${S.maxCombo}</b>best combo</span></div>
+      <div class="res-row" style="margin-top:10px"><span style="color:#fde047">Perfect ${S.hits[0]}</span><span style="color:#4ade80">Great ${S.hits[1]}</span><span style="color:#60a5fa">Good ${S.hits[2]}</span><span style="color:#f87171">Miss ${S.hits[3]}</span></div>
+      ${opened ? `<p>New song open: <b>${SONGS[S.song + 1].n}</b></p>` : ''}<p><button class="bb big" id="b-again">Again</button> ${opened ? '<button class="bb big" id="b-next">Next song ▶</button>' : ''} <button class="bb" id="b-menu">Songs</button></p></div>`;
+    document.getElementById('b-again').onclick = () => start(S.song, S.diff); document.getElementById('b-menu').onclick = menu;
+    const nx = document.getElementById('b-next'); if (nx) nx.onclick = () => { S.song++; start(S.song, S.diff); };
+}
+// ---- input ----
+const KEYMAP = { KeyD: 0, KeyF: 1, KeyJ: 2, KeyK: 3, ArrowLeft: 0, ArrowDown: 1, ArrowUp: 2, ArrowRight: 3 };
+addEventListener('keydown', e => {
+    if (e.code === 'Escape' && S.chart) { if (S.on) { S.on = false; S.paused = true; AC.suspend(); ui.innerHTML = '<div class="bp"><h1 style="font-size:44px">Paused</h1><button class="bb big" id="b-res">Resume</button> <button class="bb" id="b-quit">Quit</button></div>'; document.getElementById('b-res').onclick = () => { ui.innerHTML = ''; AC.resume(); S.on = true; S.paused = false; }; document.getElementById('b-quit').onclick = () => { AC.resume(); menu(); }; } return; }
+    const l = KEYMAP[e.code]; if (l === undefined || e.repeat) return; e.preventDefault(); S.down[l] = true; if (S.on) judge(l);
+});
+addEventListener('keyup', e => { const l = KEYMAP[e.code]; if (l !== undefined) S.down[l] = false; });
+cv.addEventListener('pointerdown', e => { if (!S.on) return; const L = laneGeo(), x = e.clientX * (cv.width / innerWidth), lane = Math.max(0, Math.min(3, Math.floor((x - (L.cx - L.bw / 2)) / (L.bw / 4)))); S.down[lane] = true; S.ptr = S.ptr || {}; S.ptr[e.pointerId] = lane; judge(lane); });
+addEventListener('pointerup', e => { if (S.ptr && S.ptr[e.pointerId] !== undefined) { S.down[S.ptr[e.pointerId]] = false; delete S.ptr[e.pointerId]; } });
+// ---- loop ----
+let last = performance.now();
+function frame(nw) { requestAnimationFrame(frame); const dt = Math.min(.05, (nw - last) / 1000); last = nw; step(); S.judgeT -= dt; for (const f of S.fx) f.t -= dt; S.fx = S.fx.filter(f => f.t > 0); for (const wd of S.words) wd.t -= dt; S.words = S.words.filter(wd => wd.t > 0); draw(); }
+menu(); requestAnimationFrame(frame);
+// tests
+Object.assign(S, { compose, start, press: judge, accuracy, grade, results, menu, SONGS, save: () => SV, audioNow: () => now() });
