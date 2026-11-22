@@ -1,0 +1,29 @@
+/* Battleship: two seas side by side (stacked on narrow screens) */
+#bs-wrap { position: fixed; inset: 56px 0 0; display: flex; gap: clamp(14px, 3vw, 44px); align-items: flex-start; justify-content: center; padding: 8px 12px 12px; overflow: auto; }
+.bs-side { display: flex; flex-direction: column; align-items: center; gap: 8px; }
+.bs-side h3 { margin: 0; font: 800 13px ui-monospace, monospace; letter-spacing: .2em; text-transform: uppercase; color: var(--mg); }
+.bs-board { --c: min(calc((100vw - 120px) / 22), calc((100vh - 190px) / 11), 42px); position: relative; }
+.bs-grid { display: grid; grid-template-columns: repeat(11, var(--c)); grid-template-rows: repeat(11, var(--c)); gap: 0; border-radius: 10px; overflow: hidden;
+  background: linear-gradient(160deg, #0c4a6e, #082f49 60%, #0b2540); box-shadow: 0 14px 40px rgba(0,0,0,.5), inset 0 0 0 1px rgba(125,211,252,.25); }
+.bs-lbl { display: grid; place-items: center; font: 700 calc(var(--c) * .32) ui-monospace, monospace; color: rgba(186,230,253,.55); background: rgba(2,6,23,.35); }
+.bs-c { position: relative; border: 0; margin: 0; padding: 0; background: transparent; box-shadow: inset 0 0 0 .5px rgba(125,211,252,.18); cursor: default; }
+.bs-board.enemy.live .bs-c:not(.hit):not(.miss) { cursor: crosshair; } .bs-board.enemy.live .bs-c:not(.hit):not(.miss):hover { background: rgba(250,204,21,.25); box-shadow: inset 0 0 0 2px #facc15; }
+.bs-board.enemy.live .bs-grid { box-shadow: 0 0 0 2px #facc15, 0 14px 40px rgba(0,0,0,.5); }
+.bs-board.placing .bs-c { cursor: pointer; }
+.bs-c.miss::after { content: ''; position: absolute; left: 50%; top: 50%; width: 26%; height: 26%; transform: translate(-50%, -50%); border-radius: 50%; background: #e0f2fe; opacity: .8; box-shadow: 0 0 0 3px rgba(224,242,254,.18); }
+.bs-c.hit { z-index: 3; } .bs-c.hit::after { content: ''; position: absolute; inset: 18%; border-radius: 50%; background: radial-gradient(circle, #fde047 0 20%, #f97316 45%, #dc2626 70%, rgba(220,38,38,0) 72%); box-shadow: 0 0 12px #f97316; }
+.bs-c.last { animation: bs-pop .6s ease-out; } .bs-c.last::before { content: ''; position: absolute; inset: 0; box-shadow: inset 0 0 0 2px #fff; border-radius: 3px; }
+@keyframes bs-pop { 0% { transform: scale(1.6); } 100% { transform: scale(1); } }
+.bs-ships { position: absolute; left: var(--c); top: var(--c); right: 0; bottom: 0; pointer-events: none; }
+.bs-ship { position: absolute; left: calc(var(--x) * var(--c) + 3px); top: calc(var(--y) * var(--c) + 3px); border-radius: calc(var(--c) * .45); z-index: 2;
+  background: linear-gradient(180deg, #94a3b8, #64748b 55%, #475569); box-shadow: inset 0 0 0 2px rgba(15,23,42,.55), 0 3px 6px rgba(0,0,0,.45); }
+.bs-ship.h { width: calc(var(--l) * var(--c) - 6px); height: calc(var(--c) - 6px); } .bs-ship.v { height: calc(var(--l) * var(--c) - 6px); width: calc(var(--c) - 6px); background: linear-gradient(90deg, #94a3b8, #64748b 55%, #475569); }
+.bs-ship i { position: absolute; inset: 30%; border-radius: 4px; background: rgba(30,41,59,.55); }
+.bs-ship.sunk { background: linear-gradient(180deg, #57534e, #292524); opacity: .9; } .bs-ship.sunk i { background: repeating-linear-gradient(45deg, rgba(248,113,113,.6) 0 4px, transparent 4px 8px); inset: 18%; }
+.bs-ship.ghost { opacity: .6; outline: 2px dashed #4ade80; } .bs-ship.ghost.bad { outline-color: #f87171; background: #7f1d1d; }
+.bs-tools { display: flex; gap: 8px; flex-wrap: wrap; justify-content: center; }
+.bs-fleet { display: flex; flex-wrap: wrap; gap: 4px 12px; justify-content: center; max-width: calc(var(--c, 36px) * 11); font-size: 12px; color: #cbd5e1; }
+.bs-fleet b { color: #94a3b8; letter-spacing: -1px; } .bs-fleet .gone { text-decoration: line-through; color: #64748b; } .bs-fleet .gone b { color: #b91c1c; }
+#bs-flash { position: fixed; left: 50%; top: 46%; transform: translate(-50%, -50%); z-index: 40; font: 900 clamp(24px, 4vw, 40px) system-ui; color: #fff; text-shadow: 0 0 18px #000, 0 2px 0 #000; pointer-events: none; animation: bs-fl 1.5s ease-out forwards; }
+@keyframes bs-fl { 0% { opacity: 0; transform: translate(-50%, -40%) scale(.8); } 15% { opacity: 1; transform: translate(-50%, -50%) scale(1.05); } 80% { opacity: 1; } 100% { opacity: 0; } }
+@media (max-width: 760px) { #bs-wrap { flex-direction: column; align-items: center; } .bs-board { --c: min(calc((100vw - 30px) / 11), 34px); } }
