@@ -1,0 +1,24 @@
+/* the 3D studio sits over the 2D editor (which stays one click away) */
+#s3 { position: fixed; inset: 0; z-index: 30; display: grid; grid-template-columns: 236px 1fr 320px; grid-template-rows: 52px 1fr; background: #0f0d1a; color: #ece9fb; font: 13px system-ui, -apple-system, 'Segoe UI', sans-serif; }
+#s3.hidden { display: none; }
+#s3 .t3 { grid-column: 1 / 4; display: flex; align-items: center; gap: 6px; padding: 0 12px; background: linear-gradient(90deg, #4c1d95, #be185d); }
+#s3 .t3 h1 { font-size: 18px; margin: 0 12px 0 0; } #s3 .t3 .sp { flex: 1; }
+#s3 .t3 input { background: rgba(255,255,255,.16); border: 0; color: #fff; padding: 6px 10px; border-radius: 8px; font: inherit; width: 170px; }
+#s3 button.b3 { background: rgba(255,255,255,.14); color: #fff; border: 0; border-radius: 8px; padding: 7px 10px; font: 600 12.5px inherit; cursor: pointer; white-space: nowrap; } #s3 button.b3:hover { background: rgba(255,255,255,.28); } #s3 button.b3.on { background: #fff; color: #6d28d9; } #s3 button.b3:disabled { opacity: .4; }
+#s3 .cat { overflow-y: auto; padding: 10px; background: #15122a; border-right: 1px solid #2a2547; }
+#s3 .cat h3, #s3 .opt h3 { font-size: 11px; text-transform: uppercase; letter-spacing: .12em; color: #9d96c7; margin: 10px 0 6px; }
+#s3 .objs { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; }
+#s3 .obj { background: #1f1a3a; border: 1px solid #2f2856; border-radius: 12px; padding: 10px 4px; text-align: center; cursor: pointer; color: #ece9fb; font: 12px inherit; } #s3 .obj b { display: block; font-size: 26px; margin-bottom: 2px; } #s3 .obj.on { border-color: #f472b6; background: #3b1d5a; } #s3 .obj:hover { border-color: #a78bfa; }
+#s3 .view { position: relative; overflow: hidden; background: #000; } #s3 .view canvas { position: absolute; inset: 0; width: 100%; height: 100%; display: block; cursor: grab; } #s3 .view canvas:active { cursor: grabbing; }
+#s3 .vbar { position: absolute; left: 50%; bottom: 12px; transform: translateX(-50%); display: flex; gap: 6px; flex-wrap: wrap; justify-content: center; background: rgba(15,13,26,.75); padding: 6px; border-radius: 12px; backdrop-filter: blur(6px); }
+#s3 .vbar select { background: #241f42; color: #fff; border: 1px solid #3b3463; border-radius: 8px; padding: 6px; font: inherit; }
+#s3 .hint { position: absolute; left: 12px; top: 10px; color: rgba(255,255,255,.55); font-size: 12px; pointer-events: none; }
+#s3 .opt { overflow-y: auto; padding: 4px 12px 30px; background: #15122a; border-left: 1px solid #2a2547; }
+#s3 details { border-bottom: 1px solid #2a2547; padding: 4px 0; } #s3 summary { cursor: pointer; font-weight: 700; padding: 8px 0; color: #f5d0fe; list-style: none; } #s3 summary::before { content: '▸ '; color: #a78bfa; } #s3 details[open] summary::before { content: '▾ '; }
+#s3 label.r { display: grid; grid-template-columns: 112px 1fr 44px; align-items: center; gap: 6px; margin: 6px 0; color: #c9c3ea; } #s3 label.r output { text-align: right; color: #f5d0fe; font-variant-numeric: tabular-nums; }
+#s3 label.r input[type=range] { width: 100%; accent-color: #f472b6; } #s3 label.r input[type=color] { width: 100%; height: 26px; border: 1px solid #3b3463; border-radius: 6px; background: none; padding: 0; }
+#s3 label.r select, #s3 label.r input[type=text] { width: 100%; background: #241f42; color: #fff; border: 1px solid #3b3463; border-radius: 6px; padding: 5px; font: inherit; grid-column: 2 / 4; }
+#s3 label.r.sel { grid-template-columns: 112px 1fr; } #s3 .chips { display: flex; flex-wrap: wrap; gap: 4px; grid-column: 2 / 4; } #s3 .chips button { background: #241f42; color: #ddd6fe; border: 1px solid #3b3463; border-radius: 999px; padding: 4px 9px; cursor: pointer; font: 12px inherit; } #s3 .chips button.on { background: #f472b6; color: #1a0b1f; border-color: #f472b6; }
+#s3 .sw { display: inline-block; width: 18px; height: 18px; border-radius: 50%; border: 2px solid #fff3; cursor: pointer; margin: 2px; }
+#s3 .gal { position: absolute; inset: 0; background: rgba(10,8,20,.94); z-index: 5; overflow-y: auto; padding: 20px; } #s3 .gal .g { display: grid; grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); gap: 12px; } #s3 .gal .it { background: #1f1a3a; border-radius: 12px; padding: 8px; cursor: pointer; text-align: center; } #s3 .gal img { width: 100%; border-radius: 8px; display: block; margin-bottom: 6px; }
+@media (max-width: 900px) { #s3 { grid-template-columns: 170px 1fr 250px; } }
