@@ -178,7 +178,7 @@ function mgWire(net) {
         if (!m || typeof m !== 'object') return;
         if (m.t === '_lobby' && !MG.host) { MG.roster = m.roster; MG.bots = m.bots; if (m.room && !MG.started) mgShowLobby(); mgPaint(); return; }
         if (m.t === '_start' && !MG.host) return mgBegin(m);
-        if (m.t === '_end' && !MG.host) return mgShowEnd(m.html);
+        if (m.t === '_end' && !MG.host) return mgShowEnd(m.html, m.win);
         if (m.t === 'g' && MG.cfg.onMsg) MG.cfg.onMsg(peer.id, m.d);
     });
     net.on('join', () => { if (MG.host) mgLobbySend(); });
@@ -244,9 +244,17 @@ MG.toAll = (d, fast) => MG.send('all', d, fast);
 MG.toHost = (d, fast) => { if (MG.isHost()) { if (MG.cfg.onMsg) MG.cfg.onMsg(MG.me, d); } else MG.send('host', d, fast); };
 MG.player = id => MG.roster.find(r => r.id === id);
 // the host ends the game for everyone with a results card (html)
-MG.end = html => { if (!MG.isHost()) return; if (MG.net) MG.net.send('all', { t: '_end', html }); mgShowEnd(html); };
-function mgShowEnd(html) {
-    MG.started = false; if (MG.cfg.onEnd) MG.cfg.onEnd();
+// win (2026-11-22): the winner's player id, or null for a draw; left out when there is no result (someone left).
+// Every player counts their own matches and wins per game in 'hgmini_wins' (the launcher reads it for the leaderboards).
+MG.end = (html, win) => { if (!MG.isHost()) return; if (MG.net) MG.net.send('all', { t: '_end', html, win }); mgShowEnd(html, win); };
+function mgTally(win) {
+    if (win === undefined || !MG.cfg.id) return;
+    let s = null; try { s = JSON.parse(mgLs('hgmini_wins') || 'null'); } catch (e) {} s = s && typeof s === 'object' ? s : {};
+    const g = s[MG.cfg.id] = Object.assign({ p: 0, w: 0 }, s[MG.cfg.id]); g.p++; if (win !== null && win === MG.me) g.w++;
+    mgLs('hgmini_wins', JSON.stringify(s));
+}
+function mgShowEnd(html, win) {
+    MG.started = false; if (MG.cfg.onEnd) MG.cfg.onEnd(); mgTally(win);
     const r = mgEl('mg-res'); r.classList.remove('hidden');
     const room = !MG.solo && MG.isHost();
     r.innerHTML = `<div class="mg-card">${html}<div class="mg-row">${MG.isHost() ? '<button class="mg-btn big" id="mg-again" title="Enter or R">Play again</button>' : '<span class="mg-sub">Waiting for the host to start another round...</span>'}${room ? '<button class="mg-btn" id="mg-room-back" title="Change bots or wait for more people">Back to room</button>' : ''}<button class="mg-btn" id="mg-leave">${MG.solo ? 'Menu' : 'Leave'}</button></div>${room ? '<div class="mg-sub">Play again starts a new round for everyone in the room.</div>' : ''}</div>`;

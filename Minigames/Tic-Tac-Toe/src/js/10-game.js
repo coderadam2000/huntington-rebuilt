@@ -105,7 +105,7 @@ function hostMove(from, i) {
     if (T3.over) setTimeout(() => {
         const M = T3_MODES[T3.mode], done = T3.wins[0] >= M.need || T3.wins[1] >= M.need || T3.round >= M.rounds;
         if (done) { const a = MG.player(T3.ids[0]), b = MG.player(T3.ids[1]), w = T3.wins[0] === T3.wins[1] ? null : T3.wins[0] > T3.wins[1] ? a : b;
-            MG.end(`<h1>${w ? mgEsc(w.name) + ' wins!' : 'A draw'}</h1><div class="mg-sub">${M.n} Tic-Tac-Toe</div><div class="mg-res-row"><span>✕ ${mgEsc(a.name)}</span><b>${T3.wins[0]}</b></div><div class="mg-res-row"><span>◯ ${mgEsc(b.name)}</span><b>${T3.wins[1]}</b></div>`); }
+            MG.end(`<h1>${w ? mgEsc(w.name) + ' wins!' : 'A draw'}</h1><div class="mg-sub">${M.n} Tic-Tac-Toe</div><div class="mg-res-row"><span>✕ ${mgEsc(a.name)}</span><b>${T3.wins[0]}</b></div><div class="mg-res-row"><span>◯ ${mgEsc(b.name)}</span><b>${T3.wins[1]}</b></div>`, w ? w.id : null); }
         else newRound();
     }, ult() ? 2200 : 1400);
     else botTurn();

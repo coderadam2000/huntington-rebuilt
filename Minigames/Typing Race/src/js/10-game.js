@@ -54,7 +54,7 @@ function hostLoop() {
 function finish() {
     TR.on = false;
     const rows = MG.roster.slice().sort((a, b) => ((TR.done[a.id] || { ms: 1e12 }).ms - (TR.done[b.id] || { ms: 1e12 }).ms) || ((TR.pos[b.id] || 0) - (TR.pos[a.id] || 0)));
-    MG.end(`<h1>${mgEsc(rows[0].name)} wins!</h1>` + rows.map((p, i) => `<div class="mg-res-row"><span>${['🥇', '🥈', '🥉'][i] || (i + 1) + '.'} ${mgEsc(p.name)}</span><b>${TR.done[p.id] ? TR.done[p.id].wpm + ' wpm' : Math.round((TR.pos[p.id] || 0) / TR.text.length * 100) + '%'}</b></div>`).join(''));
+    MG.end(`<h1>${mgEsc(rows[0].name)} wins!</h1>` + rows.map((p, i) => `<div class="mg-res-row"><span>${['🥇', '🥈', '🥉'][i] || (i + 1) + '.'} ${mgEsc(p.name)}</span><b>${TR.done[p.id] ? TR.done[p.id].wpm + ' wpm' : Math.round((TR.pos[p.id] || 0) / TR.text.length * 100) + '%'}</b></div>`).join(''), rows[0].id);
 }
 function begin(seed) {
     const r = mgRng(seed); TR.text = PASSAGES[Math.floor(r() * PASSAGES.length)]; TR.typed = 0; TR.err = ''; TR.pos = {}; TR.done = {}; TR.firstAt = 0; TR.on = false; inp.value = ''; inp.disabled = true;

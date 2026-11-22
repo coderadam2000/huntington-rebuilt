@@ -38,7 +38,7 @@ function rdHostResolve(round) {
     R.timers.push(setTimeout(() => {
         if (champ) {
             const rows = MG.roster.slice().sort((a, b) => (R.scores[b.id] || 0) - (R.scores[a.id] || 0));
-            MG.end(`<h1>${mgEsc(champ.name)} wins!</h1>` + rows.map((p, i) => `<div class="mg-res-row"><span>${['🥇', '🥈', '🥉'][i] || (i + 1) + '.'} ${mgEsc(p.name)}</span><b>${R.scores[p.id] || 0}</b></div>`).join(''));
+            MG.end(`<h1>${mgEsc(champ.name)} wins!</h1>` + rows.map((p, i) => `<div class="mg-res-row"><span>${['🥇', '🥈', '🥉'][i] || (i + 1) + '.'} ${mgEsc(p.name)}</span><b>${R.scores[p.id] || 0}</b></div>`).join(''), champ.id);
         } else rdNextRound();
     }, 2200));
 }

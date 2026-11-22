@@ -106,6 +106,29 @@ var LB_FEED = [
     for (var tk in tr) { var m = Math.min(4, Math.max(0, Math.floor(feedNum(tr[tk] && tr[tk].m)))); pts += m; if (m >= 3) gold++; }
     if (pts > 0) out.push(['lumi:medals', Math.min(pts, 208), { gold: gold }]);
     return out;
+  }],
+  // 2026-11-22: boards for the newer games (and every minigame). Each is sent only once the server lists it
+  // (see SERVER_TODO.md, 1), so they can ship here first. The six lobby minigames count wins in 'hgmini_wins' (mg.js).
+  ['new:*', function () {
+    var out = [], add = function (k, v, d) { v = feedNum(v); if (v > 0 && feedHasBoard(k)) out.push([k, v, d || null]); };
+    var sum = function (o, f) { var t = 0; for (var k in (o && typeof o === 'object' ? o : {})) t += feedNum(f ? f(o[k]) : o[k]); return t; };
+    var wc = feedRd('taco.worldconflict.v1') || {}; add('wc:wins', wc.wins, { worlds: feedNum(wc.games) }); add('wc:reign', wc.bestYears, { worlds: feedNum(wc.games) });
+    var cr = feedRd('taco.craft.v1') || {}; add('craft:made', cr.made, { sold: feedNum(cr.sold) });
+    var pc = feedRd('taco.pancake.v1') || {}; add('pancake:best', pc.best, { lives: feedNum(pc.lives), escaped: feedNum(pc.escaped) });
+    var bb = (feedRd('taco.bbb.v1') || {}).best || {}, fc = 0; for (var bk in bb) if (bb[bk] && bb[bk].fc) fc++;
+    add('bbb:score', sum(bb, function (x) { return x && x.s; }), { songs: Object.keys(bb).length }); add('bbb:fc', fc);
+    var dd = feedRd('taco.doomsday.v1') || {}; add('doom:score', sum(dd.best), { cleared: feedNum(dd.cleared) }); add('doom:kills', dd.kills, { deaths: feedNum(dd.deaths) });
+    var zv = feedRd('taco.zvy.v1') || {}; add('zvy:endless', zv.endlessBest, { escapes: feedNum(zv.wins) }); add('zvy:kills', zv.kills, { deaths: feedNum(zv.deaths) });
+    var sl = feedRd('taco.slither.v1') || {}; add('slither:best', sl.best, { games: feedNum(sl.games) }); add('slither:kills', sl.kills);
+    var lb = feedRd('taco.bulb.v1') || {}; add('bulb:total', Math.floor(feedNum(lb.allTime)), { rewires: feedNum(lb.rewires) });
+    var sk = feedRd('taco.sketch.v1') || {}; add('sketch:best', Math.floor(feedNum(sk.best)), { runs: feedNum(sk.runs) });
+    var bs = feedRd('hgmini_bs') || {}; add('mini:battleship-wins', bs.w, { lost: feedNum(bs.l), fewest: feedNum(bs.best) });
+    var sp = feedRd('hgmini_sports') || {}; add('mini:sports-wins', sum(sp.w), { played: sum(sp.p) });
+    var rk = feedRd('hgmini_rock') || {}; add('mini:rock-time', Math.floor(feedNum(rk.total)), { sessions: feedNum(rk.sessions) });
+    var mw = feedRd('hgmini_wins') || {};
+    [['mg-reaction', 'reaction'], ['mg-snake', 'snake'], ['mg-typing', 'typing'], ['mg-pong', 'pong'], ['mg-connect4', 'connect4'], ['mg-tictactoe', 'tictactoe']].forEach(function (g) {
+      var r = mw[g[0]] || {}; add('mini:' + g[1] + '-wins', r.w, { played: feedNum(r.p) }); });
+    return out;
   }]
 ];
 // Scores go up in one frame (lbBatch) and the server answers with what it holds, so nothing is "sent" until the server

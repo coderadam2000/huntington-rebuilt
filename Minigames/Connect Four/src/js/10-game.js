@@ -53,7 +53,7 @@ function hostMove(from, c) {
     G4.wins = line; G4.over = !!line || full; if (!G4.over) G4.turn = 1 - G4.turn;
     const m = { k: 'st', b: G4.b, turn: G4.turn, last: c, row: r, wins: line, over: G4.over, draw: !line && full };
     MG.toAll(m); onState(m);
-    if (G4.over) setTimeout(() => { const w = line ? MG.player(G4.ids[side]) : null; MG.end(w ? `<h1>${mgEsc(w.name)} wins!</h1><p class="mg-sub">Four in a row.</p>` : '<h1>A draw</h1><p class="mg-sub">The board is full.</p>'); }, 1600);
+    if (G4.over) setTimeout(() => { const w = line ? MG.player(G4.ids[side]) : null; MG.end(w ? `<h1>${mgEsc(w.name)} wins!</h1><p class="mg-sub">Four in a row.</p>` : '<h1>A draw</h1><p class="mg-sub">The board is full.</p>', w ? w.id : null); }, 1600);
     else botTurn();
 }
 function botTurn() { const p = MG.player(G4.ids[G4.turn]); if (p && p.bot && !G4.over) setTimeout(() => hostMove(p.id, botMove(G4.turn)), 500 + Math.random() * 500); }

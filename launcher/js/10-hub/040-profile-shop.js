@@ -127,7 +127,24 @@ function profExtras(e, c, shop) {
     '<div class="pex"><span class="pexi">&#127920;</span><div><b>The casino</b><p>Swap tacos for chips (1 taco = 100 chips) and play slots, blackjack, roulette and more, or sit at a live table with everyone. Tacos are play money: they are not worth anything outside Taco Games.</p>' +
       '<button class="pb" data-pex="casino">Open the casino</button></div></div></div>';
 }
+// 2026-11-22: only the boards of games you can play in the launcher are shown. The others stay on the server untouched
+// (scores, ranks, Rebuild): a game that comes back to the list gets its boards back. A board of a game not named here is shown.
+var LB_DIRS = { spikes: '50 Levels Of Spikes 1.2', market: 'Market Life 1.9', imposter: 'Imposter', zoom: 'Zoom', tetris: 'Tetris', clicker: 'Brown E Clicker',
+  coffee: 'Coffee Shop NEW', td: 'Tower Defense 2.0', mayhem: 'Mayhem Marathon', steel: 'Steel Storm', frontline: 'Frontline', sov: 'Sovereign',
+  neon: 'Levi Dash By Levi 2.0', blocky: 'Blocky Shooter V2', elementlab: 'Element Lab', lumi: 'Last Light', beatlab: 'Beat Lab', wc: 'World Conflict',
+  craft: 'Crochet Simulator', pancake: 'Pancake Simulator', bbb: 'Bing Bong BANG', doom: 'DoomsDay', zvy: 'Zombie vs You', slither: 'Slither',
+  bulb: 'Edible Light Bulb Clicker', sketch: 'Sketch', casino: 'Casino' };
+var LB_MINI = { chess: 'Chess and Checkers', checkers: 'Chess and Checkers', battleship: 'Battleship', sports: 'Sports Mix', rock: 'Rock Simulator',
+  reaction: 'Reaction Duel', snake: 'Snake Arena', typing: 'Typing Race', pong: 'Pong', connect4: 'Connect Four', tictactoe: 'Tic-Tac-Toe' };
+function lbPlayable(k) {
+  var m = /^([a-z0-9]+):([a-z0-9]+)/.exec(k || ''); if (!m || m[1] === 'hub') return true;
+  var dir = m[1] === 'mini' ? (LB_MINI[m[2]] && 'Minigames/' + LB_MINI[m[2]]) : LB_DIRS[m[1]]; if (!dir) return true;
+  var on = function (g) { return g.dir === dir; };
+  return (typeof GAMES !== 'undefined' && GAMES.some(on)) || (typeof EXPERIMENTAL !== 'undefined' && EXPERIMENTAL.some(on));
+}
+function lbShownBoards(c) { var o = {}; Object.keys(c.boards).forEach(function (k) { if (lbPlayable(k)) o[k] = c.boards[k]; }); return { boards: o }; }
 function profBoards(c) {
+  c = lbShownBoards(c);
   var games = []; Object.keys(c.boards).forEach(function (k) { var g = c.boards[k].g; if (games.indexOf(g) < 0) games.push(g); });
   if (!PROF.lbGame) PROF.lbGame = games[0];
   var keys = Object.keys(c.boards).filter(function (k) { return c.boards[k].g === PROF.lbGame; });
@@ -181,6 +198,7 @@ setInterval(function () { if (!document.hidden && Date.now() - (PROF.lbAt || 0) 
 // the Leaderboards tab, laid out: games down the side, the game's main boards as tabs (single levels tucked in a picker),
 // a podium for the top three, your own place, then everyone else
 function lbView(c) {
+  c = lbShownBoards(c);
   var games = [], count = {};
   Object.keys(c.boards).forEach(function (k) { var g = c.boards[k].g; if (/^hub:/.test(k)) g = 'Taco Games'; if (games.indexOf(g) < 0) games.push(g); count[g] = (count[g] || 0) + 1; });
   games.sort(function (a, b) { return a === 'Taco Games' ? -1 : b === 'Taco Games' ? 1 : a.localeCompare(b); });

@@ -23,6 +23,27 @@ Leaderboards tab.
 | `zoom:trophies` | Grand Prix trophies | Zoom |
 | `lumi:linear` | best LINEAR Run | Last Light |
 
+Added 2026-11-22 (one board or two for every listed game that had none; all "higher is better"):
+
+| Board | Value | Game |
+|---|---|---|
+| `wc:wins`, `wc:reign` | worlds won, longest reign (years) | World Conflict |
+| `craft:made` | pieces made | Crochet & Knitting Simulator |
+| `pancake:best` | best rating | Pancake Simulator |
+| `bbb:score`, `bbb:fc` | best scores of every song added up, full combos | Bing Bong BANG! |
+| `doom:score`, `doom:kills` | best score of every arena added up, kills | DoomsDay |
+| `zvy:endless`, `zvy:kills` | best endless wave, zombies killed | Zombie vs. You |
+| `slither:best`, `slither:kills` | longest snake, kills | Slither |
+| `bulb:total` | bulbs baked, all time (big numbers) | Edible Light Bulb Clicker |
+| `sketch:best` | best height | Sketch |
+| `mini:battleship-wins`, `mini:sports-wins` | wins | Battleship, Sports Mix |
+| `mini:rock-time` | seconds spent with the rock | Rock Simulator |
+| `mini:reaction-wins`, `mini:snake-wins`, `mini:typing-wins`, `mini:pong-wins`, `mini:connect4-wins`, `mini:tictactoe-wins` | wins | the lobby minigames |
+
+The Leaderboards tab shows only the boards of games in the launcher's list (`lbPlayable` in `040-profile-shop.js`);
+the boards of games taken off the list stay on the server as they are. Design Anything, the casino and the External
+Games have no board (nothing to score, tacos are already the casino's number, and other people's games keep their own saves).
+
 Also: 100 Levels of Spikes already sends a "victor" tag for players who beat all 100 (and all 100 in one life). The
 server should keep that tag so victors sort above everyone else at level 100.
 

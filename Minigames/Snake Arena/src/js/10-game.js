@@ -47,7 +47,7 @@ function hostTick() {
     if ((SN.snakes.length > 1 && alive.length <= 1) || SN.t >= ROUND || !alive.length) {
         SN.on = false;
         const rows = SN.snakes.slice().sort((a, b) => (b.alive - a.alive) || (b.body.length - a.body.length) || ((b.diedAt || 0) - (a.diedAt || 0)));
-        setTimeout(() => MG.end(`<h1>${mgEsc(rows[0].name)} wins!</h1>` + rows.map((s, i) => `<div class="mg-res-row"><span>${['🥇', '🥈', '🥉'][i] || (i + 1) + '.'} ${mgEsc(s.name)}${s.alive ? '' : ' 💀'}</span><b>${s.body.length}</b></div>`).join('')), 900);
+        setTimeout(() => MG.end(`<h1>${mgEsc(rows[0].name)} wins!</h1>` + rows.map((s, i) => `<div class="mg-res-row"><span>${['🥇', '🥈', '🥉'][i] || (i + 1) + '.'} ${mgEsc(s.name)}${s.alive ? '' : ' 💀'}</span><b>${s.body.length}</b></div>`).join(''), rows[0].id), 900);
     }
 }
 function start(roster, seed) {

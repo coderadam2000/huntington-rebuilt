@@ -30,7 +30,7 @@ function hostStep(dt) {
     if (b.x < -20 || b.x > W + 20) {
         const scorer = b.x < 0 ? 1 : 0; P.s[scorer]++; MGS[scorer === 0 ? 'win' : 'lose']();
         if (P.s[scorer] >= TO) { const w = MG.player(P.ids[scorer]); P.on = false;
-            MG.end(`<h1>${mgEsc(w ? w.name : '?')} wins!</h1><div class="mg-res-row"><span>${mgEsc(MG.player(P.ids[0]).name)}</span><b>${P.s[0]}</b></div><div class="mg-res-row"><span>${mgEsc(MG.player(P.ids[1]).name)}</span><b>${P.s[1]}</b></div>`); return; }
+            MG.end(`<h1>${mgEsc(w ? w.name : '?')} wins!</h1><div class="mg-res-row"><span>${mgEsc(MG.player(P.ids[0]).name)}</span><b>${P.s[0]}</b></div><div class="mg-res-row"><span>${mgEsc(MG.player(P.ids[1]).name)}</span><b>${P.s[1]}</b></div>`, w ? w.id : null); return; }
         serve(scorer ? 1 : -1);
     }
 }
