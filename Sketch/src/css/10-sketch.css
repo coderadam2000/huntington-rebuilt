@@ -1,0 +1,18 @@
+html, body { margin: 0; height: 100%; overflow: hidden; background: #e9e4d8; font-family: 'Comic Sans MS', 'Chalkboard SE', 'Segoe Print', system-ui, sans-serif; user-select: none; }
+#cv { position: fixed; inset: 0; width: 100%; height: 100%; display: block; touch-action: none; }
+#ui { position: fixed; inset: 0; pointer-events: none; }
+.sk-panel { position: absolute; left: 50%; top: 50%; transform: translate(-50%, -50%); pointer-events: auto; background: #fffdf6; border: 3px solid #2b2b2b; border-radius: 18px 22px 16px 24px; padding: 22px 26px; width: min(420px, 90vw); text-align: center; color: #222; box-shadow: 6px 8px 0 rgba(0,0,0,.18); }
+.sk-panel h1 { margin: 0; font-size: 56px; letter-spacing: 2px; transform: rotate(-3deg); color: #1d4ed8; text-shadow: 3px 3px 0 #93c5fd; }
+.sk-panel h2 { margin: 0 0 6px; font-size: 30px; }
+.sk-panel p { margin: 6px 0; font-size: 16px; }
+.sk-btn { pointer-events: auto; display: inline-block; margin: 6px 4px; padding: 9px 20px; font: inherit; font-size: 18px; font-weight: bold; background: #fde68a; border: 3px solid #2b2b2b; border-radius: 14px 10px 16px 12px; cursor: pointer; box-shadow: 3px 3px 0 #2b2b2b; color: #222; }
+.sk-btn:hover { transform: translate(-1px, -1px); box-shadow: 4px 4px 0 #2b2b2b; } .sk-btn.alt { background: #bfdbfe; } .sk-btn:disabled { opacity: .45; cursor: default; }
+.sk-miss { text-align: left; font-size: 14px; margin: 10px 0; background: #fef9c3; border: 2px dashed #a16207; border-radius: 10px; padding: 8px 12px; }
+.sk-miss div { margin: 3px 0; } .sk-miss .done { text-decoration: line-through; color: #15803d; }
+.sk-skins { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; margin: 10px 0; }
+.sk-skin { border: 2px solid #2b2b2b; border-radius: 12px; padding: 6px; background: #fff; cursor: pointer; font: inherit; font-size: 13px; }
+.sk-skin.on { background: #bbf7d0; } .sk-skin canvas { display: block; margin: 0 auto 2px; }
+.sk-hud { position: absolute; top: 10px; left: 50%; transform: translateX(-50%); font-size: 24px; font-weight: bold; color: #222; text-shadow: 2px 2px 0 #fff; display: flex; gap: 18px; }
+.sk-hud small { font-size: 15px; color: #555; }
+.sk-tip { position: absolute; bottom: 12px; left: 50%; transform: translateX(-50%); color: #555; font-size: 14px; text-align: center; width: 90%; }
+.hidden { display: none !important; }
