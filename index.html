@@ -904,7 +904,7 @@ function setVersion(v) { MIRRORS = MIRROR_HOSTS.map(function (m) { return m + RE
 // If GitHub cannot be reached (blocked, or its 60-an-hour limit for one school network), it falls back to '@main'.
 // (A hub cannot swap itself for a newer one in the same page: its scripts have already declared their names. Players get a
 // newer launcher itself through the loader, which pins it; HG_HUB_ID tells which build is running.)
-var HG_HUB_ID = '05c3c2a65fb1';      // the build fills in a fingerprint of this file
+var HG_HUB_ID = '245dc4d26122';      // the build fills in a fingerprint of this file
 var HG_SHA_RE = /^[0-9a-f]{40}$/;
 function latestSha() {
   try { var c = JSON.parse(localStorage.getItem('hgv:sha') || 'null'); if (c && HG_SHA_RE.test(c.s) && Date.now() - c.t < 120000) return Promise.resolve(c.s); } catch (e) {}
@@ -929,6 +929,7 @@ var BUNDLE = window.HG_BUNDLE || null; // only set inside the saved "Taco Games 
 var local = !BUNDLE && !window.HG_VERSION && (location.protocol === 'file:' || /github\.io$/.test(location.hostname) || location.hostname === '127.0.0.1' || location.hostname === 'localhost');
 
 var GAMES = [
+  { dir: 'Slither', name: 'Slither', img: 'slither', tags: ['New', 'Arena', 'Action'], desc: "NEW: a glowing arena full of hungry snakes. Eat orbs, grow long, boost to cut others off and make them crash into you. 22 bot snakes that feed, hunt and coil; skins unlock as you grow." },
   { dir: 'Edible Light Bulb Clicker', name: 'Edible Light Bulb Clicker', img: 'bulb', tags: ['New', 'Clicker'], desc: "NEW: bake light bulbs you can eat. 12 bakeries from a Snacking Hand to a Bright Idea Engine, 100+ upgrades, golden bulbs, 53 achievements and Rewiring for filaments. Keeps baking while you are away." },
   { dir: 'Sketch', name: 'Sketch', img: 'sketch', tags: ['New', 'Platformer'], desc: "NEW: a doodle that only goes up. Bounce up a page of notebook paper on springs, trampolines and rockets, stomp or shoot monsters, dodge black holes. Missions, coins, new doodles and paper." },
   { dir: 'Zoom', hero: 'Brand new: 3D kart and bike racing. 12 tracks, 15 items, drift for mini-turbos, build your ride in the garage and race your friends online.', name: 'Zoom', img: 'zoom', tags: ['New', '3D', 'Racing', 'Multiplayer'], desc: "NEW: 3D kart and bike racing. 12 tracks in 3 cups, 15 items, 6 modes (Grand Prix, Quick Race, Time Trial, Knockout, Coin Rush, Balloon Battle). Drift for mini-turbos, earn coins, build your ride in the garage, and race your friends online." },
