@@ -1,0 +1,314 @@
+// ==========================================
+// DESIGN ANYTHING: a design studio for anything. Start from one of 37 templates or a blank page of any size, then add
+// shapes, text (24 fonts), hundreds of emoji and stickers, backgrounds, freehand drawing and your own pictures.
+//   Click to select (SHIFT adds), drag to move, the handles resize and rotate. Double-click text to edit it.
+//   Delete removes, Ctrl+Z / Ctrl+Y undo and redo, Ctrl+D duplicates, arrows nudge, [ and ] send back / bring forward.
+//   Save keeps the design in My designs (on this device, synced with your account); Export downloads a PNG.
+// A design is plain data: { name, w, h, bg: { k: solid|grad|dots|stripes|grid|noise, c1, c2, a }, els: [...] }.
+// Save (synced, prefix taco): taco.design.v1 = { designs: [{ id, name, at, doc }] } (pictures over 200 KB are not kept)
+// ==========================================
+const $ = id => document.getElementById(id);
+const KEY = 'taco.design.v1';
+let STORE = { designs: [] };
+try { STORE = Object.assign(STORE, JSON.parse(localStorage.getItem(KEY) || '{}') || {}); } catch (e) {}
+const persist = () => { try { localStorage.setItem(KEY, JSON.stringify(STORE)); return true; } catch (e) { alert('Your device is out of room for designs. Delete an old one first.'); return false; } };
+const FONTS = ['system-ui', 'Arial', 'Arial Black', 'Helvetica', 'Verdana', 'Tahoma', 'Trebuchet MS', 'Georgia', 'Times New Roman', 'Garamond', 'Palatino', 'Courier New', 'Lucida Console', 'Impact', 'Comic Sans MS', 'Brush Script MT', 'Copperplate', 'Papyrus', 'Optima', 'Futura', 'Gill Sans', 'Rockwell', 'Didot', 'Monaco'];
+const PALETTES = [['#7c3aed', '#db2777', '#f59e0b', '#10b981', '#0ea5e9'], ['#0f172a', '#334155', '#94a3b8', '#e2e8f0', '#f8fafc'], ['#ef4444', '#f97316', '#facc15', '#22c55e', '#3b82f6'], ['#fde68a', '#fca5a5', '#c4b5fd', '#a7f3d0', '#bae6fd'],
+    ['#1b4332', '#2d6a4f', '#52b788', '#b7e4c7', '#f1faee'], ['#03045e', '#0077b6', '#00b4d8', '#90e0ef', '#caf0f8'], ['#590d22', '#a4133c', '#ff4d6d', '#ff8fa3', '#ffccd5'], ['#264653', '#2a9d8f', '#e9c46a', '#f4a261', '#e76f51'],
+    ['#000000', '#ffffff', '#ff006e', '#8338ec', '#3a86ff'], ['#6f1d1b', '#bb9457', '#432818', '#99582a', '#ffe6a7'], ['#10002b', '#3c096c', '#7b2cbf', '#c77dff', '#e0aaff'], ['#ffbe0b', '#fb5607', '#ff006e', '#8338ec', '#3a86ff']];
+const EMOJI = {
+    Faces: '😀😃😄😁😆😅😂🤣😊😇🙂🙃😉😌😍🥰😘😋😛😜🤪😎🤩🥳😏😒😞😔😟😕🙁😣😖😫😩🥺😢😭😤😠😡🤬🤯😳🥵🥶😱😨😰😥🤗🤔🤭🤫🤥😶😐😑😬🙄😯😦😧😮😲🥱😴🤤😪😵🤐🥴🤢🤮🤧😷🤒🤕🤑🤠😈👿👹👺🤡💩👻💀👽👾🤖🎃😺😸😹😻😼😽🙀😿😾',
+    People: '👋🤚🖐️✋🖖👌🤌🤏✌️🤞🤟🤘🤙👈👉👆👇☝️👍👎✊👊🤛🤜👏🙌👐🤲🙏💪🦾🦵🦶👂👃🧠👀👁️👅👄👶🧒👦👧🧑👱👨🧔👩🧓👴👵🙋🙆🙅🤷🤦💁🙇👮🕵️💂👷🤴👸👳🧕🤵👰🤰🦸🦹🧙🧚🧛🧜🧝🧞🧟💃🕺👯🧖🧗🏇⛷️🏂🏌️🏄🚣🏊⛹️🏋️🚴🤸🤼🤽🤾🤹',
+    Animals: '🐶🐱🐭🐹🐰🦊🐻🐼🐨🐯🦁🐮🐷🐸🐵🙈🙉🙊🐔🐧🐦🐤🦆🦅🦉🦇🐺🐗🐴🦄🐝🐛🦋🐌🐞🐜🦟🦗🕷️🦂🐢🐍🦎🦖🦕🐙🦑🦐🦞🦀🐡🐠🐟🐬🐳🐋🦈🐊🐅🐆🦓🦍🦧🐘🦛🦏🐪🐫🦒🦘🐃🐂🐄🐎🐖🐏🐑🦙🐐🦌🐕🐩🐈🐓🦃🦚🦜🦢🦩🕊️🐇🦝🦨🦡🦦🦥🐁🐀🐿️🦔',
+    Food: '🍏🍎🍐🍊🍋🍌🍉🍇🍓🫐🍈🍒🍑🥭🍍🥥🥝🍅🍆🥑🥦🥬🥒🌶️🌽🥕🧄🧅🥔🍠🥐🥯🍞🥖🥨🧀🥚🍳🧈🥞🧇🥓🥩🍗🍖🌭🍔🍟🍕🥪🥙🧆🌮🌯🥗🥘🍝🍜🍲🍛🍣🍱🥟🍤🍙🍚🍘🍥🥠🍢🍡🍧🍨🍦🥧🧁🍰🎂🍮🍭🍬🍫🍿🍩🍪🌰🥜🍯🥛🍼☕🍵🧃🥤🍶🍺🍻🥂🍷🥃🍸🍹🧉🍾🧊',
+    Nature: '🌵🎄🌲🌳🌴🌱🌿☘️🍀🎍🎋🍃🍂🍁🍄🐚🌾💐🌷🌹🥀🌺🌸🌼🌻🌞🌝🌛🌜🌚🌕🌖🌗🌘🌑🌒🌓🌔🌙🌎🌍🌏🪐💫⭐🌟✨⚡☄️💥🔥🌪️🌈☀️🌤️⛅🌥️☁️🌦️🌧️⛈️🌩️🌨️❄️☃️⛄🌬️💨💧💦☔☂️🌊🌫️',
+    Things: '⚽🏀🏈⚾🥎🎾🏐🏉🥏🎱🪀🏓🏸🏒🏑🥍🏏⛳🪁🏹🎣🤿🥊🥋🎽🛹🛼🛷⛸️🥌🎿🏆🥇🥈🥉🏅🎖️🎗️🎫🎟️🎪🤹🎭🩰🎨🎬🎤🎧🎼🎹🥁🎷🎺🎸🪕🎻🎲♟️🎯🎳🎮🎰🧩🚗🚕🚙🚌🏎️🚓🚑🚒🚐🛻🚚🚛🚜🏍️🛵🚲🛴🚨✈️🛫🚀🛸🚁⛵🚤🛳️⚓🏠🏡🏢🏰🏯🗼🗽⛪🕌⛩️🎡🎢🎠⛲🏖️🏝️🏜️🌋⛰️🏔️🗻🏕️⌚📱💻⌨️🖥️🖨️🖱️💽💾📷📸📹🎥📞☎️📺📻⏰⌛💡🔦🕯️💸💵💰💎⚖️🔧🔨⚒️🛠️⛏️🔩⚙️🧲🔫💣🧨🪓🔪🗡️⚔️🛡️🔮🧿💈⚗️🔭🔬💊💉🧬🦠🧪🌡️🧹🧺🧻🚽🛁🔑🗝️🚪🪑🛋️🛏️🧸🖼️🛍️🛒🎁🎈🎏🎀🎊🎉🎎🏮🎐🧧✉️📩📨📧💌📦🏷️📜📃📑📊📈📉📆📅🗓️📇🗃️🗳️🗄️📋📁📂🗂️🗞️📰📓📔📒📕📗📘📙📚📖🔖🧷🔗📎🖇️📐📏🧮📌📍✂️🖊️🖋️✒️🖌️🖍️📝✏️🔍🔎🔏🔐🔒🔓',
+    Symbols: '❤️🧡💛💚💙💜🖤🤍🤎💔❣️💕💞💓💗💖💘💝💟☮️✝️☪️🕉️☸️✡️🔯🕎☯️☦️🛐⛎♈♉♊♋♌♍♎♏♐♑♒♓🆔⚛️☢️☣️📴📳✴️🆚💮🉐㊙️㊗️🅰️🅱️🆎🆑🅾️🆘❌⭕🛑⛔📛🚫💯💢♨️🚷🚯🚳🚱🔞📵🚭❗❕❓❔‼️⁉️🔅🔆〽️⚠️🚸🔱⚜️🔰♻️✅🈯💹❇️✳️❎🌐💠Ⓜ️🌀💤🏧🚾♿🅿️🚰🚹🚺🚼🚻🚮🎦📶🈁🔣ℹ️🔤🔡🔠🆖🆗🆙🆒🆕🆓0️⃣1️⃣2️⃣3️⃣4️⃣5️⃣6️⃣7️⃣8️⃣9️⃣🔟🔢#️⃣*️⃣▶️⏸️⏯️⏹️⏺️⏭️⏮️⏩⏪⏫⏬◀️🔼🔽➡️⬅️⬆️⬇️↗️↘️↙️↖️↕️↔️↪️↩️⤴️⤵️🔀🔁🔂🔄🔃🎵🎶➕➖➗✖️♾️💲💱™️©️®️〰️➰➿🔚🔙🔛🔝🔜✔️☑️🔘🔴🟠🟡🟢🔵🟣⚫⚪🟤🔺🔻🔸🔹🔶🔷🔳🔲▪️▫️◾◽◼️◻️🟥🟧🟨🟩🟦🟪⬛⬜🟫🔈🔇🔉🔊🔔🔕📣📢💬💭🗯️♠️♣️♥️♦️🃏🎴🀄',
+    Flags: '🏁🚩🎌🏴🏳️🏳️‍🌈🏴‍☠️🇺🇸🇨🇦🇲🇽🇧🇷🇦🇷🇬🇧🇮🇪🇫🇷🇩🇪🇮🇹🇪🇸🇵🇹🇳🇱🇧🇪🇨🇭🇦🇹🇸🇪🇳🇴🇩🇰🇫🇮🇵🇱🇺🇦🇬🇷🇹🇷🇷🇺🇮🇳🇨🇳🇯🇵🇰🇷🇦🇺🇳🇿🇿🇦🇳🇬🇪🇬🇰🇪🇸🇦🇮🇱🇵🇭🇻🇳🇹🇭🇮🇩🇲🇾🇸🇬🇨🇴🇵🇪🇨🇱🇯🇲🇨🇺'};
+const segOf = s => Array.from(new Intl.Segmenter ? new Intl.Segmenter('en', { granularity: 'grapheme' }).segment(s) : s).map(x => x.segment || x);
+const SHAPES = [['rect', '▭ Rectangle'], ['round', '▢ Rounded'], ['ellipse', '◯ Circle'], ['tri', '△ Triangle'], ['star', '☆ Star'], ['heart', '♡ Heart'], ['poly', '⬡ Hexagon'], ['diamond', '◇ Diamond'], ['arrow', '➜ Arrow'], ['line', '╱ Line'], ['blob', '☁ Cloud'], ['bubble', '💬 Bubble'], ['ring', '◎ Ring'], ['burst', '✸ Burst'], ['cross', '✚ Cross'], ['moon', '☾ Moon']];
+const BGS = [['solid', '#ffffff', '#ffffff'], ['grad', '#7c3aed', '#db2777'], ['grad', '#0ea5e9', '#22c55e'], ['grad', '#f59e0b', '#ef4444'], ['grad', '#0f172a', '#334155'], ['grad', '#fde68a', '#fca5a5'], ['dots', '#fef3c7', '#f59e0b'], ['dots', '#0f172a', '#38bdf8'], ['stripes', '#ffffff', '#fecaca'], ['stripes', '#1e293b', '#334155'],
+    ['grid', '#f8fafc', '#cbd5e1'], ['grid', '#0b1020', '#1d4ed8'], ['noise', '#d6c7a1', '#a08a5c'], ['solid', '#111827', '#111827'], ['solid', '#fef3c7', '#fef3c7'], ['solid', '#dcfce7', '#dcfce7'], ['grad', '#ff9a9e', '#fad0c4'], ['grad', '#a18cd1', '#fbc2eb'], ['grad', '#84fab0', '#8fd3f4'], ['grad', '#f6d365', '#fda085']];
+// ---- templates: a name, a size, a background and the starter elements ----
+const T = (n, w, h, bg, els, cat) => ({ n, w, h, bg, els, cat });
+const tx = (text, x, y, size, o) => Object.assign({ t: 'text', text, x, y, w: 0, h: 0, size, font: 'Arial Black', fill: '#ffffff', align: 'center', anchor: 1 }, o || {});      // x, y: the middle (left edge for left-aligned)
+const sh = (t, x, y, w, h, fill, o) => Object.assign({ t, x, y, w, h, fill }, o || {});
+const em = (text, x, y, size, o) => Object.assign({ t: 'emoji', text, x, y, w: size, h: size }, o || {});
+const TEMPLATES = [
+    T('Blank square', 1080, 1080, { k: 'solid', c1: '#ffffff' }, [], 'Blank'), T('Blank wide', 1600, 900, { k: 'solid', c1: '#ffffff' }, [], 'Blank'), T('Blank tall', 900, 1600, { k: 'solid', c1: '#ffffff' }, [], 'Blank'),
+    T('Event poster', 1080, 1500, { k: 'grad', c1: '#7c3aed', c2: '#db2777', a: 135 }, [tx('BIG EVENT', 540, 300, 140), tx('Saturday · 7 PM · Main Hall', 540, 450, 48, { font: 'Trebuchet MS' }), em('🎉', 390, 650, 300), sh('round', 290, 1180, 500, 130, '#ffffff', { rad: 60 }), tx('Get tickets', 540, 1245, 56, { fill: '#7c3aed', font: 'Trebuchet MS' })], 'Posters'),
+    T('Movie poster', 1000, 1480, { k: 'grad', c1: '#0f172a', c2: '#7f1d1d', a: 180 }, [em('🦖', 200, 300, 600), tx('THE LAST ROAR', 500, 1150, 110, { font: 'Impact' }), tx('IN THEATERS SOON', 500, 1290, 40, { font: 'Arial', fill: '#fca5a5' })], 'Posters'),
+    T('Lost pet', 1080, 1400, { k: 'solid', c1: '#fef3c7' }, [tx('LOST CAT', 540, 180, 150, { fill: '#b91c1c', font: 'Impact' }), em('🐱', 340, 280, 400), tx('Answers to "Biscuit"', 540, 820, 60, { fill: '#111827', font: 'Georgia' }), tx('Call 555-0123', 540, 960, 80, { fill: '#111827' })], 'Posters'),
+    T('Birthday card', 1500, 1050, { k: 'dots', c1: '#fdf2f8', c2: '#f9a8d4' }, [tx('Happy Birthday!', 750, 260, 130, { fill: '#be185d', font: 'Brush Script MT' }), em('🎂', 600, 380, 300), em('🎈', 1150, 150, 220), em('🎈', 150, 500, 200), tx('Have the best day ever', 750, 860, 56, { fill: '#831843', font: 'Georgia' })], 'Cards'),
+    T('Thank-you card', 1500, 1050, { k: 'solid', c1: '#ecfdf5' }, [tx('Thank you', 750, 420, 170, { fill: '#065f46', font: 'Georgia', italic: true }), em('🌿', 250, 600, 220), em('🌸', 1080, 220, 220)], 'Cards'),
+    T('Invitation', 1050, 1500, { k: 'grad', c1: '#fef3c7', c2: '#fde68a', a: 180 }, [tx("You're invited", 525, 300, 100, { fill: '#92400e', font: 'Brush Script MT' }), sh('line', 225, 400, 600, 0, '#92400e', { stroke: '#92400e', sw: 4 }), tx('Pool Party', 525, 600, 120, { fill: '#b45309', font: 'Arial Black' }), em('🏖️', 400, 720, 260), tx('July 12 · 2 PM', 525, 1150, 60, { fill: '#78350f', font: 'Georgia' })], 'Cards'),
+    T('Logo', 1000, 1000, { k: 'solid', c1: '#ffffff' }, [sh('ellipse', 250, 200, 500, 500, '#7c3aed'), em('⚡', 375, 300, 260), tx('BOLTCO', 500, 840, 110, { fill: '#1e1b4b' })], 'Brand'),
+    T('Business card', 1050, 600, { k: 'solid', c1: '#0f172a' }, [tx('Alex Rivera', 80, 220, 64, { align: 'left', fill: '#f8fafc', font: 'Helvetica' }), tx('Chief Idea Officer', 80, 300, 34, { align: 'left', fill: '#38bdf8', font: 'Helvetica' }), tx('alex@example.com · 555-0199', 80, 480, 28, { align: 'left', fill: '#94a3b8', font: 'Helvetica' }), sh('ellipse', 780, 160, 200, 200, '#38bdf8')], 'Brand'),
+    T('Sticker', 800, 800, { k: 'solid', c1: '#ffffff' }, [sh('burst', 100, 100, 600, 600, '#facc15', { stroke: '#111827', sw: 12 }), tx('WOW!', 400, 420, 150, { fill: '#111827', font: 'Impact' })], 'Brand'),
+    T('Flag', 1500, 1000, { k: 'solid', c1: '#ffffff' }, [sh('rect', 0, 0, 500, 1000, '#16a34a'), sh('rect', 1000, 0, 500, 1000, '#dc2626'), sh('star', 600, 350, 300, 300, '#facc15')], 'Brand'),
+    T('T-shirt', 1000, 1100, { k: 'solid', c1: '#e2e8f0' }, [sh('tshirt', 100, 100, 800, 900, '#1d4ed8'), tx('TACO', 500, 520, 120, { fill: '#facc15' }), em('🌮', 400, 600, 200)], 'Fashion'),
+    T('Sneaker', 1400, 900, { k: 'grad', c1: '#f1f5f9', c2: '#cbd5e1', a: 180 }, [sh('sneaker', 150, 250, 1100, 500, '#ef4444'), tx('custom kicks', 700, 830, 50, { fill: '#334155', font: 'Trebuchet MS' })], 'Fashion'),
+    T('Hoodie', 1000, 1100, { k: 'solid', c1: '#f5f5f4' }, [sh('hoodie', 100, 80, 800, 950, '#57534e'), tx('CHILL', 500, 600, 110, { fill: '#fafaf9' })], 'Fashion'),
+    T('Hat', 1000, 800, { k: 'solid', c1: '#e0f2fe' }, [sh('cap', 150, 200, 700, 450, '#0f766e'), tx('GO', 500, 420, 120, { fill: '#ffffff' })], 'Fashion'),
+    T('Car wrap', 1600, 900, { k: 'grad', c1: '#e2e8f0', c2: '#94a3b8', a: 180 }, [sh('car', 200, 250, 1200, 450, '#f59e0b'), tx('ZOOM', 800, 480, 110, { fill: '#111827', font: 'Impact' })], 'Vehicles'),
+    T('Skateboard', 1600, 600, { k: 'solid', c1: '#fafafa' }, [sh('round', 100, 150, 1400, 300, '#111827', { rad: 150 }), em('🔥', 650, 170, 260)], 'Vehicles'),
+    T('Rocket', 900, 1500, { k: 'grad', c1: '#020617', c2: '#1e1b4b', a: 180 }, [em('🚀', 200, 400, 500), em('⭐', 100, 150, 80), em('✨', 650, 250, 100), em('🪐', 600, 1050, 220), tx('TO THE MOON', 450, 1400, 70, { fill: '#e0e7ff' })], 'Vehicles'),
+    T('Cake', 1000, 1000, { k: 'solid', c1: '#fdf2f8' }, [sh('round', 250, 550, 500, 300, '#f9a8d4', { rad: 30 }), sh('round', 320, 350, 360, 220, '#fbcfe8', { rad: 30 }), em('🍓', 380, 260, 100), em('🍓', 520, 260, 100), sh('rect', 485, 180, 30, 90, '#93c5fd'), em('🔥', 470, 120, 60)], 'Food'),
+    T('Menu', 1000, 1500, { k: 'solid', c1: '#fffbeb' }, [tx('TACO TRUCK', 500, 180, 100, { fill: '#b45309', font: 'Impact' }), tx('Tacos ....... 3', 500, 420, 56, { fill: '#451a03', font: 'Courier New' }), tx('Burritos .... 7', 500, 520, 56, { fill: '#451a03', font: 'Courier New' }), tx('Nachos ...... 5', 500, 620, 56, { fill: '#451a03', font: 'Courier New' }), em('🌮', 380, 820, 240)], 'Food'),
+    T('Pizza', 1000, 1000, { k: 'solid', c1: '#fef3c7' }, [sh('ellipse', 100, 100, 800, 800, '#d97706'), sh('ellipse', 140, 140, 720, 720, '#ef4444'), em('🧀', 300, 300, 130), em('🍄', 550, 320, 120), em('🫑', 320, 560, 120), em('🍅', 560, 560, 120)], 'Food'),
+    T('Room', 1600, 1000, { k: 'solid', c1: '#fef9c3' }, [sh('rect', 0, 700, 1600, 300, '#a16207'), em('🛋️', 500, 380, 420), em('🖼️', 620, 100, 220), em('🪴', 1200, 450, 260), em('🛏️', 60, 420, 330)], 'Places'),
+    T('Dream house', 1600, 1000, { k: 'grad', c1: '#bae6fd', c2: '#e0f2fe', a: 180 }, [sh('rect', 0, 820, 1600, 180, '#22c55e'), sh('rect', 550, 450, 500, 400, '#fef3c7'), sh('tri', 500, 220, 600, 250, '#b91c1c'), sh('rect', 750, 650, 100, 200, '#78350f'), sh('rect', 600, 520, 110, 100, '#93c5fd'), sh('rect', 890, 520, 110, 100, '#93c5fd'), em('🌳', 200, 560, 300), em('☀️', 1300, 80, 200)], 'Places'),
+    T('Theme park map', 1600, 1100, { k: 'solid', c1: '#bbf7d0' }, [sh('blob', 600, 400, 400, 300, '#7dd3fc'), em('🎢', 150, 150, 220), em('🎡', 1200, 120, 240), em('🎠', 200, 700, 220), em('🏰', 1150, 650, 260), tx('FUNLAND', 800, 1050, 70, { fill: '#14532d' })], 'Places'),
+    T('Game level', 1600, 900, { k: 'grad', c1: '#38bdf8', c2: '#bae6fd', a: 180 }, [sh('rect', 0, 760, 1600, 140, '#16a34a'), sh('rect', 300, 560, 200, 40, '#a16207'), sh('rect', 650, 420, 200, 40, '#a16207'), sh('rect', 1000, 300, 200, 40, '#a16207'), em('🏃', 100, 620, 140), em('⭐', 1060, 180, 100), em('🍄', 700, 300, 120)], 'Games'),
+    T('Character', 1000, 1200, { k: 'dots', c1: '#ede9fe', c2: '#c4b5fd' }, [sh('ellipse', 300, 300, 400, 400, '#fcd34d'), sh('ellipse', 400, 420, 60, 80, '#111827'), sh('ellipse', 540, 420, 60, 80, '#111827'), sh('moon', 420, 560, 160, 80, '#b91c1c'), sh('round', 330, 700, 340, 400, '#7c3aed', { rad: 60 }), tx('Name me!', 500, 180, 70, { fill: '#4c1d95' })], 'Games'),
+    T('Pixel art', 640, 640, { k: 'grid', c1: '#ffffff', c2: '#e5e7eb' }, [sh('rect', 240, 160, 160, 40, '#111827'), sh('rect', 200, 200, 240, 200, '#facc15'), sh('rect', 240, 260, 40, 40, '#111827'), sh('rect', 360, 260, 40, 40, '#111827'), sh('rect', 260, 340, 120, 20, '#b91c1c')], 'Games'),
+    T('Trading card', 750, 1050, { k: 'grad', c1: '#facc15', c2: '#f97316', a: 160 }, [sh('round', 40, 40, 670, 970, '#fffbeb', { rad: 30 }), tx('Sparkle Fox', 375, 130, 60, { fill: '#7c2d12' }), sh('rect', 90, 180, 570, 400, '#bae6fd'), em('🦊', 225, 230, 300), tx('Tail Swipe ..... 40', 375, 700, 40, { fill: '#7c2d12', font: 'Trebuchet MS' }), tx('Fire Spin ...... 90', 375, 780, 40, { fill: '#7c2d12', font: 'Trebuchet MS' })], 'Games'),
+    T('Comic strip', 1800, 700, { k: 'solid', c1: '#ffffff' }, [sh('rect', 40, 40, 540, 620, '#ffffff', { stroke: '#111827', sw: 8 }), sh('rect', 630, 40, 540, 620, '#ffffff', { stroke: '#111827', sw: 8 }), sh('rect', 1220, 40, 540, 620, '#ffffff', { stroke: '#111827', sw: 8 }), em('🐱', 180, 330, 260), sh('bubble', 120, 90, 380, 180, '#ffffff', { stroke: '#111827', sw: 5 }), tx('Is that a taco?', 310, 185, 40, { fill: '#111827', font: 'Comic Sans MS' }), em('🌮', 820, 300, 200), em('😺', 1370, 300, 260), tx('...', 1490, 160, 60, { fill: '#111827' })], 'Comics'),
+    T('Meme', 1000, 1000, { k: 'solid', c1: '#111827' }, [em('🐶', 250, 250, 500), tx('WHEN THE TACOS', 500, 140, 84, { font: 'Impact', stroke: '#000000', sw: 6 }), tx('ARE FREE', 500, 920, 84, { font: 'Impact', stroke: '#000000', sw: 6 })], 'Comics'),
+    T('Video thumbnail', 1280, 720, { k: 'grad', c1: '#dc2626', c2: '#facc15', a: 120 }, [tx('I BUILT A', 420, 220, 110, { font: 'Impact', stroke: '#000000', sw: 8 }), tx('ROCKET?!', 420, 360, 150, { font: 'Impact', fill: '#fde047', stroke: '#000000', sw: 10 }), em('😱', 820, 120, 400), sh('arrow', 640, 470, 200, 120, '#ffffff', { rot: -20 })], 'Social'),
+    T('Wallpaper', 900, 1600, { k: 'grad', c1: '#0f172a', c2: '#7c3aed', a: 200 }, [em('🌙', 450, 300, 300), em('✨', 150, 700, 120), em('⭐', 650, 900, 100), sh('blob', 100, 1250, 700, 300, '#1e1b4b')], 'Social'),
+    T('Quote', 1080, 1080, { k: 'solid', c1: '#fefce8' }, [tx('"', 160, 300, 300, { fill: '#facc15', font: 'Georgia' }), tx('Be the taco', 540, 470, 110, { fill: '#422006', font: 'Georgia', italic: true }), tx('you want to see', 540, 610, 110, { fill: '#422006', font: 'Georgia', italic: true }), tx('in the world.', 540, 750, 110, { fill: '#422006', font: 'Georgia', italic: true })], 'Social'),
+    T('Certificate', 1500, 1050, { k: 'solid', c1: '#fffbeb' }, [sh('rect', 40, 40, 1420, 970, '#fffbeb', { stroke: '#b45309', sw: 16 }), tx('CERTIFICATE', 750, 240, 110, { fill: '#92400e', font: 'Copperplate' }), tx('of being awesome', 750, 340, 54, { fill: '#b45309', font: 'Georgia', italic: true }), tx('Your Name', 750, 560, 120, { fill: '#451a03', font: 'Brush Script MT' }), em('🏅', 680, 700, 160)], 'School'),
+    T('Science poster', 1080, 1500, { k: 'grid', c1: '#f0f9ff', c2: '#bae6fd' }, [tx('THE WATER CYCLE', 540, 160, 80, { fill: '#0c4a6e' }), em('☀️', 120, 260, 200), em('☁️', 600, 280, 260), em('🌧️', 640, 650, 220), em('🌊', 200, 1000, 260), sh('arrow', 340, 380, 240, 100, '#0369a1'), sh('arrow', 760, 900, 240, 100, '#0369a1', { rot: 130 })], 'School')];
+// ---- the document and its history ----
+let doc = null, sel = [], hist = [], fut = [], tool = 'select', zoom = 1, view = { x: 0, y: 0, s: 1 }, curId = null;
+let nextId = 1;
+const clone = o => JSON.parse(JSON.stringify(o));
+function fresh(t) { const d = clone({ name: t.n, w: t.w, h: t.h, bg: Object.assign({ a: 135, c2: t.bg.c1 }, t.bg), els: t.els }); d.els.forEach(e => { e.id = nextId++; Object.assign(e, defaults(e), e); }); return d; }
+function defaults(e) { return { rot: 0, op: 1, stroke: '', sw: 0, shadow: 0, rad: 0, sides: 6, font: 'Arial Black', size: 72, bold: false, italic: false, align: 'center', fill2: '', ls: 0 }; }
+function commit() { hist.push(JSON.stringify(doc)); if (hist.length > 80) hist.shift(); fut = []; paintTop(); }
+function undo() { if (!hist.length) return; fut.push(JSON.stringify(doc)); doc = JSON.parse(hist.pop()); sel = sel.filter(id => doc.els.some(e => e.id === id)); render(); props(); paintTop(); }
+function redo() { if (!fut.length) return; hist.push(JSON.stringify(doc)); doc = JSON.parse(fut.pop()); render(); props(); paintTop(); }
+// ---- drawing ----
+const cv = $('cv'), ov = $('ov'), g = cv.getContext('2d'), o = ov.getContext('2d'), IMG = {};
+function bgPaint(c, d, W, H) {
+    const b = d.bg; c.save();
+    if (b.k === 'grad') { const a = (b.a || 135) * Math.PI / 180, r = Math.hypot(W, H) / 2, gr = c.createLinearGradient(W / 2 - Math.cos(a) * r, H / 2 - Math.sin(a) * r, W / 2 + Math.cos(a) * r, H / 2 + Math.sin(a) * r); gr.addColorStop(0, b.c1); gr.addColorStop(1, b.c2); c.fillStyle = gr; c.fillRect(0, 0, W, H); }
+    else { c.fillStyle = b.c1; c.fillRect(0, 0, W, H); c.fillStyle = b.c2; c.strokeStyle = b.c2;
+        if (b.k === 'dots') for (let y = 20; y < H; y += 50) for (let x = (y / 50 % 2) * 25 + 20; x < W; x += 50) { c.beginPath(); c.arc(x, y, 6, 0, 7); c.fill(); }
+        if (b.k === 'stripes') { c.lineWidth = 30; for (let x = -H; x < W; x += 80) { c.beginPath(); c.moveTo(x, H); c.lineTo(x + H, 0); c.stroke(); } }
+        if (b.k === 'grid') { c.lineWidth = 2; for (let x = 0; x < W; x += 40) { c.beginPath(); c.moveTo(x, 0); c.lineTo(x, H); c.stroke(); } for (let y = 0; y < H; y += 40) { c.beginPath(); c.moveTo(0, y); c.lineTo(W, y); c.stroke(); } }
+        if (b.k === 'noise') { for (let i = 0; i < W * H / 300; i++) { c.globalAlpha = Math.random() * .3; c.fillRect(Math.random() * W, Math.random() * H, 3, 3); } c.globalAlpha = 1; } }
+    c.restore();
+}
+function shapePath(c, e) {
+    const w = e.w, h = e.h, t = e.t; c.beginPath();
+    if (t === 'rect') c.rect(0, 0, w, h);
+    else if (t === 'round') { const r = Math.min(e.rad || 30, w / 2, h / 2); c.roundRect ? c.roundRect(0, 0, w, h, r) : c.rect(0, 0, w, h); }
+    else if (t === 'ellipse' || t === 'ring') { c.ellipse(w / 2, h / 2, Math.abs(w / 2), Math.abs(h / 2), 0, 0, Math.PI * 2); if (t === 'ring') c.ellipse(w / 2, h / 2, Math.abs(w * .32), Math.abs(h * .32), 0, 0, Math.PI * 2, true); }
+    else if (t === 'tri') { c.moveTo(w / 2, 0); c.lineTo(w, h); c.lineTo(0, h); c.closePath(); }
+    else if (t === 'diamond') { c.moveTo(w / 2, 0); c.lineTo(w, h / 2); c.lineTo(w / 2, h); c.lineTo(0, h / 2); c.closePath(); }
+    else if (t === 'star' || t === 'burst') { const n = t === 'star' ? 5 : 14, ir = t === 'star' ? .45 : .72; for (let i = 0; i < n * 2; i++) { const a = -Math.PI / 2 + i * Math.PI / n, r = i % 2 ? ir : 1; c.lineTo(w / 2 + Math.cos(a) * w / 2 * r, h / 2 + Math.sin(a) * h / 2 * r); } c.closePath(); }
+    else if (t === 'poly') { const n = e.sides || 6; for (let i = 0; i < n; i++) { const a = -Math.PI / 2 + i * Math.PI * 2 / n; c.lineTo(w / 2 + Math.cos(a) * w / 2, h / 2 + Math.sin(a) * h / 2); } c.closePath(); }
+    else if (t === 'heart') { c.moveTo(w / 2, h * .95); c.bezierCurveTo(-w * .1, h * .55, w * .05, -h * .1, w / 2, h * .25); c.bezierCurveTo(w * .95, -h * .1, w * 1.1, h * .55, w / 2, h * .95); }
+    else if (t === 'arrow') { c.moveTo(0, h * .3); c.lineTo(w * .6, h * .3); c.lineTo(w * .6, 0); c.lineTo(w, h / 2); c.lineTo(w * .6, h); c.lineTo(w * .6, h * .7); c.lineTo(0, h * .7); c.closePath(); }
+    else if (t === 'cross') { const k = .33; c.moveTo(w * k, 0); c.lineTo(w * (1 - k), 0); c.lineTo(w * (1 - k), h * k); c.lineTo(w, h * k); c.lineTo(w, h * (1 - k)); c.lineTo(w * (1 - k), h * (1 - k)); c.lineTo(w * (1 - k), h); c.lineTo(w * k, h); c.lineTo(w * k, h * (1 - k)); c.lineTo(0, h * (1 - k)); c.lineTo(0, h * k); c.lineTo(w * k, h * k); c.closePath(); }
+    else if (t === 'moon') { c.arc(w / 2, 0, Math.min(w, h * 2) / 2, 0, Math.PI); c.closePath(); }
+    else if (t === 'blob') { c.moveTo(w * .2, h * .8); c.bezierCurveTo(-w * .1, h * .8, -w * .05, h * .3, w * .25, h * .35); c.bezierCurveTo(w * .25, 0, w * .7, -h * .05, w * .72, h * .3); c.bezierCurveTo(w * 1.05, h * .25, w * 1.1, h * .85, w * .8, h * .8); c.closePath(); }
+    else if (t === 'bubble') { const r = Math.min(40, h / 3); c.roundRect ? c.roundRect(0, 0, w, h * .8, r) : c.rect(0, 0, w, h * .8); c.moveTo(w * .3, h * .79); c.lineTo(w * .22, h); c.lineTo(w * .45, h * .79); }
+    else if (t === 'tshirt') { c.moveTo(w * .3, 0); c.quadraticCurveTo(w / 2, h * .1, w * .7, 0); c.lineTo(w, h * .15); c.lineTo(w * .88, h * .35); c.lineTo(w * .78, h * .3); c.lineTo(w * .78, h); c.lineTo(w * .22, h); c.lineTo(w * .22, h * .3); c.lineTo(w * .12, h * .35); c.lineTo(0, h * .15); c.closePath(); }
+    else if (t === 'hoodie') { c.moveTo(w * .32, h * .08); c.quadraticCurveTo(w / 2, -h * .08, w * .68, h * .08); c.lineTo(w, h * .25); c.lineTo(w * .92, h * .95); c.lineTo(w * .8, h * .95); c.lineTo(w * .8, h); c.lineTo(w * .2, h); c.lineTo(w * .2, h * .95); c.lineTo(w * .08, h * .95); c.lineTo(0, h * .25); c.closePath(); }
+    else if (t === 'cap') { c.moveTo(0, h * .75); c.quadraticCurveTo(w * .05, 0, w * .6, h * .05); c.quadraticCurveTo(w * .95, h * .15, w * .9, h * .7); c.lineTo(w, h * .85); c.quadraticCurveTo(w * .5, h * 1.05, 0, h * .75); }
+    else if (t === 'sneaker') { c.moveTo(0, h * .85); c.lineTo(0, h * .35); c.quadraticCurveTo(w * .1, h * .3, w * .2, h * .05); c.lineTo(w * .42, 0); c.quadraticCurveTo(w * .5, h * .35, w * .7, h * .45); c.quadraticCurveTo(w, h * .5, w, h * .85); c.closePath(); }
+    else if (t === 'car') { c.moveTo(0, h * .8); c.lineTo(0, h * .5); c.lineTo(w * .2, h * .45); c.lineTo(w * .35, h * .1); c.lineTo(w * .7, h * .1); c.lineTo(w * .85, h * .45); c.lineTo(w, h * .52); c.lineTo(w, h * .8); c.closePath(); }
+    else if (t === 'line') { c.moveTo(0, 0); c.lineTo(w, h); }
+}
+function measureText(c, e) {
+    c.font = `${e.italic ? 'italic ' : ''}${e.bold ? 'bold ' : ''}${e.size}px "${e.font}"`; if ('letterSpacing' in c) c.letterSpacing = (e.ls || 0) + 'px';
+    const lines = String(e.text).split('\n'); let mw = 0; for (const l of lines) mw = Math.max(mw, c.measureText(l).width); e.w = mw; e.h = e.size * 1.15 * lines.length;
+    if (e.anchor) { if (e.align !== 'left') e.x -= e.w / 2; e.y -= e.h / 2; delete e.anchor; }
+}
+function drawEl(c, e) {
+    if (e.t === 'text') measureText(c, e);
+    c.save(); c.globalAlpha = e.op ?? 1; c.translate(e.x + e.w / 2, e.y + e.h / 2); c.rotate((e.rot || 0) * Math.PI / 180); if (e.flip) c.scale(-1, 1); c.translate(-e.w / 2, -e.h / 2);
+    if (e.shadow) { c.shadowColor = 'rgba(0,0,0,.45)'; c.shadowBlur = e.shadow; c.shadowOffsetY = e.shadow / 3; }
+    if (e.t === 'text') {
+        c.font = `${e.italic ? 'italic ' : ''}${e.bold ? 'bold ' : ''}${e.size}px "${e.font}"`; c.textBaseline = 'middle'; c.textAlign = 'left'; if ('letterSpacing' in c) c.letterSpacing = (e.ls || 0) + 'px';
+        const lines = String(e.text).split('\n'), lh = e.size * 1.15; let mw = 0; for (const l of lines) mw = Math.max(mw, c.measureText(l).width); e.w = mw; e.h = lh * lines.length;
+        lines.forEach((l, i) => { const lw = c.measureText(l).width, x = e.align === 'left' ? 0 : e.align === 'right' ? mw - lw : (mw - lw) / 2, y = lh * (i + .5);
+            if (e.sw && e.stroke) { c.lineWidth = e.sw; c.strokeStyle = e.stroke; c.lineJoin = 'round'; c.strokeText(l, x, y); } c.fillStyle = e.fill; c.fillText(l, x, y); });
+    } else if (e.t === 'emoji') { c.font = `${e.h * .86}px "Apple Color Emoji","Segoe UI Emoji","Noto Color Emoji",sans-serif`; c.textBaseline = 'middle'; c.textAlign = 'center'; c.fillText(e.text, e.w / 2, e.h / 2); }
+    else if (e.t === 'image') { const im = IMG[e.src] || (IMG[e.src] = Object.assign(new Image(), { src: e.src, onload: render })); if (im.complete) c.drawImage(im, 0, 0, e.w, e.h); }
+    else if (e.t === 'path') { c.lineCap = c.lineJoin = 'round'; c.strokeStyle = e.fill; c.lineWidth = e.sw || 8; c.beginPath(); e.pts.forEach(([x, y], i) => i ? c.lineTo(x - e.x, y - e.y) : c.moveTo(x - e.x, y - e.y)); c.stroke(); }
+    else {
+        shapePath(c, e);
+        if (e.t !== 'line') { if (e.fill2) { const gr = c.createLinearGradient(0, 0, e.w, e.h); gr.addColorStop(0, e.fill); gr.addColorStop(1, e.fill2); c.fillStyle = gr; } else c.fillStyle = e.fill; c.fill('evenodd'); }
+        c.shadowColor = 'transparent'; if ((e.sw && e.stroke) || e.t === 'line') { c.lineWidth = e.sw || 6; c.strokeStyle = e.stroke || e.fill; c.lineJoin = 'round'; c.stroke(); }
+        if (e.t === 'sneaker') { c.fillStyle = '#ffffff'; c.fillRect(0, e.h * .78, e.w, e.h * .1); } if (e.t === 'car') { c.fillStyle = '#111827'; for (const k of [.22, .78]) { c.beginPath(); c.arc(e.w * k, e.h * .82, e.h * .17, 0, 7); c.fill(); } c.fillStyle = 'rgba(186,230,253,.8)'; c.fillRect(e.w * .4, e.h * .17, e.w * .13, e.h * .25); c.fillRect(e.w * .56, e.h * .17, e.w * .12, e.h * .25); }
+    }
+    c.restore();
+}
+function paintDoc(c, d) { bgPaint(c, d, d.w, d.h); for (const e of d.els) drawEl(c, e); }
+function layout() {
+    const st = $('stage'), W = st.clientWidth, H = st.clientHeight, fitS = Math.min((W - 60) / doc.w, (H - 60) / doc.h);
+    view.s = fitS * zoom; const dw = doc.w * view.s, dh = doc.h * view.s; view.x = (W - dw) / 2; view.y = (H - dh) / 2;
+    const dpr = Math.min(2, devicePixelRatio || 1);
+    cv.width = doc.w; cv.height = doc.h; cv.style.width = dw + 'px'; cv.style.height = dh + 'px'; cv.style.left = view.x + 'px'; cv.style.top = view.y + 'px';
+    ov.width = W * dpr; ov.height = H * dpr; ov.style.width = W + 'px'; ov.style.height = H + 'px'; o.setTransform(dpr, 0, 0, dpr, 0, 0);
+}
+function render() { if (!doc) return; g.setTransform(1, 0, 0, 1, 0, 0); g.clearRect(0, 0, doc.w, doc.h); paintDoc(g, doc); overlay(); }
+const byId = id => doc.els.find(e => e.id === id);
+function corners(e) { const a = (e.rot || 0) * Math.PI / 180, cx = e.x + e.w / 2, cy = e.y + e.h / 2, c = Math.cos(a), s = Math.sin(a); return [[-.5, -.5], [.5, -.5], [.5, .5], [-.5, .5]].map(([u, v]) => [cx + u * e.w * c - v * e.h * s, cy + u * e.w * s + v * e.h * c]); }
+const toScreen = (x, y) => [view.x + x * view.s, view.y + y * view.s], toDoc = (x, y) => [(x - view.x) / view.s, (y - view.y) / view.s];
+function overlay() {
+    const W = ov.width, H = ov.height; o.clearRect(0, 0, W, H);
+    for (const id of sel) { const e = byId(id); if (!e) continue; const P = corners(e).map(p => toScreen(...p));
+        o.strokeStyle = '#7c3aed'; o.lineWidth = 1.5; o.beginPath(); P.forEach((p, i) => i ? o.lineTo(...p) : o.moveTo(...p)); o.closePath(); o.stroke();
+        if (sel.length === 1) { for (const p of handles(e)) { o.fillStyle = '#fff'; o.strokeStyle = '#7c3aed'; o.beginPath(); o.arc(p.x, p.y, p.k === 'rot' ? 7 : 5.5, 0, 7); o.fill(); o.stroke(); } } }
+    if (drawPts) { o.strokeStyle = brush.c; o.lineWidth = brush.w * view.s; o.lineCap = o.lineJoin = 'round'; o.beginPath(); drawPts.forEach(([x, y], i) => { const [a, b] = toScreen(x, y); i ? o.lineTo(a, b) : o.moveTo(a, b); }); o.stroke(); }
+}
+function handles(e) { const P = corners(e).map(p => toScreen(...p)), mid = (a, b) => [(a[0] + b[0]) / 2, (a[1] + b[1]) / 2]; const top = mid(P[0], P[1]), cx = (P[0][0] + P[2][0]) / 2, cy = (P[0][1] + P[2][1]) / 2, dx = top[0] - cx, dy = top[1] - cy, l = Math.hypot(dx, dy) || 1;
+    return [{ k: 'nw', x: P[0][0], y: P[0][1] }, { k: 'ne', x: P[1][0], y: P[1][1] }, { k: 'se', x: P[2][0], y: P[2][1] }, { k: 'sw', x: P[3][0], y: P[3][1] }, { k: 'rot', x: top[0] + dx / l * 28, y: top[1] + dy / l * 28 }]; }
+function hit(x, y) { for (let i = doc.els.length - 1; i >= 0; i--) { const e = doc.els[i]; if (e.lock) continue; const a = -(e.rot || 0) * Math.PI / 180, cx = e.x + e.w / 2, cy = e.y + e.h / 2, dx = x - cx, dy = y - cy, u = dx * Math.cos(a) - dy * Math.sin(a), v = dx * Math.sin(a) + dy * Math.cos(a), pad = 8 / view.s; if (Math.abs(u) <= Math.abs(e.w) / 2 + pad && Math.abs(v) <= Math.abs(e.h) / 2 + pad) return e; } return null; }
+// ---- mouse ----
+let drag = null, drawPts = null; const brush = { c: '#111827', w: 10 };
+ov.addEventListener('pointerdown', ev => {
+    const r = ov.getBoundingClientRect(), sx = ev.clientX - r.left, sy = ev.clientY - r.top, [x, y] = toDoc(sx, sy); ov.setPointerCapture(ev.pointerId); hideEdit();
+    if (tool === 'draw') { drawPts = [[x, y]]; return; }
+    if (sel.length === 1) { const e = byId(sel[0]); for (const h of handles(e)) if (Math.hypot(h.x - sx, h.y - sy) < 9) { drag = { k: h.k, e, start: clone(e), sx, sy }; return; } }
+    const e = hit(x, y);
+    if (e) { if (ev.shiftKey) sel = sel.includes(e.id) ? sel.filter(i => i !== e.id) : sel.concat(e.id); else if (!sel.includes(e.id)) sel = [e.id]; drag = { k: 'move', x, y, starts: sel.map(id => clone(byId(id))), moved: false }; }
+    else { sel = []; }
+    props(); overlay();
+});
+ov.addEventListener('pointermove', ev => {
+    const r = ov.getBoundingClientRect(), sx = ev.clientX - r.left, sy = ev.clientY - r.top, [x, y] = toDoc(sx, sy);
+    if (drawPts) { drawPts.push([x, y]); overlay(); return; }
+    if (!drag) { let cur = 'default'; if (sel.length === 1) { const hs = handles(byId(sel[0])); for (const h of hs) if (Math.hypot(h.x - sx, h.y - sy) < 9) cur = h.k === 'rot' ? 'grab' : 'nwse-resize'; } if (cur === 'default' && hit(x, y)) cur = 'move'; ov.style.cursor = cur; return; }
+    if (!drag.moved) { commit(); drag.moved = true; }
+    if (drag.k === 'move') { drag.starts.forEach(s => { const e = byId(s.id); let nx = s.x + x - drag.x, ny = s.y + y - drag.y; if (snap) { nx = Math.round(nx / 20) * 20; ny = Math.round(ny / 20) * 20; } e.x = nx; e.y = ny; if (e.pts) e.pts = s.pts.map(([px, py]) => [px + nx - s.x, py + ny - s.y]); }); }
+    else if (drag.k === 'rot') { const e = drag.e, [cx, cy] = toScreen(e.x + e.w / 2, e.y + e.h / 2); let a = Math.atan2(sy - cy, sx - cx) * 180 / Math.PI + 90; if (ev.shiftKey) a = Math.round(a / 15) * 15; e.rot = Math.round(a); }
+    else { const e = drag.e, s = drag.start, a = (s.rot || 0) * Math.PI / 180, dxs = (sx - drag.sx) / view.s, dys = (sy - drag.sy) / view.s, du = dxs * Math.cos(a) + dys * Math.sin(a), dv = -dxs * Math.sin(a) + dys * Math.cos(a);
+        const sxk = drag.k.includes('e') ? 1 : -1, syk = drag.k.includes('s') ? 1 : -1; let nw = Math.max(8, s.w + du * sxk), nh = Math.max(8, s.h + dv * syk);
+        if (e.t === 'emoji' || e.t === 'text' || ev.shiftKey) { const k = Math.max(nw / s.w, nh / s.h); nw = s.w * k; nh = s.h * k; }
+        if (e.t === 'text') { e.size = Math.max(6, Math.round(s.size * nw / s.w)); }
+        else { const cxo = (nw - s.w) / 2 * sxk, cyo = (nh - s.h) / 2 * syk; e.w = nw; e.h = nh; e.x = s.x + s.w / 2 + cxo * Math.cos(a) - cyo * Math.sin(a) - nw / 2; e.y = s.y + s.h / 2 + cxo * Math.sin(a) + cyo * Math.cos(a) - nh / 2; } }
+    render(); props(true);
+});
+ov.addEventListener('pointerup', () => {
+    if (drawPts && drawPts.length > 1) { commit(); const xs = drawPts.map(p => p[0]), ys = drawPts.map(p => p[1]), x0 = Math.min(...xs), y0 = Math.min(...ys); add({ t: 'path', pts: drawPts, x: x0, y: y0, w: Math.max(...xs) - x0 || 1, h: Math.max(...ys) - y0 || 1, fill: brush.c, sw: brush.w }, true); }
+    drawPts = null; drag = null; overlay();
+});
+ov.addEventListener('dblclick', ev => { const r = ov.getBoundingClientRect(), [x, y] = toDoc(ev.clientX - r.left, ev.clientY - r.top), e = hit(x, y); if (e && e.t === 'text') editText(e); });
+let snap = false;
+// ---- text editing in place ----
+const ed = $('edit');
+function editText(e) { sel = [e.id]; const [x, y] = toScreen(e.x, e.y); Object.assign(ed.style, { left: x + 'px', top: y + 'px', width: Math.max(160, e.w * view.s + 30) + 'px', height: Math.max(40, e.h * view.s + 20) + 'px', fontSize: Math.max(12, e.size * view.s) + 'px', fontFamily: e.font }); ed.value = e.text; ed.classList.remove('hidden'); ed.focus(); ed.select(); ed.dataset.id = e.id; }
+function hideEdit() { if (ed.classList.contains('hidden')) return; const e = byId(+ed.dataset.id); if (e && e.text !== ed.value) { commit(); e.text = ed.value || ' '; } ed.classList.add('hidden'); render(); props(); }
+ed.addEventListener('keydown', ev => { ev.stopPropagation(); if (ev.key === 'Escape' || (ev.key === 'Enter' && (ev.ctrlKey || ev.metaKey))) hideEdit(); });
+ed.addEventListener('blur', hideEdit);
+// ---- adding things ----
+function add(e, noCommit) { if (!noCommit) commit(); e.id = nextId++; Object.assign(e, Object.assign(defaults(e), e)); doc.els.push(e); sel = [e.id]; tool = 'select'; render(); props(); paintLib(); return e; }
+function center(w, h) { return { x: doc.w / 2 - w / 2, y: doc.h / 2 - h / 2 }; }
+function addShape(t) { const s = Math.min(doc.w, doc.h) * .35, P = PALETTES[0]; add(Object.assign({ t, w: t === 'line' ? s : s, h: t === 'line' ? 0 : (t === 'arrow' ? s * .55 : t === 'bubble' ? s * .7 : s), fill: P[Math.floor(Math.random() * 5)] }, center(s, s), t === 'line' ? { stroke: '#111827', sw: 8 } : {})); }
+function addText(kind) { const size = kind === 'h' ? Math.round(doc.w * .09) : kind === 's' ? Math.round(doc.w * .05) : Math.round(doc.w * .035); const e = add(Object.assign({ t: 'text', text: kind === 'h' ? 'Add a heading' : kind === 's' ? 'Add a subheading' : 'Add a little bit of body text', size, font: kind === 'b' ? 'Helvetica' : 'Arial Black', fill: '#111827', w: 10, h: 10 }, center(0, 0))); render(); e.x = doc.w / 2 - e.w / 2; e.y = doc.h / 2 - e.h / 2; render(); }
+function addEmoji(ch) { const s = Math.min(doc.w, doc.h) * .25; add(Object.assign({ t: 'emoji', text: ch, w: s, h: s }, center(s, s))); }
+// ---- side panel ----
+const TABS = [['tpl', '🧩', 'Templates'], ['shapes', '⬟', 'Shapes'], ['text', 'T', 'Text'], ['emoji', '😀', 'Stickers'], ['bg', '🎨', 'Backdrop'], ['draw', '✏️', 'Draw'], ['up', '🖼️', 'Upload'], ['mine', '📁', 'My designs']];
+let libTab = 'tpl', emoQ = '';
+function paintLib() {
+    $('tabs').innerHTML = TABS.map(([k, i, n]) => `<button class="${libTab === k ? 'on' : ''}" data-t="${k}"><b>${i}</b>${n}</button>`).join('');
+    $('tabs').querySelectorAll('[data-t]').forEach(b => b.onclick = () => { libTab = b.dataset.t; tool = libTab === 'draw' ? 'draw' : 'select'; paintLib(); });
+    const L = $('lib'); let h = '';
+    if (libTab === 'tpl') { const cats = [...new Set(TEMPLATES.map(t => t.cat))]; h = cats.map(c => `<h3>${c}</h3><div class="grid">${TEMPLATES.map((t, i) => t.cat === c ? `<div class="tile" data-tpl="${i}"><canvas data-pv="${i}"></canvas>${t.n}</div>` : '').join('')}</div>`).join(''); }
+    else if (libTab === 'shapes') h = `<h3>Shapes</h3><div class="grid g3">${SHAPES.map(([k, n]) => `<div class="tile" data-shape="${k}" style="font-size:13px;padding:12px 4px">${n}</div>`).join('')}</div><h3>Colour palettes</h3>${PALETTES.map((p, i) => `<div class="grid g4" style="grid-template-columns:repeat(5,1fr);margin-bottom:6px">${p.map(c => `<div class="sw" style="background:${c}" data-col="${c}"></div>`).join('')}</div>`).join('')}<p style="color:var(--dim)">Click a colour to paint what you have selected.</p>`;
+    else if (libTab === 'text') h = `<h3>Text</h3><div class="tile" data-text="h" style="font:900 22px Arial Black;padding:14px">Add a heading</div><div class="tile" data-text="s" style="font:700 16px Arial;padding:12px;margin-top:6px">Add a subheading</div><div class="tile" data-text="b" style="font:13px Helvetica;padding:10px;margin-top:6px">Add body text</div><h3>Fonts</h3>${FONTS.map(f => `<div class="tile" data-font="${f}" style="font-family:'${f}';font-size:17px;margin-bottom:4px">${f}</div>`).join('')}`;
+    else if (libTab === 'emoji') { h = `<input type="search" id="emoq" placeholder="Search: cat, pizza, star..." value="${emoQ}">` + Object.entries(EMOJI).map(([c, s]) => { const list = segOf(s).filter(ch => ch.trim()); return `<h3>${c} (${list.length})</h3><div class="grid g4" style="grid-template-columns:repeat(6,1fr)">${list.map(ch => `<button class="emo" data-emo="${ch}">${ch}</button>`).join('')}</div>`; }).join(''); }
+    else if (libTab === 'bg') h = `<h3>Backdrops</h3><div class="grid g3">${BGS.map((b, i) => `<div class="tile" data-bg="${i}"><canvas data-bgp="${i}" width="80" height="60"></canvas></div>`).join('')}</div><h3>Your colours</h3><label>Colour 1 <input type="color" id="bgc1" value="${doc.bg.c1}"></label><br><label>Colour 2 <input type="color" id="bgc2" value="${doc.bg.c2 || doc.bg.c1}"></label><br><label>Style <select id="bgk">${['solid', 'grad', 'dots', 'stripes', 'grid', 'noise'].map(k => `<option ${doc.bg.k === k ? 'selected' : ''}>${k}</option>`).join('')}</select></label><h3>Page size</h3><label>Width <input type="number" id="pw" value="${doc.w}" min="100" max="4000"></label><br><label>Height <input type="number" id="ph" value="${doc.h}" min="100" max="4000"></label>`;
+    else if (libTab === 'draw') h = `<h3>Freehand brush</h3><p>Draw on the page. Each stroke is its own piece you can move later.</p><label>Colour <input type="color" id="brc" value="${brush.c}"></label><br><label>Size <input type="range" id="brw" min="2" max="80" value="${brush.w}"></label><div class="grid g4" style="grid-template-columns:repeat(5,1fr);margin-top:10px">${PALETTES[2].concat(PALETTES[1]).map(c => `<div class="sw" style="background:${c}" data-brc="${c}"></div>`).join('')}</div>`;
+    else if (libTab === 'up') h = `<h3>Your pictures</h3><p>Add a picture from your device. Big pictures are shrunk so your design can be saved.</p><input type="file" id="upf" accept="image/*">`;
+    else if (libTab === 'mine') h = `<h3>My designs (${STORE.designs.length})</h3>${STORE.designs.length ? '' : '<p>Nothing saved yet. Press Save at the top.</p>'}<div class="grid">${STORE.designs.map((d, i) => `<div class="tile" data-mine="${i}"><canvas data-mpv="${i}"></canvas>${esc(d.name)}<br><small>${new Date(d.at).toLocaleDateString()}</small> <a href="#" data-del="${i}" style="color:#dc2626">delete</a></div>`).join('')}</div>`;
+    L.innerHTML = h;
+    L.querySelectorAll('canvas[data-pv]').forEach(c => thumb(c, fresh(TEMPLATES[+c.dataset.pv]), 130));
+    L.querySelectorAll('canvas[data-mpv]').forEach(c => thumb(c, STORE.designs[+c.dataset.mpv].doc, 130));
+    L.querySelectorAll('canvas[data-bgp]').forEach(c => { const b = BGS[+c.dataset.bgp]; bgPaint(c.getContext('2d'), { bg: { k: b[0], c1: b[1], c2: b[2], a: 135 } }, 80, 60); });
+    const on = (sel2, f) => L.querySelectorAll(sel2).forEach(b => b.onclick = ev => { ev.preventDefault(); f(b); });
+    on('[data-tpl]', b => askNew(() => load(fresh(TEMPLATES[+b.dataset.tpl]))));
+    on('[data-shape]', b => addShape(b.dataset.shape)); on('[data-text]', b => addText(b.dataset.text)); on('[data-emo]', b => addEmoji(b.dataset.emo));
+    on('[data-font]', b => { const e = sel.map(byId).find(x => x && x.t === 'text'); if (e) { commit(); sel.map(byId).forEach(x => { if (x && x.t === 'text') x.font = b.dataset.font; }); render(); props(); } else { addText('s'); byId(sel[0]).font = b.dataset.font; render(); } });
+    on('[data-col]', b => { if (!sel.length) return; commit(); sel.map(byId).forEach(e => { if (e) e.fill = b.dataset.col; }); render(); props(); });
+    on('[data-bg]', b => { commit(); const B = BGS[+b.dataset.bg]; doc.bg = { k: B[0], c1: B[1], c2: B[2], a: 135 }; render(); paintLib(); });
+    on('[data-brc]', b => { brush.c = b.dataset.brc; paintLib(); });
+    on('[data-mine]', b => askNew(() => { const d = STORE.designs[+b.dataset.mine]; curId = d.id; load(clone(d.doc), true); }));
+    on('[data-del]', b => { if (confirm('Delete this design?')) { STORE.designs.splice(+b.dataset.del, 1); persist(); paintLib(); } });
+    const q = $('emoq'); if (q) { q.oninput = () => { emoQ = q.value; filterEmoji(q.value); }; q.onkeydown = ev => ev.stopPropagation(); if (emoQ) filterEmoji(emoQ); }
+    const bind = (id, f) => { const el = $(id); if (el) { el.oninput = () => f(el.value); el.onkeydown = ev => ev.stopPropagation(); } };
+    bind('bgc1', v => { doc.bg.c1 = v; render(); }); bind('bgc2', v => { doc.bg.c2 = v; render(); }); bind('bgk', v => { commit(); doc.bg.k = v; render(); });
+    bind('pw', v => { doc.w = Math.max(100, Math.min(4000, +v || doc.w)); layout(); render(); }); bind('ph', v => { doc.h = Math.max(100, Math.min(4000, +v || doc.h)); layout(); render(); });
+    bind('brc', v => { brush.c = v; }); bind('brw', v => { brush.w = +v; });
+    const up = $('upf'); if (up) up.onchange = () => { const f = up.files[0]; if (!f) return; const rd = new FileReader(); rd.onload = () => { const im = new Image(); im.onload = () => { const k = Math.min(1, 900 / Math.max(im.width, im.height)), c = document.createElement('canvas'); c.width = im.width * k; c.height = im.height * k; c.getContext('2d').drawImage(im, 0, 0, c.width, c.height); const src = c.toDataURL('image/jpeg', .82), s = Math.min(doc.w, doc.h) * .5 / Math.max(c.width, c.height); add(Object.assign({ t: 'image', src, w: c.width * s, h: c.height * s }, center(c.width * s, c.height * s))); }; im.src = rd.result; }; rd.readAsDataURL(f); };
+}
+// a few words for each emoji group, so a search finds something
+const EMO_WORDS = { cat: '🐱😺😸😹😻😼😽🙀😿😾🐈', dog: '🐶🐕🐩', pizza: '🍕', taco: '🌮', star: '⭐🌟✨💫', heart: '❤️🧡💛💚💙💜🖤🤍🤎💕💞💓💗💖💘💝', fire: '🔥', sun: '☀️🌞', moon: '🌙🌛🌜🌝🌚', flower: '🌷🌹🌺🌸🌼🌻💐', car: '🚗🚕🚙🏎️🚓', ball: '⚽🏀🏈⚾🎾🏐', food: '🍔🍟🍕🌮🌯🍣🍜🍩🍪🎂', music: '🎵🎶🎤🎧🎸🎹🥁🎷🎺🎻', party: '🎉🎊🎈🎁🎂🥳', smile: '😀😃😄😁😊🙂', sad: '😢😭😞😔', cool: '😎🆒', ghost: '👻', robot: '🤖', money: '💰💵💸💎', tree: '🌲🌳🌴🎄', water: '💧🌊💦', snow: '❄️☃️⛄', rocket: '🚀🛸' };
+function filterEmoji(q) { q = q.trim().toLowerCase(); const want = q ? Object.keys(EMO_WORDS).filter(k => k.includes(q) || q.includes(k)).map(k => EMO_WORDS[k]).join('') : null; $('lib').querySelectorAll('.emo').forEach(b => b.classList.toggle('hidden', !!q && !(want && want.includes(b.dataset.emo)))); }
+function thumb(c, d, w) { const k = w / Math.max(d.w, d.h); c.width = d.w * k; c.height = d.h * k; const x = c.getContext('2d'); x.scale(k, k); paintDoc(x, d); }
+const esc = s => String(s).replace(/[&<>"]/g, ch => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[ch]));
+// ---- properties of what is selected ----
+function props(light) {
+    const P = $('props'); const els = sel.map(byId).filter(Boolean);
+    if (!els.length) { if (!light) P.innerHTML = `<h3>Page</h3><p style="color:var(--dim)">${doc.w} × ${doc.h}. Click something to change it, or pick a template, shape, text or sticker on the left.</p><div class="row"><button class="pb ${snap ? 'on' : ''}" id="snapb">Snap to grid</button></div><h3>Shortcuts</h3><p style="color:var(--dim);line-height:1.7">Delete: remove · Ctrl+Z / Ctrl+Y · Ctrl+D duplicate · arrows nudge (SHIFT: more) · [ ] layer order · double-click text to edit · SHIFT while resizing keeps the shape</p>`; const sb = $('snapb'); if (sb) sb.onclick = () => { snap = !snap; props(); }; return; }
+    if (light && document.activeElement && P.contains(document.activeElement)) return;
+    const e = els[0], isT = e.t === 'text', isShape = !['text', 'emoji', 'image', 'path'].includes(e.t);
+    let h = `<h3>${els.length > 1 ? els.length + ' things' : { text: 'Text', emoji: 'Sticker', image: 'Picture', path: 'Drawing' }[e.t] || 'Shape'}</h3>`;
+    if (isT && els.length === 1) h += `<label>Text <input type="text" id="p-text" value="${esc(e.text)}"></label><label>Font <select id="p-font">${FONTS.map(f => `<option ${e.font === f ? 'selected' : ''}>${f}</option>`).join('')}</select></label><label>Size <input type="number" id="p-size" value="${e.size}" min="6" max="1000"></label><div class="row"><button class="pb ${e.bold ? 'on' : ''}" id="p-b"><b>B</b></button><button class="pb ${e.italic ? 'on' : ''}" id="p-i"><i>I</i></button>${['left', 'center', 'right'].map(a => `<button class="pb ${e.align === a ? 'on' : ''}" data-al="${a}">${a}</button>`).join('')}</div><label>Letter spacing <input type="range" id="p-ls" min="-10" max="60" value="${e.ls || 0}"></label>`;
+    if (e.t !== 'emoji' && e.t !== 'image') h += `<label>${e.t === 'path' ? 'Colour' : 'Fill'} <input type="color" id="p-fill" value="${/^#/.test(e.fill) ? e.fill : '#000000'}"></label>`;
+    if (isShape) h += `<label>Gradient to <input type="color" id="p-fill2" value="${e.fill2 || e.fill}"></label><div class="row"><button class="pb" id="p-nog">No gradient</button></div>`;
+    if (isShape || isT) h += `<label>Outline <input type="color" id="p-stroke" value="${e.stroke || '#000000'}"></label><label>Outline width <input type="range" id="p-sw" min="0" max="40" value="${e.sw || 0}"></label>`;
+    if (e.t === 'path') h += `<label>Brush size <input type="range" id="p-sw" min="1" max="80" value="${e.sw || 8}"></label>`;
+    if (e.t === 'round') h += `<label>Corners <input type="range" id="p-rad" min="0" max="300" value="${e.rad || 30}"></label>`;
+    if (e.t === 'poly') h += `<label>Sides <input type="range" id="p-sides" min="3" max="12" value="${e.sides || 6}"></label>`;
+    h += `<label>Opacity <input type="range" id="p-op" min="0.05" max="1" step="0.05" value="${e.op ?? 1}"></label><label>Rotate <input type="range" id="p-rot" min="-180" max="180" value="${e.rot || 0}"></label><label>Shadow <input type="range" id="p-sh" min="0" max="60" value="${e.shadow || 0}"></label>`;
+    h += `<div class="row"><button class="pb" id="p-dup">Duplicate</button><button class="pb" id="p-del">Delete</button></div><div class="row"><button class="pb" id="p-front">To front</button><button class="pb" id="p-back">To back</button></div><div class="row"><button class="pb" id="p-flip">Flip</button><button class="pb" id="p-cx">Center</button><button class="pb ${e.lock ? 'on' : ''}" id="p-lock">${e.lock ? 'Locked' : 'Lock'}</button></div>`;
+    P.innerHTML = h;
+    const set = (id, f, num) => { const el = $(id); if (!el) return; el.onfocus = () => commit(); el.oninput = () => { els.forEach(x => f(x, num ? +el.value : el.value)); render(); }; el.onkeydown = ev => ev.stopPropagation(); };
+    set('p-text', (x, v) => x.text = v); set('p-font', (x, v) => x.font = v); set('p-size', (x, v) => x.size = v, 1); set('p-ls', (x, v) => x.ls = v, 1);
+    set('p-fill', (x, v) => x.fill = v); set('p-fill2', (x, v) => x.fill2 = v); set('p-stroke', (x, v) => x.stroke = v); set('p-sw', (x, v) => x.sw = v, 1); set('p-rad', (x, v) => x.rad = v, 1); set('p-sides', (x, v) => x.sides = v, 1);
+    set('p-op', (x, v) => x.op = v, 1); set('p-rot', (x, v) => x.rot = v, 1); set('p-sh', (x, v) => x.shadow = v, 1);
+    const click = (id, f) => { const el = $(id); if (el) el.onclick = () => { commit(); f(); render(); props(); }; };
+    click('p-b', () => els.forEach(x => x.bold = !x.bold)); click('p-i', () => els.forEach(x => x.italic = !x.italic)); click('p-nog', () => els.forEach(x => x.fill2 = ''));
+    P.querySelectorAll('[data-al]').forEach(b => b.onclick = () => { commit(); els.forEach(x => x.align = b.dataset.al); render(); props(); });
+    click('p-dup', duplicate); click('p-del', remove); click('p-front', () => order(1)); click('p-back', () => order(-1));
+    click('p-flip', () => els.forEach(x => { if (x.t === 'path') { const cx = x.x + x.w / 2; x.pts = x.pts.map(([a, b]) => [2 * cx - a, b]); } else x.flip = !x.flip; }));
+    click('p-cx', () => els.forEach(x => { const dx = doc.w / 2 - (x.x + x.w / 2), dy = doc.h / 2 - (x.y + x.h / 2); x.x += dx; x.y += dy; if (x.pts) x.pts = x.pts.map(([a, b]) => [a + dx, b + dy]); }));
+    click('p-lock', () => els.forEach(x => x.lock = !x.lock));
+}
+function duplicate() { const out = []; for (const id of sel) { const e = clone(byId(id)); e.id = nextId++; e.x += 30; e.y += 30; if (e.pts) e.pts = e.pts.map(([a, b]) => [a + 30, b + 30]); doc.els.push(e); out.push(e.id); } sel = out; }
+function remove() { doc.els = doc.els.filter(e => !sel.includes(e.id)); sel = []; }
+function order(d) { for (const id of sel) { const i = doc.els.findIndex(e => e.id === id), e = doc.els.splice(i, 1)[0]; if (d > 0) doc.els.push(e); else doc.els.unshift(e); } }
+// ---- top bar ----
+function paintTop() {
+    if (!$('nm')) { $('top').innerHTML = `<h1>✨ Design Anything</h1><input id="nm" title="Name your design"><button class="tb" id="t-new">New</button><button class="tb" id="t-undo" title="Ctrl+Z">↶ Undo</button><button class="tb" id="t-redo" title="Ctrl+Y">↷ Redo</button><button class="tb" id="t-zo">−</button><span id="zl" style="min-width:44px;text-align:center"></span><button class="tb" id="t-zi">+</button><span class="sp"></span><button class="tb" id="t-png">⬇ Export PNG</button><button class="tb main" id="t-save">💾 Save</button>`;
+        $('nm').onkeydown = ev => ev.stopPropagation(); $('nm').oninput = () => { doc.name = $('nm').value; };
+        $('t-new').onclick = () => askNew(() => { libTab = 'tpl'; load(fresh(TEMPLATES[0])); }); $('t-undo').onclick = undo; $('t-redo').onclick = redo;
+        $('t-zi').onclick = () => { zoom = Math.min(4, zoom * 1.25); layout(); render(); paintTop(); }; $('t-zo').onclick = () => { zoom = Math.max(.25, zoom / 1.25); layout(); render(); paintTop(); };
+        $('t-png').onclick = exportPng; $('t-save').onclick = saveDesign; }
+    $('nm').value = doc ? doc.name : ''; $('zl').textContent = Math.round(zoom * 100) + '%'; $('t-undo').disabled = !hist.length; $('t-redo').disabled = !fut.length;
+}
+let dirty0 = '';
+function askNew(f) { if (doc && JSON.stringify(doc) !== dirty0 && doc.els.length && !confirm('Start something new? Unsaved changes to this design will be lost.')) return; f(); }
+function load(d, keepId) { doc = d; sel = []; hist = []; fut = []; zoom = 1; if (!keepId) curId = null; nextId = Math.max(nextId, ...doc.els.map(e => e.id || 0)) + 1; dirty0 = JSON.stringify(doc); layout(); render(); props(); paintTop(); paintLib(); }
+function saveDesign() {
+    hideEdit(); const d = clone(doc); d.els = d.els.filter(e => e.t !== 'image' || e.src.length < 200000);
+    const rec = { id: curId || Date.now(), name: doc.name || 'Untitled', at: Date.now(), doc: d }, i = STORE.designs.findIndex(x => x.id === rec.id);
+    if (i >= 0) STORE.designs[i] = rec; else STORE.designs.unshift(rec); curId = rec.id;
+    if (persist()) { dirty0 = JSON.stringify(doc); flash('Saved to My designs'); if (libTab === 'mine') paintLib(); }
+}
+function exportPng() { hideEdit(); const c = document.createElement('canvas'); c.width = doc.w; c.height = doc.h; paintDoc(c.getContext('2d'), doc); const a = document.createElement('a'); a.download = (doc.name || 'design').replace(/[^\w-]+/g, '_') + '.png'; a.href = c.toDataURL('image/png'); document.body.appendChild(a); a.click(); a.remove(); flash('Downloaded ' + a.download); }
+function flash(t) { const m = $('modal'); m.innerHTML = `<div class="box" style="width:auto;padding:14px 20px;box-shadow:0 8px 30px rgba(0,0,0,.3)">${esc(t)}</div>`; m.style.background = 'transparent'; m.style.pointerEvents = 'none'; m.classList.remove('hidden'); setTimeout(() => m.classList.add('hidden'), 1100); }
+// ---- keys ----
+addEventListener('keydown', ev => {
+    if (!doc) return; const k = ev.key, mod = ev.ctrlKey || ev.metaKey;
+    if (mod && k.toLowerCase() === 'z') { ev.preventDefault(); ev.shiftKey ? redo() : undo(); return; }
+    if (mod && k.toLowerCase() === 'y') { ev.preventDefault(); redo(); return; }
+    if (mod && k.toLowerCase() === 'd') { ev.preventDefault(); if (sel.length) { commit(); duplicate(); render(); props(); } return; }
+    if (mod && k.toLowerCase() === 's') { ev.preventDefault(); saveDesign(); return; }
+    if (!sel.length) return;
+    if (k === 'Delete' || k === 'Backspace') { ev.preventDefault(); commit(); remove(); render(); props(); return; }
+    const step = ev.shiftKey ? 20 : 2, mv = { ArrowLeft: [-step, 0], ArrowRight: [step, 0], ArrowUp: [0, -step], ArrowDown: [0, step] }[k];
+    if (mv) { ev.preventDefault(); commit(); sel.map(byId).forEach(e => { e.x += mv[0]; e.y += mv[1]; if (e.pts) e.pts = e.pts.map(([a, b]) => [a + mv[0], b + mv[1]]); }); render(); return; }
+    if (k === ']' || k === '[') { commit(); order(k === ']' ? 1 : -1); render(); }
+});
+addEventListener('resize', () => { if (doc) { layout(); render(); } });
+load(fresh(TEMPLATES[3]));
+// tests
+window.__design = { get doc() { return doc; }, get sel() { return sel; }, set sel(v) { sel = v; }, TEMPLATES, EMOJI, add, addShape, addText, addEmoji, undo, redo, saveDesign, load, fresh, render, store: () => STORE, segOf };
