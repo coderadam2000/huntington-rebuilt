@@ -51,7 +51,7 @@ var GAMES = [
   { dir: 'Minigames/Sports Mix', hero: 'Brand new: soccer, basketball, tennis, baseball, hockey, football, bowling and golf in one game. Play a bot or your friends.', name: 'Sports Mix', img: 'mg-sports', cat: 'mini', tags: ['New', 'Multiplayer', 'Minigame', 'Sports'], desc: "NEW: eight sports in one: soccer, basketball, tennis, baseball, hockey, American football, bowling and golf (mini golf or the real thing). Play a bot or your friends online." },
   { dir: 'Minigames/Chess and Checkers', name: 'Chess and Checkers', img: 'mg-chess', cat: 'mini', tags: ['New', 'Multiplayer', 'Minigame', 'Strategy'], desc: "NEW: chess and checkers against a friend or one of 8 bots, from Rookie to Unreal. Every game is ranked: win to raise your rating and climb from Rookie to Unreal." },
   { dir: 'Minigames/Connect Four', name: 'Connect Four', img: 'mg-connect4', cat: 'mini', tags: ['New', 'Multiplayer', 'Minigame'], desc: "Drop discs, four in a row wins. Against a friend or a bot that thinks four moves ahead." },
-  { dir: 'Minigames/Tic-Tac-Toe', name: 'Tic-Tac-Toe', img: 'mg-tictactoe', cat: 'mini', tags: ['New', 'Multiplayer', 'Minigame'], desc: "Three in a row, best of five. Against a friend or the bot." },
+  { dir: 'Minigames/Tic-Tac-Toe', name: 'Tic-Tac-Toe', img: 'mg-tictactoe', cat: 'mini', tags: ['New', 'Multiplayer', 'Minigame'], desc: "NEW: Ultimate Tic-Tac-Toe, nine boards in one where every move picks your opponent's next board. Or classic three in a row. Against a friend or the bot." },
 ];
 var EXPERIMENTAL = [
   { dir: 'Cursed Dash', noChat: true, name: 'Cursed Dash', desc: 'Neon Dash, but cursed.' },
