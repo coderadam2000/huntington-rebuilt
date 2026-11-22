@@ -1,0 +1,326 @@
+// ==========================================
+// ZOMBIE VS. YOU: the city has fallen. Get across it to the evac helicopter before the horde catches you.
+//   WASD to move, mouse to aim, click (hold) to shoot, SHIFT to sprint, SPACE to dodge-roll, R to reload,
+//   1-4 / wheel to switch weapons. Walk over supplies to pick them up.
+//   Five levels (Maple Street, Downtown, The Mall, The Harbor, The Last Bridge), then Endless.
+//   Zombies: walkers, runners, brutes (they shove), spitters (acid from afar), and screamers (call the horde).
+//   Gunfire is loud: every shot pulls zombies toward you. The horde meter fills with time; when it is full, waves come.
+// World: pixels; tiles of 40. Zombies find their way round buildings with a flow field from you, refreshed 3x a second.
+// Save (synced, prefix taco): taco.zvy.v1 = { unlocked, best, kills, wins, deaths, endlessBest }
+// ==========================================
+const T = 40, cv = document.getElementById('cv'), g = cv.getContext('2d'), ui = document.getElementById('ui');
+const KEY = 'taco.zvy.v1';
+let SV = { unlocked: 1, best: {}, kills: 0, wins: 0, deaths: 0, endlessBest: 0 };
+try { SV = Object.assign(SV, JSON.parse(localStorage.getItem(KEY) || '{}') || {}); } catch (e) {}
+const save = () => { try { localStorage.setItem(KEY, JSON.stringify(SV)); } catch (e) {} };
+const LEVELS = [
+    { n: 'Maple Street', w: 100, h: 46, block: 11, dens: .45, cars: .25, z: 80, mix: [.8, .2, 0, 0, 0], dark: .42, horde: 75, grass: '#2f3d24', road: '#3a3a3a' },
+    { n: 'Downtown', w: 120, h: 52, block: 13, dens: .8, cars: .45, z: 125, mix: [.62, .25, .08, .05, 0], dark: .5, horde: 65, grass: '#2b2b2b', road: '#333' },
+    { n: 'The Mall', w: 130, h: 56, block: 15, dens: .7, cars: .6, z: 160, mix: [.5, .28, .1, .07, .05], dark: .56, horde: 60, grass: '#2a2a30', road: '#36363c' },
+    { n: 'The Harbor', w: 140, h: 56, block: 12, dens: .6, cars: .35, z: 190, mix: [.42, .3, .12, .1, .06], dark: .62, horde: 55, grass: '#1f2a33', road: '#30343a', water: 1 },
+    { n: 'The Last Bridge', w: 160, h: 40, block: 10, dens: .5, cars: .8, z: 230, mix: [.35, .33, .14, .11, .07], dark: .68, horde: 45, grass: '#202020', road: '#2e2e2e' }];
+const WEAPONS = {
+    pistol: { n: 'Pistol', dmg: 34, rate: .22, mag: 12, rel: 1.1, spread: .04, pellets: 1, range: 620, noise: 420, auto: false, inf: true },
+    shotgun: { n: 'Shotgun', dmg: 22, rate: .75, mag: 6, rel: 2.2, spread: .28, pellets: 8, range: 340, noise: 700, auto: false },
+    smg: { n: 'SMG', dmg: 20, rate: .075, mag: 32, rel: 1.6, spread: .1, pellets: 1, range: 520, noise: 520, auto: true },
+    rifle: { n: 'Rifle', dmg: 95, rate: .5, mag: 8, rel: 2, spread: .01, pellets: 1, range: 900, noise: 850, auto: false, pierce: 3 }};
+const ZT = [ // walker, runner, brute, spitter, screamer
+    { n: 'walker', hp: 70, sp: 62, r: 13, dmg: 10, col: '#6b8e5a' }, { n: 'runner', hp: 45, sp: 150, r: 12, dmg: 8, col: '#a3b86c' },
+    { n: 'brute', hp: 360, sp: 70, r: 22, dmg: 25, col: '#5b6b4a' }, { n: 'spitter', hp: 60, sp: 55, r: 13, dmg: 0, col: '#7cb342' }, { n: 'screamer', hp: 50, sp: 90, r: 12, dmg: 6, col: '#c0a0a0' }];
+const rnd = (a, b) => a + Math.random() * (b - a), clamp = (v, a, b) => v < a ? a : v > b ? b : v;
+// ---- the game state ----
+const Z = { on: false, lv: 0, endless: false, map: null, W: 0, H: 0, p: null, zs: [], items: [], shots: [], fx: [], acid: [], flow: null, flowT: 0, t: 0, horde: 0, wave: 0, kills: 0, keys: {}, mouse: { x: 0, y: 0, down: false }, cam: { x: 0, y: 0 }, shake: 0, msg: '', msgT: 0, won: false };
+window.__zvy = Z;
+const solid = (tx, ty) => tx < 0 || ty < 0 || tx >= Z.W || ty >= Z.H || Z.map[ty * Z.W + tx] >= 2;      // 0 grass, 1 road, 2 building, 3 car, 4 water
+function buildLevel(L) {
+    const W = Z.W = L.w, H = Z.H = L.h, m = Z.map = new Uint8Array(W * H);
+    // roads on a grid of blocks, a little uneven
+    const roads = new Set();
+    for (let x = 6; x < W - 4; x += L.block + Math.floor(rnd(-2, 3))) for (let y = 0; y < H; y++) for (let k = 0; k < 3; k++) roads.add(y * W + x + k);
+    for (let y = 4; y < H - 3; y += L.block + Math.floor(rnd(-2, 2))) for (let x = 0; x < W; x++) for (let k = 0; k < 3; k++) roads.add((y + k) * W + x);
+    roads.forEach(i => { if (i >= 0 && i < W * H) m[i] = 1; });
+    // buildings inside blocks (not on the start or evac strips)
+    for (let tries = 0; tries < W * H * L.dens / 18; tries++) {
+        const bw = Math.floor(rnd(3, 8)), bh = Math.floor(rnd(3, 7)), x = Math.floor(rnd(6, W - 8 - bw)), y = Math.floor(rnd(1, H - 1 - bh));
+        let ok = true; for (let yy = y - 1; yy <= y + bh && ok; yy++) for (let xx = x - 1; xx <= x + bw && ok; xx++) if (xx < 0 || yy < 0 || xx >= W || yy >= H || m[yy * W + xx] !== 0) ok = false;
+        if (ok) for (let yy = y; yy < y + bh; yy++) for (let xx = x; xx < x + bw; xx++) m[yy * W + xx] = 2;
+    }
+    if (L.water) for (let y = H - 6; y < H; y++) for (let x = 0; x < W; x++) if (m[y * W + x] === 0 || Math.random() < .5) m[y * W + x] = 4;
+    // wrecked cars on the roads (never blocking a whole road: one at a time with gaps)
+    for (let i = 0; i < W * H * L.cars / 60; i++) { const x = Math.floor(rnd(8, W - 8)), y = Math.floor(rnd(1, H - 1)); if (m[y * W + x] === 1 && m[y * W + x + 1] === 1 && m[(y + 1) * W + x] !== 2) { m[y * W + x] = 3; if (Math.random() < .5) m[y * W + x + 1] = 3; } }
+    // keep the start (left) and the evac pad (right) clear
+    for (let y = 0; y < H; y++) for (let x = 0; x < 5; x++) m[y * W + x] = m[y * W + x] === 4 ? 4 : 0;
+    for (let y = 0; y < H; y++) for (let x = W - 6; x < W; x++) m[y * W + x] = m[y * W + x] === 4 ? 4 : 0;
+    // make sure the evac is reachable: carve a path if the flow field says no
+    Z.evac = { x: (W - 3) * T, y: Math.floor(H / 2 - 2) * T };
+    Z.spawn = { x: 2 * T, y: Math.floor(H / 2) * T };
+    const f = flowFrom(Z.spawn.x, Z.spawn.y), et = Math.floor(Z.evac.y / T) * W + Math.floor(Z.evac.x / T);
+    if (f[et] < 0) { let y = Math.floor(H / 2); for (let x = 0; x < W; x++) for (let k = -1; k <= 1; k++) if (m[(y + k) * W + x] >= 2) m[(y + k) * W + x] = 1; }
+    // decor: blood, cracks, trees
+    Z.decor = []; for (let i = 0; i < W * H / 25; i++) { const x = Math.floor(rnd(0, W)), y = Math.floor(rnd(0, H)); if (m[y * W + x] === 0) Z.decor.push({ x: x * T + rnd(5, 35), y: y * T + rnd(5, 35), k: Math.random() < .5 ? 'tree' : 'bush', r: rnd(10, 22) }); else if (m[y * W + x] === 1 && Math.random() < .3) Z.decor.push({ x: x * T + rnd(5, 35), y: y * T + rnd(5, 35), k: 'blood', r: rnd(8, 20) }); }
+    Z.decor = Z.decor.filter(d => d.k !== 'tree' || Math.hypot(d.x - Z.spawn.x, d.y - Z.spawn.y) > 120);
+}
+// breadth-first distances (in tiles) from a point over walkable tiles; -1 = cannot get there
+function flowFrom(px, py) {
+    const W = Z.W, H = Z.H, d = new Int16Array(W * H).fill(-1), q = new Int32Array(W * H); let a = 0, b = 0;
+    const s = clamp(Math.floor(py / T), 0, H - 1) * W + clamp(Math.floor(px / T), 0, W - 1); d[s] = 0; q[b++] = s;
+    while (a < b) { const i = q[a++], x = i % W, y = (i - x) / W; for (const [dx, dy] of [[1, 0], [-1, 0], [0, 1], [0, -1]]) { const nx = x + dx, ny = y + dy; if (nx < 0 || ny < 0 || nx >= W || ny >= H) continue; const j = ny * W + nx; if (d[j] >= 0 || Z.map[j] >= 2) continue; d[j] = d[i] + 1; q[b++] = j; } }
+    return d;
+}
+function start(lv, endless) {
+    const L = LEVELS[Math.min(lv, LEVELS.length - 1)];
+    Object.assign(Z, { on: true, lv, endless: !!endless, zs: [], items: [], shots: [], fx: [], acid: [], t: 0, horde: 0, wave: 0, kills: 0, won: false, L, flowT: 0, shake: 0 });
+    buildLevel(L);
+    Z.p = { x: Z.spawn.x, y: Z.spawn.y, hp: 100, st: 100, a: 0, vx: 0, vy: 0, roll: 0, rollCd: 0, inv: 0, guns: { pistol: { mag: 12, res: 999 } }, cur: 'pistol', cd: 0, rel: 0, hurtT: 0 };
+    // zombies scattered, fewer near the start
+    for (let i = 0; i < L.z * (endless ? 1.3 : 1); i++) spawnZ(null, true);
+    // supplies along the way
+    for (let i = 0; i < Z.W * Z.H / 200; i++) { const p = randomFree(8); if (!p) continue; const r = Math.random(); Z.items.push({ x: p.x, y: p.y, k: r < .45 ? 'ammo' : r < .7 ? 'med' : r < .8 ? 'adren' : ['shotgun', 'smg', 'rifle'][Math.floor(Math.random() * 3)] }); }
+    Z.flow = flowFrom(Z.p.x, Z.p.y);
+    say(L.n.toUpperCase() + '\nGet to the helicopter →', 3.5);
+    showHUD();
+}
+function randomFree(minX) { for (let k = 0; k < 60; k++) { const x = Math.floor(rnd(minX || 0, Z.W)), y = Math.floor(rnd(0, Z.H)); if (!solid(x, y) && Z.map[y * Z.W + x] !== 4) return { x: x * T + T / 2, y: y * T + T / 2 }; } return null; }
+function pickType() { const mix = Z.L.mix, r = Math.random(); let a = 0; for (let i = 0; i < mix.length; i++) { a += mix[i]; if (r < a) return i; } return 0; }
+function spawnZ(at, scatter) {
+    let pos = at;
+    if (!pos) for (let k = 0; k < 30 && !pos; k++) { const q = randomFree(scatter ? 9 : 0); if (q && Math.hypot(q.x - Z.p.x, q.y - Z.p.y) > (scatter ? 380 : 600)) pos = q; }
+    if (!pos) return;
+    const ty = pickType(), D = ZT[ty], hpk = 1 + (Z.endless ? Z.wave * .08 : Z.lv * .1);
+    Z.zs.push({ x: pos.x, y: pos.y, t: ty, hp: D.hp * hpk, max: D.hp * hpk, a: rnd(0, 6.3), awake: !scatter, wander: rnd(0, 6.3), atk: 0, spit: rnd(1, 3), scream: 0, hit: 0, stun: 0 });
+}
+function say(t, s) { Z.msg = t; Z.msgT = s || 2; }
+// ---- moving things with tile collision ----
+function move(o, dx, dy, r) {
+    const tryAxis = (nx, ny) => { const x0 = Math.floor((nx - r) / T), x1 = Math.floor((nx + r) / T), y0 = Math.floor((ny - r) / T), y1 = Math.floor((ny + r) / T); for (let y = y0; y <= y1; y++) for (let x = x0; x <= x1; x++) if (solid(x, y) || (Z.map[y * Z.W + x] === 4 && !o.fly)) return false; return true; };
+    if (tryAxis(o.x + dx, o.y)) o.x += dx; if (tryAxis(o.x, o.y + dy)) o.y += dy;
+}
+function lineClear(x0, y0, x1, y1) { const d = Math.hypot(x1 - x0, y1 - y0), n = Math.ceil(d / 12); for (let i = 1; i < n; i++) { const x = x0 + (x1 - x0) * i / n, y = y0 + (y1 - y0) * i / n; const tx = Math.floor(x / T), ty = Math.floor(y / T); if (Z.map[ty * Z.W + tx] === 2 || Z.map[ty * Z.W + tx] === 3) return false; } return true; }
+// ---- shooting ----
+function fire() {
+    const p = Z.p, W = WEAPONS[p.cur], gun = p.guns[p.cur];
+    if (p.cd > 0 || p.rel > 0 || p.roll > 0) return;
+    if (gun.mag <= 0) { reload(); return; }
+    gun.mag--; p.cd = W.rate; Z.shake = Math.max(Z.shake, p.cur === 'shotgun' ? 8 : p.cur === 'rifle' ? 6 : 2.5);
+    sfx(p.cur);
+    for (let k = 0; k < W.pellets; k++) {
+        const a = p.a + rnd(-W.spread, W.spread) * (p.vx || p.vy ? 1.3 : 1), cx = Math.cos(a), cy = Math.sin(a), x0 = p.x + cx * 18, y0 = p.y + cy * 18;
+        let end = W.range, pierce = W.pierce || 1; const hits = [];
+        for (let d = 0; d < W.range; d += 8) { const tx = Math.floor((x0 + cx * d) / T), ty = Math.floor((y0 + cy * d) / T), m = Z.map[ty * Z.W + tx]; if (tx < 0 || ty < 0 || tx >= Z.W || ty >= Z.H || m === 2 || m === 3) { end = d; break; } }
+        for (const z of Z.zs) { const r = ZT[z.t].r, ox = z.x - x0, oy = z.y - y0, along = ox * cx + oy * cy; if (along < 0 || along > end) continue; const off = Math.abs(ox * cy - oy * cx); if (off < r) hits.push([along, z]); }
+        hits.sort((a, b) => a[0] - b[0]);
+        for (const [along, z] of hits) { if (pierce-- <= 0) { end = along; break; } hurtZ(z, W.dmg * (1 - along / W.range * .4), cx, cy); if (!W.pierce) { end = along; break; } }
+        Z.shots.push({ x0, y0, x1: x0 + cx * end, y1: y0 + cy * end, t: .06 });
+    }
+    // noise: zombies nearby wake up and come
+    for (const z of Z.zs) if (Math.hypot(z.x - p.x, z.y - p.y) < W.noise) z.awake = true;
+    Z.horde += W.noise / 40000;
+}
+function hurtZ(z, dmg, cx, cy) {
+    z.hp -= dmg; z.hit = .1; z.awake = true; const kb = z.t === 2 ? 4 : 12; move(z, cx * kb, cy * kb, ZT[z.t].r);
+    for (let i = 0; i < 3; i++) Z.fx.push({ x: z.x, y: z.y, vx: cx * rnd(40, 160) + rnd(-50, 50), vy: cy * rnd(40, 160) + rnd(-50, 50), t: .4, c: '#7f1d1d', r: rnd(2, 4) });
+    if (z.hp <= 0 && !z.dead) { z.dead = true; Z.kills++; SV.kills++; Z.decor.push({ x: z.x, y: z.y, k: 'blood', r: ZT[z.t].r + 6 }); if (Math.random() < .12) Z.items.push({ x: z.x, y: z.y, k: Math.random() < .7 ? 'ammo' : 'med' }); }
+}
+function reload() { const p = Z.p, W = WEAPONS[p.cur], gun = p.guns[p.cur]; if (p.rel > 0 || gun.mag >= W.mag || (!W.inf && gun.res <= 0)) return; p.rel = W.rel; sfx('reload'); }
+function finishReload() { const p = Z.p, W = WEAPONS[p.cur], gun = p.guns[p.cur], need = W.mag - gun.mag, take = W.inf ? need : Math.min(need, gun.res); gun.mag += take; if (!W.inf) gun.res -= take; }
+// ---- one step ----
+function step(dt) {
+    if (!Z.on) return;
+    const p = Z.p, L = Z.L, k = Z.keys; Z.t += dt;
+    // you
+    let mx = (k.KeyD || k.ArrowRight ? 1 : 0) - (k.KeyA || k.ArrowLeft ? 1 : 0), my = (k.KeyS || k.ArrowDown ? 1 : 0) - (k.KeyW || k.ArrowUp ? 1 : 0); const ml = Math.hypot(mx, my) || 1; mx /= ml; my /= ml;
+    const sprint = (k.ShiftLeft || k.ShiftRight) && p.st > 0 && (mx || my);
+    let sp = (sprint ? 255 : 165) * (p.adren > 0 ? 1.35 : 1);
+    if (p.roll > 0) { p.roll -= dt; sp = 420; mx = p.rx; my = p.ry; }
+    p.st = clamp(p.st + (sprint ? -32 : 18) * dt, 0, 100); p.rollCd -= dt; p.adren = Math.max(0, (p.adren || 0) - dt); p.inv -= dt; p.hurtT -= dt;
+    move(p, mx * sp * dt, my * sp * dt, 13);
+    const wx = Z.mouse.x / Z.sc + Z.cam.x, wy = Z.mouse.y / Z.sc + Z.cam.y; p.a = Math.atan2(wy - p.y, wx - p.x);
+    p.cd -= dt; if (p.rel > 0) { p.rel -= dt; if (p.rel <= 0) finishReload(); }
+    if (Z.mouse.down && (WEAPONS[p.cur].auto || !Z.mouse.fired)) { fire(); Z.mouse.fired = true; }
+    // the horde
+    Z.horde += dt / L.horde;
+    if (Z.horde >= 1) { Z.horde = 0; Z.wave++; const n = 8 + Z.wave * 4 + Z.lv * 3; for (let i = 0; i < n; i++) spawnZ(null, false); say('THE HORDE IS COMING', 2.5); sfx('horde'); }
+    // zombies
+    if ((Z.flowT -= dt) <= 0) { Z.flowT = .33; Z.flow = flowFrom(p.x, p.y); }
+    const W = Z.W, fl = Z.flow;
+    for (const z of Z.zs) {
+        if (z.dead) continue;
+        const D = ZT[z.t], dx = p.x - z.x, dy = p.y - z.y, dist = Math.hypot(dx, dy);
+        z.hit -= dt; z.stun -= dt; z.atk -= dt;
+        if (!z.awake && dist < 260 && lineClear(z.x, z.y, p.x, p.y)) z.awake = true;
+        let vx = 0, vy = 0, sp2 = D.sp * (z.awake ? 1 : .3) * (z.stun > 0 ? .3 : 1);
+        if (z.awake) {
+            if (dist < 140 && lineClear(z.x, z.y, p.x, p.y)) { vx = dx / dist; vy = dy / dist; }
+            else { const tx = Math.floor(z.x / T), ty = Math.floor(z.y / T), here = fl[ty * W + tx]; let best = here, bx = 0, by = 0;
+                for (const [ax, ay] of [[1, 0], [-1, 0], [0, 1], [0, -1], [1, 1], [-1, -1], [1, -1], [-1, 1]]) { const nx = tx + ax, ny = ty + ay; if (nx < 0 || ny < 0 || nx >= W || ny >= Z.H) continue; const v = fl[ny * W + nx]; if (v >= 0 && (best < 0 || v < best) && !(ax && ay && (solid(tx + ax, ty) || solid(tx, ty + ay)))) { best = v; bx = ax; by = ay; } }
+                if (bx || by) { const gx = (tx + bx + .5) * T - z.x, gy = (ty + by + .5) * T - z.y, gl = Math.hypot(gx, gy) || 1; vx = gx / gl; vy = gy / gl; } else if (dist > 0) { vx = dx / dist; vy = dy / dist; } }
+            // spitters keep their distance and lob acid
+            if (z.t === 3 && dist < 320) { if (dist < 200) { vx = -vx; vy = -vy; } z.spit -= dt; if (z.spit <= 0 && lineClear(z.x, z.y, p.x, p.y)) { z.spit = rnd(2, 3.4); Z.acid.push({ x: z.x, y: z.y, tx: p.x + rnd(-30, 30), ty: p.y + rnd(-30, 30), t: 0, life: 0 }); } }
+            if (z.t === 4 && dist < 380 && z.scream <= 0) { z.scream = 9; for (const o of Z.zs) if (Math.hypot(o.x - z.x, o.y - z.y) < 700) o.awake = true; for (let i = 0; i < 4; i++) spawnZ(null, false); say('A screamer called them!', 2); sfx('scream'); }
+            z.scream -= dt;
+        } else { z.wander += rnd(-1, 1) * dt; vx = Math.cos(z.wander); vy = Math.sin(z.wander); }
+        // keep a little space from each other
+        for (const o of Z.zs) { if (o === z || o.dead) continue; const ox = z.x - o.x, oy = z.y - o.y, od = ox * ox + oy * oy, rr = (D.r + ZT[o.t].r) ** 2; if (od < rr && od > 0) { const s = (1 - od / rr) * .8, l = Math.sqrt(od); vx += ox / l * s; vy += oy / l * s; } }
+        if (vx || vy) { z.a = Math.atan2(vy, vx); const l = Math.hypot(vx, vy); move(z, vx / l * sp2 * dt, vy / l * sp2 * dt, D.r); }
+        // bite
+        if (dist < D.r + 15 && z.atk <= 0 && D.dmg) { z.atk = .8; hurtP(D.dmg, z); if (z.t === 2) { move(p, dx / dist * 40, dy / dist * 40, 13); Z.shake = 10; } }
+    }
+    Z.zs = Z.zs.filter(z => !z.dead);
+    // acid blobs fly, then leave a puddle that burns
+    for (const a of Z.acid) { if (a.t < 1) { a.t += dt * 1.3; if (a.t >= 1) a.life = 4; } else { a.life -= dt; if (Math.hypot(p.x - a.tx, p.y - a.ty) < 30 && p.inv <= 0 && p.roll <= 0) { hurtP(14 * dt * 3, null, true); } } }
+    Z.acid = Z.acid.filter(a => a.t < 1 || a.life > 0);
+    // pick-ups
+    for (const it of Z.items) if (!it.got && Math.hypot(it.x - p.x, it.y - p.y) < 28) pickUp(it);
+    Z.items = Z.items.filter(i => !i.got);
+    for (const s of Z.shots) s.t -= dt; Z.shots = Z.shots.filter(s => s.t > 0);
+    for (const f of Z.fx) { f.x += f.vx * dt; f.y += f.vy * dt; f.t -= dt; } Z.fx = Z.fx.filter(f => f.t > 0);
+    Z.shake = Math.max(0, Z.shake - dt * 30); Z.msgT -= dt;
+    // the evac
+    if (Math.hypot(p.x - Z.evac.x, p.y - Z.evac.y) < 70) win();
+}
+function hurtP(d, z, quiet) {
+    const p = Z.p; if (p.inv > 0 || p.roll > 0) return;
+    p.hp -= d; p.hurtT = .3; if (!quiet) { p.inv = .25; Z.shake = Math.max(Z.shake, 6); sfx('hurt'); }
+    if (p.hp <= 0) lose();
+}
+function pickUp(it) {
+    const p = Z.p; it.got = true;
+    if (it.k === 'ammo') { for (const k in p.guns) if (!WEAPONS[k].inf) p.guns[k].res += WEAPONS[k].mag * 2; say('+ammo', 1); }
+    else if (it.k === 'med') { if (p.hp >= 100) { it.got = false; return; } p.hp = Math.min(100, p.hp + 40); say('+40 health', 1); }
+    else if (it.k === 'adren') { p.adren = 10; p.st = 100; say('Adrenaline! Faster for 10 s', 1.5); }
+    else { if (!p.guns[it.k]) { p.guns[it.k] = { mag: WEAPONS[it.k].mag, res: WEAPONS[it.k].mag * 2 }; p.cur = it.k; say('Found a ' + WEAPONS[it.k].n + '!', 1.5); } else { p.guns[it.k].res += WEAPONS[it.k].mag * 2; say('+' + WEAPONS[it.k].n + ' ammo', 1); } }
+    sfx('pick');
+}
+function win() {
+    if (!Z.on) return; Z.on = false; Z.won = true; SV.wins++;
+    const lvKey = Z.endless ? 'endless' : String(Z.lv), time = Math.round(Z.t);
+    if (!Z.endless) { SV.unlocked = Math.max(SV.unlocked, Math.min(LEVELS.length, Z.lv + 2)); if (!SV.best[lvKey] || time < SV.best[lvKey]) SV.best[lvKey] = time; } else SV.endlessBest = Math.max(SV.endlessBest, Z.lv + 1);
+    save(); sfx('win');
+    if (Z.endless) { setTimeout(() => { const keep = Z.p; start(Z.lv + 1, true); Z.p.guns = keep.guns; Z.p.cur = keep.cur; Z.p.hp = Math.min(100, keep.hp + 30); say('ENDLESS: city ' + (Z.lv + 1), 3); }, 1200); return; }
+    showEnd(true);
+}
+function lose() { if (!Z.on) return; Z.on = false; SV.deaths++; if (Z.endless) SV.endlessBest = Math.max(SV.endlessBest, Z.lv); save(); sfx('die'); setTimeout(() => showEnd(false), 900); }
+// ---- sound ----
+let AC = null;
+function noise(len, vol, f) { try { AC = AC || new (window.AudioContext || window.webkitAudioContext)(); const n = AC.createBuffer(1, AC.sampleRate * len, AC.sampleRate), d = n.getChannelData(0); for (let i = 0; i < d.length; i++) d[i] = (Math.random() * 2 - 1) * Math.pow(1 - i / d.length, 2); const s = AC.createBufferSource(), fl = AC.createBiquadFilter(), v = AC.createGain(); fl.type = 'lowpass'; fl.frequency.value = f || 1800; v.gain.value = vol; s.buffer = n; s.connect(fl); fl.connect(v); v.connect(AC.destination); s.start(); } catch (e) {} }
+function tone(f, len, type, f2, vol) { try { AC = AC || new (window.AudioContext || window.webkitAudioContext)(); const o = AC.createOscillator(), v = AC.createGain(); o.type = type; o.frequency.setValueAtTime(f, AC.currentTime); if (f2) o.frequency.exponentialRampToValueAtTime(f2, AC.currentTime + len); v.gain.setValueAtTime(vol || .05, AC.currentTime); v.gain.exponentialRampToValueAtTime(.0005, AC.currentTime + len); o.connect(v); v.connect(AC.destination); o.start(); o.stop(AC.currentTime + len); } catch (e) {} }
+function sfx(k) {
+    if (k === 'pistol') noise(.12, .25, 2500); else if (k === 'shotgun') noise(.3, .4, 1200); else if (k === 'smg') noise(.07, .18, 3000); else if (k === 'rifle') noise(.25, .35, 1800);
+    else if (k === 'reload') { tone(300, .05, 'square', 0, .03); setTimeout(() => tone(500, .05, 'square', 0, .03), 250); } else if (k === 'hurt') tone(180, .2, 'sawtooth', 90, .07); else if (k === 'pick') tone(700, .1, 'triangle', 1100);
+    else if (k === 'horde') { tone(90, 1.5, 'sawtooth', 60, .06); tone(95, 1.5, 'sawtooth', 70, .05); } else if (k === 'scream') tone(900, .7, 'sawtooth', 400, .05); else if (k === 'win') [523, 659, 784, 1046].forEach((f, i) => setTimeout(() => tone(f, .25, 'triangle'), i * 120)); else if (k === 'die') tone(300, 1.2, 'sawtooth', 40, .07);
+}
+// ---- drawing ----
+const dark = document.createElement('canvas'), dg = dark.getContext('2d');
+function fit() { const d = Math.min(1.5, devicePixelRatio || 1); cv.width = innerWidth * d; cv.height = innerHeight * d; dark.width = cv.width / 2; dark.height = cv.height / 2; Z.sc = cv.height / 760; }
+addEventListener('resize', fit); fit();
+function draw() {
+    const w = cv.width, h = cv.height, sc = Z.sc;
+    g.setTransform(1, 0, 0, 1, 0, 0); g.fillStyle = '#050505'; g.fillRect(0, 0, w, h);
+    if (!Z.map || !Z.p) return;
+    const p = Z.p, L = Z.L;
+    Z.cam.x = p.x - w / 2 / sc + Math.cos(p.a) * 60; Z.cam.y = p.y - h / 2 / sc + Math.sin(p.a) * 60;
+    const sx = (Math.random() - .5) * Z.shake, sy = (Math.random() - .5) * Z.shake;
+    g.setTransform(sc, 0, 0, sc, (-Z.cam.x + sx) * sc, (-Z.cam.y + sy) * sc);
+    const x0 = Math.max(0, Math.floor(Z.cam.x / T) - 1), x1 = Math.min(Z.W, Math.ceil((Z.cam.x + w / sc) / T) + 1), y0 = Math.max(0, Math.floor(Z.cam.y / T) - 1), y1 = Math.min(Z.H, Math.ceil((Z.cam.y + h / sc) / T) + 1);
+    for (let y = y0; y < y1; y++) for (let x = x0; x < x1; x++) {
+        const m = Z.map[y * Z.W + x];
+        g.fillStyle = m === 1 || m === 3 ? L.road : m === 4 ? '#0c2a3d' : L.grass; g.fillRect(x * T, y * T, T + 1, T + 1);
+        if (m === 1 && (x + y) % 7 === 0) { g.fillStyle = 'rgba(255,255,255,.05)'; g.fillRect(x * T + 4, y * T + 18, 14, 3); }
+    }
+    for (const d of Z.decor) if (d.k === 'blood') { g.fillStyle = 'rgba(90,10,10,.55)'; g.beginPath(); g.ellipse(d.x, d.y, d.r, d.r * .7, d.r, 0, 7); g.fill(); }
+    // the evac pad
+    g.fillStyle = '#1f2937'; g.beginPath(); g.arc(Z.evac.x, Z.evac.y, 62, 0, 7); g.fill(); g.strokeStyle = '#facc15'; g.lineWidth = 6; g.stroke(); g.fillStyle = '#facc15'; g.font = 'bold 54px Impact'; g.textAlign = 'center'; g.fillText('H', Z.evac.x, Z.evac.y + 20);
+    // items
+    for (const it of Z.items) { g.save(); g.translate(it.x, it.y); const c = { ammo: '#ca8a04', med: '#f8fafc', adren: '#22d3ee' }[it.k] || '#a3a3a3'; g.fillStyle = c; g.fillRect(-10, -8, 20, 16); g.fillStyle = '#111'; g.font = 'bold 11px sans-serif'; g.fillText(it.k === 'med' ? '✚' : it.k === 'ammo' ? '▮▮' : it.k === 'adren' ? '⚡' : WEAPONS[it.k].n[0], 0, 4); if (it.k === 'med') { g.fillStyle = '#dc2626'; g.fillText('✚', 0, 4); } g.restore(); }
+    // acid
+    for (const a of Z.acid) { if (a.t < 1) { const x = lerp(a.x, a.tx, a.t), y = lerp(a.y, a.ty, a.t) - Math.sin(a.t * Math.PI) * 60; g.fillStyle = '#84cc16'; g.beginPath(); g.arc(x, y, 6, 0, 7); g.fill(); } else { g.fillStyle = `rgba(132,204,22,${.25 + Math.min(1, a.life) * .3})`; g.beginPath(); g.arc(a.tx, a.ty, 30, 0, 7); g.fill(); } }
+    // zombies
+    for (const z of Z.zs) {
+        const D = ZT[z.t]; g.save(); g.translate(z.x, z.y); g.rotate(z.a);
+        g.fillStyle = 'rgba(0,0,0,.35)'; g.beginPath(); g.arc(3, 3, D.r, 0, 7); g.fill();
+        g.fillStyle = z.hit > 0 ? '#fff' : D.col; g.strokeStyle = '#1a2e12'; g.lineWidth = 2;
+        g.beginPath(); g.arc(D.r * .9, -D.r * .55, D.r * .38, 0, 7); g.arc(D.r * .9, D.r * .55, D.r * .38, 0, 7); g.fill();
+        g.beginPath(); g.arc(0, 0, D.r, 0, 7); g.fill(); g.stroke();
+        g.fillStyle = z.t === 4 ? '#fca5a5' : '#dc2626'; g.beginPath(); g.arc(D.r * .45, -D.r * .3, 2.2, 0, 7); g.arc(D.r * .45, D.r * .3, 2.2, 0, 7); g.fill();
+        g.restore();
+        if (z.hp < z.max) { g.fillStyle = '#000'; g.fillRect(z.x - 14, z.y - D.r - 10, 28, 4); g.fillStyle = '#ef4444'; g.fillRect(z.x - 14, z.y - D.r - 10, 28 * z.hp / z.max, 4); }
+    }
+    // you
+    g.save(); g.translate(p.x, p.y); g.rotate(p.a);
+    g.fillStyle = 'rgba(0,0,0,.35)'; g.beginPath(); g.arc(3, 3, 14, 0, 7); g.fill();
+    g.fillStyle = '#334155'; g.fillRect(8, -3, p.cur === 'rifle' ? 30 : p.cur === 'pistol' ? 16 : 24, 6);
+    g.fillStyle = p.hurtT > 0 ? '#fca5a5' : '#2563eb'; g.beginPath(); g.arc(0, 0, 14, 0, 7); g.fill(); g.fillStyle = '#fcd34d'; g.beginPath(); g.arc(2, 0, 8, 0, 7); g.fill(); g.fillStyle = '#7c2d12'; g.beginPath(); g.arc(-1, 0, 7, Math.PI * .5, Math.PI * 1.5); g.fill();
+    g.restore();
+    // tracers and blood
+    for (const s of Z.shots) { g.strokeStyle = `rgba(253,224,71,${s.t * 12})`; g.lineWidth = 2; g.beginPath(); g.moveTo(s.x0, s.y0); g.lineTo(s.x1, s.y1); g.stroke(); }
+    for (const f of Z.fx) { g.fillStyle = f.c; g.beginPath(); g.arc(f.x, f.y, f.r, 0, 7); g.fill(); }
+    // buildings, cars and trees on top (they hide what is behind them)
+    for (let y = y0; y < y1; y++) for (let x = x0; x < x1; x++) {
+        const m = Z.map[y * Z.W + x];
+        if (m === 2) { const shade = 28 + ((x * 7 + y * 13) % 5) * 4; g.fillStyle = `rgb(${shade + 20},${shade + 14},${shade + 10})`; g.fillRect(x * T, y * T, T + 1, T + 1); g.fillStyle = 'rgba(0,0,0,.25)'; if (Z.map[(y + 1) * Z.W + x] !== 2) g.fillRect(x * T, y * T + T - 6, T, 6); if ((x + y * 3) % 6 === 0) { g.fillStyle = 'rgba(253,224,71,.08)'; g.fillRect(x * T + 10, y * T + 10, 20, 20); } }
+        if (m === 3) { g.fillStyle = ['#7f1d1d', '#1e3a8a', '#3f3f46', '#365314'][(x * 3 + y) % 4]; g.fillRect(x * T + 3, y * T + 8, T - 6, T - 16); g.fillStyle = 'rgba(148,163,184,.4)'; g.fillRect(x * T + 10, y * T + 11, 12, T - 22); }
+    }
+    for (const d of Z.decor) if (d.k !== 'blood') { g.fillStyle = d.k === 'tree' ? '#1a2e12' : '#2d4a1f'; g.beginPath(); g.arc(d.x, d.y, d.r, 0, 7); g.fill(); if (d.k === 'tree') { g.fillStyle = '#25401a'; g.beginPath(); g.arc(d.x - 4, d.y - 4, d.r * .6, 0, 7); g.fill(); } }
+    // darkness with your flashlight
+    const dw = dark.width, dh = dark.height, k2 = dw / w;
+    dg.setTransform(1, 0, 0, 1, 0, 0); dg.globalCompositeOperation = 'source-over'; dg.clearRect(0, 0, dw, dh); dg.fillStyle = `rgba(2,3,8,${L.dark})`; dg.fillRect(0, 0, dw, dh);
+    dg.globalCompositeOperation = 'destination-out';
+    const px = (p.x - Z.cam.x) * sc * k2, py = (p.y - Z.cam.y) * sc * k2, rr = 230 * sc * k2;
+    let gr = dg.createRadialGradient(px, py, rr * .2, px, py, rr); gr.addColorStop(0, 'rgba(0,0,0,1)'); gr.addColorStop(.5, 'rgba(0,0,0,.8)'); gr.addColorStop(1, 'rgba(0,0,0,0)'); dg.fillStyle = gr; dg.beginPath(); dg.arc(px, py, rr, 0, 7); dg.fill();
+    const cr = 520 * sc * k2; gr = dg.createRadialGradient(px, py, 10, px, py, cr); gr.addColorStop(0, 'rgba(0,0,0,1)'); gr.addColorStop(.7, 'rgba(0,0,0,.85)'); gr.addColorStop(1, 'rgba(0,0,0,0)'); dg.fillStyle = gr;
+    dg.beginPath(); dg.moveTo(px, py); dg.arc(px, py, cr, p.a - .45, p.a + .45); dg.closePath(); dg.fill();
+    const ex = (Z.evac.x - Z.cam.x) * sc * k2, ey = (Z.evac.y - Z.cam.y) * sc * k2; gr = dg.createRadialGradient(ex, ey, 5, ex, ey, 110 * sc * k2); gr.addColorStop(0, 'rgba(0,0,0,.9)'); gr.addColorStop(1, 'rgba(0,0,0,0)'); dg.fillStyle = gr; dg.beginPath(); dg.arc(ex, ey, 110 * sc * k2, 0, 7); dg.fill();
+    for (const s of Z.shots) { const qx = (s.x0 - Z.cam.x) * sc * k2, qy = (s.y0 - Z.cam.y) * sc * k2; gr = dg.createRadialGradient(qx, qy, 2, qx, qy, 90 * sc * k2); gr.addColorStop(0, 'rgba(0,0,0,.9)'); gr.addColorStop(1, 'rgba(0,0,0,0)'); dg.fillStyle = gr; dg.beginPath(); dg.arc(qx, qy, 90 * sc * k2, 0, 7); dg.fill(); }
+    g.setTransform(1, 0, 0, 1, 0, 0); g.drawImage(dark, 0, 0, w, h);
+    if (p.hurtT > 0 || p.hp < 30) { g.fillStyle = `rgba(185,28,28,${p.hurtT > 0 ? .25 : .08 + Math.sin(Z.t * 6) * .05})`; g.fillRect(0, 0, w, h); }
+    // the way to the helicopter, at the edge of the screen
+    const ax = Z.evac.x - p.x, ay = Z.evac.y - p.y, ad = Math.hypot(ax, ay);
+    if (ad > 400) { const a = Math.atan2(ay, ax), cx = w / 2 + Math.cos(a) * Math.min(w, h) * .42, cy = h / 2 + Math.sin(a) * Math.min(w, h) * .42; g.save(); g.translate(cx, cy); g.rotate(a); g.fillStyle = '#facc15'; g.beginPath(); g.moveTo(18 * sc, 0); g.lineTo(-10 * sc, -11 * sc); g.lineTo(-10 * sc, 11 * sc); g.fill(); g.restore(); g.fillStyle = '#facc15'; g.font = `bold ${14 * sc}px system-ui`; g.textAlign = 'center'; g.fillText(Math.round(ad / T) + ' m', cx, cy + 28 * sc); }
+    paintHUD();
+}
+const lerp = (a, b, t) => a + (b - a) * t;
+// ---- screens ----
+function showMenu() {
+    Z.on = false; Z.map = null;
+    const lv = LEVELS.map((L, i) => `<button data-l="${i}" ${i < SV.unlocked ? '' : 'disabled'}><b>${i + 1}</b>${L.n}${SV.best[i] ? '<br><small>' + SV.best[i] + 's</small>' : ''}</button>`).join('');
+    ui.innerHTML = `<div class="zp"><h1>ZOMBIE<small>VS.</small>YOU</h1><p>The city has fallen. Get across it to the evac helicopter.</p><div class="zlv">${lv}</div>
+      <button class="zb" id="z-go">Play level ${Math.min(SV.unlocked, LEVELS.length)}</button><button class="zb alt" id="z-end" ${SV.unlocked > LEVELS.length || SV.wins >= 5 ? '' : 'disabled'} title="Beat The Last Bridge to unlock">Endless</button>
+      <div class="zk">WASD move · mouse aim · click shoot · SHIFT sprint · SPACE dodge-roll · R reload · 1-4 weapons<br>Zombies killed: <b>${SV.kills}</b> · escapes: <b>${SV.wins}</b>${SV.endlessBest ? ' · endless best: city ' + SV.endlessBest : ''}</div></div>`;
+    ui.querySelectorAll('[data-l]').forEach(b => b.onclick = () => start(+b.dataset.l));
+    document.getElementById('z-go').onclick = () => start(Math.min(SV.unlocked, LEVELS.length) - 1);
+    document.getElementById('z-end').onclick = () => start(0, true);
+}
+function showHUD() { ui.innerHTML = '<div id="hud"><div class="ht" id="h-t"></div><div class="hb"><div style="font-size:13px">HEALTH</div><div class="bar"><i id="h-hp" style="background:#dc2626"></i></div><div class="bar" style="height:7px"><i id="h-st" style="background:#facc15"></i></div><div style="font-size:12px;margin-top:6px">HORDE</div><div class="bar" style="height:7px"><i id="h-hd" style="background:#7c3aed"></i></div></div><div class="hw" id="h-w"></div><div class="msg" id="h-m"></div></div>'; }
+function paintHUD() {
+    const e = id => document.getElementById(id); if (!e('h-hp') || !Z.p) return; const p = Z.p, W = WEAPONS[p.cur], gun = p.guns[p.cur];
+    e('h-hp').style.width = Math.max(0, p.hp) + '%'; e('h-st').style.width = p.st + '%'; e('h-hd').style.width = Z.horde * 100 + '%';
+    e('h-w').innerHTML = `${p.rel > 0 ? 'RELOADING' : gun.mag + ' <small style="display:inline;font-size:20px">/ ' + (W.inf ? '∞' : gun.res) + '</small>'}<small>${Object.keys(p.guns).map((k, i) => (k === p.cur ? '▶ ' : '') + (Object.keys(WEAPONS).indexOf(k) + 1) + ' ' + WEAPONS[k].n).join('   ')}</small>`;
+    e('h-t').innerHTML = `<b>${Z.endless ? 'ENDLESS · city ' + (Z.lv + 1) : Z.L.n}</b> · kills ${Z.kills} · ${Math.floor(Z.t / 60)}:${String(Math.floor(Z.t % 60)).padStart(2, '0')}${Z.wave ? ' · wave ' + Z.wave : ''}`;
+    const m = e('h-m'); m.innerHTML = Z.msgT > 0 ? Z.msg.replace(/\n/g, '<br>') : ''; m.style.opacity = Z.msgT > 0 ? Math.min(1, Z.msgT * 2) : 0;
+}
+function showEnd(won) {
+    const last = Z.lv >= LEVELS.length - 1;
+    ui.innerHTML = `<div class="zp"><h1 style="font-size:50px">${won ? 'ESCAPED!' : 'YOU WERE EATEN'}</h1><p>${Z.L.n} · ${Math.round(Z.t)} s · ${Z.kills} zombies</p>
+      ${won ? (last ? '<p>You made it out of the city. Endless mode is open.</p>' : '<p>Next: <b>' + LEVELS[Z.lv + 1].n + '</b></p>') : '<p>So close. They are always hungry.</p>'}
+      ${won && !last ? '<button class="zb" id="z-next">Next level ▶</button>' : ''}<button class="zb alt" id="z-retry">${won ? 'Replay' : 'Try again'}</button><button class="zb alt" id="z-menu">Menu</button></div>`;
+    const b = document.getElementById('z-next'); if (b) b.onclick = () => start(Z.lv + 1);
+    document.getElementById('z-retry').onclick = () => start(Z.lv, Z.endless && false); document.getElementById('z-menu').onclick = showMenu;
+}
+// ---- input ----
+addEventListener('keydown', e => {
+    Z.keys[e.code] = true; const p = Z.p; if (!Z.on || !p) return;
+    if (e.code === 'KeyR') reload();
+    if (e.code === 'Space') { e.preventDefault(); if (p.rollCd <= 0 && p.st >= 20) { let mx = (Z.keys.KeyD ? 1 : 0) - (Z.keys.KeyA ? 1 : 0), my = (Z.keys.KeyS ? 1 : 0) - (Z.keys.KeyW ? 1 : 0); if (!mx && !my) { mx = Math.cos(p.a); my = Math.sin(p.a); } const l = Math.hypot(mx, my); p.rx = mx / l; p.ry = my / l; p.roll = .28; p.rollCd = .9; p.st -= 20; } }
+    const n = ['Digit1', 'Digit2', 'Digit3', 'Digit4'].indexOf(e.code); if (n >= 0) { const k = Object.keys(WEAPONS)[n]; if (p.guns[k]) { p.cur = k; p.rel = 0; } }
+});
+addEventListener('keyup', e => { Z.keys[e.code] = false; });
+cv.addEventListener('pointermove', e => { const r = cv.width / innerWidth; Z.mouse.x = e.clientX * r; Z.mouse.y = e.clientY * r; });
+cv.addEventListener('pointerdown', e => { const r = cv.width / innerWidth; Z.mouse.x = e.clientX * r; Z.mouse.y = e.clientY * r; Z.mouse.down = true; Z.mouse.fired = false; });
+addEventListener('pointerup', () => { Z.mouse.down = false; });
+cv.addEventListener('wheel', e => { const p = Z.p; if (!p) return; const ks = Object.keys(WEAPONS).filter(k => p.guns[k]); const i = ks.indexOf(p.cur); p.cur = ks[(i + (e.deltaY > 0 ? 1 : -1) + ks.length) % ks.length]; p.rel = 0; }, { passive: true });
+// ---- loop ----
+let last = performance.now();
+function frame(now) { requestAnimationFrame(frame); let dt = Math.min(.05, (now - last) / 1000); last = now; while (dt > 0) { const h = Math.min(1 / 60, dt); step(h); dt -= h; } draw(); }
+showMenu(); requestAnimationFrame(frame);
+// tests
+Object.assign(Z, { step, start, fire, flowFrom, save: () => SV, hurtZ, win, lose });

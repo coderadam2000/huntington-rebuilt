@@ -1,0 +1,18 @@
+html, body { margin: 0; height: 100%; overflow: hidden; background: #050505; font-family: 'Impact', 'Arial Black', system-ui, sans-serif; color: #f5f5f4; user-select: none; }
+#cv { position: fixed; inset: 0; width: 100%; height: 100%; display: block; cursor: crosshair; }
+#ui { position: fixed; inset: 0; pointer-events: none; }
+.zp { position: absolute; left: 50%; top: 50%; transform: translate(-50%, -50%); pointer-events: auto; text-align: center; width: min(560px, 92vw); background: rgba(12,10,10,.9); border: 2px solid #7f1d1d; border-radius: 8px; padding: 26px; box-shadow: 0 0 60px rgba(127,29,29,.4); font-family: system-ui, sans-serif; }
+.zp h1 { margin: 0; font: 64px Impact, 'Arial Black', sans-serif; letter-spacing: 2px; color: #dc2626; text-shadow: 0 4px 0 #450a0a, 0 0 30px rgba(220,38,38,.5); line-height: 1; }
+.zp h1 small { display: block; font-size: 22px; color: #a8a29e; letter-spacing: 6px; }
+.zp p { color: #d6d3d1; margin: 8px 0; }
+.zb { pointer-events: auto; font: 22px Impact, 'Arial Black', sans-serif; letter-spacing: 1px; background: #b91c1c; color: #fff; border: 0; border-radius: 6px; padding: 10px 26px; margin: 6px; cursor: pointer; box-shadow: 0 4px 0 #450a0a; }
+.zb:hover { background: #dc2626; } .zb.alt { background: #44403c; box-shadow: 0 4px 0 #1c1917; } .zb:disabled { opacity: .4; }
+.zlv { display: grid; grid-template-columns: repeat(5, 1fr); gap: 6px; margin: 12px 0; }
+.zlv button { font: 13px system-ui; padding: 8px 4px; border-radius: 6px; border: 1px solid #57534e; background: #292524; color: #e7e5e4; cursor: pointer; pointer-events: auto; } .zlv button b { display: block; font: 22px Impact, sans-serif; color: #fca5a5; } .zlv button:disabled { opacity: .3; cursor: default; } .zlv button.on { border-color: #ef4444; background: #450a0a; }
+.zk { font: 12px system-ui; color: #a8a29e; line-height: 1.6; }
+#hud { position: absolute; inset: 0; font-family: system-ui, sans-serif; }
+.hb { position: absolute; left: 16px; bottom: 16px; width: 260px; } .bar { height: 14px; background: rgba(0,0,0,.6); border: 1px solid #57534e; border-radius: 4px; overflow: hidden; margin-top: 4px; } .bar i { display: block; height: 100%; }
+.hw { position: absolute; right: 18px; bottom: 16px; text-align: right; font: 34px Impact, sans-serif; text-shadow: 0 2px 4px #000; } .hw small { display: block; font: 14px system-ui; color: #d6d3d1; }
+.ht { position: absolute; left: 50%; top: 12px; transform: translateX(-50%); font: 15px system-ui; background: rgba(0,0,0,.55); padding: 6px 14px; border-radius: 6px; text-align: center; } .ht b { color: #fca5a5; }
+.msg { position: absolute; left: 50%; top: 30%; transform: translateX(-50%); font: 34px Impact, sans-serif; color: #fde68a; text-shadow: 0 3px 8px #000; text-align: center; transition: opacity .5s; }
+.hidden { display: none !important; }
