@@ -922,7 +922,7 @@ function setVersion(v) { MIRRORS = MIRROR_HOSTS.map(function (m) { return m + RE
 // If GitHub cannot be reached (blocked, or its 60-an-hour limit for one school network), it falls back to '@main'.
 // (A hub cannot swap itself for a newer one in the same page: its scripts have already declared their names. Players get a
 // newer launcher itself through the loader, which pins it; HG_HUB_ID tells which build is running.)
-var HG_HUB_ID = '7e0a1ec841c6';      // the build fills in a fingerprint of this file
+var HG_HUB_ID = '6af99af2d8b7';      // the build fills in a fingerprint of this file
 var HG_SHA_RE = /^[0-9a-f]{40}$/;
 function latestSha() {
   try { var c = JSON.parse(localStorage.getItem('hgv:sha') || 'null'); if (c && HG_SHA_RE.test(c.s) && Date.now() - c.t < 120000) return Promise.resolve(c.s); } catch (e) {}
@@ -1467,8 +1467,78 @@ function extShim(g) {
     'function mk(p){var o={},t=0;function k(){return Object.keys(o);}var st={getItem:function(a){a=String(a);return a in o?o[a]:null;},setItem:function(a,b){o[String(a)]=String(b);ch();},removeItem:function(a){delete o[String(a)];ch();},clear:function(){o={};ch();},key:function(i){return k()[i]||null;}};' +
     'Object.defineProperty(st,"length",{get:function(){return k().length;}});function ch(){if(!p)return;clearTimeout(t);t=setTimeout(function(){try{parent.postMessage({hgExtSave:JSON.stringify(o)},"*");}catch(e){}},400);}if(p)for(var q in S)o[q]=S[q];return st;}' +
     'try{Object.defineProperty(window,"localStorage",{value:mk(1),configurable:true});}catch(e){}try{Object.defineProperty(window,"sessionStorage",{value:mk(0),configurable:true});}catch(e){}' +
-    'try{Object.defineProperty(window,"indexedDB",{value:undefined,configurable:true});}catch(e){}try{Object.defineProperty(document,"cookie",{get:function(){return"";},set:function(){},configurable:true});}catch(e){}' +
-    '})();<\/script>';
+    'try{Object.defineProperty(document,"cookie",{get:function(){return"";},set:function(){},configurable:true});}catch(e){}' +
+    '})();(' + extFakeIDB.toString() + ')();<\/script>';
+}
+// An IndexedDB that lives in memory, for sandboxed external games (a sandboxed page may not use the real one, and Unity
+// games keep their files and PlayerPrefs there). Enough for Emscripten's IDBFS and Unity's loader cache: open/upgrade,
+// object stores with keys or keyPaths, get/put/add/delete/clear/count/getAll, indexes and cursors. Runs inside the game.
+function extFakeIDB() {
+  var DBS = {}, later = function (f) { setTimeout(f, 0); };
+  var ev = function (t) { return { target: t, preventDefault: function () {}, stopPropagation: function () {} }; };
+  function Req(src, tx) { this.source = src; this.transaction = tx || null; this.readyState = 'pending'; this.result = undefined; this.error = null; this.onsuccess = this.onerror = null; }
+  Req.prototype.addEventListener = function (t, f) { this['on' + t] = f; };
+  function done(r, v) { r.readyState = 'done'; r.result = v; if (r.onsuccess) r.onsuccess(ev(r)); }
+  function fail(r, e) { r.readyState = 'done'; r.error = e; if (r.onerror) r.onerror(ev(r)); }
+  function kstr(k) { return (k instanceof Date ? 'd' + k.getTime() : typeof k === 'number' ? 'n' + k : 's' + String(k)); }
+  function cmp(a, b) { a = a instanceof Date ? a.getTime() : a; b = b instanceof Date ? b.getTime() : b; return a < b ? -1 : a > b ? 1 : 0; }
+  function inRange(k, q) { if (q == null) return true; if (typeof q !== 'object' || q instanceof Date || !('lower' in q || 'upper' in q)) return cmp(k, q) === 0;
+    if (q.lower !== undefined) { var c = cmp(k, q.lower); if (c < 0 || (c === 0 && q.lowerOpen)) return false; } if (q.upper !== undefined) { var d = cmp(k, q.upper); if (d > 0 || (d === 0 && q.upperOpen)) return false; } return true; }
+  function DB(name) { var self = this; this.name = name; this.version = 0; this.S = {}; this.objectStoreNames = { contains: function (n) { return n in self.S; }, item: function (i) { return Object.keys(self.S)[i]; } }; Object.defineProperty(this.objectStoreNames, 'length', { get: function () { return Object.keys(self.S).length; } }); }
+  DB.prototype.createObjectStore = function (n, o) { this.S[n] = { rows: {}, idx: {}, kp: o && o.keyPath, auto: o && o.autoIncrement, next: 1 }; return new Store(this, n, this._up); };
+  DB.prototype.deleteObjectStore = function (n) { delete this.S[n]; };
+  DB.prototype.transaction = function (names) { return new Tx(this); };
+  DB.prototype.close = function () {}; DB.prototype.addEventListener = function () {};
+  function Tx(db) { var t = this; this.db = db; this.n = 0; this.fin = false; this.oncomplete = this.onerror = this.onabort = null; later(function () { t._end(); }); }
+  Tx.prototype.objectStore = function (n) { if (!this.db.S[n]) throw new DOMException('No store ' + n, 'NotFoundError'); return new Store(this.db, n, this); };
+  Tx.prototype.addEventListener = function (t, f) { this['on' + t] = f; };
+  Tx.prototype.abort = function () { this.fin = true; if (this.onabort) this.onabort(ev(this)); };
+  Tx.prototype.run = function (src, f, each) { var t = this, r = new Req(src, t); t.n++; later(function () { try { if (each) each(r); else done(r, f()); } catch (e) { fail(r, e); if (t.onerror) t.onerror(ev(t)); } t.n--; t._end(); }); return r; };
+  Tx.prototype._end = function () { var t = this; if (t.n || t.fin) return; later(function () { if (!t.n && !t.fin) { t.fin = true; if (t.oncomplete) t.oncomplete(ev(t)); } }); };
+  function Store(db, n, tx) { this.db = db; this.name = n; this.tx = tx || new Tx(db); this.transaction = this.tx; this.st = db.S[n]; this.keyPath = this.st.kp; this.indexNames = { contains: function (x) { return x in db.S[n].idx; } }; }
+  Store.prototype._key = function (v, k) { var s = this.st; if (k !== undefined) return k; if (s.kp) return v[s.kp]; if (s.auto) return s.next++; throw new DOMException('No key', 'DataError'); };
+  Store.prototype.put = function (v, k) { var s = this.st, key = this._key(v, k); return this.tx.run(this, function () { s.rows[kstr(key)] = { k: key, v: v }; return key; }); };
+  Store.prototype.add = function (v, k) { var s = this.st, key = this._key(v, k); return this.tx.run(this, function () { if (s.rows[kstr(key)]) throw new DOMException('Key exists', 'ConstraintError'); s.rows[kstr(key)] = { k: key, v: v }; return key; }); };
+  Store.prototype.get = function (k) { var s = this.st; return this.tx.run(this, function () { for (var i in s.rows) if (inRange(s.rows[i].k, k)) return s.rows[i].v; return undefined; }); };
+  Store.prototype.getKey = function (k) { var s = this.st; return this.tx.run(this, function () { for (var i in s.rows) if (inRange(s.rows[i].k, k)) return s.rows[i].k; }); };
+  Store.prototype.getAll = function (q) { var s = this.st; return this.tx.run(this, function () { return sorted(s, null).filter(function (r) { return inRange(r.k, q); }).map(function (r) { return r.v; }); }); };
+  Store.prototype.getAllKeys = function (q) { var s = this.st; return this.tx.run(this, function () { return sorted(s, null).filter(function (r) { return inRange(r.k, q); }).map(function (r) { return r.k; }); }); };
+  Store.prototype['delete'] = function (k) { var s = this.st; return this.tx.run(this, function () { for (var i in s.rows) if (inRange(s.rows[i].k, k)) delete s.rows[i]; }); };
+  Store.prototype.clear = function () { var s = this.st; return this.tx.run(this, function () { s.rows = {}; }); };
+  Store.prototype.count = function (q) { var s = this.st; return this.tx.run(this, function () { var n = 0; for (var i in s.rows) if (inRange(s.rows[i].k, q)) n++; return n; }); };
+  Store.prototype.createIndex = function (n, kp) { this.st.idx[n] = kp; return new Index(this, n); };
+  Store.prototype.deleteIndex = function (n) { delete this.st.idx[n]; };
+  Store.prototype.index = function (n) { if (!(n in this.st.idx)) throw new DOMException('No index ' + n, 'NotFoundError'); return new Index(this, n); };
+  Store.prototype.openCursor = function (q) { return cursor(this, null, q, false); };
+  Store.prototype.openKeyCursor = function (q) { return cursor(this, null, q, true); };
+  function sorted(s, ip) { var a = []; for (var i in s.rows) a.push(s.rows[i]); return a.map(function (r) { return { k: r.k, v: r.v, ik: ip ? r.v[ip] : r.k }; }).sort(function (x, y) { return cmp(x.ik, y.ik) || cmp(x.k, y.k); }); }
+  function cursor(store, ip, q, keysOnly) {
+    var list = sorted(store.st, ip).filter(function (r) { return inRange(r.ik, q); }), i = 0, tx = store.tx;
+    return tx.run(store, null, function (r) {
+      function step() { if (i >= list.length) { done(r, null); return; } var row = list[i++]; var c = { key: row.ik, primaryKey: row.k, value: keysOnly ? undefined : row.v, source: store,
+        'continue': function () { tx.n++; later(function () { step(); tx.n--; tx._end(); }); }, 'delete': function () { delete store.st.rows[kstr(row.k)]; return new Req(store, tx); },
+        update: function (v) { store.st.rows[kstr(row.k)] = { k: row.k, v: v }; return new Req(store, tx); } }; done(r, c); }
+      step();
+    });
+  }
+  function Index(store, n) { this.store = store; this.objectStore = store; this.name = n; this.keyPath = store.st.idx[n]; }
+  Index.prototype.openCursor = function (q) { return cursor(this.store, this.keyPath, q, false); };
+  Index.prototype.openKeyCursor = function (q) { return cursor(this.store, this.keyPath, q, true); };
+  Index.prototype.get = function (q) { var st = this.store.st, kp = this.keyPath; return this.store.tx.run(this, function () { var a = sorted(st, kp).filter(function (r) { return inRange(r.ik, q); }); return a.length ? a[0].v : undefined; }); };
+  Index.prototype.count = function (q) { var st = this.store.st, kp = this.keyPath; return this.store.tx.run(this, function () { return sorted(st, kp).filter(function (r) { return inRange(r.ik, q); }).length; }); };
+  var idb = {
+    open: function (name, version) { var r = new Req(null); later(function () { var db = DBS[name] || (DBS[name] = new DB(name)), old = db.version, v = version || Math.max(1, old);
+      if (v < old) return fail(r, new DOMException('Version less than existing', 'VersionError'));
+      r.result = db; if (v > old) { db.version = v; var up = new Tx(db); up.n++; db._up = up; r.transaction = up; if (r.onupgradeneeded) { try { r.onupgradeneeded({ target: r, oldVersion: old, newVersion: v, preventDefault: function () {} }); } catch (e) { return fail(r, e); } } db._up = null; up.n--; up._end(); }
+      r.transaction = null; later(function () { done(r, db); }); }); return r; },
+    deleteDatabase: function (name) { var r = new Req(null); later(function () { delete DBS[name]; done(r, undefined); }); return r; },
+    cmp: cmp, databases: function () { return Promise.resolve(Object.keys(DBS).map(function (n) { return { name: n, version: DBS[n].version }; })); }
+  };
+  try { Object.defineProperty(window, 'indexedDB', { value: idb, configurable: true }); } catch (e) {}
+  window.IDBKeyRange = window.IDBKeyRange || {};
+  ['only', 'lowerBound', 'upperBound', 'bound'].forEach(function () {});
+  window.IDBKeyRange.only = function (v) { return { lower: v, upper: v }; }; window.IDBKeyRange.lowerBound = function (v, o) { return { lower: v, lowerOpen: !!o }; };
+  window.IDBKeyRange.upperBound = function (v, o) { return { upper: v, upperOpen: !!o }; }; window.IDBKeyRange.bound = function (a, b, lo, uo) { return { lower: a, upper: b, lowerOpen: !!lo, upperOpen: !!uo }; };
 }
 function extHtml(html, g) { var sh = extShim(g), m = /<head[^>]*>/i.exec(html); return m ? html.slice(0, m.index + m[0].length) + sh + html.slice(m.index + m[0].length) : sh + html; }
 addEventListener('message', function (e) {
