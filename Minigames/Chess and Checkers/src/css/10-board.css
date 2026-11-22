@@ -40,3 +40,12 @@
 #cc-pick .mg-btn.on { background: var(--mg); color: #1c1206; border-color: var(--mg); }
 #cc-pick select { font: inherit; padding: 6px 8px; border-radius: 8px; background: #1f2937; color: var(--text); border: 1px solid var(--line); }
 @media (max-width: 760px) { #cc-wrap { flex-direction: column; } #cc-board { --sz: min(calc((100vw - 30px) / 8), calc((100vh - 330px) / 8)); } #cc-side { width: 100%; max-height: 200px; } }
+/* material counter */
+.cc-mat { display: inline-flex; align-items: center; gap: 0; margin-left: 4px; min-height: 18px; }
+.cc-mat .pc { font-size: 19px; margin-right: -3px; } .cc-mat .pc.b { color: #1c1917; text-shadow: 0 0 2px #e7e5e4, 0 0 2px #e7e5e4, 0 0 3px #e7e5e4; } .cc-mat .pc.w { color: #fff; text-shadow: 0 0 2px #000, 0 0 2px #000; }
+.cc-mat .ckm { width: 11px; height: 11px; border-radius: 50%; margin-right: -2px; border: 1px solid #0008; } .cc-mat .ckm.d { background: #dc2626; } .cc-mat .ckm.l { background: #e7e5e4; }
+.cc-mat b { font: 800 12px ui-monospace, monospace; color: #4ade80; margin-left: 7px; }
+#cc-matbox { font-size: 12px; color: var(--dim); }
+.cc-mbar { height: 8px; border-radius: 5px; background: #111; overflow: hidden; margin: 4px 0; border: 1px solid var(--line); } .cc-mbar i { display: block; height: 100%; background: #f5f5f4; transition: width .3s; }
+#cc-matbox.ck .cc-mbar { background: #e7e5e4; } #cc-matbox.ck .cc-mbar i { background: #dc2626; }
+.cc-mtxt { display: flex; justify-content: space-between; font: 700 12px ui-monospace, monospace; } .cc-mtxt b { color: var(--text); }

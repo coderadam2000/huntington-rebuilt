@@ -41,7 +41,7 @@ document.getElementById('app').innerHTML = `
   <div id="cc-wrap"><div id="cc-boardbox"><div id="cc-top" class="cc-pl"></div><div id="cc-board"></div><div id="cc-bot" class="cc-pl"></div></div>
   <div id="cc-side"><div id="cc-title"></div><div id="cc-status"></div>
     <div class="cc-btns"><button class="mg-btn sm" id="cc-flip">Flip board</button><button class="mg-btn sm" id="cc-resign">Resign</button></div>
-    <div id="cc-moves"></div><div id="cc-me"></div></div></div>
+    <div id="cc-matbox"></div><div id="cc-moves"></div><div id="cc-me"></div></div></div>
   <div id="cc-promo" class="hidden"></div>`;
 const PIECE = { K: '♚', Q: '♛', R: '♜', B: '♝', N: '♞', P: '♟' };
 function ccDraw() {
@@ -68,12 +68,50 @@ function ccDraw() {
     box.innerHTML = h;
     ccPlayers(); ccStatus(); ccMoveList();
 }
+// ---- material counter (2026-11-21): what each side has taken, and who is ahead on points ----
+// Chess: P 1, N 3, B 3, R 5, Q 9. Captured = the starting set minus what is on the board (a promoted piece counts as the
+// pawn it was, so promotions do not show as captures). Checkers: a man is 1, a king 2.
+const CC_PTS = { P: 1, N: 3, B: 3, R: 5, Q: 9, K: 0 }, CC_START = { P: 8, N: 2, B: 2, R: 2, Q: 1 };
+function ccMaterial() {
+    const b = CC.st.b, out = {};
+    if (isChess()) {
+        for (const w of [true, false]) {
+            const n = { P: 0, N: 0, B: 0, R: 0, Q: 0 }; let pts = 0;
+            for (const p of b) if (p && chWhite(p) === w && p.toUpperCase() !== 'K') { n[p.toUpperCase()]++; pts += CC_PTS[p.toUpperCase()]; }
+            let promoted = 0; for (const k of ['N', 'B', 'R', 'Q']) promoted += Math.max(0, n[k] - CC_START[k]);
+            const lost = { Q: Math.max(0, 1 - n.Q), R: Math.max(0, 2 - n.R), B: Math.max(0, 2 - n.B), N: Math.max(0, 2 - n.N), P: Math.max(0, 8 - n.P - promoted) };
+            out[w ? 'w' : 'b'] = { pts, lost };
+        }
+    } else {
+        for (const sd of ['d', 'l']) {
+            let men = 0, kings = 0; for (const p of b) if (p && ckSide(p) === sd) { if (ckKing(p)) kings++; else men++; }
+            out[sd] = { pts: men + kings * 2, men, kings, lost: { n: Math.max(0, 12 - men - kings) } };
+        }
+    }
+    return out;
+}
+// the strip under a player's name: the enemy pieces they have taken, and +N when they are ahead
+function ccMatHtml(side, M) {
+    const opp = Object.keys(M).find(k => k !== side), took = M[opp].lost, adv = M[side].pts - M[opp].pts;
+    let icons = '';
+    if (isChess()) { for (const k of ['Q', 'R', 'B', 'N', 'P']) for (let i = 0; i < took[k]; i++) icons += `<span class="pc ${opp}">${PIECE[k]}</span>`; }
+    else for (let i = 0; i < took.n; i++) icons += `<span class="ckm ${opp}"></span>`;
+    return `<span class="cc-mat" title="Pieces taken and material advantage">${icons}${adv > 0 ? `<b>+${adv}</b>` : ''}</span>`;
+}
+function ccMatBar(M) {
+    const [a, b] = isChess() ? ['w', 'b'] : ['d', 'l'], pa = M[a].pts, pb = M[b].pts, tot = pa + pb || 1, d = pa - pb;
+    const nm = isChess() ? { w: 'White', b: 'Black' } : { d: 'Dark', l: 'Light' };
+    const who = d === 0 ? 'Even' : `${nm[d > 0 ? a : b]} +${Math.abs(d)}`;
+    const extra = isChess() ? '' : ` <small>(${M[a].kings} vs ${M[b].kings} kings)</small>`;
+    return `<div class="cc-mlbl">Material</div><div class="cc-mbar"><i style="width:${(pa / tot * 100).toFixed(1)}%"></i></div><div class="cc-mtxt"><span>${pa}</span><b>${who}</b><span>${pb}</span></div>${extra}`;
+}
 function ccName(id) { const p = MG.player(id); return p ? p.name : '?'; }
 function ccPlayers() {
     const sides = isChess() ? ['w', 'b'] : ['d', 'l'], bottom = CC.flip ? sides[1] : sides[0], top = CC.flip ? sides[0] : sides[1];
+    const M = ccMaterial(), mb = document.getElementById('cc-matbox'); if (mb) { mb.innerHTML = ccMatBar(M); mb.className = isChess() ? 'chess' : 'ck'; }
     const card = side => { const id = CC.sides[side], e = CC.elo[id], turn = !CC.over && ccTurnSide() === side;
         const dot = isChess() ? `<span class="cc-dot ${side}"></span>` : `<span class="cc-dot ck ${side}"></span>`;
-        return `${dot}<b>${mgEsc(ccName(id))}</b>${e ? ` <span class="cc-elo">${e}</span> ${ccRankHtml(e)}` : ''}${turn ? '<span class="cc-turn">to move</span>' : ''}`; };
+        return `${dot}<b>${mgEsc(ccName(id))}</b>${e ? ` <span class="cc-elo">${e}</span> ${ccRankHtml(e)}` : ''}${ccMatHtml(side, M)}${turn ? '<span class="cc-turn">to move</span>' : ''}`; };
     document.getElementById('cc-top').innerHTML = card(top); document.getElementById('cc-bot').innerHTML = card(bottom);
 }
 function ccStatus() {
@@ -218,5 +256,5 @@ function ccStart(m) {
     ccMeBox(); ccDraw(); ccBotTurn();
 }
 ccLobbyExtras();
-window.__cc = { CC, CH, CK, CC_BOTS, ccRank, ccSave, ccRate, state: () => ({ mode: CC.mode, over: CC.over, res: CC.res, turn: CC.st && ccTurnSide(), me: ccMySide(), moves: CC.moves.length, hist: CC.hist.slice() }),
+window.__cc = { CC, CH, CK, CC_BOTS, ccMaterial, ccDraw, ccRank, ccSave, ccRate, state: () => ({ mode: CC.mode, over: CC.over, res: CC.res, turn: CC.st && ccTurnSide(), me: ccMySide(), moves: CC.moves.length, hist: CC.hist.slice() }),
     move: id => ccSend(CC.moves.find(m => ENG().id(m) === id)), ids: () => CC.moves.map(m => ENG().id(m)) };
