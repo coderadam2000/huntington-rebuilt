@@ -122,7 +122,7 @@ h1 { margin: 0; font-size: clamp(28px, 5vw, 44px); font-weight: 900; letter-spac
 #player { position: fixed; inset: 0; background: #000; display: none; flex-direction: column; z-index: 10; }
 #player.open { display: flex; }
 /* a game covers the whole page: don't keep drawing the launcher (or the Grapevine chat and its animated background) under it */
-html.playing #view-games, html.playing #view-acct, html.playing #view-chat, html.playing #view-mp { content-visibility: hidden; }
+html.playing #view-games, html.playing #view-ext, html.playing #view-acct, html.playing #view-chat, html.playing #view-mp { content-visibility: hidden; }
 #ptop { display: flex; align-items: center; gap: 8px; padding: 5px 8px; background: var(--panel); border-bottom: 1px solid var(--line); }
 #ptop button, #ptop a { background: var(--raise); border: 1px solid var(--line); color: var(--text); border-radius: 6px; padding: 5px 11px; font-size: 13px; font-weight: 700; cursor: pointer; text-decoration: none; font-family: inherit; }
 #ptitle { flex: 1; font-weight: 800; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
@@ -170,7 +170,7 @@ html[data-base] { --dim: color-mix(in srgb, var(--text) 62%, var(--ground)); }
 #offdl, #offdlg .btns button, .close, #ptop button, #ptop a, #exp .box, #offdlg .box { border-radius: 3px; }
 #ptop button, #ptop a, .close, #offdlg .btns button, #offdl { font-family: var(--mono); font-size: 11px; letter-spacing: .08em; text-transform: uppercase; }
 #view-acct { padding-bottom: 40px; }
-#view-acct[hidden], #view-games[hidden], #view-chat[hidden], #gate[hidden] { display: none; }
+#view-acct[hidden], #view-games[hidden], #view-ext[hidden], #view-chat[hidden], #gate[hidden] { display: none; }
 /* the Grapevine tab is the whole app, edge to edge under the top bar */
 #view-chat { position: fixed; left: 0; right: 0; bottom: 0; top: 0; z-index: 4; padding-top: var(--topbar, 49px); background: var(--ground); }
 #gvapp { width: 100%; height: 100%; border: 0; display: block; background: var(--ground); }
@@ -178,7 +178,7 @@ body.chat #hub { position: relative; z-index: 6; pointer-events: none; padding-b
 body.chat #topbar { pointer-events: auto; }
 /* (the tabs used to drop to their own row below 1100 px: now they shrink instead and stay on one line, see the end of this file) */
 @media (max-width: 760px) { #topbar { gap: 0 12px; } #tabs { order: 3; flex: 1 1 100%; overflow-x: auto; } .tab { padding: 10px 10px; letter-spacing: .1em; } #chip { margin-left: auto; } }
-body.chat #hub > #view-games, body.chat #hub > #view-acct { display: none; }
+body.chat #hub > #view-games, body.chat #hub > #view-ext, body.chat #hub > #view-acct { display: none; }
 body.chat { overflow: hidden; }
 #gate { position: fixed; inset: 0; z-index: 40; background: var(--ground); overflow-y: auto; display: flex; padding: 20px 16px; }
 #gate-box { margin: auto; width: 100%; max-width: 640px; }
@@ -216,16 +216,19 @@ body.chat { overflow: hidden; }
 #livestat { font: 700 11px var(--mono); letter-spacing: .08em; color: #ff5a5a; }
 #livestat b { background: #e02424; color: #fff; padding: 2px 6px; border-radius: 2px; margin-right: 6px; }
 #golive.on { border-color: #e02424; color: #ff6b6b; }
-#watch { position: fixed; inset: 0; z-index: 8; background: rgba(0,0,0,.85); display: flex; align-items: center; justify-content: center; padding: 10px; }
+#watch { position: fixed; inset: 0; z-index: 1000; background: rgba(0,0,0,.85); display: flex; align-items: center; justify-content: center; padding: 10px; }
 #watch[hidden] { display: none; }
 #watch .box { width: min(1280px, 100%); background: var(--panel); border: 1px solid var(--line); border-radius: 4px; overflow: hidden; }
 #watch .wtop { display: flex; gap: 12px; align-items: center; padding: 8px 10px; border-bottom: 1px solid var(--line); }
 #w-title { font-weight: 700; flex: 1; }
 #w-stat { font: 11px var(--mono); color: var(--dim); }
-#w-close { font: 700 11px var(--mono); text-transform: uppercase; padding: 6px 12px; border-radius: 3px; border: 1px solid var(--line); background: var(--raise); color: var(--text); cursor: pointer; }
+#w-close, #w-wait .w-leave, #w-wait .w-again { font: 700 12px var(--mono); text-transform: uppercase; padding: 8px 16px; border-radius: 4px; border: 1px solid #f87171; background: #b91c1c; color: #fff; cursor: pointer; }
+#w-close:hover, #w-wait .w-leave:hover { background: #dc2626; } #w-wait .w-again { background: var(--raise); border-color: var(--line); color: var(--text); }
+#w-wait { flex-direction: column; gap: 14px; text-align: center; padding: 20px; } #w-wait .w-btns { display: flex; gap: 10px; }
 .wscreen { position: relative; aspect-ratio: 16 / 9; background: #000; }
 .wscreen video, .wscreen img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: contain; }
 #w-wait { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; color: var(--dim); font: 13px var(--mono); }
+#w-wait[hidden] { display: none; }
 
 /* ---- Profile: header card, locker, Taco shop, leaderboards ---- */
 #view-prof { max-width: 1060px; margin: 0 auto; padding: 18px 16px 60px; }
@@ -732,7 +735,7 @@ body.hubbonked{animation:hbonkshake .5s}
 <div id="hub">
   <div id="topbar">
     <h1>TACO GAMES</h1>
-    <nav id="tabs"><button class="tab on" id="tab-games">Games</button><button class="tab" id="tab-prof">Profile</button><button class="tab" id="tab-lb">Leaderboards</button><button class="tab" id="tab-mp">Multiplayer</button><button class="tab" id="tab-act">Activity</button><button class="tab" id="tab-chat">Grapevine</button><button class="tab" id="tab-acct">Account</button><button class="tab" id="tab-admin" hidden>&#128737;&#65039; Admin</button></nav>
+    <nav id="tabs"><button class="tab on" id="tab-games">Games</button><button class="tab" id="tab-ext" title="Games made by other people, brought into Taco Games">External Games</button><button class="tab" id="tab-prof">Profile</button><button class="tab" id="tab-lb">Leaderboards</button><button class="tab" id="tab-mp">Multiplayer</button><button class="tab" id="tab-act">Activity</button><button class="tab" id="tab-chat">Grapevine</button><button class="tab" id="tab-acct">Account</button><button class="tab" id="tab-admin" hidden>&#128737;&#65039; Admin</button></nav>
     <button id="reportBtn" title="Report a player, a message or a bug to the admins">&#128681; Report</button><button id="rulesBtn" title="The rules, and what you can report">&#128220; Rules</button><button id="tourBtn" title="Take the tour (how everything works)">?</button><button id="chip" title="Your profile, tacos and the shop"><span class="cdot" id="chip-dot"></span><span id="chip-pfp"></span><span class="nm" id="chip-nm"></span><span id="chip-goons"></span></button>
   </div>
   <div id="view-games">
@@ -749,6 +752,11 @@ body.hubbonked{animation:hbonkshake .5s}
   <div class="grid mini" id="grid-mini"></div>
   <div id="offbar"><span id="offstat"></span><span id="offprog"><i id="offfill"></i></span><button id="offdl" title="Save one HTML file with every game inside, to play with no internet">Download offline copy</button></div>
   <div class="note" id="note"></div>
+  </div>
+  <div id="view-ext" hidden>
+    <h2 class="gsec" id="ext-h">External Games <span>Made by other people and brought into Taco Games. Their makers are credited on each one.</span></h2>
+    <div class="grid" id="grid-ext"></div>
+    <div class="note" id="ext-none" hidden>No external games yet.</div>
   </div>
   <div id="view-acct" hidden></div>
   <div id="view-gpops" hidden></div>
@@ -783,7 +791,7 @@ body.hubbonked{animation:hbonkshake .5s}
     </div>
   </div>
 </div>
-<div id="watch" hidden><div class="box"><div class="wtop"><span id="w-title">Watching</span><span id="w-stat"></span><button id="w-close">Stop watching</button></div><div class="wscreen"><video id="w-video" autoplay playsinline muted></video><img id="w-img" alt=""><div id="w-wait">Connecting to the game...</div></div></div></div>
+<div id="watch" hidden><div class="box"><div class="wtop"><span id="w-title">Watching</span><span id="w-stat"></span><button id="w-close" title="Leave this stream (Esc)">&#10005; Leave</button></div><div class="wscreen"><video id="w-video" autoplay playsinline muted></video><img id="w-img" alt=""><div id="w-wait">Connecting to the game...</div></div></div></div>
 <div id="view-chat" hidden><iframe id="gvapp" title="Grapevine" allow="clipboard-write"></iframe></div>
 <div id="gate" hidden><div id="gate-box"></div></div>
 <div id="tour" hidden><div class="box"></div></div>
@@ -896,7 +904,7 @@ function setVersion(v) { MIRRORS = MIRROR_HOSTS.map(function (m) { return m + RE
 // If GitHub cannot be reached (blocked, or its 60-an-hour limit for one school network), it falls back to '@main'.
 // (A hub cannot swap itself for a newer one in the same page: its scripts have already declared their names. Players get a
 // newer launcher itself through the loader, which pins it; HG_HUB_ID tells which build is running.)
-var HG_HUB_ID = '2ca5eed51b8d';      // the build fills in a fingerprint of this file
+var HG_HUB_ID = '5bbea4612cd7';      // the build fills in a fingerprint of this file
 var HG_SHA_RE = /^[0-9a-f]{40}$/;
 function latestSha() {
   try { var c = JSON.parse(localStorage.getItem('hgv:sha') || 'null'); if (c && HG_SHA_RE.test(c.s) && Date.now() - c.t < 120000) return Promise.resolve(c.s); } catch (e) {}
@@ -924,11 +932,11 @@ var GAMES = [
   { dir: 'Zoom', hero: 'Brand new: 3D kart and bike racing. 12 tracks, 15 items, drift for mini-turbos, build your ride in the garage and race your friends online.', name: 'Zoom', img: 'zoom', tags: ['New', '3D', 'Racing', 'Multiplayer'], desc: "NEW: 3D kart and bike racing. 12 tracks in 3 cups, 15 items, 6 modes (Grand Prix, Quick Race, Time Trial, Knockout, Coin Rush, Balloon Battle). Drift for mini-turbos, earn coins, build your ride in the garage, and race your friends online." },
   { dir: 'Imposter', name: 'Imposter: Shades in the Lighthouse', img: 'imposter', tags: ['New', 'Multiplayer', 'Party'], desc: "NEW: one or more Shades hide among the lighthouse keepers. Do your chores, ring the bell, call a gathering and vote them into the fog before the lights go out. Up to 10 players with a 6-digit code (bots fill the empty seats), or play alone against 9 bots, on two maps." },
   { dir: 'Casino', name: 'The Lucky Taco Casino', img: 'casino', tags: ['New', 'Casino', 'Multiplayer', 'Party'], desc: "NEW: turn tacos into chips (1 taco = 100 chips) and play blackjack, roulette, slots, plinko, mines, baccarat, craps, video poker and more. Live tables with everyone who is in: Live Roulette, the Rocket, Horse Racing, The Pot and coin-flip Duels. A free spin every day. Play money only: tacos and chips are not worth anything outside Taco Games." },
-  { dir: 'Tetris', name: 'Tetris Surge 2.0', img: 'tetris', credit: 'Made by Hunter', tags: ['New', 'Puzzle'], desc: 'NEW 2.0: climb the rank ladder in Surge, Sprint, Ultra and Marathon. 14 new perks, 5 new bosses, a Daily Challenge with streaks, 55 achievements, and a 70-puzzle Puzzle mode with stars, undo and hints. Plus 12 block skins, 8 backgrounds and Hold and T-Spin tutorials. Still a rogue-lite run with power blocks, plus Marathon, Sprint, Ultra and Zen.' },
+  { dir: 'Tetris', cat: 'ext', name: 'Tetris Surge 2.0', img: 'tetris', credit: 'Made by Hunter', tags: ['New', 'Puzzle'], desc: 'NEW 2.0: climb the rank ladder in Surge, Sprint, Ultra and Marathon. 14 new perks, 5 new bosses, a Daily Challenge with streaks, 55 achievements, and a 70-puzzle Puzzle mode with stars, undo and hints. Plus 12 block skins, 8 backgrounds and Hold and T-Spin tutorials. Still a rogue-lite run with power blocks, plus Marathon, Sprint, Ultra and Zen.' },
   { dir: 'Market Life 1.9', name: 'Market & Life 2.2', img: 'market', tags: ['New', 'Sim'], desc: 'Away for 30 minutes pauses progress. NEW 2.1: join the military (enlist, or become an officer through the Academy, ROTC or Officer Training School), transfer from community college, stay for a master\'s, and 14 new life events. 2.0: live a whole life, from school and 22 degree programs to careers, homes, cars, family and retirement, then see your Life Score in the Hall of Lives. Trade 42 stocks and cryptos with charts, news, dividends and limit orders, save in bonds, and run 10 kinds of business. Plus 33 achievements and a Stats page.', credit: 'Original game by Robbie' },
   { dir: '50 Levels Of Spikes 1.2', name: '100 Levels of Spikes 2.3', img: 'spikes', tags: ['New', 'Platformer', 'Multiplayer'], desc: 'NEW 2.3: beat all 100 for a Victor spot on the leaderboard, auto respawn, a cube that gets bored when you stand still, and roasts that never repeat too soon. 2.2: Multiplayer! Race your friends or beat levels together in Co-op, and fill the room with bots (the host picks how many people and bots). Plus music, a new world every 20 levels (sunset dunes, deep sea, toxic lab, inferno) and a lot more roasts when you die.' },
-  { dir: 'Coffee Shop Tycoon Legacy', name: 'Bean & Brew Classic', img: 'legacy', tags: ['Tycoon'], desc: 'The original coffee shop tycoon. Away for 30 minutes pauses progress.', credit: 'Made by Robbie' },
-  { dir: 'Levi Dash By Levi 2.0', noChat: true, name: 'Neon Dash 2.1', img: 'neondash', tags: ['Platformer'], desc: 'NEW 2.1: a World leaderboard next to your Hall of Fame. Neon Dash: Ultimate Edition. Jump the neon spikes, keep your streak going, beat your score and sign the Hall of Fame.', credit: 'Made by Levi' },
+  { dir: 'Coffee Shop Tycoon Legacy', cat: 'ext', name: 'Bean & Brew Classic', img: 'legacy', tags: ['Tycoon'], desc: 'The original coffee shop tycoon. Away for 30 minutes pauses progress.', credit: 'Made by Robbie' },
+  { dir: 'Levi Dash By Levi 2.0', cat: 'ext', noChat: true, name: 'Neon Dash 2.1', img: 'neondash', tags: ['Platformer'], desc: 'NEW 2.1: a World leaderboard next to your Hall of Fame. Neon Dash: Ultimate Edition. Jump the neon spikes, keep your streak going, beat your score and sign the Hall of Fame.', credit: 'Made by Levi' },
   { dir: 'Minigames/Reaction Duel', name: 'Reaction Duel', img: 'mg-reaction', cat: 'mini', tags: ['New', 'Multiplayer', 'Minigame'], desc: "Wait for green, then tap faster than everyone. First to 5. Up to 8 players and bots." },
   { dir: 'Minigames/Snake Arena', name: 'Snake Arena', img: 'mg-snake', cat: 'mini', tags: ['New', 'Multiplayer', 'Minigame'], desc: "Every snake on one board: eat, grow, don't crash. Last one slithering wins. Up to 8 players and bots." },
   { dir: 'Minigames/Typing Race', name: 'Typing Race', img: 'mg-typing', cat: 'mini', tags: ['New', 'Multiplayer', 'Minigame'], desc: "Race your friends by typing the same passage: every correct letter moves your car. Up to 8 players and bots." },
@@ -948,9 +956,10 @@ function path(g) { return encodeURI(g.dir) + '/' + (g.file || 'index.html'); }
 function el(tag, cls, html) { var e = document.createElement(tag); if (cls) e.className = cls; if (html != null) e.innerHTML = html; return e; }
 function render() {
   if (!local && !MIRRORS.length) { versionReady.then(function (v) { setVersion(v); render(); }); return; }
-  var grid = document.getElementById('grid'), mini = document.getElementById('grid-mini');
-  grid.innerHTML = ''; mini.innerHTML = ''; document.getElementById('exp-list').innerHTML = '';
+  var grid = document.getElementById('grid'), mini = document.getElementById('grid-mini'), ext = document.getElementById('grid-ext');
+  grid.innerHTML = ''; mini.innerHTML = ''; ext.innerHTML = ''; document.getElementById('exp-list').innerHTML = '';
   document.getElementById('mini-h').hidden = !GAMES.some(function (g) { return g.cat === 'mini'; });      // the Minigames section (cat: 'mini')
+  document.getElementById('ext-none').hidden = GAMES.some(function (g) { return g.cat === 'ext'; });      // the External Games tab (cat: 'ext': made by someone else)
   GAMES.forEach(function (g) {
     var b = el('button', 'game'), shot = el('div', 'shot'), img = new Image();
     var m = 0;
@@ -973,7 +982,7 @@ function render() {
     var hov = 0, warm = function () { clearTimeout(hov); hov = setTimeout(function () { if (typeof prefetchGame === 'function') prefetchGame(g); }, 150); };
     b.addEventListener('pointerenter', warm); b.addEventListener('focus', warm); b.addEventListener('touchstart', warm, { passive: true });
     b.addEventListener('pointerleave', function () { clearTimeout(hov); });
-    (g.cat === 'mini' ? mini : grid).appendChild(b);
+    (g.cat === 'mini' ? mini : g.cat === 'ext' ? ext : grid).appendChild(b);
   });
   var list = document.getElementById('exp-list');
   EXPERIMENTAL.forEach(function (g) {
@@ -1688,10 +1697,11 @@ window.addEventListener('blur', function () {
   setTimeout(function () { var f = document.getElementById('gvapp'); if (document.activeElement === f && document.getElementById('view-chat').hidden) { f.blur(); window.focus(); } }, 0);
 });
 function showTab(which) {
-  if (guestMode && which !== 'games' && which !== 'mp') { guestMode = false; onGvChange(); return; }   // those need an account: show the sign-in screen again
+  if (guestMode && which !== 'games' && which !== 'ext' && which !== 'mp') { guestMode = false; onGvChange(); return; }   // those need an account: show the sign-in screen again
   if (!HG_REQUIRE_GRAPEVINE && which === 'chat' && !(window.HGGrapevine && window.HGGrapevine.me())) which = 'acct';
   var chat = which === 'chat';
   document.getElementById('view-games').hidden = which !== 'games';
+  document.getElementById('view-ext').hidden = which !== 'ext';
   document.getElementById('view-acct').hidden = which !== 'acct';
   document.getElementById('view-prof').hidden = which !== 'prof';
   if (which === 'prof') loadGV().then(function () { profMount(); profRender(); }, function () {});
@@ -1702,7 +1712,7 @@ function showTab(which) {
   if (which === 'act' && typeof actRender === 'function') loadGV().then(actRender, function () {});
   document.getElementById('view-chat').hidden = !chat;
   document.body.className = chat ? 'chat' : '';
-  ['games', 'prof', 'lb', 'mp', 'act', 'chat', 'acct'].forEach(function (t) { document.getElementById('tab-' + t).className = 'tab' + (which === t ? ' on' : ''); });
+  ['games', 'ext', 'prof', 'lb', 'mp', 'act', 'chat', 'acct'].forEach(function (t) { document.getElementById('tab-' + t).className = 'tab' + (which === t ? ' on' : ''); });
   if (chat) {
     document.getElementById('view-chat').style.setProperty('--topbar', Math.ceil(document.getElementById('topbar').getBoundingClientRect().bottom + 1) + 'px');
     if (chatLoaded !== true) loadGV().then(startChat, function () {});
@@ -1939,6 +1949,7 @@ frame.addEventListener('load', function () {
   try { if (current && current.html) attachChat(frame.contentDocument, current.game); else if (current && local) attachChat(frame.contentDocument, current.game); } catch (e) {}
 });
 document.getElementById('tab-games').onclick = function () { showTab('games'); };
+document.getElementById('tab-ext').onclick = function () { showTab('ext'); };
 document.getElementById('tab-chat').onclick = function () { showTab('chat'); };
 document.getElementById('tab-acct').onclick = function () { showTab('acct'); };
 document.getElementById('chip').onclick = function () { showTab('prof'); };
@@ -2117,7 +2128,7 @@ function liveCapture(win) {
   try {
     var vw = win.innerWidth, vh = win.innerHeight;
     Array.prototype.forEach.call(win.document.querySelectorAll('canvas'), function (c) { var r = c.getBoundingClientRect(), a = Math.max(0, Math.min(r.right, vw) - Math.max(r.left, 0)) * Math.max(0, Math.min(r.bottom, vh) - Math.max(r.top, 0)); if (a > area) { area = a; best = c; } });
-    if (best && area > vw * vh * 0.3 && best.captureStream) return Promise.resolve({ stream: best.captureStream(15), kind: 'canvas' });
+    if (best && area > vw * vh * 0.3 && best.captureStream) return Promise.resolve({ stream: best.captureStream(15), kind: 'canvas', canvas: best });
   } catch (e) {}
   var md = navigator.mediaDevices;
   if (!md || !md.getDisplayMedia) return Promise.reject(new Error('This browser cannot share this game.'));
@@ -2140,11 +2151,11 @@ function liveToggle() { if (MP.live) liveStop(); else liveStart(); }
 function liveStat(t) { document.getElementById('livestat').innerHTML = t || ''; document.getElementById('golive').classList.toggle('on', !!MP.live); document.getElementById('golive').textContent = MP.live ? 'Stop live' : 'Go live'; }
 function liveStart() {
   var g = current && current.game, win = gameWin(); if (!g || !win) return;
-  var L = MP.live = { g: g, frames: [], net: null, peer: null, calls: [], timer: null, video: null, stream: null };
+  var L = MP.live = { g: g, frames: [], net: null, peer: null, peerOpen: false, waiting: [], called: {}, calls: [], timer: null, video: null, stream: null };
   liveStat('Starting...');
   liveCapture(win).then(function (cap) {
     if (MP.live !== L) { cap.stream.getTracks().forEach(function (t) { t.stop(); }); return; }
-    L.stream = cap.stream; L.kind = cap.kind;
+    L.stream = cap.stream; L.kind = cap.kind; L.canvas = cap.canvas || null;
     cap.stream.getVideoTracks().forEach(function (t) { t.onended = function () { if (MP.live === L) liveStop(); }; });
     var v = L.video = document.createElement('video'); v.muted = true; v.playsInline = true; v.srcObject = cap.stream; v.play().catch(function () {});
     return mpReady().then(function (N) {
@@ -2155,21 +2166,31 @@ function liveStart() {
         net.on('join', liveCount); net.on('leave', function (p) { L.frames = L.frames.filter(function (id) { return id !== p.id; }); liveCount(); });
         net.on('message', function (p, m) {
           if (!m) return;
-          if (m.t === 'hi' && typeof m.pid === 'string' && L.peer) { try { var c = L.peer.call(m.pid, L.stream); if (c) L.calls.push(c); } catch (e) {} }
+          if (m.t === 'hi' && typeof m.pid === 'string') { if (L.peerOpen) liveCall(L, m.pid); else if (L.waiting.indexOf(m.pid) < 0) L.waiting.push(m.pid); }
           if (m.t === 'frames' && L.frames.indexOf(p.id) < 0) L.frames.push(p.id);
         });
         // still frames for viewers whose video never arrives: about 3 a second, small JPEGs, through the relays
         var cv = document.createElement('canvas'); cv.width = 320; cv.height = 180; var cx = cv.getContext('2d');
         L.timer = setInterval(function () {
-          if (!L.frames.length || !v.videoWidth) return;
-          var k = Math.min(320 / v.videoWidth, 180 / v.videoHeight), w = Math.round(v.videoWidth * k), h = Math.round(v.videoHeight * k);
+          // drawn from the game's canvas itself when there is one: a <video> that is not on the page may never get a frame
+          var src = L.canvas && L.canvas.width ? L.canvas : v, sw = src === v ? v.videoWidth : src.width, sh = src === v ? v.videoHeight : src.height;
+          if (!L.frames.length || !sw || !sh) return;
+          var k = Math.min(320 / sw, 180 / sh), w = Math.round(sw * k), h = Math.round(sh * k);
           if (cv.width !== w || cv.height !== h) { cv.width = w; cv.height = h; }
-          try { cx.drawImage(v, 0, 0, w, h); var d = cv.toDataURL('image/jpeg', 0.45); if (d.length < 40000) net.send(L.frames, { t: 'f', d: d }, { fast: true }); } catch (e) {}
+          try { cx.drawImage(src, 0, 0, w, h); var d = cv.toDataURL('image/jpeg', 0.45); if (d.length < 40000) net.send(L.frames, { t: 'f', d: d }, { fast: true }); } catch (e) {}
         }, 330);
-        if (window.HG_TEST_PEER !== false) loadPeerJS().then(function (Peer) { if (MP.live !== L) return; try { L.peer = new Peer(peerOpts()); L.peer.on('error', function () {}); } catch (e) {} }, function () {});
+        if (window.HG_TEST_PEER !== false) loadPeerJS().then(function (Peer) { if (MP.live !== L) return; try {
+          L.peer = new Peer(peerOpts()); L.peer.on('error', function () {});
+          L.peer.on('open', function () { if (MP.live !== L) return; L.peerOpen = true; L.waiting.splice(0).forEach(function (pid) { liveCall(L, pid); }); });
+        } catch (e) {} }, function () {});
       });
     });
   }).catch(function (e) { if (MP.live === L) { MP.live = null; liveStat(''); } alert(e.message || 'Could not go live.'); });
+}
+function liveCall(L, pid) {
+  if (L.called[pid] && Date.now() - L.called[pid] < 8000) return;      // a viewer asks again every few seconds until it sees something
+  L.called[pid] = Date.now();
+  try { var c = L.peer.call(pid, L.stream); if (c) L.calls.push(c); } catch (e) {}
 }
 function liveCount() { var L = MP.live; if (!L || !L.net || !L.code) return; var n = L.net.peers().filter(function (p) { return p.id !== L.net.id; }).length; liveStat('<b>LIVE</b>' + L.code + ' &middot; ' + n + ' watching'); }
 function liveStop() {
@@ -2181,33 +2202,57 @@ function liveStop() {
 }
 // ---- watching ----
 function watchStart(net, r, code) {
+  // 2026-11-21: it could sit on "Connecting to the game..." for ever: the viewer asked for video and for snapshots only
+  // once (a lost relay message, or a host whose PeerJS was not ready yet, meant nothing ever came), and a video call that
+  // never played still switched snapshots off. Now the viewer keeps asking until a picture shows, takes snapshots
+  // whenever the video is not actually playing, and says so (with Try again / Leave) if nothing comes at all.
   watchStop();
-  var W = MP.watch = { net: net, peer: null, got: false, frames: false }, info = (r.hostInfo && r.hostInfo.info) || {};
+  var W = MP.watch = { net: net, peer: null, pid: '', got: false, frames: false, pic: 0, t0: Date.now(), timers: [] }, info = (r.hostInfo && r.hostInfo.info) || {};
   var box = document.getElementById('watch'), vid = document.getElementById('w-video'), img = document.getElementById('w-img'), wait = document.getElementById('w-wait');
+  var stat = function (t) { document.getElementById('w-stat').textContent = 'code ' + code + (t ? ' · ' + t : ''); };
+  var waitMsg = function (t, retry) {
+    wait.hidden = false; wait.innerHTML = '';
+    wait.appendChild(mpEl('div', 'w-msg', t));
+    var b = mpEl('div', 'w-btns');
+    if (retry) { var a = mpEl('button', 'w-again', 'Try again'); a.onclick = function () { watchStop(); mpGo(code); }; b.appendChild(a); }
+    var l = mpEl('button', 'w-leave', 'Leave'); l.onclick = watchStop; b.appendChild(l);
+    wait.appendChild(b);
+  };
+  var playing = function () { return W.got && vid.videoWidth > 0 && !vid.paused; };
   document.getElementById('w-title').textContent = 'Watching ' + String(info.by || r.hostInfo.name || 'a friend').slice(0, 24) + ' play ' + String(info.game || 'a game').slice(0, 40);
-  document.getElementById('w-stat').textContent = 'code ' + code;
-  vid.srcObject = null; vid.hidden = true; img.hidden = true; img.removeAttribute('src'); wait.hidden = false; wait.textContent = 'Connecting to the game...';
+  stat('');
+  vid.srcObject = null; vid.hidden = true; img.hidden = true; img.removeAttribute('src'); waitMsg('Connecting to the game...');
   box.hidden = false;
-  net.on('message', function (p, m) { if (m && m.t === 'f' && typeof m.d === 'string' && /^data:image\/jpeg;base64,/.test(m.d) && !W.got) { img.src = m.d; img.hidden = false; wait.hidden = true; document.getElementById('w-stat').textContent = 'code ' + code + ' · snapshots'; } });
-  net.on('closed', function () { if (MP.watch !== W) return; wait.hidden = false; wait.textContent = 'The stream has ended.'; vid.hidden = true; img.hidden = true; });
-  var askFrames = function () { if (MP.watch === W && !W.got && !W.frames) { W.frames = true; net.send('host', { t: 'frames' }); } };
-  W.fallback = setTimeout(askFrames, 7000);
+  net.on('message', function (p, m) {
+    if (MP.watch !== W || !m || m.t !== 'f' || typeof m.d !== 'string' || !/^data:image\/jpeg;base64,/.test(m.d) || playing()) return;
+    W.pic = Date.now(); img.src = m.d; img.hidden = false; vid.hidden = true; wait.hidden = true; stat('snapshots');
+  });
+  net.on('closed', function () { if (MP.watch !== W) return; vid.hidden = true; img.hidden = true; waitMsg('The stream has ended.'); });
+  var askFrames = function () { if (MP.watch === W && !playing()) { W.frames = true; try { net.send('host', { t: 'frames' }); } catch (e) {} } };
+  // every 3 s until a picture shows: ask again for the video (once PeerJS is open) and, after the first 4 s, for snapshots
+  W.timers.push(setInterval(function () {
+    if (MP.watch !== W) return;
+    if (playing()) { vid.hidden = false; img.hidden = true; wait.hidden = true; stat('live video'); return; }
+    if (W.pid && Date.now() - W.t0 < 30000) try { net.send('host', { t: 'hi', pid: W.pid }); } catch (e) {}
+    if (Date.now() - W.t0 > 4000 && Date.now() - W.pic > 3000) askFrames();
+    if (!W.pic && !playing() && Date.now() - W.t0 > 25000 && wait.textContent.indexOf('Connecting') === 0) waitMsg('Could not get a picture from this stream. The player may have a slow connection, or the stream has stopped.', true);
+  }, 3000));
   if (window.HG_TEST_PEER === false) askFrames();
   else loadPeerJS().then(function (Peer) {
     if (MP.watch !== W) return;
     try { W.peer = new Peer(peerOpts()); } catch (e) { return askFrames(); }
-    W.peer.on('open', function (id) { net.send('host', { t: 'hi', pid: id }); });
+    W.peer.on('open', function (id) { W.pid = id; try { net.send('host', { t: 'hi', pid: id }); } catch (e) {} });
     W.peer.on('error', function () { askFrames(); });
     W.peer.on('call', function (c) {
       c.answer();
-      c.on('stream', function (s) { if (MP.watch !== W) return; W.got = true; vid.srcObject = s; vid.hidden = false; img.hidden = true; wait.hidden = true; vid.play().catch(function () {}); document.getElementById('w-stat').textContent = 'code ' + code + ' · live video'; });
+      c.on('stream', function (s) { if (MP.watch !== W) return; W.got = true; vid.srcObject = s; vid.play().catch(function () {}); });
       c.on('close', function () { if (MP.watch === W) { W.got = false; askFrames(); } });
     });
   }, askFrames);
 }
 function watchStop() {
   var W = MP.watch; MP.watch = null; document.getElementById('watch').hidden = true; if (!W) return;
-  clearTimeout(W.fallback); try { if (W.peer) W.peer.destroy(); } catch (e) {} try { W.net.close(); } catch (e) {}
+  W.timers.forEach(function (t) { clearInterval(t); }); try { if (W.peer) W.peer.destroy(); } catch (e) {} try { W.net.close(); } catch (e) {}
   var v = document.getElementById('w-video'); v.srcObject = null;
 }
 document.getElementById('tab-mp').onclick = function () { showTab('mp'); };
@@ -2219,6 +2264,7 @@ document.getElementById('mp-send').onclick = hubSay;
 document.getElementById('mp-msg').addEventListener('keydown', function (e) { if (e.key === 'Enter') hubSay(); });
 document.getElementById('golive').onclick = liveToggle;
 document.getElementById('w-close').onclick = watchStop;
+document.addEventListener('keydown', function (e) { if (e.key === 'Escape' && MP.watch) { e.preventDefault(); watchStop(); } });
 window.HG_hub = { go: mpGo, leave: hubLeave, state: function () { return { room: MP.net ? MP.code : null, host: !!(MP.net && MP.net.isHost), people: MP.net ? MP.net.peers().length : 0, live: MP.live ? MP.live.code || 'starting' : null, watching: !!MP.watch, watchVideo: !!(MP.watch && MP.watch.got), plays: document.getElementById('mp-plays').children.length }; } };
 
 // Saves follow the account: before a game opens (so it starts from the newest save), and again after it closes.

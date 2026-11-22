@@ -204,6 +204,7 @@ frame.addEventListener('load', function () {
   try { if (current && current.html) attachChat(frame.contentDocument, current.game); else if (current && local) attachChat(frame.contentDocument, current.game); } catch (e) {}
 });
 document.getElementById('tab-games').onclick = function () { showTab('games'); };
+document.getElementById('tab-ext').onclick = function () { showTab('ext'); };
 document.getElementById('tab-chat').onclick = function () { showTab('chat'); };
 document.getElementById('tab-acct').onclick = function () { showTab('acct'); };
 document.getElementById('chip').onclick = function () { showTab('prof'); };
@@ -382,7 +383,7 @@ function liveCapture(win) {
   try {
     var vw = win.innerWidth, vh = win.innerHeight;
     Array.prototype.forEach.call(win.document.querySelectorAll('canvas'), function (c) { var r = c.getBoundingClientRect(), a = Math.max(0, Math.min(r.right, vw) - Math.max(r.left, 0)) * Math.max(0, Math.min(r.bottom, vh) - Math.max(r.top, 0)); if (a > area) { area = a; best = c; } });
-    if (best && area > vw * vh * 0.3 && best.captureStream) return Promise.resolve({ stream: best.captureStream(15), kind: 'canvas' });
+    if (best && area > vw * vh * 0.3 && best.captureStream) return Promise.resolve({ stream: best.captureStream(15), kind: 'canvas', canvas: best });
   } catch (e) {}
   var md = navigator.mediaDevices;
   if (!md || !md.getDisplayMedia) return Promise.reject(new Error('This browser cannot share this game.'));
@@ -405,11 +406,11 @@ function liveToggle() { if (MP.live) liveStop(); else liveStart(); }
 function liveStat(t) { document.getElementById('livestat').innerHTML = t || ''; document.getElementById('golive').classList.toggle('on', !!MP.live); document.getElementById('golive').textContent = MP.live ? 'Stop live' : 'Go live'; }
 function liveStart() {
   var g = current && current.game, win = gameWin(); if (!g || !win) return;
-  var L = MP.live = { g: g, frames: [], net: null, peer: null, calls: [], timer: null, video: null, stream: null };
+  var L = MP.live = { g: g, frames: [], net: null, peer: null, peerOpen: false, waiting: [], called: {}, calls: [], timer: null, video: null, stream: null };
   liveStat('Starting...');
   liveCapture(win).then(function (cap) {
     if (MP.live !== L) { cap.stream.getTracks().forEach(function (t) { t.stop(); }); return; }
-    L.stream = cap.stream; L.kind = cap.kind;
+    L.stream = cap.stream; L.kind = cap.kind; L.canvas = cap.canvas || null;
     cap.stream.getVideoTracks().forEach(function (t) { t.onended = function () { if (MP.live === L) liveStop(); }; });
     var v = L.video = document.createElement('video'); v.muted = true; v.playsInline = true; v.srcObject = cap.stream; v.play().catch(function () {});
     return mpReady().then(function (N) {
@@ -420,21 +421,31 @@ function liveStart() {
         net.on('join', liveCount); net.on('leave', function (p) { L.frames = L.frames.filter(function (id) { return id !== p.id; }); liveCount(); });
         net.on('message', function (p, m) {
           if (!m) return;
-          if (m.t === 'hi' && typeof m.pid === 'string' && L.peer) { try { var c = L.peer.call(m.pid, L.stream); if (c) L.calls.push(c); } catch (e) {} }
+          if (m.t === 'hi' && typeof m.pid === 'string') { if (L.peerOpen) liveCall(L, m.pid); else if (L.waiting.indexOf(m.pid) < 0) L.waiting.push(m.pid); }
           if (m.t === 'frames' && L.frames.indexOf(p.id) < 0) L.frames.push(p.id);
         });
         // still frames for viewers whose video never arrives: about 3 a second, small JPEGs, through the relays
         var cv = document.createElement('canvas'); cv.width = 320; cv.height = 180; var cx = cv.getContext('2d');
         L.timer = setInterval(function () {
-          if (!L.frames.length || !v.videoWidth) return;
-          var k = Math.min(320 / v.videoWidth, 180 / v.videoHeight), w = Math.round(v.videoWidth * k), h = Math.round(v.videoHeight * k);
+          // drawn from the game's canvas itself when there is one: a <video> that is not on the page may never get a frame
+          var src = L.canvas && L.canvas.width ? L.canvas : v, sw = src === v ? v.videoWidth : src.width, sh = src === v ? v.videoHeight : src.height;
+          if (!L.frames.length || !sw || !sh) return;
+          var k = Math.min(320 / sw, 180 / sh), w = Math.round(sw * k), h = Math.round(sh * k);
           if (cv.width !== w || cv.height !== h) { cv.width = w; cv.height = h; }
-          try { cx.drawImage(v, 0, 0, w, h); var d = cv.toDataURL('image/jpeg', 0.45); if (d.length < 40000) net.send(L.frames, { t: 'f', d: d }, { fast: true }); } catch (e) {}
+          try { cx.drawImage(src, 0, 0, w, h); var d = cv.toDataURL('image/jpeg', 0.45); if (d.length < 40000) net.send(L.frames, { t: 'f', d: d }, { fast: true }); } catch (e) {}
         }, 330);
-        if (window.HG_TEST_PEER !== false) loadPeerJS().then(function (Peer) { if (MP.live !== L) return; try { L.peer = new Peer(peerOpts()); L.peer.on('error', function () {}); } catch (e) {} }, function () {});
+        if (window.HG_TEST_PEER !== false) loadPeerJS().then(function (Peer) { if (MP.live !== L) return; try {
+          L.peer = new Peer(peerOpts()); L.peer.on('error', function () {});
+          L.peer.on('open', function () { if (MP.live !== L) return; L.peerOpen = true; L.waiting.splice(0).forEach(function (pid) { liveCall(L, pid); }); });
+        } catch (e) {} }, function () {});
       });
     });
   }).catch(function (e) { if (MP.live === L) { MP.live = null; liveStat(''); } alert(e.message || 'Could not go live.'); });
+}
+function liveCall(L, pid) {
+  if (L.called[pid] && Date.now() - L.called[pid] < 8000) return;      // a viewer asks again every few seconds until it sees something
+  L.called[pid] = Date.now();
+  try { var c = L.peer.call(pid, L.stream); if (c) L.calls.push(c); } catch (e) {}
 }
 function liveCount() { var L = MP.live; if (!L || !L.net || !L.code) return; var n = L.net.peers().filter(function (p) { return p.id !== L.net.id; }).length; liveStat('<b>LIVE</b>' + L.code + ' &middot; ' + n + ' watching'); }
 function liveStop() {
@@ -446,33 +457,57 @@ function liveStop() {
 }
 // ---- watching ----
 function watchStart(net, r, code) {
+  // 2026-11-21: it could sit on "Connecting to the game..." for ever: the viewer asked for video and for snapshots only
+  // once (a lost relay message, or a host whose PeerJS was not ready yet, meant nothing ever came), and a video call that
+  // never played still switched snapshots off. Now the viewer keeps asking until a picture shows, takes snapshots
+  // whenever the video is not actually playing, and says so (with Try again / Leave) if nothing comes at all.
   watchStop();
-  var W = MP.watch = { net: net, peer: null, got: false, frames: false }, info = (r.hostInfo && r.hostInfo.info) || {};
+  var W = MP.watch = { net: net, peer: null, pid: '', got: false, frames: false, pic: 0, t0: Date.now(), timers: [] }, info = (r.hostInfo && r.hostInfo.info) || {};
   var box = document.getElementById('watch'), vid = document.getElementById('w-video'), img = document.getElementById('w-img'), wait = document.getElementById('w-wait');
+  var stat = function (t) { document.getElementById('w-stat').textContent = 'code ' + code + (t ? ' · ' + t : ''); };
+  var waitMsg = function (t, retry) {
+    wait.hidden = false; wait.innerHTML = '';
+    wait.appendChild(mpEl('div', 'w-msg', t));
+    var b = mpEl('div', 'w-btns');
+    if (retry) { var a = mpEl('button', 'w-again', 'Try again'); a.onclick = function () { watchStop(); mpGo(code); }; b.appendChild(a); }
+    var l = mpEl('button', 'w-leave', 'Leave'); l.onclick = watchStop; b.appendChild(l);
+    wait.appendChild(b);
+  };
+  var playing = function () { return W.got && vid.videoWidth > 0 && !vid.paused; };
   document.getElementById('w-title').textContent = 'Watching ' + String(info.by || r.hostInfo.name || 'a friend').slice(0, 24) + ' play ' + String(info.game || 'a game').slice(0, 40);
-  document.getElementById('w-stat').textContent = 'code ' + code;
-  vid.srcObject = null; vid.hidden = true; img.hidden = true; img.removeAttribute('src'); wait.hidden = false; wait.textContent = 'Connecting to the game...';
+  stat('');
+  vid.srcObject = null; vid.hidden = true; img.hidden = true; img.removeAttribute('src'); waitMsg('Connecting to the game...');
   box.hidden = false;
-  net.on('message', function (p, m) { if (m && m.t === 'f' && typeof m.d === 'string' && /^data:image\/jpeg;base64,/.test(m.d) && !W.got) { img.src = m.d; img.hidden = false; wait.hidden = true; document.getElementById('w-stat').textContent = 'code ' + code + ' · snapshots'; } });
-  net.on('closed', function () { if (MP.watch !== W) return; wait.hidden = false; wait.textContent = 'The stream has ended.'; vid.hidden = true; img.hidden = true; });
-  var askFrames = function () { if (MP.watch === W && !W.got && !W.frames) { W.frames = true; net.send('host', { t: 'frames' }); } };
-  W.fallback = setTimeout(askFrames, 7000);
+  net.on('message', function (p, m) {
+    if (MP.watch !== W || !m || m.t !== 'f' || typeof m.d !== 'string' || !/^data:image\/jpeg;base64,/.test(m.d) || playing()) return;
+    W.pic = Date.now(); img.src = m.d; img.hidden = false; vid.hidden = true; wait.hidden = true; stat('snapshots');
+  });
+  net.on('closed', function () { if (MP.watch !== W) return; vid.hidden = true; img.hidden = true; waitMsg('The stream has ended.'); });
+  var askFrames = function () { if (MP.watch === W && !playing()) { W.frames = true; try { net.send('host', { t: 'frames' }); } catch (e) {} } };
+  // every 3 s until a picture shows: ask again for the video (once PeerJS is open) and, after the first 4 s, for snapshots
+  W.timers.push(setInterval(function () {
+    if (MP.watch !== W) return;
+    if (playing()) { vid.hidden = false; img.hidden = true; wait.hidden = true; stat('live video'); return; }
+    if (W.pid && Date.now() - W.t0 < 30000) try { net.send('host', { t: 'hi', pid: W.pid }); } catch (e) {}
+    if (Date.now() - W.t0 > 4000 && Date.now() - W.pic > 3000) askFrames();
+    if (!W.pic && !playing() && Date.now() - W.t0 > 25000 && wait.textContent.indexOf('Connecting') === 0) waitMsg('Could not get a picture from this stream. The player may have a slow connection, or the stream has stopped.', true);
+  }, 3000));
   if (window.HG_TEST_PEER === false) askFrames();
   else loadPeerJS().then(function (Peer) {
     if (MP.watch !== W) return;
     try { W.peer = new Peer(peerOpts()); } catch (e) { return askFrames(); }
-    W.peer.on('open', function (id) { net.send('host', { t: 'hi', pid: id }); });
+    W.peer.on('open', function (id) { W.pid = id; try { net.send('host', { t: 'hi', pid: id }); } catch (e) {} });
     W.peer.on('error', function () { askFrames(); });
     W.peer.on('call', function (c) {
       c.answer();
-      c.on('stream', function (s) { if (MP.watch !== W) return; W.got = true; vid.srcObject = s; vid.hidden = false; img.hidden = true; wait.hidden = true; vid.play().catch(function () {}); document.getElementById('w-stat').textContent = 'code ' + code + ' · live video'; });
+      c.on('stream', function (s) { if (MP.watch !== W) return; W.got = true; vid.srcObject = s; vid.play().catch(function () {}); });
       c.on('close', function () { if (MP.watch === W) { W.got = false; askFrames(); } });
     });
   }, askFrames);
 }
 function watchStop() {
   var W = MP.watch; MP.watch = null; document.getElementById('watch').hidden = true; if (!W) return;
-  clearTimeout(W.fallback); try { if (W.peer) W.peer.destroy(); } catch (e) {} try { W.net.close(); } catch (e) {}
+  W.timers.forEach(function (t) { clearInterval(t); }); try { if (W.peer) W.peer.destroy(); } catch (e) {} try { W.net.close(); } catch (e) {}
   var v = document.getElementById('w-video'); v.srcObject = null;
 }
 document.getElementById('tab-mp').onclick = function () { showTab('mp'); };
@@ -484,6 +519,7 @@ document.getElementById('mp-send').onclick = hubSay;
 document.getElementById('mp-msg').addEventListener('keydown', function (e) { if (e.key === 'Enter') hubSay(); });
 document.getElementById('golive').onclick = liveToggle;
 document.getElementById('w-close').onclick = watchStop;
+document.addEventListener('keydown', function (e) { if (e.key === 'Escape' && MP.watch) { e.preventDefault(); watchStop(); } });
 window.HG_hub = { go: mpGo, leave: hubLeave, state: function () { return { room: MP.net ? MP.code : null, host: !!(MP.net && MP.net.isHost), people: MP.net ? MP.net.peers().length : 0, live: MP.live ? MP.live.code || 'starting' : null, watching: !!MP.watch, watchVideo: !!(MP.watch && MP.watch.got), plays: document.getElementById('mp-plays').children.length }; } };
 
 // Saves follow the account: before a game opens (so it starts from the newest save), and again after it closes.

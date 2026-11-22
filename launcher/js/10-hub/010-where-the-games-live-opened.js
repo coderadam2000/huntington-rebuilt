@@ -39,11 +39,11 @@ var GAMES = [
   { dir: 'Zoom', hero: 'Brand new: 3D kart and bike racing. 12 tracks, 15 items, drift for mini-turbos, build your ride in the garage and race your friends online.', name: 'Zoom', img: 'zoom', tags: ['New', '3D', 'Racing', 'Multiplayer'], desc: "NEW: 3D kart and bike racing. 12 tracks in 3 cups, 15 items, 6 modes (Grand Prix, Quick Race, Time Trial, Knockout, Coin Rush, Balloon Battle). Drift for mini-turbos, earn coins, build your ride in the garage, and race your friends online." },
   { dir: 'Imposter', name: 'Imposter: Shades in the Lighthouse', img: 'imposter', tags: ['New', 'Multiplayer', 'Party'], desc: "NEW: one or more Shades hide among the lighthouse keepers. Do your chores, ring the bell, call a gathering and vote them into the fog before the lights go out. Up to 10 players with a 6-digit code (bots fill the empty seats), or play alone against 9 bots, on two maps." },
   { dir: 'Casino', name: 'The Lucky Taco Casino', img: 'casino', tags: ['New', 'Casino', 'Multiplayer', 'Party'], desc: "NEW: turn tacos into chips (1 taco = 100 chips) and play blackjack, roulette, slots, plinko, mines, baccarat, craps, video poker and more. Live tables with everyone who is in: Live Roulette, the Rocket, Horse Racing, The Pot and coin-flip Duels. A free spin every day. Play money only: tacos and chips are not worth anything outside Taco Games." },
-  { dir: 'Tetris', name: 'Tetris Surge 2.0', img: 'tetris', credit: 'Made by Hunter', tags: ['New', 'Puzzle'], desc: 'NEW 2.0: climb the rank ladder in Surge, Sprint, Ultra and Marathon. 14 new perks, 5 new bosses, a Daily Challenge with streaks, 55 achievements, and a 70-puzzle Puzzle mode with stars, undo and hints. Plus 12 block skins, 8 backgrounds and Hold and T-Spin tutorials. Still a rogue-lite run with power blocks, plus Marathon, Sprint, Ultra and Zen.' },
+  { dir: 'Tetris', cat: 'ext', name: 'Tetris Surge 2.0', img: 'tetris', credit: 'Made by Hunter', tags: ['New', 'Puzzle'], desc: 'NEW 2.0: climb the rank ladder in Surge, Sprint, Ultra and Marathon. 14 new perks, 5 new bosses, a Daily Challenge with streaks, 55 achievements, and a 70-puzzle Puzzle mode with stars, undo and hints. Plus 12 block skins, 8 backgrounds and Hold and T-Spin tutorials. Still a rogue-lite run with power blocks, plus Marathon, Sprint, Ultra and Zen.' },
   { dir: 'Market Life 1.9', name: 'Market & Life 2.2', img: 'market', tags: ['New', 'Sim'], desc: 'Away for 30 minutes pauses progress. NEW 2.1: join the military (enlist, or become an officer through the Academy, ROTC or Officer Training School), transfer from community college, stay for a master\'s, and 14 new life events. 2.0: live a whole life, from school and 22 degree programs to careers, homes, cars, family and retirement, then see your Life Score in the Hall of Lives. Trade 42 stocks and cryptos with charts, news, dividends and limit orders, save in bonds, and run 10 kinds of business. Plus 33 achievements and a Stats page.', credit: 'Original game by Robbie' },
   { dir: '50 Levels Of Spikes 1.2', name: '100 Levels of Spikes 2.3', img: 'spikes', tags: ['New', 'Platformer', 'Multiplayer'], desc: 'NEW 2.3: beat all 100 for a Victor spot on the leaderboard, auto respawn, a cube that gets bored when you stand still, and roasts that never repeat too soon. 2.2: Multiplayer! Race your friends or beat levels together in Co-op, and fill the room with bots (the host picks how many people and bots). Plus music, a new world every 20 levels (sunset dunes, deep sea, toxic lab, inferno) and a lot more roasts when you die.' },
-  { dir: 'Coffee Shop Tycoon Legacy', name: 'Bean & Brew Classic', img: 'legacy', tags: ['Tycoon'], desc: 'The original coffee shop tycoon. Away for 30 minutes pauses progress.', credit: 'Made by Robbie' },
-  { dir: 'Levi Dash By Levi 2.0', noChat: true, name: 'Neon Dash 2.1', img: 'neondash', tags: ['Platformer'], desc: 'NEW 2.1: a World leaderboard next to your Hall of Fame. Neon Dash: Ultimate Edition. Jump the neon spikes, keep your streak going, beat your score and sign the Hall of Fame.', credit: 'Made by Levi' },
+  { dir: 'Coffee Shop Tycoon Legacy', cat: 'ext', name: 'Bean & Brew Classic', img: 'legacy', tags: ['Tycoon'], desc: 'The original coffee shop tycoon. Away for 30 minutes pauses progress.', credit: 'Made by Robbie' },
+  { dir: 'Levi Dash By Levi 2.0', cat: 'ext', noChat: true, name: 'Neon Dash 2.1', img: 'neondash', tags: ['Platformer'], desc: 'NEW 2.1: a World leaderboard next to your Hall of Fame. Neon Dash: Ultimate Edition. Jump the neon spikes, keep your streak going, beat your score and sign the Hall of Fame.', credit: 'Made by Levi' },
   { dir: 'Minigames/Reaction Duel', name: 'Reaction Duel', img: 'mg-reaction', cat: 'mini', tags: ['New', 'Multiplayer', 'Minigame'], desc: "Wait for green, then tap faster than everyone. First to 5. Up to 8 players and bots." },
   { dir: 'Minigames/Snake Arena', name: 'Snake Arena', img: 'mg-snake', cat: 'mini', tags: ['New', 'Multiplayer', 'Minigame'], desc: "Every snake on one board: eat, grow, don't crash. Last one slithering wins. Up to 8 players and bots." },
   { dir: 'Minigames/Typing Race', name: 'Typing Race', img: 'mg-typing', cat: 'mini', tags: ['New', 'Multiplayer', 'Minigame'], desc: "Race your friends by typing the same passage: every correct letter moves your car. Up to 8 players and bots." },
@@ -63,9 +63,10 @@ function path(g) { return encodeURI(g.dir) + '/' + (g.file || 'index.html'); }
 function el(tag, cls, html) { var e = document.createElement(tag); if (cls) e.className = cls; if (html != null) e.innerHTML = html; return e; }
 function render() {
   if (!local && !MIRRORS.length) { versionReady.then(function (v) { setVersion(v); render(); }); return; }
-  var grid = document.getElementById('grid'), mini = document.getElementById('grid-mini');
-  grid.innerHTML = ''; mini.innerHTML = ''; document.getElementById('exp-list').innerHTML = '';
+  var grid = document.getElementById('grid'), mini = document.getElementById('grid-mini'), ext = document.getElementById('grid-ext');
+  grid.innerHTML = ''; mini.innerHTML = ''; ext.innerHTML = ''; document.getElementById('exp-list').innerHTML = '';
   document.getElementById('mini-h').hidden = !GAMES.some(function (g) { return g.cat === 'mini'; });      // the Minigames section (cat: 'mini')
+  document.getElementById('ext-none').hidden = GAMES.some(function (g) { return g.cat === 'ext'; });      // the External Games tab (cat: 'ext': made by someone else)
   GAMES.forEach(function (g) {
     var b = el('button', 'game'), shot = el('div', 'shot'), img = new Image();
     var m = 0;
@@ -88,7 +89,7 @@ function render() {
     var hov = 0, warm = function () { clearTimeout(hov); hov = setTimeout(function () { if (typeof prefetchGame === 'function') prefetchGame(g); }, 150); };
     b.addEventListener('pointerenter', warm); b.addEventListener('focus', warm); b.addEventListener('touchstart', warm, { passive: true });
     b.addEventListener('pointerleave', function () { clearTimeout(hov); });
-    (g.cat === 'mini' ? mini : grid).appendChild(b);
+    (g.cat === 'mini' ? mini : g.cat === 'ext' ? ext : grid).appendChild(b);
   });
   var list = document.getElementById('exp-list');
   EXPERIMENTAL.forEach(function (g) {

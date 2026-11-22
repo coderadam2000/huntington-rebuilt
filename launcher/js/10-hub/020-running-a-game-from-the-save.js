@@ -428,10 +428,11 @@ window.addEventListener('blur', function () {
   setTimeout(function () { var f = document.getElementById('gvapp'); if (document.activeElement === f && document.getElementById('view-chat').hidden) { f.blur(); window.focus(); } }, 0);
 });
 function showTab(which) {
-  if (guestMode && which !== 'games' && which !== 'mp') { guestMode = false; onGvChange(); return; }   // those need an account: show the sign-in screen again
+  if (guestMode && which !== 'games' && which !== 'ext' && which !== 'mp') { guestMode = false; onGvChange(); return; }   // those need an account: show the sign-in screen again
   if (!HG_REQUIRE_GRAPEVINE && which === 'chat' && !(window.HGGrapevine && window.HGGrapevine.me())) which = 'acct';
   var chat = which === 'chat';
   document.getElementById('view-games').hidden = which !== 'games';
+  document.getElementById('view-ext').hidden = which !== 'ext';
   document.getElementById('view-acct').hidden = which !== 'acct';
   document.getElementById('view-prof').hidden = which !== 'prof';
   if (which === 'prof') loadGV().then(function () { profMount(); profRender(); }, function () {});
@@ -442,7 +443,7 @@ function showTab(which) {
   if (which === 'act' && typeof actRender === 'function') loadGV().then(actRender, function () {});
   document.getElementById('view-chat').hidden = !chat;
   document.body.className = chat ? 'chat' : '';
-  ['games', 'prof', 'lb', 'mp', 'act', 'chat', 'acct'].forEach(function (t) { document.getElementById('tab-' + t).className = 'tab' + (which === t ? ' on' : ''); });
+  ['games', 'ext', 'prof', 'lb', 'mp', 'act', 'chat', 'acct'].forEach(function (t) { document.getElementById('tab-' + t).className = 'tab' + (which === t ? ' on' : ''); });
   if (chat) {
     document.getElementById('view-chat').style.setProperty('--topbar', Math.ceil(document.getElementById('topbar').getBoundingClientRect().bottom + 1) + 'px');
     if (chatLoaded !== true) loadGV().then(startChat, function () {});

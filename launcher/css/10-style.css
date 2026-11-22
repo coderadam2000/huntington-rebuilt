@@ -115,7 +115,7 @@ h1 { margin: 0; font-size: clamp(28px, 5vw, 44px); font-weight: 900; letter-spac
 #player { position: fixed; inset: 0; background: #000; display: none; flex-direction: column; z-index: 10; }
 #player.open { display: flex; }
 /* a game covers the whole page: don't keep drawing the launcher (or the Grapevine chat and its animated background) under it */
-html.playing #view-games, html.playing #view-acct, html.playing #view-chat, html.playing #view-mp { content-visibility: hidden; }
+html.playing #view-games, html.playing #view-ext, html.playing #view-acct, html.playing #view-chat, html.playing #view-mp { content-visibility: hidden; }
 #ptop { display: flex; align-items: center; gap: 8px; padding: 5px 8px; background: var(--panel); border-bottom: 1px solid var(--line); }
 #ptop button, #ptop a { background: var(--raise); border: 1px solid var(--line); color: var(--text); border-radius: 6px; padding: 5px 11px; font-size: 13px; font-weight: 700; cursor: pointer; text-decoration: none; font-family: inherit; }
 #ptitle { flex: 1; font-weight: 800; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
@@ -163,7 +163,7 @@ html[data-base] { --dim: color-mix(in srgb, var(--text) 62%, var(--ground)); }
 #offdl, #offdlg .btns button, .close, #ptop button, #ptop a, #exp .box, #offdlg .box { border-radius: 3px; }
 #ptop button, #ptop a, .close, #offdlg .btns button, #offdl { font-family: var(--mono); font-size: 11px; letter-spacing: .08em; text-transform: uppercase; }
 #view-acct { padding-bottom: 40px; }
-#view-acct[hidden], #view-games[hidden], #view-chat[hidden], #gate[hidden] { display: none; }
+#view-acct[hidden], #view-games[hidden], #view-ext[hidden], #view-chat[hidden], #gate[hidden] { display: none; }
 /* the Grapevine tab is the whole app, edge to edge under the top bar */
 #view-chat { position: fixed; left: 0; right: 0; bottom: 0; top: 0; z-index: 4; padding-top: var(--topbar, 49px); background: var(--ground); }
 #gvapp { width: 100%; height: 100%; border: 0; display: block; background: var(--ground); }
@@ -171,7 +171,7 @@ body.chat #hub { position: relative; z-index: 6; pointer-events: none; padding-b
 body.chat #topbar { pointer-events: auto; }
 /* (the tabs used to drop to their own row below 1100 px: now they shrink instead and stay on one line, see the end of this file) */
 @media (max-width: 760px) { #topbar { gap: 0 12px; } #tabs { order: 3; flex: 1 1 100%; overflow-x: auto; } .tab { padding: 10px 10px; letter-spacing: .1em; } #chip { margin-left: auto; } }
-body.chat #hub > #view-games, body.chat #hub > #view-acct { display: none; }
+body.chat #hub > #view-games, body.chat #hub > #view-ext, body.chat #hub > #view-acct { display: none; }
 body.chat { overflow: hidden; }
 #gate { position: fixed; inset: 0; z-index: 40; background: var(--ground); overflow-y: auto; display: flex; padding: 20px 16px; }
 #gate-box { margin: auto; width: 100%; max-width: 640px; }
@@ -209,16 +209,19 @@ body.chat { overflow: hidden; }
 #livestat { font: 700 11px var(--mono); letter-spacing: .08em; color: #ff5a5a; }
 #livestat b { background: #e02424; color: #fff; padding: 2px 6px; border-radius: 2px; margin-right: 6px; }
 #golive.on { border-color: #e02424; color: #ff6b6b; }
-#watch { position: fixed; inset: 0; z-index: 8; background: rgba(0,0,0,.85); display: flex; align-items: center; justify-content: center; padding: 10px; }
+#watch { position: fixed; inset: 0; z-index: 1000; background: rgba(0,0,0,.85); display: flex; align-items: center; justify-content: center; padding: 10px; }
 #watch[hidden] { display: none; }
 #watch .box { width: min(1280px, 100%); background: var(--panel); border: 1px solid var(--line); border-radius: 4px; overflow: hidden; }
 #watch .wtop { display: flex; gap: 12px; align-items: center; padding: 8px 10px; border-bottom: 1px solid var(--line); }
 #w-title { font-weight: 700; flex: 1; }
 #w-stat { font: 11px var(--mono); color: var(--dim); }
-#w-close { font: 700 11px var(--mono); text-transform: uppercase; padding: 6px 12px; border-radius: 3px; border: 1px solid var(--line); background: var(--raise); color: var(--text); cursor: pointer; }
+#w-close, #w-wait .w-leave, #w-wait .w-again { font: 700 12px var(--mono); text-transform: uppercase; padding: 8px 16px; border-radius: 4px; border: 1px solid #f87171; background: #b91c1c; color: #fff; cursor: pointer; }
+#w-close:hover, #w-wait .w-leave:hover { background: #dc2626; } #w-wait .w-again { background: var(--raise); border-color: var(--line); color: var(--text); }
+#w-wait { flex-direction: column; gap: 14px; text-align: center; padding: 20px; } #w-wait .w-btns { display: flex; gap: 10px; }
 .wscreen { position: relative; aspect-ratio: 16 / 9; background: #000; }
 .wscreen video, .wscreen img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: contain; }
 #w-wait { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; color: var(--dim); font: 13px var(--mono); }
+#w-wait[hidden] { display: none; }
 
 /* ---- Profile: header card, locker, Taco shop, leaderboards ---- */
 #view-prof { max-width: 1060px; margin: 0 auto; padding: 18px 16px 60px; }

@@ -13,7 +13,7 @@
 <div id="hub">
   <div id="topbar">
     <h1>TACO GAMES</h1>
-    <nav id="tabs"><button class="tab on" id="tab-games">Games</button><button class="tab" id="tab-prof">Profile</button><button class="tab" id="tab-lb">Leaderboards</button><button class="tab" id="tab-mp">Multiplayer</button><button class="tab" id="tab-act">Activity</button><button class="tab" id="tab-chat">Grapevine</button><button class="tab" id="tab-acct">Account</button><button class="tab" id="tab-admin" hidden>&#128737;&#65039; Admin</button></nav>
+    <nav id="tabs"><button class="tab on" id="tab-games">Games</button><button class="tab" id="tab-ext" title="Games made by other people, brought into Taco Games">External Games</button><button class="tab" id="tab-prof">Profile</button><button class="tab" id="tab-lb">Leaderboards</button><button class="tab" id="tab-mp">Multiplayer</button><button class="tab" id="tab-act">Activity</button><button class="tab" id="tab-chat">Grapevine</button><button class="tab" id="tab-acct">Account</button><button class="tab" id="tab-admin" hidden>&#128737;&#65039; Admin</button></nav>
     <button id="reportBtn" title="Report a player, a message or a bug to the admins">&#128681; Report</button><button id="rulesBtn" title="The rules, and what you can report">&#128220; Rules</button><button id="tourBtn" title="Take the tour (how everything works)">?</button><button id="chip" title="Your profile, tacos and the shop"><span class="cdot" id="chip-dot"></span><span id="chip-pfp"></span><span class="nm" id="chip-nm"></span><span id="chip-goons"></span></button>
   </div>
   <div id="view-games">
@@ -30,6 +30,11 @@
   <div class="grid mini" id="grid-mini"></div>
   <div id="offbar"><span id="offstat"></span><span id="offprog"><i id="offfill"></i></span><button id="offdl" title="Save one HTML file with every game inside, to play with no internet">Download offline copy</button></div>
   <div class="note" id="note"></div>
+  </div>
+  <div id="view-ext" hidden>
+    <h2 class="gsec" id="ext-h">External Games <span>Made by other people and brought into Taco Games. Their makers are credited on each one.</span></h2>
+    <div class="grid" id="grid-ext"></div>
+    <div class="note" id="ext-none" hidden>No external games yet.</div>
   </div>
   <div id="view-acct" hidden></div>
   <div id="view-gpops" hidden></div>
@@ -64,7 +69,7 @@
     </div>
   </div>
 </div>
-<div id="watch" hidden><div class="box"><div class="wtop"><span id="w-title">Watching</span><span id="w-stat"></span><button id="w-close">Stop watching</button></div><div class="wscreen"><video id="w-video" autoplay playsinline muted></video><img id="w-img" alt=""><div id="w-wait">Connecting to the game...</div></div></div></div>
+<div id="watch" hidden><div class="box"><div class="wtop"><span id="w-title">Watching</span><span id="w-stat"></span><button id="w-close" title="Leave this stream (Esc)">&#10005; Leave</button></div><div class="wscreen"><video id="w-video" autoplay playsinline muted></video><img id="w-img" alt=""><div id="w-wait">Connecting to the game...</div></div></div></div>
 <div id="view-chat" hidden><iframe id="gvapp" title="Grapevine" allow="clipboard-write"></iframe></div>
 <div id="gate" hidden><div id="gate-box"></div></div>
 <div id="tour" hidden><div class="box"></div></div>
