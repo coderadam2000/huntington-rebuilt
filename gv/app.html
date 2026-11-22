@@ -1701,6 +1701,126 @@ html[data-base="light"] #veil{background:rgba(20,20,30,.35)}
   #join .gate,#keygate .gate{padding:26px 20px 22px;border-radius:22px}
   #mempanel{width:min(290px,calc(100vw - 20px))}
 }
+
+/* =====================================================================
+   GRAPEVINE 2, part two (2026-11-22): faces, icons, a little life.
+   gv2-* elements and data attributes come from gv/app-redesign.js.
+   ===================================================================== */
+:root{
+  --i-at:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23000' stroke-width='2.2' stroke-linecap='round' stroke-linejoin='round'%3E%3Ccircle cx='12' cy='12' r='4'/%3E%3Cpath d='M16 8v5a3 3 0 0 0 6 0v-1a10 10 0 1 0-4 8'/%3E%3C/svg%3E");
+  --i-mark:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23000' stroke-width='2.2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m19 21-7-4-7 4V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z'/%3E%3C/svg%3E");
+  --i-users:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23000' stroke-width='2.2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2'/%3E%3Ccircle cx='9' cy='7' r='4'/%3E%3Cpath d='M22 21v-2a4 4 0 0 0-3-3.87M16 3.13a4 4 0 0 1 0 7.75'/%3E%3C/svg%3E");
+  --i-heart:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23000' stroke-width='2.2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M19 14c1.5-1.5 3-3.2 3-5.5A5.5 5.5 0 0 0 16.5 3c-1.8 0-3 .5-4.5 2-1.5-1.5-2.7-2-4.5-2A5.5 5.5 0 0 0 2 8.5c0 2.3 1.5 4 3 5.5l7 7z'/%3E%3C/svg%3E");
+  --i-shield:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23000' stroke-width='2.2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z'/%3E%3C/svg%3E");
+  --i-more:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%23000'%3E%3Ccircle cx='5' cy='12' r='2'/%3E%3Ccircle cx='12' cy='12' r='2'/%3E%3Ccircle cx='19' cy='12' r='2'/%3E%3C/svg%3E");
+  --i-sliders:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23000' stroke-width='2.2' stroke-linecap='round'%3E%3Cpath d='M4 21v-7M4 10V3M12 21v-9M12 8V3M20 21v-5M20 12V3M1 14h6M9 8h6M17 16h6'/%3E%3C/svg%3E");
+  --i-add:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23000' stroke-width='2.2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2'/%3E%3Ccircle cx='9' cy='7' r='4'/%3E%3Cpath d='M19 8v6M22 11h-6'/%3E%3C/svg%3E");
+  --i-out:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23000' stroke-width='2.2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4M16 17l5-5-5-5M21 12H9'/%3E%3C/svg%3E");
+}
+
+/* ---- a glow of your flavor behind the top of the chat ------------------- */
+#main{background:radial-gradient(70% 220px at 25% 0, color-mix(in srgb, var(--signal) 9%, transparent), transparent) no-repeat, var(--glass)}
+#side{background:radial-gradient(120% 160px at 0 0, color-mix(in srgb, var(--signal2) 7%, transparent), transparent) no-repeat, var(--glass)}
+
+/* ---- top bar: an icon on every button, the words go when space is short -- */
+.tb,#memBtn,#convMenuBtn,#gearBtn,#addBtn,#leaveBtn{display:inline-flex;align-items:center;gap:7px}
+.tb::before,#memBtn::before,#convMenuBtn::before,#gearBtn::before,#addBtn::before,#leaveBtn::before{content:"";flex:none;width:15px;height:15px;
+  background:currentColor;-webkit-mask:var(--ico) center/contain no-repeat;mask:var(--ico) center/contain no-repeat}
+#mentionsBtn{--ico:var(--i-at)} #starsBtn{--ico:var(--i-mark)} #friendsBtn{--ico:var(--i-heart)} #opsBtn{--ico:var(--i-shield)}
+#memBtn{--ico:var(--i-users)} #convMenuBtn{--ico:var(--i-more)} #gearBtn{--ico:var(--i-sliders)} #addBtn{--ico:var(--i-add)} #leaveBtn{--ico:var(--i-out)}
+#gearBtn,#addBtn,#leaveBtn,#convMenuBtn{font-size:0;gap:0;width:34px;height:34px;padding:0;justify-content:center}
+#memBtn{text-transform:capitalize}
+@media (max-width:1180px){
+  .tb,#memBtn{font-size:0;gap:0;width:34px;height:34px;padding:0;justify-content:center}
+  .tb b{display:none}
+}
+.tb .badge{font-size:10px}
+
+/* ---- the open chat's tile ------------------------------------------------ */
+#ctitle{display:inline-flex;align-items:center;gap:11px}
+#ctitle::before{content:attr(data-ini);flex:none;display:grid;place-items:center;width:36px;height:36px;border-radius:12px;
+  font-size:16px;font-weight:800;color:#fff;background:linear-gradient(135deg, hsl(var(--h,200) 62% 52%), hsl(calc(var(--h,200) + 40) 62% 40%));
+  box-shadow:0 4px 14px rgba(0,0,0,.25)}
+header[data-gv2="room"] #ctitle::before{content:"#";color:var(--on-signal);background:var(--grad);border-radius:12px}
+header[data-gv2="dm"] #ctitle::before{border-radius:50%}
+header[data-gv2="start"] #ctitle::before{content:"\1F347";background:var(--raise);font-size:18px}
+#ctitle:empty::before{display:none}
+
+/* ---- avatars ------------------------------------------------------------- */
+.gv2-av{display:inline-grid;place-items:center;flex:none;width:34px;height:34px;border-radius:50%;overflow:hidden;
+  font:800 14px/1 var(--sans);color:#fff;letter-spacing:0;text-transform:none;
+  background:linear-gradient(135deg, hsl(var(--h) 65% 55%), hsl(calc(var(--h) + 35) 60% 40%));
+  box-shadow:0 0 0 2px var(--panel), 0 3px 10px rgba(0,0,0,.25);user-select:none}
+html[data-base="light"] .gv2-av{background:linear-gradient(135deg, hsl(var(--h) 65% 58%), hsl(calc(var(--h) + 35) 60% 46%))}
+.gv2-av.pic{background:var(--raise)}
+.gv2-av.pic .pfp{width:100% !important;height:100% !important;margin:0;font-size:17px;box-shadow:none}
+.msg:not(.self){padding-left:46px;position:relative}
+.msg>.gv2-av.msgav{position:absolute;left:0;top:2px;cursor:pointer;transition:transform .15s}
+.msg>.gv2-av.msgav:hover{transform:scale(1.08)}
+.msg.cont>.gv2-av.msgav{display:none}
+.msg:not(.self)>.who{padding-left:4px}
+.msg:not(.self) .who .pfp,.msg:not(.self) .who .pface,.msg:not(.self) .who .pfr{display:none}
+.mitem{gap:10px}
+.mitem .dot{display:none}
+.gv2-av.memav{width:30px;height:30px;font-size:12.5px;position:relative;overflow:visible}
+.gv2-av.memav.pic{overflow:hidden}
+.gv2-av.memav.live::after{content:"";position:absolute;right:-1px;bottom:-1px;width:10px;height:10px;border-radius:50%;background:var(--live);box-shadow:0 0 0 2px var(--panel)}
+#me{position:relative}
+#me::before{content:attr(data-ini);flex:none;display:grid;place-items:center;width:34px;height:34px;border-radius:50%;
+  font-size:14px;font-weight:800;color:#fff;background:linear-gradient(135deg, hsl(var(--h,30) 65% 55%), hsl(calc(var(--h,30) + 35) 60% 40%))}
+#me::after{content:"";position:absolute;left:38px;top:34px;width:10px;height:10px;border-radius:50%;background:var(--live);box-shadow:0 0 0 2px var(--raise)}
+
+/* ---- new messages pop in; someone typing gets dots ---------------------- */
+#log>.msg:last-child>.body{animation:gv2in .26s cubic-bezier(.2,.9,.3,1.25) both}
+#log>.msg.self:last-child>.body{transform-origin:100% 100%}
+#log>.msg:not(.self):last-child>.body{transform-origin:0 100%}
+@keyframes gv2in{from{opacity:0;transform:translateY(8px) scale(.94)}to{opacity:1;transform:none}}
+#typing{display:flex;align-items:center;gap:8px}
+#typing:not(:empty)::before{content:"";flex:none;width:28px;height:8px;
+  background:radial-gradient(circle 3px, var(--dim) 95%, transparent) 0 50%/10px 8px repeat-x;
+  -webkit-mask:linear-gradient(90deg,#000 0 0) 0 0/100% 100%;animation:gv2dots 1s steps(3) infinite}
+@keyframes gv2dots{0%{width:8px}100%{width:38px}}
+@media (prefers-reduced-motion:reduce){#log>.msg:last-child>.body,#typing::before{animation:none}}
+
+/* ---- start page: a hello, rooms as cards -------------------------------- */
+#gv2-greet{margin:18px 0 -8px;font-size:15px;font-weight:600;color:var(--dim)}
+#gv2-greet b{color:var(--text);font-weight:800}
+#roomDir{display:grid;grid-template-columns:repeat(auto-fill,minmax(190px,1fr));gap:8px}
+#roomDir .dirrow{flex-direction:row;padding:14px;border-radius:16px;background:var(--raise);border:1px solid var(--line);
+  font-weight:700;transition:transform .15s,border-color .15s}
+#roomDir .dirrow:hover{transform:translateY(-2px);border-color:color-mix(in srgb, var(--signal) 50%, transparent)}
+#roomDir .empty{grid-column:1/-1}
+#mineDir .dirrow{font-weight:600}
+
+/* ---- settings: an icon for every section --------------------------------- */
+.settab{display:flex;align-items:center;gap:10px}
+.settab::before{width:22px;text-align:center;font-size:15px}
+.settab[data-sec="appearance"]::before{content:"\1F3A8"}
+.settab[data-sec="notifications"]::before{content:"\1F514"}
+.settab[data-sec="chat"]::before{content:"\1F4AC"}
+.settab[data-sec="privacy"]::before{content:"\1F6E1\FE0F"}
+.settab[data-sec="account"]::before{content:"\1F464"}
+.settab[data-sec="advanced"]::before{content:"\1F527"}
+@media (max-width:620px){ .settings{grid-template-columns:1fr} .settabs{flex-direction:row;overflow-x:auto;border-radius:0} .settab{white-space:nowrap} }
+
+/* ---- the sign-in screen: two columns on a wide screen -------------------- */
+#join{gap:56px}
+.gv2-hero{max-width:400px;display:flex;flex-direction:column}
+.gv2-logo{display:grid;place-items:center;width:64px;height:64px;border-radius:20px;font-size:34px;background:var(--grad);
+  box-shadow:0 10px 30px color-mix(in srgb, var(--signal) 40%, transparent);animation:gv2float 5s ease-in-out infinite}
+@keyframes gv2float{50%{transform:translateY(-6px) rotate(-3deg)}}
+.gv2-hero h1{margin:22px 0 10px;font-size:46px;line-height:1;font-weight:800;letter-spacing:-.035em;
+  background:linear-gradient(100deg, var(--text) 35%, var(--signal));-webkit-background-clip:text;background-clip:text;color:transparent}
+.gv2-hero p{margin:0 0 26px;font-size:16px;line-height:1.55;color:var(--dim)}
+.gv2-hero ul{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:14px}
+.gv2-hero li{display:flex;gap:14px;align-items:flex-start}
+.gv2-hero li i{flex:none;display:grid;place-items:center;width:40px;height:40px;border-radius:13px;font-style:normal;font-size:19px;
+  background:var(--raise);border:1px solid var(--line)}
+.gv2-hero li span{font-size:13px;line-height:1.45;color:var(--dim)}
+.gv2-hero li b{display:block;font-size:14px;color:var(--text);font-weight:700}
+@media (max-width:900px){ .gv2-hero{display:none} }
+@media (prefers-reduced-motion:reduce){ .gv2-logo{animation:none} }
+@media (min-width:901px){ #join .gate .mark{display:none} }
 </style>
 </head>
 <body>
@@ -9076,6 +9196,108 @@ function modFx(m){
   document.body.append(el); setTimeout(() => el.remove(), m.fx === 'shame' ? 3600 : 1800);
   if (m.fx === 'bonk') { document.body.classList.add('bonked'); setTimeout(() => document.body.classList.remove('bonked'), 500); }
 }
+</script>
+<script>
+// Grapevine 2, part two (2026-11-22): the bits of the redesign CSS cannot do alone. Laid into gv/app.html by
+// tools/gv-redesign.js, after the app's own scripts. It only ADDS elements (class gv2-*) and data attributes; it never
+// moves, renames or removes anything the app or the launcher reaches for, and every piece fails quietly on its own.
+(function () {
+  'use strict';
+  var $ = function (s, r) { return (r || document).querySelector(s); };
+  function hue(n) { var h = 0; n = String(n || ''); for (var i = 0; i < n.length; i++) h = (h * 31 + n.charCodeAt(i)) | 0; return Math.abs(h) % 360; }
+  function initial(n) { n = String(n || '').replace(/^[#@\s]+/, ''); return (n.charAt(0) || '?').toUpperCase(); }
+  function avatar(name, cls) {
+    var a = document.createElement('span'); a.className = 'gv2-av' + (cls ? ' ' + cls : '');
+    a.style.setProperty('--h', hue(name)); a.textContent = initial(name); a.setAttribute('aria-hidden', 'true');
+    return a;
+  }
+  // a picture from the Profile shop wins over the letter
+  function wearPicture(a, from) {
+    var pic = from && from.querySelector('.pfp');
+    if (!pic || a.dataset.pic === pic.outerHTML) return;
+    a.dataset.pic = pic.outerHTML; a.textContent = ''; a.classList.add('pic');
+    var c = pic.cloneNode(true); c.removeAttribute('style'); a.appendChild(c);
+  }
+  function safe(fn) { return function () { try { fn.apply(this, arguments); } catch (e) {} }; }
+
+  // ---- an avatar beside every run of messages --------------------------------
+  var decorateRow = safe(function (row) {
+    if (!row || !row.classList || !row.classList.contains('msg') || row.classList.contains('self')) return;
+    var who = row.querySelector(':scope > .who'); if (!who) return;
+    var a = row.querySelector(':scope > .gv2-av');
+    if (!a) {
+      a = avatar(who.dataset.name || who.textContent, 'msgav');
+      a.addEventListener('click', function () { who.click(); });
+      row.insertBefore(a, row.firstChild);
+    }
+    wearPicture(a, who);
+  });
+  var log = $('#log');
+  if (log) {
+    [].forEach.call(log.querySelectorAll('.msg'), decorateRow);
+    new MutationObserver(safe(function (muts) {
+      var seen = new Set();
+      muts.forEach(function (m) {
+        var t = m.target.nodeType === 1 ? m.target : m.target.parentElement;
+        var row = t && (t.classList.contains('msg') ? t : t.closest && t.closest('.msg'));
+        if (row) seen.add(row);
+        [].forEach.call(m.addedNodes, function (n) { if (n.nodeType === 1 && n.classList.contains('msg')) seen.add(n); });
+      });
+      seen.forEach(decorateRow);
+    })).observe(log, { childList: true, subtree: true });
+  }
+
+  // ---- the members panel gets faces too ---------------------------------------
+  var memlist = $('#memlist');
+  if (memlist) new MutationObserver(safe(function () {
+    [].forEach.call(memlist.querySelectorAll('.mitem'), function (it) {
+      if (it.querySelector('.gv2-av')) return;
+      var nm = it.querySelector('.nm'); if (!nm) return;
+      var a = avatar(nm.textContent, 'memav'), dot = it.querySelector('.dot');
+      if (dot && dot.classList.contains('live')) a.classList.add('live');
+      wearPicture(a, nm);
+      it.insertBefore(a, it.firstChild);
+    });
+  })).observe(memlist, { childList: true });
+
+  // ---- the open chat's tile, and you in the corner -------------------------------
+  var title = $('#ctitle'), hdr = $('header'), mename = $('#mename'), me = $('#me');
+  var paintTitle = safe(function () {
+    var t = (title.textContent || '').trim();
+    hdr.dataset.gv2 = !t || t === 'Start' ? 'start' : t.charAt(0) === '#' ? 'room' : 'dm';
+    hdr.style.setProperty('--h', hue(t)); title.dataset.ini = initial(t);
+  });
+  if (title && hdr) { paintTitle(); new MutationObserver(paintTitle).observe(title, { childList: true, characterData: true, subtree: true }); }
+  var paintMe = safe(function () {
+    var n = (mename.textContent || '').trim(); me.style.setProperty('--h', hue(n)); me.dataset.ini = initial(n); if (greet) greet();   // (greet is defined below; the first call skips it)
+  });
+  if (mename && me) { paintMe(); new MutationObserver(paintMe).observe(mename, { childList: true, characterData: true, subtree: true }); }
+
+  // ---- a hello on the start page ------------------------------------------------
+  var greet = safe(function () {
+    var sh = $('#start .sh'); if (!sh) return;
+    var g = $('#gv2-greet');
+    if (!g) { g = document.createElement('div'); g.id = 'gv2-greet'; sh.parentNode.insertBefore(g, sh); }
+    var h = new Date().getHours(), part = h < 5 ? 'Up late' : h < 12 ? 'Good morning' : h < 18 ? 'Good afternoon' : 'Good evening';
+    var n = mename ? (mename.textContent || '').trim() : '';
+    g.textContent = ''; g.appendChild(document.createTextNode(part + (n ? ', ' : '')));
+    if (n) { var b = document.createElement('b'); b.textContent = n; g.appendChild(b); }
+    g.appendChild(document.createTextNode(' 👋'));
+  });
+  greet(); setInterval(greet, 600000);
+
+  // ---- the sign-in screen: what Grapevine is, beside the card --------------------
+  safe(function () {
+    var join = $('#join'), gate = join && $('.gate', join); if (!gate || $('.gv2-hero', join)) return;
+    var hero = document.createElement('div'); hero.className = 'gv2-hero';
+    hero.innerHTML = '<div class="gv2-logo">🍇</div><h1>Grapevine</h1>' +
+      '<p>The chat behind Taco Games. Talk to your friends, find a party and show off what you earned.</p>' +
+      '<ul><li><i>💬</i><span><b>Rooms, DMs and private groups</b>Walk into a public room or start your own.</span></li>' +
+      '<li><i>⚡</i><span><b>Straight between browsers</b>Messages take the direct path when they can.</span></li>' +
+      '<li><i>🎮</i><span><b>Made for game time</b>Party invites, titles and pictures from your games.</span></li></ul>';
+    join.insertBefore(hero, gate);
+  })();
+})();
 </script>
 </body>
 </html>
