@@ -1,0 +1,201 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+<title>Crochet &amp; Knitting Simulator</title>
+<style>
+html, body { margin: 0; height: 100%; overflow: hidden; background: #3b2a24; font-family: 'Georgia', 'Trebuchet MS', serif; color: #4a3428; user-select: none; }
+#cv { position: fixed; inset: 0; width: 100%; height: 100%; display: block; }
+#ui { position: fixed; inset: 0; pointer-events: none; }
+.cp { position: absolute; left: 50%; top: 50%; transform: translate(-50%, -50%); pointer-events: auto; width: min(820px, 94vw); max-height: 92vh; overflow: auto; background: #fbf4e8; border: 3px dashed #c08b5c; border-radius: 22px; padding: 20px 24px; box-shadow: 0 0 0 8px #fbf4e8, 0 20px 50px rgba(0,0,0,.45); text-align: center; }
+.cp h1 { margin: 0; font: italic 46px Georgia, serif; color: #b45f43; } .cp h2 { margin: 0 0 6px; color: #8a4b33; }
+.cp p { margin: 6px 0; font-size: 15px; }
+.cb { pointer-events: auto; font: 16px Georgia, serif; background: #e9a07a; color: #fff; border: 0; border-radius: 14px; padding: 9px 20px; margin: 4px; cursor: pointer; box-shadow: 0 4px 0 #b45f43; } .cb.alt { background: #c9b8a6; box-shadow: 0 4px 0 #8f7b68; } .cb.on { background: #7aa874; box-shadow: 0 4px 0 #4f7a49; } .cb:disabled { opacity: .45; cursor: default; }
+.pats { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; margin: 12px 0; }
+.pat { background: #fff; border: 2px solid #e8d6bf; border-radius: 16px; padding: 8px; cursor: pointer; font: 13px Georgia, serif; color: #4a3428; } .pat.on { border-color: #e9a07a; background: #fff3ea; } .pat:disabled { opacity: .5; cursor: default; }
+.pat canvas { display: block; margin: 0 auto 4px; image-rendering: pixelated; } .pat b { display: block; font-size: 15px; }
+.shop { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; text-align: left; margin: 10px 0; } .item { background: #fff; border: 2px solid #e8d6bf; border-radius: 14px; padding: 8px 10px; font-size: 13px; } .item b { font-size: 15px; display: block; }
+.tabs { display: flex; gap: 6px; justify-content: center; margin-bottom: 8px; }
+.hud { position: absolute; left: 50%; top: 10px; transform: translateX(-50%); background: rgba(251,244,232,.94); border: 2px dashed #c08b5c; border-radius: 16px; padding: 6px 18px; font-size: 15px; text-align: center; }
+.coins { position: absolute; right: 14px; top: 12px; background: #fbf4e8; border-radius: 12px; padding: 6px 12px; font-size: 15px; border: 2px solid #c08b5c; }
+.hidden { display: none !important; }
+
+</style>
+</head>
+<body>
+<canvas id="cv"></canvas>
+<div id="ui"></div>
+<script type="module">
+// ---- 10-craft.js ----
+// ==========================================
+// CROCHET & KNITTING SIMULATOR: a cozy corner by the fire, a basket of yarn and a book of patterns.
+//   Pick a pattern and a craft. Knitting: tap F and J in turn (left needle, right needle) with the soft metronome.
+//   Crochet: tap SPACE (or click) with it. On the beat = an even stitch; early is tight, late is loose, and a big
+//   miss drops a stitch (you can see every one in the finished piece). Hold nothing, rush nothing.
+//   Finished pieces go on your shelf, or to the craft fair for coins (price: size x quality x the yarn you used).
+//   Coins buy new patterns, nicer yarn (worth more), better tools (a wider window) and things for your room.
+// Save (synced, prefix taco): taco.craft.v1 = { coins, pats, yarn, tools, decor, shelf: [{ p, q, c }], made, sold }
+// ==========================================
+const cv = document.getElementById('cv'), g = cv.getContext('2d'), ui = document.getElementById('ui');
+const KEY = 'taco.craft.v1';
+let SV = { coins: 30, pats: ['coaster', 'scarf'], yarn: 'acrylic', yarns: ['acrylic'], tools: [], decor: [], shelf: [], made: 0, sold: 0, craft: 'knit' };
+try { SV = Object.assign(SV, JSON.parse(localStorage.getItem(KEY) || '{}') || {}); } catch (e) {}
+const save = () => { try { localStorage.setItem(KEY, JSON.stringify(SV)); } catch (e) {} };
+// patterns: rows of colour letters (bottom row last). '.' = no stitch (the shape), letters index the palette
+const PATS = {
+    coaster: { n: 'Heart Coaster', cost: 0, pal: { a: '#f4c7c3', b: '#e05a63' }, rows: ['aaaaaaaaaa', 'aabbaabbaa', 'abbbbbbbba', 'abbbbbbbba', 'abbbbbbbba', 'aabbbbbbaa', 'aaabbbbaaa', 'aaaabbaaaa', 'aaaaaaaaaa', 'aaaaaaaaaa'] },
+    scarf: { n: 'Cozy Scarf', cost: 0, pal: { a: '#7fb3d5', b: '#f6f1e7', c: '#e8a33d' }, rows: Array.from({ length: 30 }, (_, i) => (i % 6 < 3 ? 'a' : i % 6 === 3 ? 'c' : 'b').repeat(7)) },
+    beanie: { n: 'Pompom Beanie', cost: 60, pal: { a: '#c0504d', b: '#f6f1e7', p: '#f6f1e7' }, rows: ['.....pppp.....', '....pppppp....', '.....pppp.....', '...aaaaaaaa...', '..aaaaaaaaaa..', '.aaaaaaaaaaaa.', 'aaaaaaaaaaaaaa', 'aaaaaaaaaaaaaa', 'abababababab ab'.replace(' ', ''), 'aaaaaaaaaaaaaa', 'bbbbbbbbbbbbbb', 'babababababab b'.replace(' ', ''), 'bbbbbbbbbbbbbb'] },
+    mittens: { n: 'Snowy Mittens', cost: 90, pal: { a: '#2f6f8f', b: '#ffffff' }, rows: ['..aaaa..', '.aaaaaa.', 'aaaaaaaa', 'aabaabaa', 'aaaaaaaa', 'abaaaaba', 'aaaaaaaaaa', 'aaaaaaaaaa', 'aaaaaaaa.a', 'aaaaaaaa..', 'bbbbbbbb..', 'abababab..'] },
+    square: { n: 'Granny Square', cost: 120, pal: { a: '#f2d16b', b: '#7aa874', c: '#e07a5f', d: '#f6f1e7' }, rows: ['dddddddddddd', 'dccccccccccd', 'dcbbbbbbbbcd', 'dcbaaaaaabcd', 'dcbaddddabcd', 'dcbadccdabcd', 'dcbadccdabcd', 'dcbaddddabcd', 'dcbaaaaaabcd', 'dcbbbbbbbbcd', 'dccccccccccd', 'dddddddddddd'] },
+    bunny: { n: 'Amigurumi Bunny', cost: 160, pal: { a: '#f1e4d8', b: '#f4b6c2', e: '#3b2a24' }, rows: ['..a....a..', '.aba..aba.', '.aba..aba.', '.aba..aba.', '..aaaaaa..', '.aaaaaaaa.', 'aaeaaaaeaa', 'aaaaaaaaaa', 'aaaabbaaaa', '.aaaaaaaa.', '..aaaaaa..', '.aaaaaaaa.', 'aaaaaaaaaa', '.aa....aa.'] },
+    sweater: { n: 'Holiday Sweater', cost: 240, pal: { a: '#2f6b4f', b: '#c0504d', w: '#f6f1e7' }, rows: ['....aaaaaa....', 'aaaaaaaaaaaaaa', 'aaawaaaaaawaaa', 'aawwwaaaawwwaa', 'aaawaaaaaawaaa', 'aaaaaaaaaaaaaa', 'bwbwbwbwbwbwbw', 'aaaaaaaaaaaaaa', 'aaaawwbbwwaaaa', 'aaaawbbbbwaaaa', 'aaaaawbbwaaaaa', 'aaaaaaaaaaaaaa', 'bbbbbbbbbbbbbb', 'bwbwbwbwbwbwbw'] },
+    blanket: { n: 'Rainbow Blanket', cost: 360, pal: { a: '#e07a5f', b: '#f2a65a', c: '#f2d16b', d: '#7aa874', e: '#5b9bd5', f: '#9b7ec8' }, rows: Array.from({ length: 18 }, (_, i) => 'abcdef'[Math.floor(i / 3)].repeat(16)) }};
+const YARNS = [{ id: 'acrylic', n: 'Acrylic', k: 1, cost: 0 }, { id: 'cotton', n: 'Cotton', k: 1.3, cost: 80 }, { id: 'wool', n: 'Merino wool', k: 1.7, cost: 200 }, { id: 'alpaca', n: 'Alpaca', k: 2.3, cost: 420 }, { id: 'cashmere', n: 'Cashmere', k: 3, cost: 800 }];
+const TOOLS = [{ id: 'bamboo', n: 'Bamboo needles', d: 'Knitting: a wider window for an even stitch.', cost: 70 }, { id: 'ergo', n: 'Ergonomic hook', d: 'Crochet: a wider window for an even stitch.', cost: 70 }, { id: 'metro', n: 'Wooden metronome', d: 'Choose a slower or faster tempo.', cost: 120 }, { id: 'counter', n: 'Row counter', d: 'Finishing a row cleanly pays a bonus.', cost: 150 }];
+const DECOR = [{ id: 'cat', n: 'A sleepy cat', cost: 100 }, { id: 'plant', n: 'Potted plants', cost: 60 }, { id: 'lamp', n: 'Reading lamp', cost: 80 }, { id: 'rug', n: 'Braided rug', cost: 90 }, { id: 'rain', n: 'Rain on the window', cost: 50 }];
+const has = (list, id) => SV[list].includes(id);
+// ---- the work in progress ----
+const S = { on: false, pat: null, craft: 'knit', row: 0, col: 0, st: [], bpm: 84, t0: 0, beat: 0, lastHit: -9, next: 0, side: 0, turn: 0, done: false, hits: [], expect: 'F', msg: '', msgT: 0 };
+window.__craft = S;
+const rowsOf = p => p.rows.slice().reverse();      // we work from the bottom up
+function startProject(id, craft) {
+    const p = PATS[id]; Object.assign(S, { on: true, id, pat: p, craft, row: 0, col: 0, st: rowsOf(p).map(r => Array.from(r).map(() => null)), t0: performance.now() / 1000 + 1.2, beatN: 0, side: 0, turn: 0, done: false, hits: [], expect: 'F', msg: 'Ready...', msgT: 1 });
+    S.period = 60 / S.bpm; skipBlank(); ui.innerHTML = '';
+}
+function skipBlank() { const R = rowsOf(S.pat); while (S.row < R.length) { const r = R[S.row]; while (S.col < r.length && r[S.col] === '.') { S.st[S.row][S.col] = 'skip'; S.col++; } if (S.col < r.length) return; S.row++; S.col = 0; S.turn = .6; if (S.row >= R.length) { finish(); return; } } }
+const windowOf = () => (S.craft === 'knit' ? (has('tools', 'bamboo') ? 1.35 : 1) : (has('tools', 'ergo') ? 1.35 : 1));
+function stitch(key) {
+    if (!S.on || S.done || S.turn > 0) return;
+    if (S.craft === 'knit' && key !== S.expect) { S.msg = 'Other needle: ' + S.expect; S.msgT = .8; tone(180, .12, 'triangle'); return; }
+    const now = performance.now() / 1000, ph = (now - S.t0) / S.period, near = Math.round(ph), off = (ph - near) * S.period;      // seconds off the beat
+    const w = .07 * windowOf(), err = Math.abs(off);
+    const q = err < w ? 1 : err < w * 2.2 ? .7 : err < w * 3.6 ? .4 : 0;      // 0 = dropped stitch
+    S.st[S.row][S.col] = { q, off: Math.max(-1, Math.min(1, off / (w * 3.6))) };
+    S.hits.push(q); S.col++; if (S.craft === 'knit') S.expect = S.expect === 'F' ? 'J' : 'F';
+    S.msg = q === 1 ? 'even' : q === .7 ? (off < 0 ? 'a bit tight' : 'a bit loose') : q > 0 ? (off < 0 ? 'tight!' : 'loose!') : 'dropped a stitch'; S.msgT = .6;
+    tone(q >= .7 ? 520 + S.col * 6 : 260, .06, 'sine', 0, .03); clack();
+    const R = rowsOf(S.pat); if (S.col >= R[S.row].length) { const clean = S.st[S.row].every(x => x === 'skip' || (x && x.q >= .7)); if (clean && has('tools', 'counter')) { SV.coins += 2; S.msg = 'clean row! +2'; S.msgT = 1; } S.row++; S.col = 0; S.turn = .7; if (S.row >= R.length) return finish(); }
+    skipBlank();
+}
+function quality() { if (!S.hits.length) return 0; return S.hits.reduce((a, b) => a + b, 0) / S.hits.length; }
+function finish() {
+    S.done = true; S.on = false; const q = quality(), yarn = YARNS.find(y => y.id === SV.yarn) || YARNS[0];
+    const count = S.hits.length, price = Math.round(count * .9 * q * yarn.k + 5);
+    SV.made++; save(); tone(660, .3, 'triangle', 990); setTimeout(() => tone(880, .4, 'triangle', 1320), 160);
+    const stars = q >= .95 ? 5 : q >= .85 ? 4 : q >= .7 ? 3 : q >= .5 ? 2 : 1;
+    const piece = { p: S.id, q: Math.round(q * 100), c: S.craft, y: yarn.id, st: S.st.map(r => r.map(x => x === 'skip' ? -1 : x ? Math.round(x.q * 10) : 0)), price };
+    ui.innerHTML = `<div class="cp"><h2>${S.pat.n} finished!</h2><div style="font-size:30px;color:#e9a07a">${'★'.repeat(stars)}${'☆'.repeat(5 - stars)}</div><canvas id="fin" width="260" height="220"></canvas>
+      <p>${count} stitches · ${Math.round(q * 100)}% even · ${S.hits.filter(h => h === 0).length} dropped · ${yarn.n} ${S.craft === 'knit' ? 'knitted' : 'crocheted'}</p>
+      <p>The craft fair would pay <b>${price} coins</b>.</p><button class="cb" id="c-sell">Sell it</button><button class="cb alt" id="c-keep">Keep it on my shelf</button></div>`;
+    drawPiece(document.getElementById('fin').getContext('2d'), PATS[S.id], piece.st, 260, 220, S.craft);
+    document.getElementById('c-sell').onclick = () => { SV.coins += price; SV.sold++; save(); book(); };
+    document.getElementById('c-keep').onclick = () => { SV.shelf.push(piece); if (SV.shelf.length > 24) SV.shelf.shift(); save(); book(); };
+}
+// ---- sound: clacks and a soft metronome ----
+let AC = null;
+function tone(f, len, type, f2, vol) { try { AC = AC || new (window.AudioContext || window.webkitAudioContext)(); const o = AC.createOscillator(), v = AC.createGain(); o.type = type || 'sine'; o.frequency.setValueAtTime(f, AC.currentTime); if (f2) o.frequency.exponentialRampToValueAtTime(f2, AC.currentTime + len); v.gain.setValueAtTime(vol || .04, AC.currentTime); v.gain.exponentialRampToValueAtTime(.0005, AC.currentTime + len); o.connect(v); v.connect(AC.destination); o.start(); o.stop(AC.currentTime + len); } catch (e) {} }
+function clack() { tone(1800, .03, 'square', 900, .015); }
+// ---- drawing ----
+function fit() { const d = Math.min(2, devicePixelRatio || 1); cv.width = innerWidth * d; cv.height = innerHeight * d; }
+addEventListener('resize', fit); fit();
+// one stitch: a V for knitting, a little post for crochet; tight ones are narrow, loose ones wide and wobbly
+function stitchShape(c, x, y, w, h, col, q, off, craft) {
+    const tight = off < 0 ? -off : 0, loose = off > 0 ? off : 0, sw = w * (1 - tight * .35 + loose * .25), wob = loose * 2.5;
+    c.save(); c.translate(x + w / 2, y + h / 2);
+    if (q === 0) { c.strokeStyle = col; c.globalAlpha = .4; c.lineWidth = 1.5; c.beginPath(); c.moveTo(-w * .3, -h * .3); c.lineTo(w * .3, h * .3); c.stroke(); c.restore(); return; }
+    c.fillStyle = col; c.strokeStyle = 'rgba(0,0,0,.25)'; c.lineWidth = 1;
+    if (craft === 'knit') { for (const s of [-1, 1]) { c.beginPath(); c.ellipse(s * sw * .2, wob * s, sw * .2, h * .46, -s * .45, 0, 7); c.fill(); c.stroke(); } }
+    else { c.beginPath(); c.roundRect ? c.roundRect(-sw * .4, -h * .5 + wob, sw * .8, h, 4) : c.rect(-sw * .4, -h * .5, sw * .8, h); c.fill(); c.stroke(); c.strokeStyle = 'rgba(255,255,255,.35)'; c.beginPath(); c.moveTo(-sw * .25, -h * .3); c.lineTo(sw * .25, -h * .1); c.stroke(); }
+    c.restore();
+}
+function drawPiece(c, p, st, W, H, craft) {
+    const R = rowsOf(p), cols = Math.max(...R.map(r => r.length)), cw = Math.min(W / cols, H / R.length * 1.25), ch = cw * .8;
+    const x0 = (W - cols * cw) / 2, y0 = (H + R.length * ch) / 2 - ch;
+    c.clearRect(0, 0, W, H);
+    for (let r = 0; r < R.length; r++) for (let k = 0; k < R[r].length; k++) {
+        const cell = st[r] && st[r][k], ch2 = R[r][k]; if (ch2 === '.' || cell === -1 || cell === 'skip') continue;
+        const col = p.pal[ch2] || '#ccc', x = x0 + k * cw, y = y0 - r * ch;
+        if (cell == null) { c.strokeStyle = 'rgba(251,244,232,.18)'; c.setLineDash([2, 3]); c.strokeRect(x + 1, y + 1, cw - 2, ch - 2); c.setLineDash([]); continue; }
+        const q = typeof cell === 'number' ? cell / 10 : cell.q, off = typeof cell === 'number' ? 0 : cell.off;
+        stitchShape(c, x, y, cw, ch, col, q, off, craft);
+    }
+}
+const SHELF_IMG = {};
+function room(w, h, t) {
+    const wall = g.createLinearGradient(0, 0, 0, h); wall.addColorStop(0, '#6b4a3a'); wall.addColorStop(1, '#4a3128'); g.fillStyle = wall; g.fillRect(0, 0, w, h);
+    g.fillStyle = 'rgba(255,255,255,.03)'; for (let x = 0; x < w; x += 60) g.fillRect(x, 0, 30, h * .7);
+    // the window (rain if you bought it), the fire, the shelf
+    g.fillStyle = '#2b3a4a'; g.fillRect(w * .06, h * .1, w * .2, h * .32); g.strokeStyle = '#8a5a3c'; g.lineWidth = 10; g.strokeRect(w * .06, h * .1, w * .2, h * .32); g.beginPath(); g.moveTo(w * .16, h * .1); g.lineTo(w * .16, h * .42); g.stroke();
+    if (has('decor', 'rain')) { g.strokeStyle = 'rgba(180,210,240,.5)'; g.lineWidth = 2; for (let i = 0; i < 40; i++) { const x = w * .06 + ((i * 53 + t * 220) % (w * .2)), y = h * .1 + ((i * 97 + t * 500) % (h * .32)); g.beginPath(); g.moveTo(x, y); g.lineTo(x - 3, y + 12); g.stroke(); } }
+    const fx = w * .82, fy = h * .62; g.fillStyle = '#3a2a24'; g.fillRect(fx - 110, fy - 150, 220, 200); g.fillStyle = '#1b120e'; g.fillRect(fx - 80, fy - 100, 160, 150);
+    for (let i = 0; i < 6; i++) { const fl = Math.sin(t * 6 + i * 1.7) * 10; g.fillStyle = ['#f59e0b', '#f97316', '#fde047'][i % 3]; g.globalAlpha = .85; g.beginPath(); g.ellipse(fx - 45 + i * 18, fy + 20 - 30 - fl, 14, 40 + fl, 0, 0, 7); g.fill(); } g.globalAlpha = 1;
+    const glow = g.createRadialGradient(fx, fy, 10, fx, fy, w * .45); glow.addColorStop(0, 'rgba(251,146,60,.25)'); glow.addColorStop(1, 'rgba(251,146,60,0)'); g.fillStyle = glow; g.fillRect(0, 0, w, h);
+    const shY = h * .34, sk = w / 1800; g.fillStyle = '#7a4f35'; g.fillRect(w * .72, shY, w * .25, 12);
+    SV.shelf.slice(-4).forEach((pc, i) => { const p = PATS[pc.p]; if (!p) return; const key = 'pv' + SV.shelf.indexOf(pc); const off = SHELF_IMG[key] || (SHELF_IMG[key] = (() => { const o = document.createElement('canvas'); o.width = 90; o.height = 80; drawPiece(o.getContext('2d'), p, pc.st, 90, 80, pc.c); return o; })()); g.drawImage(off, w * .725 + i * w * .062, shY - 80 * sk * 1.2, 90 * sk * 1.2, 80 * sk * 1.2); });
+    if (has('decor', 'rug')) { g.fillStyle = '#b45f43'; g.beginPath(); g.ellipse(w * .5, h * .93, w * .3, h * .07, 0, 0, 7); g.fill(); g.strokeStyle = '#e9a07a'; g.lineWidth = 6; for (let i = 1; i < 4; i++) { g.beginPath(); g.ellipse(w * .5, h * .93, w * .3 * i / 4, h * .07 * i / 4, 0, 0, 7); g.stroke(); } }
+    if (has('decor', 'plant')) { g.fillStyle = '#b45f43'; g.fillRect(w * .05, h * .78, 70, 70); g.fillStyle = '#4f7a49'; for (let i = 0; i < 7; i++) { g.beginPath(); g.ellipse(w * .05 + 35 + Math.cos(i) * 30, h * .78 - 20 - Math.sin(i * 2) * 25, 16, 34, i, 0, 7); g.fill(); } }
+    if (has('decor', 'lamp')) { g.fillStyle = '#d6a34a'; g.beginPath(); g.moveTo(w * .1, h * .5); g.lineTo(w * .16, h * .5); g.lineTo(w * .15, h * .44); g.lineTo(w * .11, h * .44); g.fill(); const lg = g.createRadialGradient(w * .13, h * .52, 5, w * .13, h * .52, 180); lg.addColorStop(0, 'rgba(253,230,138,.35)'); lg.addColorStop(1, 'rgba(253,230,138,0)'); g.fillStyle = lg; g.fillRect(0, 0, w, h); }
+    if (has('decor', 'cat')) { const cx = w * .78, cy = h * .86, br = Math.sin(t * 1.5) * 3; g.fillStyle = '#e8a35c'; g.beginPath(); g.ellipse(cx, cy, 70, 34 + br, 0, 0, 7); g.fill(); g.beginPath(); g.arc(cx - 55, cy - 12, 26, 0, 7); g.fill(); g.beginPath(); g.moveTo(cx - 75, cy - 28); g.lineTo(cx - 70, cy - 50); g.lineTo(cx - 58, cy - 34); g.fill(); g.beginPath(); g.moveTo(cx - 48, cy - 34); g.lineTo(cx - 38, cy - 50); g.lineTo(cx - 36, cy - 28); g.fill(); g.strokeStyle = '#5b3a20'; g.lineWidth = 2; g.beginPath(); g.arc(cx - 64, cy - 12, 5, 0, Math.PI); g.arc(cx - 46, cy - 12, 5, 0, Math.PI); g.stroke(); g.font = '18px serif'; g.fillStyle = '#fbf4e8'; g.fillText('z', cx - 30, cy - 50 - (t * 10 % 20)); }
+}
+function draw(t) {
+    const w = cv.width, h = cv.height; room(w, h, t);
+    if (!S.pat || (!S.on && !S.done)) return;
+    if (!S.on) return;
+    // the work, big, in the middle, on a wooden hoop of light
+    const pw = Math.min(w * .5, h * .62), ph = pw * .85, px = (w - pw) / 2, py = h * .18;
+    g.fillStyle = '#8a5a3c'; g.beginPath(); g.roundRect ? g.roundRect(px - 28, py - 28, pw + 56, ph + 56, 28) : g.rect(px - 28, py - 28, pw + 56, ph + 56); g.fill(); g.fillStyle = '#2f4b4a'; g.beginPath(); g.roundRect ? g.roundRect(px - 16, py - 16, pw + 32, ph + 32, 20) : g.rect(px - 16, py - 16, pw + 32, ph + 32); g.fill();
+    const off = S.off || (S.off = document.createElement('canvas')); off.width = pw; off.height = ph; drawPiece(off.getContext('2d'), S.pat, S.st, pw, ph, S.craft);
+    g.save(); if (S.turn > 0) { g.translate(w / 2, 0); g.scale(Math.cos((1 - S.turn / .7) * Math.PI * 2) || .05, 1); g.translate(-w / 2, 0); } g.drawImage(off, px, py); g.restore();
+    // the metronome and what to press
+    const now = performance.now() / 1000, ph2 = (now - S.t0) / S.period, frac = ((ph2 % 1) + 1) % 1, swing = Math.sin(ph2 * Math.PI);
+    const mx = w / 2, my = h * .86; g.strokeStyle = '#7a4f35'; g.lineWidth = 6; g.beginPath(); g.moveTo(mx, my); g.lineTo(mx + swing * 90, my - 110); g.stroke(); g.fillStyle = '#e9a07a'; g.beginPath(); g.arc(mx + swing * 90, my - 110, 14, 0, 7); g.fill();
+    g.fillStyle = '#3a2a24'; g.beginPath(); g.moveTo(mx - 50, my + 30); g.lineTo(mx + 50, my + 30); g.lineTo(mx + 26, my - 20); g.lineTo(mx - 26, my - 20); g.fill();
+    const beatGlow = Math.max(0, 1 - Math.min(frac, 1 - frac) * 8); g.fillStyle = `rgba(250,204,21,${beatGlow * .9})`; g.beginPath(); g.arc(mx, my - 2, 16, 0, 7); g.fill();
+    if (now > S.t0 && Math.floor(ph2) !== S.lastTick) { S.lastTick = Math.floor(ph2); tone(S.lastTick % 4 === 0 ? 900 : 700, .04, 'sine', 0, .015); }
+    const key = S.craft === 'knit' ? S.expect : 'SPACE', R = rowsOf(S.pat);
+    g.font = `bold ${h * .03}px Georgia`; g.textAlign = 'center'; g.fillStyle = '#fbf4e8'; g.fillText(S.turn > 0 ? 'turning your work...' : 'press ' + key + ' on the tick', mx, my + 70);
+    if (S.msgT > 0) { g.fillStyle = `rgba(251,244,232,${Math.min(1, S.msgT * 3)})`; g.font = `italic ${h * .032}px Georgia`; g.fillText(S.msg, mx, py + ph + 70); }
+    hudHtml(`<b>${S.pat.n}</b> · ${S.craft === 'knit' ? 'knitting' : 'crochet'} · row ${Math.min(S.row + 1, R.length)} of ${R.length} · ${Math.round(quality() * 100)}% even`);
+}
+function hudHtml(t) { let h = document.getElementById('hud'); if (!h) { ui.innerHTML = '<div class="hud" id="hud"></div><div class="coins" id="coins"></div>'; h = document.getElementById('hud'); } if (h.innerHTML !== t) h.innerHTML = t; document.getElementById('coins').textContent = '🪙 ' + SV.coins; }
+// ---- the pattern book, the shop ----
+let tab = 'book', pick = 'coaster';
+function book() {
+    S.on = false; S.done = false; S.pat = null;
+    const tabs = `<div class="tabs">${[['book', '📖 Patterns'], ['shop', '🧺 Shop'], ['shelf', '🖼️ Shelf']].map(([k, n]) => `<button class="cb ${tab === k ? 'on' : 'alt'}" data-tab="${k}">${n}</button>`).join('')}</div>`;
+    let body = '';
+    if (tab === 'book') {
+        body = `<div class="pats">${Object.keys(PATS).map(id => { const p = PATS[id], own = has('pats', id); return `<button class="pat ${pick === id ? 'on' : ''}" data-p="${id}"><canvas width="110" height="90" data-pv="${id}"></canvas><b>${p.n}</b>${own ? rowsOf(p).reduce((a, r) => a + r.replace(/\./g, '').length, 0) + ' stitches' : '🪙 ' + p.cost}</button>`; }).join('')}</div>
+          <div class="tabs"><button class="cb ${SV.craft === 'knit' ? 'on' : 'alt'}" data-c="knit">🧶 Knit (F / J)</button><button class="cb ${SV.craft === 'crochet' ? 'on' : 'alt'}" data-c="crochet">🪝 Crochet (SPACE)</button></div>
+          <p>Yarn: <select id="c-yarn">${SV.yarns.map(y => { const Y = YARNS.find(x => x.id === y); return `<option value="${y}" ${SV.yarn === y ? 'selected' : ''}>${Y.n} (x${Y.k} price)</option>`; }).join('')}</select>${has('tools', 'metro') ? ` · Tempo <select id="c-bpm">${[60, 72, 84, 96, 110].map(b => `<option ${S.bpm === b ? 'selected' : ''}>${b}</option>`).join('')}</select>` : ''}</p>
+          <button class="cb" id="c-start">${has('pats', pick) ? 'Start ' + PATS[pick].n : 'Buy this pattern (' + PATS[pick].cost + ')'}</button>`;
+    } else if (tab === 'shop') {
+        const card = (it, list, desc) => `<div class="item"><b>${it.n}</b>${desc || ''}<br>${has(list, it.id) ? '✓ yours' : `<button class="cb" data-buy="${list}:${it.id}" ${SV.coins < it.cost ? 'disabled' : ''}>🪙 ${it.cost}</button>`}</div>`;
+        body = `<h2>Yarn</h2><div class="shop">${YARNS.slice(1).map(y => card(y, 'yarns', ' · sells for x' + y.k)).join('')}</div><h2>Tools</h2><div class="shop">${TOOLS.map(t => card(t, 'tools', '<br><small>' + t.d + '</small>')).join('')}</div><h2>Your room</h2><div class="shop">${DECOR.map(d => card(d, 'decor')).join('')}</div>`;
+    } else body = SV.shelf.length ? `<div class="pats">${SV.shelf.map((pc, i) => `<div class="pat"><canvas width="110" height="90" data-sh="${i}"></canvas><b>${(PATS[pc.p] || {}).n}</b>${pc.q}% even · ${(YARNS.find(y => y.id === pc.y) || YARNS[0]).n}<br><button class="cb" data-sell="${i}" style="font-size:12px;padding:4px 10px">Sell 🪙 ${pc.price}</button></div>`).join('')}</div>` : '<p>Nothing on your shelf yet. Keep a piece you are proud of.</p>';
+    ui.innerHTML = `<div class="cp"><h1>Crochet & Knitting</h1><p>A cozy corner, a basket of yarn. 🪙 <b>${SV.coins}</b> · made ${SV.made} · sold ${SV.sold}</p>${tabs}${body}</div>`;
+    ui.querySelectorAll('[data-tab]').forEach(b => b.onclick = () => { tab = b.dataset.tab; book(); });
+    ui.querySelectorAll('[data-p]').forEach(b => b.onclick = () => { pick = b.dataset.p; book(); });
+    ui.querySelectorAll('[data-c]').forEach(b => b.onclick = () => { SV.craft = b.dataset.c; save(); book(); });
+    ui.querySelectorAll('canvas[data-pv]').forEach(c => { const p = PATS[c.dataset.pv]; drawPiece(c.getContext('2d'), p, rowsOf(p).map(r => Array.from(r).map(() => 10)), 110, 90, SV.craft); });
+    ui.querySelectorAll('canvas[data-sh]').forEach(c => { const pc = SV.shelf[+c.dataset.sh]; drawPiece(c.getContext('2d'), PATS[pc.p], pc.st, 110, 90, pc.c); });
+    ui.querySelectorAll('[data-buy]').forEach(b => b.onclick = () => { const [list, id] = b.dataset.buy.split(':'), all = { yarns: YARNS, tools: TOOLS, decor: DECOR }[list], it = all.find(x => x.id === id); if (SV.coins < it.cost) return; SV.coins -= it.cost; SV[list].push(id); if (list === 'yarns') SV.yarn = id; save(); tone(880, .2, 'triangle', 1320); book(); });
+    ui.querySelectorAll('[data-sell]').forEach(b => b.onclick = () => { const i = +b.dataset.sell, pc = SV.shelf[i]; SV.coins += pc.price; SV.sold++; SV.shelf.splice(i, 1); save(); book(); });
+    const y = document.getElementById('c-yarn'); if (y) y.onchange = () => { SV.yarn = y.value; save(); };
+    const bp = document.getElementById('c-bpm'); if (bp) bp.onchange = () => { S.bpm = +bp.value; };
+    const st = document.getElementById('c-start'); if (st) st.onclick = () => { if (!has('pats', pick)) { if (SV.coins < PATS[pick].cost) { tone(150, .2, 'square'); return; } SV.coins -= PATS[pick].cost; SV.pats.push(pick); save(); book(); return; } startProject(pick, SV.craft); };
+}
+// ---- input ----
+addEventListener('keydown', e => { if (e.repeat) return; if (e.code === 'Escape' && S.on) { S.on = false; book(); return; } if (e.code === 'KeyF') stitch('F'); else if (e.code === 'KeyJ') stitch('J'); else if (e.code === 'Space') { e.preventDefault(); stitch(S.craft === 'knit' ? S.expect : 'SPACE'); } });
+cv.addEventListener('pointerdown', () => stitch(S.craft === 'knit' ? S.expect : 'SPACE'));
+let last = performance.now();
+function frame(now) { requestAnimationFrame(frame); const dt = Math.min(.05, (now - last) / 1000); last = now; S.msgT -= dt; if (S.turn > 0) S.turn -= dt; draw(now / 1000); }
+book(); requestAnimationFrame(frame);
+// tests
+Object.assign(S, { startProject, stitch, quality, PATS, save: () => SV, book, rowsOf });
+
+</script>
+</body>
+</html>
