@@ -24,6 +24,8 @@ function hostStart(humans, set, opts) {
   humans.slice(0, MAXP).forEach(h => used.add(String(h.name).toLowerCase()));
   while (players.length < MAXP) { let n = names.pop() || 'Bot' + players.length; while (used.has(n.toLowerCase())) n += 'x'; used.add(n.toLowerCase()); players.push(mkPlayer(players.length, n, cols[players.length], true, -1)); }
   const impIds = shuffle(players.map(p => p.id)).slice(0, Math.min(s.imps, 3));
+  // "Make me a Shade" (lobby, bots-only games): the one human is always dealt a Shade
+  if (s.meImp && humans.length === 1 && impIds.indexOf(0) < 0) impIds[0] = 0;
   impIds.forEach(i => { players[i].imp = true; });
   const stIds = MAP.stations.map(t => t.id);
   let total = 0;

@@ -25,7 +25,7 @@ const COLORS = [
   { n: 'Soot', c: '#3b4455', d: '#171b25' }, { n: 'Pearl', c: '#e8edf5', d: '#8a93a8' }, { n: 'Dusk', c: '#8a3fd8', d: '#4a1c86' },
   { n: 'Teal', c: '#3fd7e0', d: '#16808a' }, { n: 'Cedar', c: '#8a5a33', d: '#4a2c14' }, { n: 'Fern', c: '#90e038', d: '#4a8a10' }];
 const BOT_NAMES = ['Nova', 'Pip', 'Juno', 'Kit', 'Bolt', 'Zed', 'Mochi', 'Rex', 'Luna', 'Orbit', 'Fizz', 'Nugget', 'Echo', 'Sprout', 'Taffy', 'Comet', 'Pixel', 'Waffle', 'Ziggy', 'Tango', 'Biscuit', 'Gizmo', 'Poppy', 'Moose'];
-const DEFAULT_SET = { imps: 2, kcd: 25, speed: 1, tasks: 5, map: 'ship', disc: 15, vote: 30, confirm: 1, meet: 1 };
+const DEFAULT_SET = { imps: 2, kcd: 25, speed: 1, tasks: 5, map: 'ship', disc: 15, vote: 30, confirm: 1, meet: 1, meImp: 0 };
 
 // ---- saves (never wiped: unknown keys are kept, missing ones filled in) ----
 const LS = {

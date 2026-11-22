@@ -11,7 +11,10 @@ const LSET = [
   { k: 'disc', label: 'Discussion time', min: 0, max: 60, step: 5, fmt: v => v + 's' },
   { k: 'vote', label: 'Voting time', min: 15, max: 90, step: 5, fmt: v => v + 's' },
   { k: 'meet', label: 'Bell rings per Keeper', min: 0, max: 3, step: 1 },
-  { k: 'confirm', label: 'Reveal who was cast out', opts: [1, 0], fmt: v => v ? 'On' : 'Off' }];
+  { k: 'confirm', label: 'Reveal who was cast out', opts: [1, 0], fmt: v => v ? 'On' : 'Off' },
+  // only when every other seat is a bot (offline, or a room nobody has joined yet): always deal yourself a Shade
+  { k: 'meImp', label: 'Make me a Shade', opts: [0, 1], fmt: v => v ? 'Always' : 'Random', show: () => lobbyAllBots() }];
+function lobbyAllBots() { return LMODE === 'off' || (LMODE === 'host' && (LB.players || []).length <= 1); }
 function refreshTitle() {
   const s = stats; $('t-foot').textContent = 'v' + VERSION + '   Games ' + s.games + '   Keeper wins ' + s.crewWins + '   Shade wins ' + s.impWins;
   drawLogo();
@@ -32,6 +35,7 @@ function renderLobby() {
   $('l-count').textContent = '(' + names.length + ' / ' + MAXP + ')';
   const box = $('l-set'); box.innerHTML = '';
   for (const o of LSET) {
+    if (o.show && !o.show()) continue;
     const row = document.createElement('div'); row.className = 'lset'; const lab = document.createElement('span'); lab.textContent = o.label; row.appendChild(lab);
     const seg = document.createElement('div'); seg.className = 'seg' + (host ? '' : ' ro'); const fmt = o.fmt || (v => v);
     if (o.opts) for (const v of o.opts) { const b = document.createElement('button'); b.textContent = fmt(v); if (set[o.k] === v) b.classList.add('on'); b.onclick = () => setOpt(o.k, v); seg.appendChild(b); }

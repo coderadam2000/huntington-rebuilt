@@ -371,7 +371,7 @@ const COLORS = [
   { n: 'Soot', c: '#3b4455', d: '#171b25' }, { n: 'Pearl', c: '#e8edf5', d: '#8a93a8' }, { n: 'Dusk', c: '#8a3fd8', d: '#4a1c86' },
   { n: 'Teal', c: '#3fd7e0', d: '#16808a' }, { n: 'Cedar', c: '#8a5a33', d: '#4a2c14' }, { n: 'Fern', c: '#90e038', d: '#4a8a10' }];
 const BOT_NAMES = ['Nova', 'Pip', 'Juno', 'Kit', 'Bolt', 'Zed', 'Mochi', 'Rex', 'Luna', 'Orbit', 'Fizz', 'Nugget', 'Echo', 'Sprout', 'Taffy', 'Comet', 'Pixel', 'Waffle', 'Ziggy', 'Tango', 'Biscuit', 'Gizmo', 'Poppy', 'Moose'];
-const DEFAULT_SET = { imps: 2, kcd: 25, speed: 1, tasks: 5, map: 'ship', disc: 15, vote: 30, confirm: 1, meet: 1 };
+const DEFAULT_SET = { imps: 2, kcd: 25, speed: 1, tasks: 5, map: 'ship', disc: 15, vote: 30, confirm: 1, meet: 1, meImp: 0 };
 
 // ---- saves (never wiped: unknown keys are kept, missing ones filled in) ----
 const LS = {
@@ -888,6 +888,8 @@ function hostStart(humans, set, opts) {
   humans.slice(0, MAXP).forEach(h => used.add(String(h.name).toLowerCase()));
   while (players.length < MAXP) { let n = names.pop() || 'Bot' + players.length; while (used.has(n.toLowerCase())) n += 'x'; used.add(n.toLowerCase()); players.push(mkPlayer(players.length, n, cols[players.length], true, -1)); }
   const impIds = shuffle(players.map(p => p.id)).slice(0, Math.min(s.imps, 3));
+  // "Make me a Shade" (lobby, bots-only games): the one human is always dealt a Shade
+  if (s.meImp && humans.length === 1 && impIds.indexOf(0) < 0) impIds[0] = 0;
   impIds.forEach(i => { players[i].imp = true; });
   const stIds = MAP.stations.map(t => t.id);
   let total = 0;
@@ -2190,7 +2192,10 @@ const LSET = [
   { k: 'disc', label: 'Discussion time', min: 0, max: 60, step: 5, fmt: v => v + 's' },
   { k: 'vote', label: 'Voting time', min: 15, max: 90, step: 5, fmt: v => v + 's' },
   { k: 'meet', label: 'Bell rings per Keeper', min: 0, max: 3, step: 1 },
-  { k: 'confirm', label: 'Reveal who was cast out', opts: [1, 0], fmt: v => v ? 'On' : 'Off' }];
+  { k: 'confirm', label: 'Reveal who was cast out', opts: [1, 0], fmt: v => v ? 'On' : 'Off' },
+  // only when every other seat is a bot (offline, or a room nobody has joined yet): always deal yourself a Shade
+  { k: 'meImp', label: 'Make me a Shade', opts: [0, 1], fmt: v => v ? 'Always' : 'Random', show: () => lobbyAllBots() }];
+function lobbyAllBots() { return LMODE === 'off' || (LMODE === 'host' && (LB.players || []).length <= 1); }
 function refreshTitle() {
   const s = stats; $('t-foot').textContent = 'v' + VERSION + '   Games ' + s.games + '   Keeper wins ' + s.crewWins + '   Shade wins ' + s.impWins;
   drawLogo();
@@ -2211,6 +2216,7 @@ function renderLobby() {
   $('l-count').textContent = '(' + names.length + ' / ' + MAXP + ')';
   const box = $('l-set'); box.innerHTML = '';
   for (const o of LSET) {
+    if (o.show && !o.show()) continue;
     const row = document.createElement('div'); row.className = 'lset'; const lab = document.createElement('span'); lab.textContent = o.label; row.appendChild(lab);
     const seg = document.createElement('div'); seg.className = 'seg' + (host ? '' : ' ro'); const fmt = o.fmt || (v => v);
     if (o.opts) for (const v of o.opts) { const b = document.createElement('button'); b.textContent = fmt(v); if (set[o.k] === v) b.classList.add('on'); b.onclick = () => setOpt(o.k, v); seg.appendChild(b); }
@@ -2358,7 +2364,7 @@ window.__imposter = {
     return Object.assign(summary(), { steps: n, ms: Math.round(performance.now() - t0), meetings: stat.meetings, deaths: G.players.filter(p => !p.alive && !p.left).length });
   },
   auto(on) { setAuto(me(), on !== false); },
-  act, hostAct, tryUse, usable, openMini, closeMini, miniLoop,
+  act, hostAct, tryUse, usable, openMini, closeMini, miniLoop, hostStart,
   tp(id, x, y) { const p = G.players[id]; p.x = p.rx = x; p.y = p.ry = y; },
   forceMeeting(caller, body) { startMeeting(G.players[caller || 0], body == null ? -1 : body); return summary(); },
   forceKill(killer, victim) { const k = G.players[killer], v = G.players[victim]; k.kcd = 0; k.x = v.x + 20; k.y = v.y; return hostKill(k); },

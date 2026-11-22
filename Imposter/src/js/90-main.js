@@ -56,7 +56,7 @@ window.__imposter = {
     return Object.assign(summary(), { steps: n, ms: Math.round(performance.now() - t0), meetings: stat.meetings, deaths: G.players.filter(p => !p.alive && !p.left).length });
   },
   auto(on) { setAuto(me(), on !== false); },
-  act, hostAct, tryUse, usable, openMini, closeMini, miniLoop,
+  act, hostAct, tryUse, usable, openMini, closeMini, miniLoop, hostStart,
   tp(id, x, y) { const p = G.players[id]; p.x = p.rx = x; p.y = p.ry = y; },
   forceMeeting(caller, body) { startMeeting(G.players[caller || 0], body == null ? -1 : body); return summary(); },
   forceKill(killer, victim) { const k = G.players[killer], v = G.players[victim]; k.kcd = 0; k.x = v.x + 20; k.y = v.y; return hostKill(k); },
