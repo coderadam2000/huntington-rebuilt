@@ -801,6 +801,16 @@ body.hubbonked{animation:hbonkshake .5s}
 // hubShown(): the launcher page itself is on screen (tab showing, no game over it). A timer that only repaints the hub, or
 // asks the server for something only the hub shows, skips its work otherwise and registers with hubWake(f) to run as soon
 // as the hub is back (tab shown again, game closed).
+// Save names from before the Taco Games rename (2026-11-21). An old save is copied to its new name when it is found (at
+// start, and after every cloud sync, which can bring one down from a device that never ran the new code); the old copy is
+// left alone as a backup. The games do the same for their own keys, for when they run without the launcher.
+var HG_RENAMED_KEYS = { huntingtonTetrisSurge1: 'tacoTetrisSurge1', huntingtonTetrisMute: 'tacoTetrisMute',
+  'huntington.blockyshooter.run.v1': 'taco.blockyshooter.run.v1', 'huntington.blockyshooter.challenges.v1': 'taco.blockyshooter.challenges.v1' };
+function hgRenameKeys() {
+  for (var o in HG_RENAMED_KEYS) try { var v = localStorage.getItem(o); if (v !== null && localStorage.getItem(HG_RENAMED_KEYS[o]) === null) localStorage.setItem(HG_RENAMED_KEYS[o], v); } catch (e) {}
+}
+hgRenameKeys();
+(function hook() { var L = window.HGGrapevine; if (!L || !L.on) return setTimeout(hook, 1000); L.on('sync', function (m) { if (m && m.state === 'ok') hgRenameKeys(); }); })();
 function hubShown() { return !document.hidden && !document.documentElement.classList.contains('playing'); }
 var HUB_WAKE = [];
 function hubWake(f) { HUB_WAKE.push(f); }
@@ -886,7 +896,7 @@ function setVersion(v) { MIRRORS = MIRROR_HOSTS.map(function (m) { return m + RE
 // If GitHub cannot be reached (blocked, or its 60-an-hour limit for one school network), it falls back to '@main'.
 // (A hub cannot swap itself for a newer one in the same page: its scripts have already declared their names. Players get a
 // newer launcher itself through the loader, which pins it; HG_HUB_ID tells which build is running.)
-var HG_HUB_ID = 'c3d72e6b8aa7';      // the build fills in a fingerprint of this file
+var HG_HUB_ID = '316529f98f07';      // the build fills in a fingerprint of this file
 var HG_SHA_RE = /^[0-9a-f]{40}$/;
 function latestSha() {
   try { var c = JSON.parse(localStorage.getItem('hgv:sha') || 'null'); if (c && HG_SHA_RE.test(c.s) && Date.now() - c.t < 120000) return Promise.resolve(c.s); } catch (e) {}
@@ -2650,10 +2660,10 @@ var LB_FEED = [
   }],
   ['spikes:endless', function () { var s = feedRd('spikes100_progress') || {}; return [feedNum(s.bestEndless)]; }],
   // Tetris Surge keeps its top 5 per mode in best[mode] = [{ s: score, l: lines, t: ms, ... }] (sprint is sorted by time)
-  ['tetris:score', function () { var t = feedRd('huntingtonTetrisSurge1') || {}, b = 0, m = '', bl = 0; for (var k in (t.best || {})) if (k !== 'sprint') (Array.isArray(t.best[k]) ? t.best[k] : []).forEach(function (e) { if (e && feedNum(e.s) > b) { b = feedNum(e.s); m = k; bl = feedNum(e.l); } }); b = Math.max(b, feedNum(feedRd('tetrisHighScore'))); return [b, m ? { mode: m, lines: bl } : null]; }],
-  ['tetris:lines', function () { var st = (feedRd('huntingtonTetrisSurge1') || {}).stats || {}; return [feedNum(st.lines), { tetrises: feedNum(st.tetrises), games: feedNum(st.games) }]; }],
-  ['tetris:floor', function () { var st = (feedRd('huntingtonTetrisSurge1') || {}).stats || {}; return [feedNum(st.bestFloor), { bosses: feedNum(st.bosses) }]; }],
-  ['tetris:sprint', function () { var a = ((feedRd('huntingtonTetrisSurge1') || {}).best || {}).sprint, b = 0; (Array.isArray(a) ? a : []).forEach(function (e) { var t = e && feedNum(e.t) / 1000; if (t >= 1 && (!b || t < b)) b = t; }); return [b ? +b.toFixed(2) : 0]; }],
+  ['tetris:score', function () { var t = feedRd('tacoTetrisSurge1') || {}, b = 0, m = '', bl = 0; for (var k in (t.best || {})) if (k !== 'sprint') (Array.isArray(t.best[k]) ? t.best[k] : []).forEach(function (e) { if (e && feedNum(e.s) > b) { b = feedNum(e.s); m = k; bl = feedNum(e.l); } }); b = Math.max(b, feedNum(feedRd('tetrisHighScore'))); return [b, m ? { mode: m, lines: bl } : null]; }],
+  ['tetris:lines', function () { var st = (feedRd('tacoTetrisSurge1') || {}).stats || {}; return [feedNum(st.lines), { tetrises: feedNum(st.tetrises), games: feedNum(st.games) }]; }],
+  ['tetris:floor', function () { var st = (feedRd('tacoTetrisSurge1') || {}).stats || {}; return [feedNum(st.bestFloor), { bosses: feedNum(st.bosses) }]; }],
+  ['tetris:sprint', function () { var a = ((feedRd('tacoTetrisSurge1') || {}).best || {}).sprint, b = 0; (Array.isArray(a) ? a : []).forEach(function (e) { var t = e && feedNum(e.t) / 1000; if (t >= 1 && (!b || t < b)) b = t; }); return [b ? +b.toFixed(2) : 0]; }],
   // Brown E Clicker: every E ever made is life.earned (the balance in state.brownEs goes down when you spend or ascend).
   // Three auto-clicker strikes (the game's own guard, 'brownEClicker_ac') take you off its boards.
   ['clicker:total', function () { if (feedNum(feedRd('brownEClicker_ac')) >= 3) return [0, null, 'leave']; return clickerTotal('brownEClickerSave'); }],
@@ -3770,7 +3780,7 @@ var PA_GAME = {      // a save, its game, and the leaderboards its numbers feed 
   lumi_save: ['Last Light', ['lumi:']], blocky21_life: ['Blocky Shooter (rank, kills)', ['blocky:']], blocky21_settings: ['Blocky Shooter (settings)', []],
   brownEClickerSave: ['Brown E Clicker', ['clicker:total', 'clicker:asc']], brownEClickerSave_rb: ['Brown E Clicker Rebalanced', ['clicker:rb']],
   steelstorm_save: ['Steel Storm', ['steel:']], spikes100_progress: ['50 Levels of Spikes', ['spikes:']], td2_records: ['Tower Defense (records)', ['td:']],
-  mayhem_save: ['Mayhem Marathon', ['mayhem:']], frontline_profile_v2: ['Frontline', ['frontline:']], huntingtonTetrisSurge1: ['Tetris', ['tetris:']],
+  mayhem_save: ['Mayhem Marathon', ['mayhem:']], frontline_profile_v2: ['Frontline', ['frontline:']], tacoTetrisSurge1: ['Tetris', ['tetris:']],
   beanBrewSaveV2: ['Bean & Brew', ['coffee:']], netWorthPB: ['Market & Life (best net worth)', ['market:']], lifeScorePB: ['Market & Life (best score)', ['market:']],
   neonScores: ['Neon Dash', ['neon:']], imposter_save: ['Imposter', ['imposter:']], elementlab_challenges: ['Element Lab (challenges)', ['elementlab:']],
   'sov.hgach': ['Sovereign (records)', ['sov:']], 'hgach:v1': ['Achievements', []]
@@ -4103,7 +4113,7 @@ function rbBuild(boards, cur, ach) {
     ['mayhem_save', [['mayhem:crowns', 'stats.crowns'], ['mayhem:qualified', 'stats.qualified']], 'Mayhem Marathon'],
     ['steelstorm_save', [['steel:wins', 'stats.wins'], ['steel:kills', 'stats.kills']], 'Steel Storm'],
     ['frontline_profile_v2', [['frontline:wins', 'wins']], 'Frontline'],
-    ['huntingtonTetrisSurge1', [['tetris:lines', 'stats.lines'], ['tetris:floor', 'stats.bestFloor']], 'Tetris'],
+    ['tacoTetrisSurge1', [['tetris:lines', 'stats.lines'], ['tetris:floor', 'stats.bestFloor']], 'Tetris'],
     ['beanBrewSaveV2', [['coffee:best', 'stats.earned']], 'Bean & Brew']
   ];
   simple.forEach(function (g) {
@@ -4126,14 +4136,15 @@ function rbBuild(boards, cur, ach) {
   }
   return { saves: out, notes: notes };
 }
-var RB_KEYS = ['lumi_save', 'blocky21_life', 'brownEClickerSave', 'brownEClickerSave_rb', 'spikes100_progress', 'td2_records', 'mayhem_save', 'steelstorm_save', 'frontline_profile_v2', 'huntingtonTetrisSurge1', 'beanBrewSaveV2', 'netWorthPB', 'lifeScorePB', 'hgach:v1'];
+var RB_KEYS = ['lumi_save', 'blocky21_life', 'brownEClickerSave', 'brownEClickerSave_rb', 'spikes100_progress', 'td2_records', 'mayhem_save', 'steelstorm_save', 'frontline_profile_v2', 'tacoTetrisSurge1', 'beanBrewSaveV2', 'netWorthPB', 'lifeScorePB', 'hgach:v1'];
 // the admin panel: preview, then write
 function rbRun(name, look, out, apply) {
   var L = window.HGGrapevine;
   out.textContent = 'Reading their saves...';
-  return L.eco.savesAdminGet(name, RB_KEYS).then(function (r) {
+  return L.eco.savesAdminGet(name, RB_KEYS.concat(Object.keys(HG_RENAMED_KEYS))).then(function (r) {
     if (!r.ok) throw new Error(r.err || 'Could not read their saves.');
     var cur = {}; (r.values || []).forEach(function (x) { cur[x.k] = x.v; });
+    for (var ok in HG_RENAMED_KEYS) if (cur[HG_RENAMED_KEYS[ok]] == null && cur[ok] != null) cur[HG_RENAMED_KEYS[ok]] = cur[ok];      // not played since the rename
     var plan = rbBuild(look.boards || [], cur, look.achIds || []), keys = Object.keys(plan.saves);
     if (!keys.length) { out.textContent = 'Nothing to rebuild: their saves already hold at least what the leaderboards and achievements say.'; return null; }
     if (!apply) {

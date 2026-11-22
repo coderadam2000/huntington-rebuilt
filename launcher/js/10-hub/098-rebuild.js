@@ -70,7 +70,7 @@ function rbBuild(boards, cur, ach) {
     ['mayhem_save', [['mayhem:crowns', 'stats.crowns'], ['mayhem:qualified', 'stats.qualified']], 'Mayhem Marathon'],
     ['steelstorm_save', [['steel:wins', 'stats.wins'], ['steel:kills', 'stats.kills']], 'Steel Storm'],
     ['frontline_profile_v2', [['frontline:wins', 'wins']], 'Frontline'],
-    ['huntingtonTetrisSurge1', [['tetris:lines', 'stats.lines'], ['tetris:floor', 'stats.bestFloor']], 'Tetris'],
+    ['tacoTetrisSurge1', [['tetris:lines', 'stats.lines'], ['tetris:floor', 'stats.bestFloor']], 'Tetris'],
     ['beanBrewSaveV2', [['coffee:best', 'stats.earned']], 'Bean & Brew']
   ];
   simple.forEach(function (g) {
@@ -93,14 +93,15 @@ function rbBuild(boards, cur, ach) {
   }
   return { saves: out, notes: notes };
 }
-var RB_KEYS = ['lumi_save', 'blocky21_life', 'brownEClickerSave', 'brownEClickerSave_rb', 'spikes100_progress', 'td2_records', 'mayhem_save', 'steelstorm_save', 'frontline_profile_v2', 'huntingtonTetrisSurge1', 'beanBrewSaveV2', 'netWorthPB', 'lifeScorePB', 'hgach:v1'];
+var RB_KEYS = ['lumi_save', 'blocky21_life', 'brownEClickerSave', 'brownEClickerSave_rb', 'spikes100_progress', 'td2_records', 'mayhem_save', 'steelstorm_save', 'frontline_profile_v2', 'tacoTetrisSurge1', 'beanBrewSaveV2', 'netWorthPB', 'lifeScorePB', 'hgach:v1'];
 // the admin panel: preview, then write
 function rbRun(name, look, out, apply) {
   var L = window.HGGrapevine;
   out.textContent = 'Reading their saves...';
-  return L.eco.savesAdminGet(name, RB_KEYS).then(function (r) {
+  return L.eco.savesAdminGet(name, RB_KEYS.concat(Object.keys(HG_RENAMED_KEYS))).then(function (r) {
     if (!r.ok) throw new Error(r.err || 'Could not read their saves.');
     var cur = {}; (r.values || []).forEach(function (x) { cur[x.k] = x.v; });
+    for (var ok in HG_RENAMED_KEYS) if (cur[HG_RENAMED_KEYS[ok]] == null && cur[ok] != null) cur[HG_RENAMED_KEYS[ok]] = cur[ok];      // not played since the rename
     var plan = rbBuild(look.boards || [], cur, look.achIds || []), keys = Object.keys(plan.saves);
     if (!keys.length) { out.textContent = 'Nothing to rebuild: their saves already hold at least what the leaderboards and achievements say.'; return null; }
     if (!apply) {

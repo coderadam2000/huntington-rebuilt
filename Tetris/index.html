@@ -261,9 +261,11 @@ function shade(h,amt){var c=hexRGB(h);function f(v){return clamp(Math.round(amt>
 function cleanName(s){return String(s||'').replace(/[^\x20-\x7e]/g,'').replace(/[<>&"']/g,'').slice(0,10).trim()||'PLAYER';}
 
 // ---------- storage (always try/catch; sandboxed iframes throw) ----------
-var KEY='huntingtonTetrisSurge1', mem={};
+var KEY='tacoTetrisSurge1', mem={};
 function lsGet(k){try{return window.localStorage.getItem(k);}catch(e){return Object.prototype.hasOwnProperty.call(mem,k)?mem[k]:null;}}
 function lsSet(k,v){try{window.localStorage.setItem(k,v);}catch(e){mem[k]=v;}}
+// save names from before the Taco Games rename (2026-11-21): copy an old save to its new name once (the launcher does the same)
+[['huntingtonTetrisSurge1',KEY],['huntingtonTetrisMute','tacoTetrisMute']].forEach(function(r){var v=lsGet(r[0]);if(v!==null&&lsGet(r[1])===null)lsSet(r[1],v);});
 function defaults(){return {v:2,
   set:{sfx:70,music:30,hap:true,theme:'classic',skin:'auto',bg:'auto',ghost:true,grid:true,shake:true,fx:2,das:130,arr:25,sdf:2,touch:'auto',name:'PLAYER'},
   binds:{},best:{},ach:{},seen:{},last:{lv:1},
@@ -3782,7 +3784,7 @@ function qolArm(el,label){
   return false;
 }
 // QoL: M toggles all sound; the old volumes are kept so unmuting restores them
-var MUTEKEY='huntingtonTetrisMute';
+var MUTEKEY='tacoTetrisMute';
 function isMuted(){return S.set.sfx===0&&S.set.music===0&&!!lsGet(MUTEKEY);}
 function toggleMute(){
   if(isMuted()){

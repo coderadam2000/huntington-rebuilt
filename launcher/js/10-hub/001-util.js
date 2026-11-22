@@ -2,6 +2,16 @@
 // hubShown(): the launcher page itself is on screen (tab showing, no game over it). A timer that only repaints the hub, or
 // asks the server for something only the hub shows, skips its work otherwise and registers with hubWake(f) to run as soon
 // as the hub is back (tab shown again, game closed).
+// Save names from before the Taco Games rename (2026-11-21). An old save is copied to its new name when it is found (at
+// start, and after every cloud sync, which can bring one down from a device that never ran the new code); the old copy is
+// left alone as a backup. The games do the same for their own keys, for when they run without the launcher.
+var HG_RENAMED_KEYS = { huntingtonTetrisSurge1: 'tacoTetrisSurge1', huntingtonTetrisMute: 'tacoTetrisMute',
+  'huntington.blockyshooter.run.v1': 'taco.blockyshooter.run.v1', 'huntington.blockyshooter.challenges.v1': 'taco.blockyshooter.challenges.v1' };
+function hgRenameKeys() {
+  for (var o in HG_RENAMED_KEYS) try { var v = localStorage.getItem(o); if (v !== null && localStorage.getItem(HG_RENAMED_KEYS[o]) === null) localStorage.setItem(HG_RENAMED_KEYS[o], v); } catch (e) {}
+}
+hgRenameKeys();
+(function hook() { var L = window.HGGrapevine; if (!L || !L.on) return setTimeout(hook, 1000); L.on('sync', function (m) { if (m && m.state === 'ok') hgRenameKeys(); }); })();
 function hubShown() { return !document.hidden && !document.documentElement.classList.contains('playing'); }
 var HUB_WAKE = [];
 function hubWake(f) { HUB_WAKE.push(f); }

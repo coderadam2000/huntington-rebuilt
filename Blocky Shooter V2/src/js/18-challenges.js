@@ -3,7 +3,9 @@
 // midnight, weekly ones on Monday), tracked across runs and saved in this browser. Finishing one pays its XP straight
 // away and its cash into the run you're in (if you're not in one, it's banked and paid at the start of your next run).
 // They count in solo and co-op runs, not in Sandbox or PvP.
-const CH_KEY = 'huntington.blockyshooter.challenges.v1';
+const CH_KEY = 'taco.blockyshooter.challenges.v1';
+// save names from before the Taco Games rename (2026-11-21): copy an old save to its new name once (the launcher does the same)
+try { [['huntington.blockyshooter.challenges.v1', CH_KEY], ['huntington.blockyshooter.run.v1', 'taco.blockyshooter.run.v1']].forEach(([o, n]) => { const v = localStorage.getItem(o); if (v !== null && localStorage.getItem(n) === null) localStorage.setItem(n, v); }); } catch (e) {}
 const CH_EXPLOSIVE = new Set(['explosive', 'rpg', 'glauncher', 'grenade', 'c4', 'landmine', 'airstrike', 'nuke', 'boom', 'launcher']);
 const CH_PLAIN = new Set(['grunt', 'sprinter', 'mite', 'risen', 'phclone', 'egg']);         // everything else is a "special" zombie
 const CH_DIFF = { easy: 0, normal: 1, hard: 2, nightmare: 3 };

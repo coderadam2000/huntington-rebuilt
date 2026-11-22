@@ -63,7 +63,7 @@ const plant = P => P.evaluate(() => {
   const S = (k, v) => localStorage.setItem(k, typeof v === 'string' ? v : JSON.stringify(v));
   S('brownEClickerSave', { v: 3, state: { brownEs: 5 }, life: { earned: 3.5e21 }, run: { earned: 1e9 }, meta: { ascensions: 4 } });
   S('brownEClickerSave_rb', { v: 3, state: { brownEs: 1 }, life: { earned: 7e7 }, run: {}, meta: {} });
-  S('huntingtonTetrisSurge1', { v: 2, best: { marathon: [{ s: 91234, l: 80, t: 300000 }, { s: 500, l: 3, t: 100 }], ultra: [{ s: 40000, l: 30, t: 120000 }], sprint: [{ s: 1000, l: 40, t: 65432 }, { s: 900, l: 40, t: 80000 }] }, stats: { lines: 420, tetrises: 9, games: 12, bestFloor: 7, bosses: 2 } });
+  S('tacoTetrisSurge1', { v: 2, best: { marathon: [{ s: 91234, l: 80, t: 300000 }, { s: 500, l: 3, t: 100 }], ultra: [{ s: 40000, l: 30, t: 120000 }], sprint: [{ s: 1000, l: 40, t: 65432 }, { s: 900, l: 40, t: 80000 }] }, stats: { lines: 420, tetrises: 9, games: 12, bestFloor: 7, bosses: 2 } });
   S('netWorthPB', '250000'); S('lifeScorePB', '9999999');
   S('td2_records', { best: 33, bestEndless: 61, games: 5, kills: 900 });
   S('steelstorm_save', { v: 1, stats: { matches: 9, wins: 6, kills: 77, deaths: 30, caps: 2 } });

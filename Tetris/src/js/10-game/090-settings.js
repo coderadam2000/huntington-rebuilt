@@ -359,7 +359,7 @@ function qolArm(el,label){
   return false;
 }
 // QoL: M toggles all sound; the old volumes are kept so unmuting restores them
-var MUTEKEY='huntingtonTetrisMute';
+var MUTEKEY='tacoTetrisMute';
 function isMuted(){return S.set.sfx===0&&S.set.music===0&&!!lsGet(MUTEKEY);}
 function toggleMute(){
   if(isMuted()){

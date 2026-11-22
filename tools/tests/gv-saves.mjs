@@ -71,7 +71,7 @@ const plain = async (P, name, secs) => {
   await P.evaluate(() => document.getElementById('back').click());
   await P.waitForTimeout(800);
 };
-const snapshot = P => P.evaluate(() => { const o = {}; for (let i = 0; i < localStorage.length; i++) { const k = localStorage.key(i); if (/^(spikes100_|blocky|huntington|brownEClicker|beanBrew|neon|tetrisHighScore|frontline_|lifeScorePB|marketLife|netWorthPB|td2_|td-|sov\.)/.test(k)) o[k] = localStorage.getItem(k).length; } return o; });
+const snapshot = P => P.evaluate(() => { const o = {}; for (let i = 0; i < localStorage.length; i++) { const k = localStorage.key(i); if (/^(spikes100_|blocky|huntington|taco|brownEClicker|beanBrew|neon|tetrisHighScore|frontline_|lifeScorePB|marketLife|netWorthPB|td2_|td-|sov\.)/.test(k)) o[k] = localStorage.getItem(k).length; } return o; });
 
 try {
   const A = await device(await browser.newContext({ viewport: { width: 1280, height: 800 } }));

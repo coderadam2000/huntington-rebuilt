@@ -3,13 +3,13 @@
 // between-wave armory, so purchases stick): the map (same layout), lighting, wave, money, weapons, upgrades, perks,
 // health and armour. CONTINUE on the main menu picks it back up at the start of the next wave.
 // 3.8: dying deletes it (permadeath). Never in sandbox or multiplayer.
-const RUN_KEY = 'huntington.blockyshooter.run.v1';   // namespaced: every Taco game shares one browser origin
+const RUN_KEY = 'taco.blockyshooter.run.v1';   // namespaced: every Taco game shares one browser origin
 const RUN_KEY_OLD = 'blocky_run_save';                  // 3.5 auto-save: still readable, replaced by the next save
 const runSaveOK = () => !NET.on && run.mode !== 'sandbox' && !CAMP.on;
 let storageGood = null, savedWave = -1, delArm = 0, badgeT = 0;
 function storageOK() {                                  // false in sandboxed iframes / private windows / blocked site data
     if (storageGood === null) {
-        try { const k = 'huntington.blockyshooter.probe'; localStorage.setItem(k, '1'); storageGood = localStorage.getItem(k) === '1'; localStorage.removeItem(k); }
+        try { const k = 'taco.blockyshooter.probe'; localStorage.setItem(k, '1'); storageGood = localStorage.getItem(k) === '1'; localStorage.removeItem(k); }
         catch (e) { storageGood = false; }
     }
     return storageGood;

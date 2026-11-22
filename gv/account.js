@@ -705,7 +705,7 @@ const GVLink = (() => {
   //  * signing out saves first and then clears the device.
   // Only the games' own keys travel (the launcher's page origin can hold other sites' data too). A new game's keys
   // must be added here: it is the list of prefixes the games write.
-  var GAME_KEYS = CFG.saveKeys || /^(spikes100_|blocky|huntington|brownEClicker|beanBrew|neon|tetrisHighScore|frontline_|lifeScorePB|marketLife|netWorthPB|td2_|td-|sov\.|lumi_|imposter_|steelstorm_|elementlab_|mayhem_|hgach|hgq:|hgmini_|beatlab_|gv:set:)/;
+  var GAME_KEYS = CFG.saveKeys || /^(spikes100_|blocky|huntington|taco|brownEClicker|beanBrew|neon|tetrisHighScore|frontline_|lifeScorePB|marketLife|netWorthPB|td2_|td-|sov\.|lumi_|imposter_|steelstorm_|elementlab_|mayhem_|hgach|hgq:|hgmini_|beatlab_|gv:set:)/;
   var SAVE_MAX = 400000;
   var sy = { running: null, state: 'idle', text: '', at: Number(store.get('syncat') || 0), n: 0, timer: null, open: false, first: null, waiters: {}, synced: false };
   function syncMeta() { try { return JSON.parse(store.get('sync') || '{}'); } catch (e) { return {}; } }
@@ -1142,7 +1142,7 @@ const GVLink = (() => {
   function num(v) { v = Number(v); return isFinite(v) ? v : 0; }
   function cnt(x) { return !x ? 0 : Array.isArray(x) ? x.length : typeof x === 'object' ? Object.keys(x).filter(function (k) { return x[k]; }).length : 0; }
   function sum(o) { var t = 0; if (o && typeof o === 'object') for (var k in o) t += num(o[k]); return t; }
-  var SP = function () { return rd('spikes100_progress') || {}; }, TS = function () { return rd('huntingtonTetrisSurge1') || {}; },
+  var SP = function () { return rd('spikes100_progress') || {}; }, TS = function () { return rd('tacoTetrisSurge1') || {}; },
       BE = function () { return rd('brownEClickerSave') || {}; }, BB = function () { return rd('beanBrewSaveV2') || {}; },
       ML = function () { var s = rd('marketLifeSave'); return (s && s.life) || {}; }, TDR = function () { return rd('td2_records') || {}; },
       FL = function () { return rd('frontline_profile_v2') || {}; }, BL = function () { return rd('blocky21_life') || {}; },
@@ -1654,13 +1654,13 @@ const GVLink = (() => {
       L.sync.inspect().then(function (r) {
         var saves = {}; (r.local || []).forEach(function (x) { try { saves[x.k] = localStorage.getItem(x.k); } catch (e) {} });
         var data = {
-          app: 'Huntington Games', kind: 'player-data-export', version: 1, exportedAt: new Date().toISOString(),
+          app: 'Taco Games', kind: 'player-data-export', version: 1, exportedAt: new Date().toISOString(),
           account: me ? { name: me.name, userId: me.userId, pub: me.pub } : null,   // the recovery key is NOT here: keep it with "Download key"
           wallet: L.eco.state(), owned: L.eco.buys(), friends: L.friends(), metInGames: L.recent(),
           saves: saves, savesInAccount: r.cloud || null, olderBackups: L.sync.backups()
         };
         var nm = (me && me.name ? me.name.replace(/[^\w.-]+/g, '_') : 'account');
-        download('huntington-data-' + nm + '-' + new Date().toISOString().slice(0, 10) + '.json', JSON.stringify(data, null, 2));
+        download('taco-data-' + nm + '-' + new Date().toISOString().slice(0, 10) + '.json', JSON.stringify(data, null, 2));
         toast('Downloaded ' + Object.keys(saves).length + ' save(s) and your account data.');
       }, function (e) { toast('Could not read your saves: ' + (e && e.message || e), true); }).then(function () { dl.disabled = false; });
     } });

@@ -85,7 +85,7 @@ try {
   await A.waitForTimeout(5000);   // the first look on a device is quiet
   await A.evaluate(() => {
     localStorage.setItem('spikes100_progress', JSON.stringify({ unlocked: 30, beaten: false, bestOneLife: 2, bestEndless: 0 }));
-    localStorage.setItem('huntingtonTetrisSurge1', JSON.stringify({ stats: { lines: 150, games: 3, tetrises: 1 } }));
+    localStorage.setItem('tacoTetrisSurge1', JSON.stringify({ stats: { lines: 150, games: 3, tetrises: 1 } }));
     localStorage.setItem('frontline_profile_v2', JSON.stringify({ wins: 1, games: 2, kills: 40 }));
   });
   const fresh = await A.evaluate(() => HGAch.check().map(a => a.id));

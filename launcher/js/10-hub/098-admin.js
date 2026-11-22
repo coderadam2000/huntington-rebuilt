@@ -8,7 +8,7 @@ var PA_GAME = {      // a save, its game, and the leaderboards its numbers feed 
   lumi_save: ['Last Light', ['lumi:']], blocky21_life: ['Blocky Shooter (rank, kills)', ['blocky:']], blocky21_settings: ['Blocky Shooter (settings)', []],
   brownEClickerSave: ['Brown E Clicker', ['clicker:total', 'clicker:asc']], brownEClickerSave_rb: ['Brown E Clicker Rebalanced', ['clicker:rb']],
   steelstorm_save: ['Steel Storm', ['steel:']], spikes100_progress: ['50 Levels of Spikes', ['spikes:']], td2_records: ['Tower Defense (records)', ['td:']],
-  mayhem_save: ['Mayhem Marathon', ['mayhem:']], frontline_profile_v2: ['Frontline', ['frontline:']], huntingtonTetrisSurge1: ['Tetris', ['tetris:']],
+  mayhem_save: ['Mayhem Marathon', ['mayhem:']], frontline_profile_v2: ['Frontline', ['frontline:']], tacoTetrisSurge1: ['Tetris', ['tetris:']],
   beanBrewSaveV2: ['Bean & Brew', ['coffee:']], netWorthPB: ['Market & Life (best net worth)', ['market:']], lifeScorePB: ['Market & Life (best score)', ['market:']],
   neonScores: ['Neon Dash', ['neon:']], imposter_save: ['Imposter', ['imposter:']], elementlab_challenges: ['Element Lab (challenges)', ['elementlab:']],
   'sov.hgach': ['Sovereign (records)', ['sov:']], 'hgach:v1': ['Achievements', []]

@@ -10335,7 +10335,9 @@
         // midnight, weekly ones on Monday), tracked across runs and saved in this browser. Finishing one pays its XP straight
         // away and its cash into the run you're in (if you're not in one, it's banked and paid at the start of your next run).
         // They count in solo and co-op runs, not in Sandbox or PvP.
-        const CH_KEY = 'huntington.blockyshooter.challenges.v1';
+        const CH_KEY = 'taco.blockyshooter.challenges.v1';
+        // save names from before the Taco Games rename (2026-11-21): copy an old save to its new name once (the launcher does the same)
+        try { [['huntington.blockyshooter.challenges.v1', CH_KEY], ['huntington.blockyshooter.run.v1', 'taco.blockyshooter.run.v1']].forEach(([o, n]) => { const v = localStorage.getItem(o); if (v !== null && localStorage.getItem(n) === null) localStorage.setItem(n, v); }); } catch (e) {}
         const CH_EXPLOSIVE = new Set(['explosive', 'rpg', 'glauncher', 'grenade', 'c4', 'landmine', 'airstrike', 'nuke', 'boom', 'launcher']);
         const CH_PLAIN = new Set(['grunt', 'sprinter', 'mite', 'risen', 'phclone', 'egg']);         // everything else is a "special" zombie
         const CH_DIFF = { easy: 0, normal: 1, hard: 2, nightmare: 3 };
@@ -10535,13 +10537,13 @@
         // between-wave armory, so purchases stick): the map (same layout), lighting, wave, money, weapons, upgrades, perks,
         // health and armour. CONTINUE on the main menu picks it back up at the start of the next wave.
         // 3.8: dying deletes it (permadeath). Never in sandbox or multiplayer.
-        const RUN_KEY = 'huntington.blockyshooter.run.v1';   // namespaced: every Taco game shares one browser origin
+        const RUN_KEY = 'taco.blockyshooter.run.v1';   // namespaced: every Taco game shares one browser origin
         const RUN_KEY_OLD = 'blocky_run_save';                  // 3.5 auto-save: still readable, replaced by the next save
         const runSaveOK = () => !NET.on && run.mode !== 'sandbox' && !CAMP.on;
         let storageGood = null, savedWave = -1, delArm = 0, badgeT = 0;
         function storageOK() {                                  // false in sandboxed iframes / private windows / blocked site data
             if (storageGood === null) {
-                try { const k = 'huntington.blockyshooter.probe'; localStorage.setItem(k, '1'); storageGood = localStorage.getItem(k) === '1'; localStorage.removeItem(k); }
+                try { const k = 'taco.blockyshooter.probe'; localStorage.setItem(k, '1'); storageGood = localStorage.getItem(k) === '1'; localStorage.removeItem(k); }
                 catch (e) { storageGood = false; }
             }
             return storageGood;

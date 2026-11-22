@@ -325,13 +325,13 @@
       L.sync.inspect().then(function (r) {
         var saves = {}; (r.local || []).forEach(function (x) { try { saves[x.k] = localStorage.getItem(x.k); } catch (e) {} });
         var data = {
-          app: 'Huntington Games', kind: 'player-data-export', version: 1, exportedAt: new Date().toISOString(),
+          app: 'Taco Games', kind: 'player-data-export', version: 1, exportedAt: new Date().toISOString(),
           account: me ? { name: me.name, userId: me.userId, pub: me.pub } : null,   // the recovery key is NOT here: keep it with "Download key"
           wallet: L.eco.state(), owned: L.eco.buys(), friends: L.friends(), metInGames: L.recent(),
           saves: saves, savesInAccount: r.cloud || null, olderBackups: L.sync.backups()
         };
         var nm = (me && me.name ? me.name.replace(/[^\w.-]+/g, '_') : 'account');
-        download('huntington-data-' + nm + '-' + new Date().toISOString().slice(0, 10) + '.json', JSON.stringify(data, null, 2));
+        download('taco-data-' + nm + '-' + new Date().toISOString().slice(0, 10) + '.json', JSON.stringify(data, null, 2));
         toast('Downloaded ' + Object.keys(saves).length + ' save(s) and your account data.');
       }, function (e) { toast('Could not read your saves: ' + (e && e.message || e), true); }).then(function () { dl.disabled = false; });
     } });

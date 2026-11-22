@@ -11,7 +11,7 @@
   function num(v) { v = Number(v); return isFinite(v) ? v : 0; }
   function cnt(x) { return !x ? 0 : Array.isArray(x) ? x.length : typeof x === 'object' ? Object.keys(x).filter(function (k) { return x[k]; }).length : 0; }
   function sum(o) { var t = 0; if (o && typeof o === 'object') for (var k in o) t += num(o[k]); return t; }
-  var SP = function () { return rd('spikes100_progress') || {}; }, TS = function () { return rd('huntingtonTetrisSurge1') || {}; },
+  var SP = function () { return rd('spikes100_progress') || {}; }, TS = function () { return rd('tacoTetrisSurge1') || {}; },
       BE = function () { return rd('brownEClickerSave') || {}; }, BB = function () { return rd('beanBrewSaveV2') || {}; },
       ML = function () { var s = rd('marketLifeSave'); return (s && s.life) || {}; }, TDR = function () { return rd('td2_records') || {}; },
       FL = function () { return rd('frontline_profile_v2') || {}; }, BL = function () { return rd('blocky21_life') || {}; },

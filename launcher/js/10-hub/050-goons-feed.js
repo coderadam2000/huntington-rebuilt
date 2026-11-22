@@ -61,10 +61,10 @@ var LB_FEED = [
   }],
   ['spikes:endless', function () { var s = feedRd('spikes100_progress') || {}; return [feedNum(s.bestEndless)]; }],
   // Tetris Surge keeps its top 5 per mode in best[mode] = [{ s: score, l: lines, t: ms, ... }] (sprint is sorted by time)
-  ['tetris:score', function () { var t = feedRd('huntingtonTetrisSurge1') || {}, b = 0, m = '', bl = 0; for (var k in (t.best || {})) if (k !== 'sprint') (Array.isArray(t.best[k]) ? t.best[k] : []).forEach(function (e) { if (e && feedNum(e.s) > b) { b = feedNum(e.s); m = k; bl = feedNum(e.l); } }); b = Math.max(b, feedNum(feedRd('tetrisHighScore'))); return [b, m ? { mode: m, lines: bl } : null]; }],
-  ['tetris:lines', function () { var st = (feedRd('huntingtonTetrisSurge1') || {}).stats || {}; return [feedNum(st.lines), { tetrises: feedNum(st.tetrises), games: feedNum(st.games) }]; }],
-  ['tetris:floor', function () { var st = (feedRd('huntingtonTetrisSurge1') || {}).stats || {}; return [feedNum(st.bestFloor), { bosses: feedNum(st.bosses) }]; }],
-  ['tetris:sprint', function () { var a = ((feedRd('huntingtonTetrisSurge1') || {}).best || {}).sprint, b = 0; (Array.isArray(a) ? a : []).forEach(function (e) { var t = e && feedNum(e.t) / 1000; if (t >= 1 && (!b || t < b)) b = t; }); return [b ? +b.toFixed(2) : 0]; }],
+  ['tetris:score', function () { var t = feedRd('tacoTetrisSurge1') || {}, b = 0, m = '', bl = 0; for (var k in (t.best || {})) if (k !== 'sprint') (Array.isArray(t.best[k]) ? t.best[k] : []).forEach(function (e) { if (e && feedNum(e.s) > b) { b = feedNum(e.s); m = k; bl = feedNum(e.l); } }); b = Math.max(b, feedNum(feedRd('tetrisHighScore'))); return [b, m ? { mode: m, lines: bl } : null]; }],
+  ['tetris:lines', function () { var st = (feedRd('tacoTetrisSurge1') || {}).stats || {}; return [feedNum(st.lines), { tetrises: feedNum(st.tetrises), games: feedNum(st.games) }]; }],
+  ['tetris:floor', function () { var st = (feedRd('tacoTetrisSurge1') || {}).stats || {}; return [feedNum(st.bestFloor), { bosses: feedNum(st.bosses) }]; }],
+  ['tetris:sprint', function () { var a = ((feedRd('tacoTetrisSurge1') || {}).best || {}).sprint, b = 0; (Array.isArray(a) ? a : []).forEach(function (e) { var t = e && feedNum(e.t) / 1000; if (t >= 1 && (!b || t < b)) b = t; }); return [b ? +b.toFixed(2) : 0]; }],
   // Brown E Clicker: every E ever made is life.earned (the balance in state.brownEs goes down when you spend or ascend).
   // Three auto-clicker strikes (the game's own guard, 'brownEClicker_ac') take you off its boards.
   ['clicker:total', function () { if (feedNum(feedRd('brownEClicker_ac')) >= 3) return [0, null, 'leave']; return clickerTotal('brownEClickerSave'); }],

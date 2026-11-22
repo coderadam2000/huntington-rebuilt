@@ -28,7 +28,7 @@ await P.click('#hgt-offer .hgt-btn:not(.pri)');
 check('No thanks closes the offer', !(await P.evaluate(() => __blocky.tut.offerOpen)));
 await P.reload(); await P.waitForFunction(() => !!(window.__blocky && window.__blocky.state), null, { timeout: 60000 }); await sleep(3000);
 check('the offer does not come back', !(await P.evaluate(() => __blocky.tut.offerOpen)));
-const run0 = await P.evaluate(() => localStorage.getItem('huntington.blockyshooter.run.v1'));
+const run0 = await P.evaluate(() => localStorage.getItem('taco.blockyshooter.run.v1'));
 const life0 = await lifeKey(P);
 
 await P.evaluate(() => { __blocky.debug(true); });       // no pointer lock in a test browser
@@ -59,7 +59,7 @@ r = await past(P, 11, 'Beat 3 zombies', async () => { await P.evaluate(() => __b
 check('Boot camp done and remembered', !!(await until(async () => (await T(P)).finale, 3000)) && await P.evaluate(() => __blocky.tut.lessons[0].done && JSON.parse(localStorage.getItem('blocky21_settings')).tut.boot === 1));
 check('back on the main menu', await P.evaluate(() => __blocky.state.currentGameState === 'main' && !__blocky.tut.on));
 check('nothing counted: xp, kills, runs, waves, best', await lifeKey(P) === life0, await lifeKey(P));
-check('the saved run on disk is untouched', await P.evaluate(() => localStorage.getItem('huntington.blockyshooter.run.v1')) === run0);
+check('the saved run on disk is untouched', await P.evaluate(() => localStorage.getItem('taco.blockyshooter.run.v1')) === run0);
 check('TRAINING button shows 1 / 3', await P.evaluate(() => document.getElementById('btn-training-sub').textContent === '1 / 3'));
 
 // ---------- 2. Esc / Skip / Quit leave at any step ----------
