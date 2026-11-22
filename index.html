@@ -904,7 +904,7 @@ function setVersion(v) { MIRRORS = MIRROR_HOSTS.map(function (m) { return m + RE
 // If GitHub cannot be reached (blocked, or its 60-an-hour limit for one school network), it falls back to '@main'.
 // (A hub cannot swap itself for a newer one in the same page: its scripts have already declared their names. Players get a
 // newer launcher itself through the loader, which pins it; HG_HUB_ID tells which build is running.)
-var HG_HUB_ID = 'c6c85b08d089';      // the build fills in a fingerprint of this file
+var HG_HUB_ID = '2187dc9dcde6';      // the build fills in a fingerprint of this file
 var HG_SHA_RE = /^[0-9a-f]{40}$/;
 function latestSha() {
   try { var c = JSON.parse(localStorage.getItem('hgv:sha') || 'null'); if (c && HG_SHA_RE.test(c.s) && Date.now() - c.t < 120000) return Promise.resolve(c.s); } catch (e) {}
@@ -941,7 +941,7 @@ var GAMES = [
   { dir: 'Minigames/Snake Arena', name: 'Snake Arena', img: 'mg-snake', cat: 'mini', tags: ['New', 'Multiplayer', 'Minigame'], desc: "Every snake on one board: eat, grow, don't crash. Last one slithering wins. Up to 8 players and bots." },
   { dir: 'Minigames/Typing Race', name: 'Typing Race', img: 'mg-typing', cat: 'mini', tags: ['New', 'Multiplayer', 'Minigame'], desc: "Race your friends by typing the same passage: every correct letter moves your car. Up to 8 players and bots." },
   { dir: 'Minigames/Pong', name: 'Pong', img: 'mg-pong', cat: 'mini', tags: ['New', 'Multiplayer', 'Minigame'], desc: "The original, online: two paddles, one ball, first to 7. Against a friend or the bot." },
-  { dir: 'Minigames/Sports Mix', hero: 'Brand new: soccer, basketball, tennis, baseball, hockey, football, bowling and golf in one game. Play a bot or your friends.', name: 'Sports Mix', img: 'mg-sports', cat: 'mini', tags: ['New', 'Multiplayer', 'Minigame', 'Sports'], desc: "NEW: eight sports in one: soccer, basketball, tennis, baseball, hockey, American football, bowling and golf (mini golf or the real thing). Play a bot or your friends online." },
+  { dir: 'Minigames/Sports Mix', hero: 'Brand new: soccer, basketball, tennis, baseball, hockey, football, bowling and golf in one game. Play a bot or your friends.', name: 'Sports Mix', img: 'mg-sports', cat: 'mini', tags: ['New', 'Multiplayer', 'Minigame', 'Sports'], desc: "NEW: eight sports in one: soccer, basketball, tennis, baseball, hockey, American football, bowling and golf (mini golf or the real thing). Bowling is rebuilt: a 3D lane, real hook and pin action. Play a bot or your friends online." },
   { dir: 'Minigames/Chess and Checkers', name: 'Chess and Checkers', img: 'mg-chess', cat: 'mini', tags: ['New', 'Multiplayer', 'Minigame', 'Strategy'], desc: "NEW: chess and checkers against a friend or one of 8 bots, from Rookie to Unreal. Every game is ranked: win to raise your rating and climb from Rookie to Unreal." },
   { dir: 'Minigames/Connect Four', name: 'Connect Four', img: 'mg-connect4', cat: 'mini', tags: ['New', 'Multiplayer', 'Minigame'], desc: "Drop discs, four in a row wins. Against a friend or a bot that thinks four moves ahead." },
   { dir: 'Minigames/Tic-Tac-Toe', name: 'Tic-Tac-Toe', img: 'mg-tictactoe', cat: 'mini', tags: ['New', 'Multiplayer', 'Minigame'], desc: "NEW: Ultimate Tic-Tac-Toe, nine boards in one where every move picks your opponent's next board. Or classic three in a row. Against a friend or the bot." },
