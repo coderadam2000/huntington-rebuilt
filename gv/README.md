@@ -9,7 +9,7 @@ The launcher is Grapevine: you need an account to use it (a device that signed i
 * `vendor/` - copies from the Grapevine repo: `hgnet.js`, `gvlink.js` (`relay/`), `ed25519.js` (`parts/`).
 * `account.js` - built by `tools/build-gv.sh` (commit it with the sources). `app.html` - the Grapevine app, copied from the Grapevine repo's
   `client.html` by `tools/sync-grapevine.sh`; it is what the launcher's Grapevine tab runs, signed in as the same account.
-  Its look is `app-redesign.css` (rounded panels, bubbles, pill composer) + `app-redesign.js` (avatars, chat tile, greeting, sign-in hero),
+  Its look is `app-redesign.css` ("Taco Pop": outlined stickers, hard shadows in the flavor, a display face) + `app-redesign.js` (avatars, chat tile, greeting, sign-in hero),
   layers the sync lays over the client: restyle
   there, then re-run the sync (or `node tools/gv-redesign.js <client.html> gv/app.html`). Keep every id and class: the launcher reaches in by them.
 * New game with saves? Add its localStorage key prefix to `GAME_KEYS` in `core.js`, or its progress will not follow the account.

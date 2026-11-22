@@ -6,7 +6,7 @@
 //   node tools/gv-redesign.js <client.html> <out.html>
 const fs = require('fs'), path = require('path');
 const FONT_OLD = 'family=IBM+Plex+Sans:wght@400;500;600&display=swap';
-const FONT_NEW = 'family=IBM+Plex+Sans:wght@400;500;600&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap';
+const FONT_NEW = 'family=IBM+Plex+Sans:wght@400;500;600&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Bricolage+Grotesque:wght@600;700;800&display=swap';
 function apply(html, css, js) {
   const i = html.indexOf('</style>');
   if (i < 0) throw new Error('no </style> in the Grapevine client');
