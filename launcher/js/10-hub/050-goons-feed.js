@@ -121,6 +121,7 @@ var LB_FEED = [
     var zv = feedRd('taco.zvy.v1') || {}; add('zvy:endless', zv.endlessBest, { escapes: feedNum(zv.wins) }); add('zvy:kills', zv.kills, { deaths: feedNum(zv.deaths) });
     var sl = feedRd('taco.slither.v1') || {}; add('slither:best', sl.best, { games: feedNum(sl.games) }); add('slither:kills', sl.kills);
     var lb = feedRd('taco.bulb.v1') || {}; add('bulb:total', Math.floor(feedNum(lb.allTime)), { rewires: feedNum(lb.rewires) });
+    var bc = feedRd('taco.bbclassic.v1') || {}; add('bbclassic:earned', Math.floor(feedNum(bc.earned)), { sold: feedNum(bc.sold) }); add('bbclassic:best', bc.best);
     var sk = feedRd('taco.sketch.v1') || {}; add('sketch:best', Math.floor(feedNum(sk.best)), { runs: feedNum(sk.runs) });
     var bs = feedRd('hgmini_bs') || {}; add('mini:battleship-wins', bs.w, { lost: feedNum(bs.l), fewest: feedNum(bs.best) });
     var sp = feedRd('hgmini_sports') || {}; add('mini:sports-wins', sum(sp.w), { played: sum(sp.p) });

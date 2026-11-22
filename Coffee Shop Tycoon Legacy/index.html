@@ -154,6 +154,16 @@
             workPower: 0.50,
             costs: { beans: 10, milk: 5, cups: 5, barista: 100, marketing: 75, premium: 150 }
         };
+        // 2026-11-22: the game itself is not saved, but your records are, for the leaderboards ('taco.' keys sync to your account):
+        // money earned in all your games together, and the most money held at once.
+        const REC_KEY = 'taco.bbclassic.v1';
+        let REC = { earned: 0, best: 0, sold: 0 };
+        try { REC = Object.assign(REC, JSON.parse(localStorage.getItem(REC_KEY) || '{}') || {}); } catch (e) {}
+        let recT = 0;
+        function record(earned, sold) {
+            REC.earned += earned; REC.sold += sold || 0; REC.best = Math.max(REC.best, Math.floor(state.money));
+            if (!recT) recT = setTimeout(() => { recT = 0; try { localStorage.setItem(REC_KEY, JSON.stringify(REC)); } catch (e) {} }, 2000);
+        }
 
 
         function log(message, type = 'info') {
@@ -205,6 +215,7 @@
             if (state.workProgress >= 100) {
                 let earnings = state.workPower + (state.marketingLevel * 0.25);
                 state.money += earnings;
+                record(earnings);
                 setTimeout(() => {
                     state.workProgress = 0;
                     document.getElementById('work-bar').style.width = '0%';
@@ -295,6 +306,7 @@
                 let demand = 1 + state.marketingLevel;
                 let toSell = Math.min(state.brewed, demand);
                 state.money += toSell * state.pricePerCoffee;
+                record(toSell * state.pricePerCoffee, toSell);
                 state.brewed -= toSell;
                 if(toSell > 0) log(`Sold ${toSell} cups.`, 'success');
             }

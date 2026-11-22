@@ -922,7 +922,7 @@ function setVersion(v) { MIRRORS = MIRROR_HOSTS.map(function (m) { return m + RE
 // If GitHub cannot be reached (blocked, or its 60-an-hour limit for one school network), it falls back to '@main'.
 // (A hub cannot swap itself for a newer one in the same page: its scripts have already declared their names. Players get a
 // newer launcher itself through the loader, which pins it; HG_HUB_ID tells which build is running.)
-var HG_HUB_ID = 'd79f4da3df00';      // the build fills in a fingerprint of this file
+var HG_HUB_ID = '49fe2231c6df';      // the build fills in a fingerprint of this file
 var HG_SHA_RE = /^[0-9a-f]{40}$/;
 function latestSha() {
   try { var c = JSON.parse(localStorage.getItem('hgv:sha') || 'null'); if (c && HG_SHA_RE.test(c.s) && Date.now() - c.t < 120000) return Promise.resolve(c.s); } catch (e) {}
@@ -961,6 +961,9 @@ var GAMES = [
   { dir: 'Imposter', name: 'Imposter: Shades in the Lighthouse', img: 'imposter', tags: ['New', 'Multiplayer', 'Party'], desc: "NEW: one or more Shades hide among the lighthouse keepers. Do your chores, ring the bell, call a gathering and vote them into the fog before the lights go out. Up to 10 players with a 6-digit code (bots fill the empty seats), or play alone against 9 bots, on two maps." },
   { dir: 'Casino', name: 'The Lucky Taco Casino', img: 'casino', tags: ['New', 'Casino', 'Multiplayer', 'Party'], desc: "NEW: turn tacos into chips (1 taco = 100 chips) and play blackjack, roulette, slots, plinko, mines, baccarat, craps, video poker and more. Live tables with everyone who is in: Live Roulette, the Rocket, Horse Racing, The Pot and coin-flip Duels. A free spin every day. Play money only: tacos and chips are not worth anything outside Taco Games." },
   { dir: 'Market Life 1.9', name: 'Market & Life 2.2', img: 'market', tags: ['New', 'Sim'], desc: 'Away for 30 minutes pauses progress. NEW 2.1: join the military (enlist, or become an officer through the Academy, ROTC or Officer Training School), transfer from community college, stay for a master\'s, and 14 new life events. 2.0: live a whole life, from school and 22 degree programs to careers, homes, cars, family and retirement, then see your Life Score in the Hall of Lives. Trade 42 stocks and cryptos with charts, news, dividends and limit orders, save in bonds, and run 10 kinds of business. Plus 33 achievements and a Stats page.', credit: 'Original game by Robbie' },
+  { dir: 'Tetris', name: 'Tetris Surge 2.0', img: 'tetris', credit: 'Made by Hunter', tags: ['New', 'Puzzle'], desc: 'NEW 2.0: climb the rank ladder in Surge, Sprint, Ultra and Marathon. 14 new perks, 5 new bosses, a Daily Challenge with streaks, 55 achievements, and a 70-puzzle Puzzle mode with stars, undo and hints. Plus 12 block skins, 8 backgrounds and Hold and T-Spin tutorials. Still a rogue-lite run with power blocks, plus Marathon, Sprint, Ultra and Zen.' },
+  { dir: 'Coffee Shop Tycoon Legacy', name: 'Bean & Brew Classic', img: 'legacy', tags: ['Tycoon'], desc: 'The original coffee shop tycoon. Away for 30 minutes pauses progress.', credit: 'Made by Robbie' },
+  { dir: 'Levi Dash By Levi 2.0', noChat: true, name: 'Neon Dash 2.1', img: 'neondash', tags: ['Platformer'], desc: 'NEW 2.1: a World leaderboard next to your Hall of Fame. Neon Dash: Ultimate Edition. Jump the neon spikes, keep your streak going, beat your score and sign the Hall of Fame.', credit: 'Made by Levi' },
   { dir: '50 Levels Of Spikes 1.2', name: '100 Levels of Spikes 2.3', img: 'spikes', tags: ['New', 'Platformer', 'Multiplayer'], desc: 'NEW 2.3: beat all 100 for a Victor spot on the leaderboard, auto respawn, a cube that gets bored when you stand still, and roasts that never repeat too soon. 2.2: Multiplayer! Race your friends or beat levels together in Co-op, and fill the room with bots (the host picks how many people and bots). Plus music, a new world every 20 levels (sunset dunes, deep sea, toxic lab, inferno) and a lot more roasts when you die.' },
   { dir: 'Minigames/Reaction Duel', name: 'Reaction Duel', img: 'mg-reaction', cat: 'mini', tags: ['New', 'Multiplayer', 'Minigame'], desc: "Wait for green, then tap faster than everyone. First to 5. Up to 8 players and bots." },
   { dir: 'Minigames/Snake Arena', name: 'Snake Arena', img: 'mg-snake', cat: 'mini', tags: ['New', 'Multiplayer', 'Minigame'], desc: "Every snake on one board: eat, grow, don't crash. Last one slithering wins. Up to 8 players and bots." },
@@ -2563,7 +2566,7 @@ var LB_DIRS = { spikes: '50 Levels Of Spikes 1.2', market: 'Market Life 1.9', im
   coffee: 'Coffee Shop NEW', td: 'Tower Defense 2.0', mayhem: 'Mayhem Marathon', steel: 'Steel Storm', frontline: 'Frontline', sov: 'Sovereign',
   neon: 'Levi Dash By Levi 2.0', blocky: 'Blocky Shooter V2', elementlab: 'Element Lab', lumi: 'Last Light', beatlab: 'Beat Lab', wc: 'World Conflict',
   craft: 'Crochet Simulator', pancake: 'Pancake Simulator', bbb: 'Bing Bong BANG', doom: 'DoomsDay', zvy: 'Zombie vs You', slither: 'Slither',
-  bulb: 'Edible Light Bulb Clicker', sketch: 'Sketch', casino: 'Casino' };
+  bulb: 'Edible Light Bulb Clicker', sketch: 'Sketch', casino: 'Casino', bbclassic: 'Coffee Shop Tycoon Legacy' };
 var LB_MINI = { chess: 'Chess and Checkers', checkers: 'Chess and Checkers', battleship: 'Battleship', sports: 'Sports Mix', rock: 'Rock Simulator',
   reaction: 'Reaction Duel', snake: 'Snake Arena', typing: 'Typing Race', pong: 'Pong', connect4: 'Connect Four', tictactoe: 'Tic-Tac-Toe' };
 function lbPlayable(k) {
@@ -2912,6 +2915,7 @@ var LB_FEED = [
     var zv = feedRd('taco.zvy.v1') || {}; add('zvy:endless', zv.endlessBest, { escapes: feedNum(zv.wins) }); add('zvy:kills', zv.kills, { deaths: feedNum(zv.deaths) });
     var sl = feedRd('taco.slither.v1') || {}; add('slither:best', sl.best, { games: feedNum(sl.games) }); add('slither:kills', sl.kills);
     var lb = feedRd('taco.bulb.v1') || {}; add('bulb:total', Math.floor(feedNum(lb.allTime)), { rewires: feedNum(lb.rewires) });
+    var bc = feedRd('taco.bbclassic.v1') || {}; add('bbclassic:earned', Math.floor(feedNum(bc.earned)), { sold: feedNum(bc.sold) }); add('bbclassic:best', bc.best);
     var sk = feedRd('taco.sketch.v1') || {}; add('sketch:best', Math.floor(feedNum(sk.best)), { runs: feedNum(sk.runs) });
     var bs = feedRd('hgmini_bs') || {}; add('mini:battleship-wins', bs.w, { lost: feedNum(bs.l), fewest: feedNum(bs.best) });
     var sp = feedRd('hgmini_sports') || {}; add('mini:sports-wins', sum(sp.w), { played: sum(sp.p) });

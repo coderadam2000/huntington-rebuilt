@@ -36,6 +36,7 @@ Added 2026-11-22 (one board or two for every listed game that had none; all "hig
 | `slither:best`, `slither:kills` | longest snake, kills | Slither |
 | `bulb:total` | bulbs baked, all time (big numbers) | Edible Light Bulb Clicker |
 | `sketch:best` | best height | Sketch |
+| `bbclassic:earned`, `bbclassic:best` | money earned in all games, most money held | Bean & Brew Classic |
 | `mini:battleship-wins`, `mini:sports-wins` | wins | Battleship, Sports Mix |
 | `mini:rock-time` | seconds spent with the rock | Rock Simulator |
 | `mini:reaction-wins`, `mini:snake-wins`, `mini:typing-wins`, `mini:pong-wins`, `mini:connect4-wins`, `mini:tictactoe-wins` | wins | the lobby minigames |
