@@ -4,29 +4,32 @@ if(!B) throw new Error('set HG_BUILD (and HG_SECRET for gate.js)');
 (async()=>{
   const b=await chromium.launch({args:['--use-gl=swiftshader','--enable-unsafe-swiftshader','--ignore-gpu-blocklist']});
   const out=[];
-  // ---- End-to-end: real hub on jsfiddle host launches Blocky through srcdoc, hub mints its own token ----
+  // ---- End-to-end: real hub on jsfiddle host launches a listed game (Tetris Surge) through srcdoc, hub mints its own token ----
+  // (it was Blocky Shooter until that left the games list on 2026-11-21; the game must be listed and licensed)
   {
     const page=await b.newPage(); const errs=[]; page.on('pageerror',e=>errs.push(e.message));
     await page.route('**/*',r=>{const u=r.request().url();
       if(u==='https://fiddle.jshell.net/'){ let html=fs.readFileSync(path.join(ROOT,'index.html'),'utf8').replace(/<head[^>]*>/i,m=>m+'<script>window.HG_VERSION="r'+B+'"<\/script>'); return r.fulfill({contentType:'text/html',body:html}); }
-      if(/\/Blocky Shooter V2\/index\.html/.test(decodeURIComponent(u))) return r.fulfill({contentType:'text/html',body:fs.readFileSync(path.join(ROOT,'Blocky Shooter V2/index.html'),'utf8')});
-      if(/hub\/blocky\.jpg/.test(u)) return r.fulfill({contentType:'image/jpeg',body:fs.readFileSync(path.join(ROOT,'hub/blocky.jpg'))});
+      if(/\/Tetris\/index\.html/.test(decodeURIComponent(u))) return r.fulfill({contentType:'text/html',body:fs.readFileSync(path.join(ROOT,'Tetris/index.html'),'utf8')});
+      if(/hub\/tetris\.jpg/.test(u)) return r.fulfill({contentType:'image/jpeg',body:fs.readFileSync(path.join(ROOT,'hub/tetris.jpg'))});
       const m=u.match(/three@0\.160\.0\/(.*)$/); if(m){const f=path.join(SP,'cdn/package',m[1]); if(fs.existsSync(f))return r.fulfill({contentType:'application/javascript',body:fs.readFileSync(f)});}
       if(u.includes('tailwind'))return r.fulfill({contentType:'application/javascript',body:''});
       if(u.includes('gate.json'))return r.fulfill({contentType:'application/json',body:'{"min":1}'});
       if(u.includes('data.jsdelivr.com'))return r.fulfill({contentType:'application/json',body:'{"files":[]}'});
       return r.abort();});
     // the launcher needs an account; this player has signed in on this device before, so it opens straight away
-    await page.addInitScript(()=>{ try{ localStorage.setItem('hgv:key','x'.repeat(43)); localStorage.setItem('hgv:name','Tester'); }catch(e){} });
+    await page.addInitScript(()=>{ try{ localStorage.setItem('hgv:key','x'.repeat(43)); localStorage.setItem('hgv:name','Tester'); }catch(e){}
+      addEventListener('message',e=>{ if(e.data&&e.data.tetrisSurge==='ready') window.__tsReady=true; }); });   // the game says so once its loop runs
     await page.goto('https://fiddle.jshell.net/',{waitUntil:'load',timeout:20000});
     await page.waitForTimeout(1500);
     const grid=await page.evaluate(()=>document.querySelectorAll('.game').length);
-    await page.evaluate(()=>{ const g=[...document.querySelectorAll('.game')].find(e=>/Blocky/.test(e.textContent)); g&&g.click(); });
+    await page.evaluate(()=>{ const g=[...document.querySelectorAll('.game')].find(e=>/Tetris Surge/.test(e.textContent)); g&&g.click(); });
     await page.waitForTimeout(4000);
     const fr=page.frames().find(f=>f.name()==='' && f!==page.mainFrame());
     let booted=false, dead=false;
-    for(const f of page.frames()){ try{ if(await f.evaluate(()=>!!window.__blocky)) booted=true; const t=await f.evaluate(()=>document.body?document.body.innerText:''); if(/shut down/i.test(t))dead=true; }catch(e){} }
-    out.push((grid>0&&booted&&!dead?'PASS':'FAIL')+' 7 real hub (jsfiddle) launches Blocky: grid='+grid+' booted='+booted+' dead='+dead+(errs.length?' '+errs.slice(0,2):''));
+    booted=await page.evaluate(()=>!!window.__tsReady);
+    for(const f of page.frames()){ try{ const t=await f.evaluate(()=>document.body?document.body.innerText:''); if(/shut down/i.test(t))dead=true; }catch(e){} }
+    out.push((grid>0&&booted&&!dead?'PASS':'FAIL')+' 7 real hub (jsfiddle) launches Tetris Surge: grid='+grid+' booted='+booted+' dead='+dead+(errs.length?' '+errs.slice(0,2):''));
     await page.close();
   }
   // ---- Offline bundle expired (>3 days) ----
