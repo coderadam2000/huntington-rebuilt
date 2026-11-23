@@ -4,7 +4,8 @@
 #   node_modules/javascript-obfuscator  (tools/obf.js, used by build-release.py)
 #   node_modules/tailwindcss-cdn        (offline stand-in for cdn.tailwindcss.com in tests)
 #   cdn/package/                        (three@0.160.0, served for cdn.jsdelivr.net/npm/three@0.160.0/ in tests)
-# Playwright and Chromium are preinstalled (NODE_PATH=/opt/node22/lib/node_modules).
+# Playwright and Chromium are preinstalled in the container (NODE_PATH=/opt/node22/lib/node_modules); elsewhere
+# (a Mac) they are installed into $HG_TOOLS/node_modules, which tools/release.sh then uses as NODE_PATH.
 set -e
 T=${HG_TOOLS:-/tmp/hg-tools}
 mkdir -p "$T/cdn" "$T/tests"
@@ -15,5 +16,9 @@ cd "$T"
 [ -d node_modules/tailwindcss ] || npm install --no-audit --no-fund tailwindcss@3.4.17 >/dev/null 2>&1 || true
 if [ ! -f cdn/package/build/three.module.js ]; then
   cd cdn && npm pack three@0.160.0 >/dev/null 2>&1 && tar xzf three-0.160.0.tgz && rm three-0.160.0.tgz
+fi
+# Playwright + its Chromium: preinstalled in the container (/opt/node22); anywhere else (a Mac) install them here
+if [ ! -d /opt/node22/lib/node_modules/playwright ] && [ ! -d node_modules/playwright ]; then
+  npm install --no-audit --no-fund playwright@1 >/dev/null && npx playwright install chromium >/dev/null
 fi
 echo "tools ready in $T"

@@ -1,9 +1,14 @@
 #!/bin/sh
 # Release flow. Needs tools/setup-tools.sh once per container (tools/rig/setup.sh does it).
 #   tools/release.sh ship <N> "<message>"            - THE NORMAL WAY: release the work branch as it is (see below)
+#   HG_DRY=1 tools/release.sh ship <N> "<message>"   - everything up to the push (licence build, gate and smoke tests), no commit
 # A hotfix that must leave out work on this branch: branch from origin/main, cherry-pick the fix, ship from there.
 set -e
-R=$(cd "$(dirname "$0")/.." && pwd); W=${HG_RELEASE:-/home/user/hg-release}; T=${HG_TOOLS:-/tmp/hg-tools}
+R=$(cd "$(dirname "$0")/.." && pwd); T=${HG_TOOLS:-/tmp/hg-tools}
+# the release worktree: /home/user/hg-release in the container, $HG_TOOLS/release elsewhere (a Mac)
+if [ -n "$HG_RELEASE" ]; then W=$HG_RELEASE; elif [ -d /home/user ]; then W=/home/user/hg-release; else W=$T/release; fi
+# Playwright: preinstalled under /opt/node22 in the container, installed into $HG_TOOLS by tools/setup-tools.sh elsewhere
+if [ -z "$NODE_PATH" ]; then if [ -d /opt/node22/lib/node_modules/playwright ]; then NODE_PATH=/opt/node22/lib/node_modules; else NODE_PATH=$T/node_modules; fi; fi
 cmd=$1; N=$2; shift 2
 case "$cmd" in
 ship)
@@ -27,13 +32,14 @@ ship)
   cd "$W"
   HG_ROOT="$W" HG_TOOLS="$T" python3 tools/build-release.py "$N"
   printf '{"release":%s}\n' "$N" > latest.json
-  export HG_BUILD=$N HG_SECRET=$(cat "$T/hg_secret.txt") HG_ROOT="$W" HG_TOOLS="$T" NODE_PATH=/opt/node22/lib/node_modules
+  export HG_BUILD=$N HG_SECRET=$(cat "$T/hg_secret.txt") HG_ROOT="$W" HG_TOOLS="$T" NODE_PATH="$NODE_PATH"
   node tools/tests/gate.js | tee /tmp/hg-gate.txt; node tools/tests/gate2.js | tee -a /tmp/hg-gate.txt
   if grep -q FAIL /tmp/hg-gate.txt || [ "$(grep -c '^PASS' /tmp/hg-gate.txt)" -lt 9 ]; then echo "GATE TESTS FAILED - not pushing (worktree left at $W)"; exit 1; fi
   git add -A
   if [ "$(git diff --cached | grep -c -F "$HG_SECRET")" != 0 ]; then echo "THE SECRET IS IN THE DIFF - not pushing"; exit 1; fi
   node "$R/tools/tests/smoke.mjs" | grep -v '^PASS' > /tmp/hg-smoke.txt; cat /tmp/hg-smoke.txt
   grep -q 'ALL PASSED' /tmp/hg-smoke.txt || { echo "SMOKE TEST FAILED on the release build - not pushing (worktree left at $W)"; exit 1; }
+  if [ -n "$HG_DRY" ]; then cd "$R"; git worktree remove --force "$W"; echo "DRY RUN: r$N built and every test passed; nothing committed or pushed"; exit 0; fi
   git commit -q -m "Release r$N: $MSG${HG_TRAILER:+
 
 $HG_TRAILER}"

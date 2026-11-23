@@ -55,6 +55,8 @@ Launcher (`loader.html` pasted into jsfiddle/jsbin, which loads the hub `index.h
   branch, wait for tag rN). Set `HG_TRAILER` to the commit trailer lines. If Grapevine changed, push its HEAD to its
   `main` first (the server follows `main` and must be ahead of the launcher).
 - Every release re-keys the licence inside every game, so a game copy from release N only runs under hub N.
+- Works on a Mac too: run `bash tools/setup-tools.sh` once (installs Playwright into `/tmp/hg-tools`), and
+  `HG_DRY=1 tools/release.sh ship <N> "..."` rehearses the whole release (licence build, gate and smoke tests) without pushing.
 
 ## Things that have bitten before
 - A new reply type from the Grapevine server must be added to `LITE_OK` (040-hello...js) or launcher sessions never get it.

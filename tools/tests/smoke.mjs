@@ -3,7 +3,8 @@
 //   NODE_PATH=/opt/node22/lib/node_modules node tools/tests/smoke.mjs                 every game + the hub
 //   NODE_PATH=... node tools/tests/smoke.mjs "Tetris" "Minigames/Pong"                only these
 //   HG_ROOT=/home/user/hg-release node tools/tests/smoke.mjs                          a release worktree instead
-import { chromium } from 'playwright';
+import { createRequire } from 'node:module';
+const { chromium } = createRequire(import.meta.url)('playwright');      // (require, so NODE_PATH finds it: /opt/node22 or $HG_TOOLS)
 import fs from 'node:fs';
 import http from 'node:http';
 import path from 'node:path';
