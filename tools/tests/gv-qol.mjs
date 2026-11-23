@@ -118,16 +118,7 @@ try {
   await A.evaluate(() => { const l = JSON.parse(localStorage.getItem('hgq:play')); l.Sketch.ver = 'Sketch 0.1'; localStorage.setItem('hgq:play', JSON.stringify(l)); render(); });
   check('a game that changed since you played says Updated', await A.evaluate(() => !!document.querySelector('.game[data-dir="Sketch"] .gupd')));
   console.log('\n=== 4. what is new, small cards, Rebalanced ===');
-  check('the What\'s new bubble has a dot after an update', await A.evaluate(() => document.getElementById('wn-bubble').classList.contains('new')));
-  check('...and opens by itself once, with the list', !!(await until(() => A.evaluate(() => !document.getElementById('wn-pop').hidden && document.querySelectorAll('#wn-pop li').length >= 3), 6000)));
-  await A.click('#wn-pop .wn-ok'); await A.reload(); await until(() => A.evaluate(() => document.querySelectorAll('#grid .game').length > 5));
-  await A.waitForTimeout(3000);
-  check('...after "Got it": no dot, and it stays closed', await A.evaluate(() => !document.getElementById('wn-bubble').classList.contains('new') && document.getElementById('wn-pop').hidden));
-  await A.click('#wn-bubble');
-  check('...pressing the bubble opens it again', await A.evaluate(() => !document.getElementById('wn-pop').hidden));
-  await A.keyboard.press('Escape');
-  check('...and Esc closes it', await A.evaluate(() => document.getElementById('wn-pop').hidden));
-  check('the old inline card is gone', await A.evaluate(() => !document.getElementById('whatsnew') || document.getElementById('whatsnew').hidden));
+  check('there is no What\'s new bubble or card', await A.evaluate(() => !document.getElementById('wn-bubble') && (!document.getElementById('whatsnew') || document.getElementById('whatsnew').hidden)));
   check('small tiles are the normal look', await A.evaluate(() => document.documentElement.classList.contains('gdense') && getComputedStyle(document.querySelector('#grid .game .desc')).display === 'none'));
   await A.click('#gdense');
   check('...and big cards with descriptions are one press away', await A.evaluate(() => !document.documentElement.classList.contains('gdense') && getComputedStyle(document.querySelector('#grid .game .desc')).display !== 'none'));

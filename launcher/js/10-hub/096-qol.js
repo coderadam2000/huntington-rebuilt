@@ -273,51 +273,10 @@ function qolPlayerBar() {
     playNow(current.game);
   };
 })();
-// --- what's new: a bubble in the bottom-right corner of the launcher. A dot (and one automatic opening) after an update;
-// press it any time to read the list again. The old inline box (#whatsnew) is no longer shown.
-var WHATSNEW = { id: 'u2026-11-22', title: 'The big Taco update', items: [
-  ['🌮 Goons are now Tacos', 'Same currency, tastier name: the shop, the casino (now The Lucky Taco) and every reward say tacos.'],
-  ['🎮 Ten new games', 'Sketch, Zombie vs. You, DoomsDay, Edible Light Bulb Clicker, Crochet & Knitting Simulator, World Conflict, Slither, Design Anything, Bing Bong BANG! and Pancake Simulator.'],
-  ['🧊 Design Anything in 3D', 'Cars, sneakers, houses, robots, cakes, spaceships, planets, castles and more, each with dozens of options. Save them or snapshot a picture.'],
-  ['🪨 New minigames', 'Rock Simulator (be a rock, or a really dark rock) and Battleship against a friend or three levels of bot.'],
-  ['🌐 External Games tab', 'Baseball Bros, Rocket League 2D, Snowball.io, Drive Mad, Kart Bros and Escape Road 3, made by other people and kept safely walled off from your account.'],
-  ['❌⭕ Ultimate Tic-Tac-Toe', 'Nine boards in one: where you play decides where your opponent goes next.'],
-  ['♟️ Material counter', 'Chess and Checkers now show the pieces each side has taken and who is ahead.'],
-  ['🎳 Bowling, rebuilt', 'Sports Mix bowling has a 3D lane, real hook, wobbling pins, splits and turkeys.'],
-  ['👻 Imposter', 'Playing with bots only? Turn on "Make me a Shade" to always be the Shade.'],
-  ['📺 Livestreams fixed', 'No more endless "Connecting to the game...", and a big Leave button (or Esc) to get out.']
-] };
-function wnSeen() { try { return localStorage.getItem('hgv:seennew') === WHATSNEW.id; } catch (e) { return true; } }
-function wnPaint() {
-  var b = document.getElementById('wn-bubble'); if (!b) return;
-  b.classList.toggle('new', !wnSeen());
-}
-function wnOpen(open) {
-  var pop = document.getElementById('wn-pop'); if (!pop) return;
-  if (open === undefined) open = pop.hidden;
-  pop.hidden = !open;
-  if (open) { try { localStorage.setItem('hgv:seennew', WHATSNEW.id); } catch (e) {} wnPaint(); }
-}
-function qolNews(force) {
-  var old = document.getElementById('whatsnew'); if (old) old.hidden = true;
-  if (!document.getElementById('wn-bubble')) {
-    var b = document.createElement('button'); b.id = 'wn-bubble'; b.title = "What's new"; b.innerHTML = '<span class="wn-ic">&#10024;</span><span class="wn-t">What\'s new</span><i class="wn-dot"></i>';
-    var pop = document.createElement('div'); pop.id = 'wn-pop'; pop.hidden = true;
-    pop.innerHTML = '<div class="wn-hd"><b>&#10024; ' + WHATSNEW.title + '</b><button class="wn-x" title="Close">&#10005;</button></div><ul>' + WHATSNEW.items.map(function (i) { return '<li><b>' + i[0] + '</b><span>' + i[1] + '</span></li>'; }).join('') + '</ul><button class="wn-ok">Got it</button>';
-    document.body.appendChild(pop); document.body.appendChild(b);
-    b.onclick = function (e) { e.stopPropagation(); wnOpen(); };
-    pop.querySelector('.wn-x').onclick = pop.querySelector('.wn-ok').onclick = function () { wnOpen(false); };
-    pop.addEventListener('click', function (e) { e.stopPropagation(); });
-    document.addEventListener('click', function () { wnOpen(false); });
-    document.addEventListener('keydown', function (e) { if (e.key === 'Escape' && !pop.hidden) wnOpen(false); });
-  }
-  var first = false; try { first = !localStorage.getItem('hgv:booted'); } catch (e) {}
-  if (first && !force) { try { localStorage.setItem('hgv:seennew', WHATSNEW.id); } catch (e) {} }      // brand-new players: no dot
-  wnPaint();
-  if (force) wnOpen(true);
-  else if (!wnSeen()) setTimeout(function () { if (!document.documentElement.classList.contains('playing') && !wnSeen()) wnOpen(true); }, 2500);      // once, after an update
-}
-window.HG_whatsNew = function () { showTab('games'); qolNews(true); };
+// --- what's new: removed on 2026-11-23 (the owner asked). The old inline card stays hidden; HG_whatsNew is kept so
+// anything that still calls it does nothing harmful.
+function qolNews() { var old = document.getElementById('whatsnew'); if (old) old.hidden = true; }
+window.HG_whatsNew = function () { showTab('games'); };
 // --- offline / back online ---
 (function () {
   var bar = document.getElementById('netbar'), t = 0; if (!bar) return;
