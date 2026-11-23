@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+<title>Neon Dash Rebuilt</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@600;700;900&display=swap" rel="stylesheet">
+<style>
+<!--@inline css/10-style.css-->
+</style>
+</head>
+<body data-m="splash">
+<canvas id="cv"></canvas>
+<div class="scan"></div><div class="vig"></div><div id="flash"></div>
+<button id="snd" class="btn" type="button">SOUND: ON</button>
+
+<section id="splash" class="screen on">
+  <svg viewBox="0 0 260 180" fill="none" aria-hidden="true">
+    <defs><linearGradient id="g" x1="65" y1="25" x2="195" y2="155" gradientUnits="userSpaceOnUse"><stop stop-color="#00f3ff"/><stop offset=".5" stop-color="#9d00ff"/><stop offset="1" stop-color="#ff007f"/></linearGradient></defs>
+    <path d="M8 54h100M22 90h72M4 126h108" stroke="#00f3ff" stroke-width="4" stroke-linecap="round" opacity=".8"/>
+    <circle cx="148" cy="90" r="64" stroke="url(#g)" stroke-width="2" stroke-dasharray="18 10 6 10" opacity=".75"/>
+    <circle cx="148" cy="90" r="52" fill="#0b0320" stroke="url(#g)" stroke-width="4"/>
+    <circle cx="152" cy="70" r="6.5" fill="#05010a" stroke="#00f3ff" stroke-width="3"/><circle cx="171" cy="76" r="6.5" fill="#05010a" stroke="#00f3ff" stroke-width="3"/><circle cx="160" cy="93" r="7" fill="#05010a" stroke="#ff007f" stroke-width="3"/>
+  </svg>
+  <div class="neon">LEVYBOWLS GAMES</div>
+  <div class="pres">PRESENTS</div>
+  <button id="skip" class="btn" type="button">SKIP INTRO [ESC]</button>
+</section>
+
+<main id="title" class="screen">
+  <div class="tag">HIGH-VELOCITY ARCADE RUNNER</div>
+  <h1 class="logo" style="margin:0"><span class="a">NEON</span><span class="b">DASH</span></h1>
+  <div class="bar"></div>
+  <div id="stat" class="stat"></div>
+  <button id="bStart" class="btn p" type="button">&#9654; START GAME</button>
+  <div class="row"><button id="bLb" class="btn" type="button">LEADERBOARD</button><button id="bShop" class="btn" type="button">SKIN SHOP</button><button id="bHow" class="btn" type="button">HOW TO PLAY</button><button id="bRe" class="btn" type="button">REPLAY INTRO</button></div>
+  <div class="foot"><div class="blink">PRESS ENTER TO PLAY</div><small>&copy; LEVYBOWLS GAMES</small></div>
+</main>
+
+<section id="load" class="screen">
+  <div class="card" style="text-align:center">
+    <small style="letter-spacing:.3em;color:#ff6bb0;font-size:.65rem">LEVYBOWLS GAMES ARCADE ENGINE</small>
+    <h2 style="font-size:2rem;margin:8px 0;color:#fff;-webkit-text-fill-color:#fff;text-shadow:0 0 16px var(--cy)">READY PLAYER 1</h2>
+    <div class="blink">LEVEL 01 LOADING...</div>
+    <div class="ld"><i id="ldb"></i></div>
+    <button id="bBack" class="btn" type="button">&larr; BACK TO TITLE</button>
+  </div>
+</section>
+
+<div id="how" class="ov"><div class="card">
+  <h2>HOW TO PLAY</h2>
+  <div class="ctl"><div><b>JUMP / DOUBLE JUMP</b><span>Clear spikes and plasma gaps</span></div><div><kbd>SPACE</kbd> <kbd>UP</kbd> <kbd>TAP</kbd></div></div>
+  <div class="ctl"><div><b>PHASE DASH</b><span>Burst through pink energy gates. Uses 40% of the meter</span></div><div><kbd>SHIFT</kbd> <kbd>D</kbd></div></div>
+  <div class="ctl d"><div><b>HAZARDS</b><span>Spikes, gates and the void shatter your core. Grab gold coins to spend in the SKIN SHOP</span></div></div>
+  <div style="text-align:right;margin-top:14px"><button id="bGot" class="btn p" style="font-size:.85rem;padding:11px 24px" type="button">READY TO RUN</button></div>
+</div></div>
+
+<div id="lb" class="ov"><div class="card" style="width:min(94vw,520px);max-height:90vh;overflow:auto">
+  <h2>LEADERBOARD</h2>
+  <div id="lbSt" class="lm"></div>
+  <div class="ctl"><div><b>YOUR NAME</b><span>Shown on the board</span></div><input id="nm" maxlength="12" placeholder="PLAYER" autocomplete="off"></div>
+  <div id="lbList"></div>
+  <div style="text-align:right;margin-top:14px"><button id="bLbX" class="btn p" style="font-size:.85rem;padding:11px 24px" type="button">DONE</button></div>
+</div></div>
+
+<div id="over" class="ov"><div class="card" style="text-align:center">
+  <h2>CORE SHATTERED</h2><p id="oWhy"></p>
+  <div class="big" id="oScore">0</div>
+  <p style="color:#7ff" id="oBest"></p>
+  <p style="color:#ffd000" id="oRank"></p>
+  <div class="row"><button id="bRetry" class="btn p" style="font-size:.9rem;padding:12px 28px" type="button">RETRY [SPACE]</button><button id="bMenu" class="btn" type="button">MENU</button></div>
+</div></div>
+
+<div id="shop" class="ov"><div class="card" style="width:min(94vw,560px);max-height:90vh;overflow:auto">
+  <h2>SKIN SHOP</h2>
+  <div id="shCoins" style="color:#ffd000;font-size:.85rem;letter-spacing:.14em;margin-bottom:12px"></div>
+  <canvas id="pv" width="120" height="120" style="display:block;margin:0 auto 6px"></canvas>
+  <div class="row" style="margin:0 0 12px"><button class="btn tb" data-t="color" type="button">COLOR</button><button class="btn tb" data-t="shape" type="button">SHAPE</button><button class="btn tb" data-t="code" type="button">CODE</button><button class="btn tb" data-t="trail" type="button">TRAIL</button></div>
+  <div id="shGrid" class="grid"></div>
+  <div id="shCus" class="ctl" style="display:none;margin-top:12px"><div><b>CUSTOM COLORS</b><span>Pick your edge and core colors</span></div><div class="row" style="margin:0;flex-wrap:nowrap"><input type="color" id="cE"><input type="color" id="cC"></div></div>
+  <div style="text-align:right;margin-top:14px"><button id="bShopX" class="btn p" style="font-size:.85rem;padding:11px 24px" type="button">DONE</button></div>
+</div></div>
+<button id="dashbtn" class="btn" type="button">DASH</button>
+
+<script>
+<!--@inline js/10-game.js-->
+</script>
+</body>
+</html>

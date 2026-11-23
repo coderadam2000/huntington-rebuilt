@@ -82,6 +82,7 @@ var LB_FEED = [
   ['frontline:wins', function () { var f = feedRd('frontline_profile_v2') || {}; return [feedNum(f.wins), { kills: feedNum(f.kills), online: feedNum(f.mpWins) }]; }],
   ['sov:best', function () { var s = feedRd('sov.hgach') || {}; return [feedNum(s.conquered), { wars: feedNum(s.warsWon), years: feedNum(s.years) }]; }],
   ['neon:best', function () { var a = feedRd('neonScores') || [], b = 0; (Array.isArray(a) ? a : []).forEach(function (x) { var v = feedNum(x && x.val); if (v < 100000) b = Math.max(b, v); }); return [b]; }],      // (Legend mode's 100 quadrillion never counts)
+  ['ndr:best', function () { var b = Math.floor(feedNum(feedRd('taco.ndr.best'))); return [b < 1e6 ? b : 0]; }],
   ['blocky:xp', function () { var l = feedRd('blocky21_life') || {}; return [blockyXP(l), { prestige: feedNum(l.prestige), kills: feedNum(l.kills) }]; }],
   ['blocky:wave', function () { var l = feedRd('blocky21_life') || {}, b = 0, k = ''; for (var x in (l.best || {})) if (feedNum(l.best[x]) > b) { b = feedNum(l.best[x]); k = x; } return [b, k ? { mode: k } : null]; }],
   ['blocky:kills', function () { var l = feedRd('blocky21_life') || {}; return [feedNum(l.kills), { headshots: feedNum(l.headshots) }]; }],

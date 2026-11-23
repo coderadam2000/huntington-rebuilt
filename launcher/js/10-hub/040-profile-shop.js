@@ -133,7 +133,8 @@ var LB_DIRS = { spikes: '50 Levels Of Spikes 1.2', market: 'Market Life 1.9', im
   coffee: 'Coffee Shop NEW', td: 'Tower Defense 2.0', mayhem: 'Mayhem Marathon', steel: 'Steel Storm', frontline: 'Frontline', sov: 'Sovereign',
   neon: 'Levi Dash By Levi 2.0', blocky: 'Blocky Shooter V2', elementlab: 'Element Lab', lumi: 'Last Light', beatlab: 'Beat Lab', wc: 'World Conflict',
   craft: 'Crochet Simulator', pancake: 'Pancake Simulator', bbb: 'Bing Bong BANG', doom: 'DoomsDay', zvy: 'Zombie vs You', slither: 'Slither',
-  bulb: 'Edible Light Bulb Clicker', sketch: 'Sketch', casino: 'Casino', bbclassic: 'Coffee Shop Tycoon Legacy' };
+  bulb: 'Edible Light Bulb Clicker', sketch: 'Sketch', casino: 'Casino', bbclassic: 'Coffee Shop Tycoon Legacy',
+  ndr: 'Neon Dash Rebuilt' };
 var LB_MINI = { chess: 'Chess and Checkers', checkers: 'Chess and Checkers', battleship: 'Battleship', sports: 'Sports Mix', rock: 'Rock Simulator',
   reaction: 'Reaction Duel', snake: 'Snake Arena', typing: 'Typing Race', pong: 'Pong', connect4: 'Connect Four', tictactoe: 'Tic-Tac-Toe' };
 function lbPlayable(k) {

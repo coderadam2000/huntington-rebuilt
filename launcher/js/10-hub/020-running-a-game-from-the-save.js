@@ -169,6 +169,12 @@ function extShim(g) {
     'Object.defineProperty(st,"length",{get:function(){return k().length;}});function ch(){if(!p)return;clearTimeout(t);t=setTimeout(function(){try{parent.postMessage({hgExtSave:JSON.stringify(o)},"*");}catch(e){}},400);}if(p)for(var q in S)o[q]=S[q];return st;}' +
     'try{Object.defineProperty(window,"localStorage",{value:mk(1),configurable:true});}catch(e){}try{Object.defineProperty(window,"sessionStorage",{value:mk(0),configurable:true});}catch(e){}' +
     'try{Object.defineProperty(document,"cookie",{get:function(){return"";},set:function(){},configurable:true});}catch(e){}' +
+    // the Cache API cannot be opened from a sandbox (its promise never settles in Unity's loader, which then waits forever):
+    // without it, Unity and the other loaders just download without caching
+    'try{Object.defineProperty(window,"caches",{value:undefined,configurable:true});}catch(e){}' +
+    // the page is a srcdoc, so document.URL is "about:srcdoc", and Unity's loader does new URL(x, document.URL), which
+    // throws: report the page's <base> (where its files really are) instead
+    'try{Object.defineProperty(document,"URL",{get:function(){return document.baseURI;},configurable:true});}catch(e){}' +
     '})();(' + extFakeIDB.toString() + ')();<\/script>';
 }
 // An IndexedDB that lives in memory, for sandboxed external games (a sandboxed page may not use the real one, and Unity

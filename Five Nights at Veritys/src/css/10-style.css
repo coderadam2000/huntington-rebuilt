@@ -1,0 +1,1996 @@
+  html, body {
+    margin: 0;
+    padding: 0;
+    background-color: #000000;
+    overflow: hidden;
+    font-family: Arial, sans-serif;
+  }
+
+  .screen {
+    display: none;
+    width: 100%;
+    height: 100vh;
+    background-color: #050506;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .screen.active {
+    display: flex;
+  }
+
+  /* ---------- Main menu ---------- */
+  #mainMenu {
+    align-items: center;
+  }
+
+  .characterArea {
+    flex: 1.2;
+    height: 100%;
+    position: relative;
+  }
+
+  .characterArea svg {
+    position: absolute;
+  }
+
+  #verityBig,
+  #verityGlitch,
+  #verityManly {
+    height: 95vh;
+    width: 85vh;
+    left: -22vh;
+    bottom: 0;
+    z-index: 4;
+  }
+
+  .menuTextArea {
+    flex: 1;
+    padding-right: 5%;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    text-align: right;
+    position: relative;
+    z-index: 5;
+  }
+
+  .gameTitle {
+    font-size: 28px;
+    color: #9a3a3a;
+    letter-spacing: 1px;
+    line-height: 1.3;
+    animation: titleFlicker 7s infinite;
+  }
+
+  @keyframes titleFlicker {
+    0%, 86%, 100% { opacity: 1; }
+    87% { opacity: 0.35; }
+    88% { opacity: 1; }
+    90% { opacity: 0.5; }
+    91% { opacity: 1; }
+  }
+
+  .gameCredit {
+    font-size: 12px;
+    color: #555555;
+    margin: 6px 0 24px 0;
+  }
+
+  .menuButtons {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    width: 170px;
+  }
+
+  .menuButton {
+    background-color: #1c1c1e;
+    color: #c9b35a;
+    border: 1px solid #444444;
+    font-size: 14px;
+    padding: 12px 0;
+    cursor: pointer;
+  }
+
+  .menuButton:hover {
+    background-color: #2a2a2d;
+  }
+
+  .optionsButton {
+    color: #999999;
+    font-size: 13px;
+  }
+
+  /* ---------- Night select ---------- */
+  #nightSelect {
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .nightSelectLabel {
+    font-size: 16px;
+    color: #999999;
+    margin-bottom: 20px;
+  }
+
+  .nightButtonRow {
+    display: flex;
+    gap: 12px;
+  }
+
+  .nightButton {
+    width: 64px;
+    height: 64px;
+    font-size: 16px;
+    background-color: #1c1c1e;
+    color: #c9b35a;
+    border: 1px solid #444444;
+    cursor: pointer;
+  }
+
+  .nightButton:hover {
+    background-color: #2a2a2d;
+  }
+
+  .nightButton.locked {
+    background-color: #121212;
+    color: #444444;
+    border: 1px solid #2a2a2a;
+    cursor: not-allowed;
+  }
+
+  .nightSelectHint {
+    font-size: 11px;
+    color: #555555;
+    margin-top: 16px;
+  }
+
+  .backButton {
+    position: absolute;
+    top: 16px;
+    left: 16px;
+    background-color: #1c1c1e;
+    color: #999999;
+    border: 1px solid #444444;
+    font-size: 12px;
+    padding: 6px 12px;
+    cursor: pointer;
+  }
+
+  .messageBox {
+    position: absolute;
+    bottom: 24px;
+    left: 50%;
+    transform: translateX(-50%);
+    color: #999999;
+    font-size: 13px;
+    z-index: 20;
+  }
+
+  /* ---------- Night intro ---------- */
+  .centerScreen {
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .bigClock {
+    font-size: 40px;
+    color: #999999;
+    letter-spacing: 2px;
+  }
+
+  .subText {
+    font-size: 18px;
+    color: #777777;
+    margin-top: 12px;
+  }
+
+  /* ---------- Office ---------- */
+  #office {
+    background-color: #0b0b0d;
+  }
+
+  .officeScene {
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    left: 26%;
+    width: 48%;
+    height: 100%;
+  }
+
+  #fanBlades {
+    transform-origin: 480px 368px;
+    animation: spinFan 0.35s linear infinite;
+  }
+
+  @keyframes spinFan {
+    to { transform: rotate(360deg); }
+  }
+
+  #ceilingBulb {
+    animation: flicker 6s infinite;
+  }
+
+  @keyframes flicker {
+    0%, 90%, 100% { opacity: 1; }
+    92% { opacity: 0.3; }
+    94% { opacity: 1; }
+    96% { opacity: 0.4; }
+  }
+
+  .doorSide {
+    background-image: repeating-linear-gradient(
+        0deg, #161618 0px, #161618 28px, #101012 28px, #101012 30px);
+  }
+
+  .doorway {
+    box-shadow: inset 0 0 0 6px #1d1d20;
+  }
+
+
+  .hallView {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    opacity: 0;
+    transition: opacity 0.1s;
+  }
+
+  .hallView svg {
+    display: block;
+    width: 100%;
+    height: 100%;
+  }
+
+  .floatHead {
+    animation: floatBob 3s ease-in-out infinite;
+  }
+
+  @keyframes floatBob {
+    50% { transform: translateY(-7px); }
+  }
+
+  .doorway.lit .hallView {
+    opacity: 1;
+  }
+
+  .sideWallDetail {
+    position: absolute;
+    left: 0;
+    right: 0;
+    top: 0;
+    bottom: 0;
+    width: 100%;
+    height: 100%;
+    pointer-events: none;
+  }
+
+  .doorwayStripes {
+    position: absolute;
+    left: 6%;
+    right: 6%;
+    bottom: calc(22% - 12px);
+    height: 10px;
+    background-image: repeating-linear-gradient(
+        45deg, #3a3418 0px, #3a3418 8px, #141414 8px, #141414 16px);
+  }
+
+
+  .doorSide {
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    width: 26%;
+    background-color: #161618;
+  }
+
+  #leftSide {
+    left: 0;
+    border-right: 2px solid #2a2a2d;
+  }
+
+  #rightSide {
+    right: 0;
+    border-left: 2px solid #2a2a2d;
+  }
+
+  .doorway {
+    position: absolute;
+    top: 10%;
+    bottom: 22%;
+    left: 6%;
+    right: 6%;
+    background-color: #030303;
+    border: 3px solid #2e2e31;
+    overflow: hidden;
+    transition: background-color 0.1s;
+  }
+
+  .doorway.lit {
+    background-color: #3a3630;
+  }
+
+  .doorPanel {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 100%;
+    transform: translateY(-101%);
+    transition: transform 0.6s ease-in-out;
+    z-index: 3;
+  }
+
+  .doorPanel.closed {
+    transform: translateY(0);
+    transition: transform 0.35s cubic-bezier(0.55, 0, 1, 0.45);
+  }
+
+  .doorPart {
+    position: absolute;
+    background-color: #2b2b2e;
+    background-image: repeating-linear-gradient(
+        0deg, #2b2b2e 0px, #2b2b2e 18px, #232326 18px, #232326 20px);
+  }
+
+  .doorPartTop {
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 14%;
+  }
+
+  .doorPartBottom {
+    top: 38%;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    border-bottom: 3px solid #1a1a1c;
+  }
+
+  .doorPartLeft {
+    top: 14%;
+    left: 0;
+    width: 24%;
+    height: 24%;
+  }
+
+  .doorPartRight {
+    top: 14%;
+    right: 0;
+    width: 24%;
+    height: 24%;
+  }
+
+  .doorWindowFrame {
+    position: absolute;
+    top: 14%;
+    left: 24%;
+    width: 52%;
+    height: 24%;
+    box-sizing: border-box;
+    border: 3px solid #3a3a3e;
+    background-image: linear-gradient(
+        135deg, rgba(120, 130, 140, 0.08) 0%, transparent 40%);
+  }
+
+  .eyeGlint {
+    position: absolute;
+    top: 30%;
+    left: 50%;
+    width: 30px;
+    height: 6px;
+    transform: translateX(-50%);
+    display: none;
+    z-index: 2;
+  }
+
+  .eyeGlint::before,
+  .eyeGlint::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    width: 5px;
+    height: 5px;
+    border-radius: 50%;
+    background-color: #6a5a3a;
+    animation: eyePulse 2.4s ease-in-out infinite;
+  }
+
+  .eyeGlint::before {
+    left: 0;
+  }
+
+  .eyeGlint::after {
+    right: 0;
+  }
+
+  @keyframes eyePulse {
+    0%, 100% { opacity: 0.25; }
+    50% { opacity: 0.8; }
+  }
+
+  .doorway.occupied .eyeGlint {
+    display: block;
+  }
+
+  .doorway.lit .eyeGlint {
+    display: none;
+  }
+
+  /* ---------- Jump scare ---------- */
+  #jumpScare {
+    align-items: center;
+    justify-content: center;
+    background-color: #000000;
+  }
+
+  #jumpScareFace {
+    width: 90vh;
+    height: 90vh;
+    animation: scareShake 0.08s linear infinite,
+        scareZoom 0.4s ease-out forwards;
+  }
+
+  #jumpScareFace svg {
+    width: 100%;
+    height: 100%;
+  }
+
+  #jumpScareTint {
+    position: absolute;
+    inset: 0;
+    background-color: rgba(140, 20, 20, 0.25);
+    animation: tintFlash 0.15s steps(2) infinite;
+    pointer-events: none;
+  }
+
+  @keyframes scareShake {
+    0% { transform: translate(0, 0); }
+    25% { transform: translate(-8px, 6px); }
+    50% { transform: translate(7px, -5px); }
+    75% { transform: translate(-6px, -7px); }
+    100% { transform: translate(5px, 8px); }
+  }
+
+  @keyframes scareZoom {
+    from { scale: 0.4; }
+    to { scale: 1.25; }
+  }
+
+  @keyframes tintFlash {
+    50% { background-color: rgba(140, 20, 20, 0.05); }
+  }
+
+  .doorway.slam {
+    animation: doorSlam 0.3s ease-out;
+  }
+
+  @keyframes doorSlam {
+    0% { transform: translateY(0); }
+    25% { transform: translateY(4px); }
+    50% { transform: translateY(-3px); }
+    75% { transform: translateY(2px); }
+    100% { transform: translateY(0); }
+  }
+
+  .doorControls {
+    position: absolute;
+    bottom: 6%;
+    left: 0;
+    right: 0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .officeButton {
+    width: 90px;
+    background-color: #2a2a2d;
+    color: #9a8a50;
+    border: 1px solid #555555;
+    font-size: 13px;
+    padding: 7px 0;
+    cursor: pointer;
+  }
+
+  .officeButton.on {
+    background-color: #4a2020;
+    color: #d0c080;
+  }
+
+  .desk {
+    position: absolute;
+    bottom: 0;
+    left: 22%;
+    right: 22%;
+    height: 16%;
+    background-color: #08080a;
+    border-top: 3px solid #1e1e20;
+  }
+
+  .officeHud {
+    position: absolute;
+    top: 12px;
+    left: 0;
+    right: 0;
+    display: flex;
+    justify-content: center;
+    flex-direction: column;
+    align-items: center;
+    z-index: 10;
+  }
+
+  #officeClock {
+    font-size: 20px;
+    color: #b7342b;
+    letter-spacing: 1px;
+  }
+
+  #officeNightLabel {
+    font-size: 12px;
+    color: #666666;
+    margin-top: 2px;
+  }
+
+  .powerBox {
+    position: absolute;
+    bottom: 16px;
+    left: 28%;
+    z-index: 10;
+    color: #888888;
+    font-size: 13px;
+  }
+
+  .usageBars {
+    display: flex;
+    gap: 3px;
+    margin-top: 4px;
+  }
+
+  .usageBar {
+    width: 10px;
+    height: 14px;
+    background-color: #1a1a1a;
+  }
+
+  .usageBar.filled {
+    background-color: #4a7a5a;
+  }
+
+  .usageBar.filled.high {
+    background-color: #8a3a3a;
+  }
+
+  #camerasButton {
+    position: absolute;
+    bottom: 16px;
+    right: 28%;
+    z-index: 10;
+    width: 110px;
+  }
+
+  #darkness {
+    position: absolute;
+    inset: 0;
+    background-color: #000000;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 1.5s;
+    z-index: 15;
+  }
+
+  #darkness.on {
+    opacity: 0.92;
+  }
+
+
+  /* ---------- Cameras ---------- */
+  #cameraPanel {
+    position: absolute;
+    inset: 0;
+    background-color: #050506;
+    z-index: 12;
+    display: none;
+  }
+
+  #cameraPanel.open {
+    display: block;
+    animation: camRaise 0.25s ease-out;
+  }
+
+  @keyframes camRaise {
+    from { transform: translateY(100%); }
+    to { transform: translateY(0); }
+  }
+
+  #camView {
+    position: absolute;
+    inset: 0;
+  }
+
+  #camView svg {
+    width: 100%;
+    height: 100%;
+  }
+
+  #camStatic {
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    background-image: repeating-linear-gradient(
+        0deg, rgba(255, 255, 255, 0.03) 0px, rgba(255, 255, 255, 0.03) 1px,
+        transparent 1px, transparent 3px);
+  }
+
+  #camStatic.burst {
+    animation: staticBurst 0.35s steps(4);
+  }
+
+  @keyframes staticBurst {
+    0% { background-color: rgba(120, 120, 120, 0.6); }
+    50% { background-color: rgba(60, 60, 60, 0.4); }
+    100% { background-color: transparent; }
+  }
+
+  #camLabel {
+    position: absolute;
+    top: 14px;
+    left: 16px;
+    font-size: 16px;
+    color: #888888;
+    letter-spacing: 1px;
+  }
+
+  #camRec {
+    position: absolute;
+    top: 14px;
+    right: 16px;
+    font-size: 13px;
+    color: #7a2020;
+    animation: recBlink 1s steps(2) infinite;
+  }
+
+  @keyframes recBlink {
+    50% { opacity: 0; }
+  }
+
+  #closeCamerasButton {
+    position: absolute;
+    bottom: 16px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 150px;
+    z-index: 3;
+  }
+
+  #camMap {
+    position: absolute;
+    right: 16px;
+    bottom: 16px;
+    width: 380px;
+    height: 280px;
+    background-color: rgba(10, 10, 12, 0.85);
+    border: 1px solid #333333;
+    z-index: 3;
+  }
+
+  .camMapButton {
+    position: absolute;
+    background-color: #1c1c1e;
+    color: #999999;
+    border: 1px solid #444444;
+    font-size: 11px;
+    line-height: 1.1;
+    padding: 2px;
+    cursor: pointer;
+    white-space: normal;
+  }
+
+  .camMapButton.selected {
+    background-color: #2a3a2e;
+    color: #cfe8d6;
+    border-color: #5dcaa5;
+  }
+
+  .mapYou {
+    position: absolute;
+    background-color: #2a1a1a;
+    border: 1px solid #5a2a2a;
+    color: #aa6666;
+    font-size: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .camHud {
+    position: absolute;
+    top: 40px;
+    left: 16px;
+    font-size: 12px;
+    color: #666666;
+    z-index: 3;
+  }
+
+
+  /* ---------- Warnings ---------- */
+  .warningTitle {
+    font-size: 30px;
+    color: #9a3a3a;
+    letter-spacing: 3px;
+    margin-bottom: 14px;
+  }
+
+  .warningText {
+    font-size: 17px;
+    color: #999999;
+    max-width: 520px;
+    text-align: center;
+    line-height: 1.5;
+  }
+
+  .warningButton {
+    margin-top: 30px;
+    width: 160px;
+  }
+
+  .warningScreen {
+    animation: fadeInText 0.6s forwards;
+  }
+
+  /* ---------- Options ---------- */
+  .optionsTitle {
+    font-size: 22px;
+    color: #999999;
+    letter-spacing: 2px;
+    margin-bottom: 26px;
+  }
+
+  .optionRow {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .optionLabel {
+    font-size: 14px;
+    color: #888888;
+    letter-spacing: 1px;
+  }
+
+  .spookRow {
+    display: flex;
+    gap: 10px;
+  }
+
+  .spookButton {
+    width: 110px;
+  }
+
+  .spookButton.on,
+  #epilepticButton.on {
+    background-color: #2a3a2e;
+    color: #cfe8d6;
+    border-color: #5dcaa5;
+  }
+
+  .spookButton.locked {
+    background-color: #121212;
+    color: #444444;
+    border-color: #2a2a2a;
+    cursor: not-allowed;
+  }
+
+  #epilepticButton {
+    width: 240px;
+  }
+
+  .optionGap {
+    height: 28px;
+  }
+
+  #toddlerBlack {
+    background-color: #000000;
+  }
+
+  /* Epileptic mode: keep everything, but nothing flashes or blinks. */
+  body.noFlashing #camStatic.burst,
+  body.noFlashing #ceilingBulb,
+  body.noFlashing #camRec,
+  body.noFlashing .eyeGlint::before,
+  body.noFlashing .eyeGlint::after,
+  body.noFlashing #jumpScareTint {
+    animation: none;
+  }
+
+  body.noFlashing .eyeGlint::before,
+  body.noFlashing .eyeGlint::after {
+    opacity: 0.6;
+  }
+
+  body.noFlashing #jumpScareTint {
+    background-color: rgba(140, 20, 20, 0.15);
+  }
+
+  body.noFlashing .doorway {
+    transition: background-color 0.4s;
+  }
+
+  body.noFlashing .hallView {
+    transition: opacity 0.4s;
+  }
+
+  .optionHint {
+    font-size: 12px;
+    color: #666666;
+  }
+
+
+  /* ---------- Manly mode ---------- */
+  .spookButton.manly {
+    font-family: 'Creepster', 'Chiller', serif;
+    font-size: 18px;
+    letter-spacing: 2px;
+    color: #ff3a3a;
+    background-color: #1a0606;
+    border-color: #7a1a1a;
+    text-shadow: 0 0 6px #ff2020, 0 0 14px #aa0000;
+    animation: manlyGlow 1.6s ease-in-out infinite;
+  }
+
+  .spookButton.manly.on {
+    background-color: #2e0808;
+    border-color: #ff3a3a;
+    color: #ff5050;
+  }
+
+  @keyframes manlyGlow {
+    50% { text-shadow: 0 0 2px #ff2020, 0 0 6px #aa0000; }
+  }
+
+  body.noFlashing .spookButton.manly {
+    animation: none;
+  }
+
+  #manlyScare {
+    background-color: #000000;
+    align-items: center;
+    justify-content: center;
+  }
+
+  #manlyFaceBox {
+    position: absolute;
+    inset: -4%;
+    display: none;
+  }
+
+  #manlyFaceBox.show {
+    display: block;
+    animation: manlyPop 0.05s ease-out,
+        manlyBiteLunge 0.4s linear forwards;
+  }
+
+
+  #manlyFaceBox.show .brokenJaw {
+    animation: jawDrop 0.4s linear forwards;
+  }
+
+  #manlyFaceBox.show .brokenUpperJaw {
+    animation: upperJawLift 0.4s linear forwards;
+  }
+
+  /* Jaws open wide, then CHOMP shut at 0.3 seconds. */
+  @keyframes jawDrop {
+    0% { transform: translateY(0); }
+    12% { transform: translateY(0); }
+    70% { transform: translateY(12px); }
+    76% { transform: translateY(-3px); }
+    100% { transform: translateY(-3px); }
+  }
+
+  @keyframes upperJawLift {
+    0% { transform: translateY(0); }
+    12% { transform: translateY(0); }
+    70% { transform: translateY(-7px); }
+    76% { transform: translateY(3px); }
+    100% { transform: translateY(3px); }
+  }
+
+  #manlyCrack {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    display: none;
+    pointer-events: none;
+  }
+
+  #manlyCrack.show {
+    display: block;
+  }
+
+  #manlyFaceBox.show .brokenPupils {
+    animation: pupilTwitch 0.6s steps(1) infinite;
+  }
+
+  @keyframes pupilTwitch {
+    0% { transform: translate(0, 0); }
+    20% { transform: translate(2px, -1px); }
+    40% { transform: translate(-2px, 1px); }
+    60% { transform: translate(1px, 2px); }
+    80% { transform: translate(-1px, -2px); }
+  }
+
+  #manlyVignette {
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    background: radial-gradient(
+        ellipse at center, transparent 45%, rgba(0, 0, 0, 0.85) 100%);
+    display: none;
+  }
+
+  #manlyFaceBox.show ~ #manlyVignette {
+    display: block;
+  }
+
+  #manlyFaceBox svg {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+  }
+
+  .manlyGhost,
+  #manlyFace,
+  #manlyHiddenFace {
+    position: absolute;
+    inset: 0;
+  }
+
+  .manlyGhost {
+    opacity: 0.35;
+  }
+
+  #manlyHiddenFace {
+    display: none;
+  }
+
+  #manlyGhostRed {
+    animation: ghostJitterA 0.09s steps(2) infinite;
+  }
+
+  #manlyGhostBlue {
+    animation: ghostJitterB 0.11s steps(2) infinite;
+  }
+
+  @keyframes ghostJitterA {
+    0% { transform: translate(-14px, 4px); }
+    100% { transform: translate(-6px, -5px); }
+  }
+
+  @keyframes ghostJitterB {
+    0% { transform: translate(12px, -4px); }
+    100% { transform: translate(6px, 6px); }
+  }
+
+  @keyframes manlyPop {
+    from { translate: 0 100%; }
+    to { translate: 0 0; }
+  }
+
+  @keyframes manlyBiteLunge {
+    0% { scale: 1; }
+    70% { scale: 1.08; }
+    78% { scale: 1.7; }
+    100% { scale: 1.75; }
+  }
+
+  #manlyRedFlash {
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    display: none;
+    animation: redWhiteFlash 0.3s step-end infinite;
+  }
+
+  #manlyRedFlash.show {
+    display: block;
+  }
+
+  /* 0.1 seconds red, 0.1 seconds white, 0.1 seconds no flash. */
+  @keyframes redWhiteFlash {
+    0% { background-color: rgba(200, 10, 10, 0.5); }
+    33.33% { background-color: rgba(255, 255, 255, 0.55); }
+    66.66% { background-color: rgba(0, 0, 0, 0); }
+    100% { background-color: rgba(0, 0, 0, 0); }
+  }
+
+  body.noFlashing #manlyRedFlash,
+  body.noFlashing #manlyGhostRed,
+  body.noFlashing #manlyGhostBlue {
+    animation: none;
+  }
+
+  body.noFlashing #manlyRedFlash {
+    background-color: rgba(190, 10, 10, 0.3);
+  }
+
+  .tearLine {
+    position: absolute;
+    left: 0;
+    right: 0;
+    height: 4px;
+    background-color: rgba(255, 255, 255, 0.12);
+    display: none;
+    animation: tearMove 0.4s linear infinite;
+  }
+
+  #manlyFaceBox.show ~ .tearLine {
+    display: block;
+  }
+
+  @keyframes tearMove {
+    from { top: 0%; }
+    to { top: 100%; }
+  }
+
+  #manlyInsult {
+    position: relative;
+    font-family: 'Creepster', 'Chiller', serif;
+    font-size: 54px;
+    color: #b01414;
+    letter-spacing: 3px;
+    text-align: center;
+    max-width: 85%;
+    text-shadow: 0 0 10px #600000, 3px 3px 0 #2a0000;
+    display: none;
+  }
+
+  #manlyInsult.show {
+    display: block;
+    animation: insultCreep 0.8s ease-out;
+  }
+
+  @keyframes insultCreep {
+    from { opacity: 0; transform: scale(1.4); }
+    to { opacity: 1; transform: scale(1); }
+  }
+
+
+  #bloodWarning {
+    position: absolute;
+    inset: 0;
+    background-color: rgba(0, 0, 0, 0.88);
+    display: none;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    z-index: 30;
+  }
+
+  #bloodWarning.show {
+    display: flex;
+  }
+
+  #bloodWarning .warningTitle {
+    color: #b01414;
+  }
+
+
+  /* ---------- Administrator code ---------- */
+  .adminTitle {
+    font-size: 26px;
+    color: #9a3a3a;
+    letter-spacing: 3px;
+    margin-bottom: 18px;
+  }
+
+  #adminCodeInput {
+    width: 240px;
+    padding: 10px;
+    font-size: 16px;
+    text-align: center;
+    letter-spacing: 2px;
+    color: #c9b35a;
+    background-color: #121214;
+    border: 1px solid #444444;
+    outline: none;
+  }
+
+  #adminCodeInput:focus {
+    border-color: #9a8a50;
+  }
+
+  #adminSubmitButton {
+    width: 140px;
+    margin-top: 12px;
+  }
+
+  #adminMessage {
+    min-height: 18px;
+    margin-top: 14px;
+    font-size: 13px;
+  }
+
+  #adminMessage.wrong {
+    color: #b04040;
+  }
+
+  #adminMessage.granted {
+    color: #5dcaa5;
+  }
+
+
+  /* ---------- Night descriptions ---------- */
+  #nightInfo {
+    width: 480px;
+    max-width: 90%;
+    min-height: 92px;
+    margin-top: 22px;
+    padding: 12px 16px;
+    box-sizing: border-box;
+    background-color: rgba(8, 8, 10, 0.85);
+    border: 1px solid #2a2a2d;
+    text-align: center;
+  }
+
+  #nightInfoTitle {
+    font-size: 15px;
+    color: #c9b35a;
+    letter-spacing: 1px;
+    margin-bottom: 6px;
+  }
+
+  #nightInfoText {
+    font-size: 13px;
+    color: #888888;
+    line-height: 1.5;
+  }
+
+  #nightInfo.locked #nightInfoTitle {
+    color: #555555;
+  }
+
+  .nightButton.picked {
+    border-color: #9a8a50;
+  }
+
+
+  /* ---------- Night select background ---------- */
+  #nightBackdrop {
+    position: absolute;
+    inset: 0;
+    opacity: 0;
+    transition: opacity 0.4s;
+    z-index: 0;
+  }
+
+  #nightBackdrop.show {
+    opacity: 1;
+  }
+
+  #nightBackdrop svg {
+    display: block;
+    width: 100%;
+    height: 100%;
+  }
+
+  #nightSelect .nightSelectLabel,
+  #nightSelect .nightButtonRow,
+  #nightSelect .nightSelectHint,
+  #nightSelect #nightInfo {
+    position: relative;
+    z-index: 1;
+  }
+
+  #nightSelect .backButton {
+    z-index: 2;
+  }
+
+
+  /* ---------- Spooky main menu ---------- */
+  #menuStatic {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    opacity: 0.05;
+    pointer-events: none;
+    z-index: 6;
+  }
+
+  #verityGlitch {
+    position: absolute;
+    display: none;
+    z-index: 4;
+  }
+
+  #verityGlitch.show {
+    display: block;
+    animation: menuGlitchJitter 0.05s steps(2) infinite;
+  }
+
+  @keyframes menuGlitchJitter {
+    0% { transform: translate(-6px, 2px); }
+    100% { transform: translate(5px, -3px); }
+  }
+
+  #verityEyes {
+    transition: transform 0.08s;
+  }
+
+  body.noFlashing .gameTitle {
+    animation: none;
+  }
+
+  #menuStars {
+    min-height: 26px;
+    font-size: 22px;
+    letter-spacing: 6px;
+    color: #c9b35a;
+    text-shadow: 0 0 8px #6a5a20;
+    margin: -14px 0 14px 0;
+  }
+
+  .menuButton.locked {
+    background-color: #121212;
+    color: #444444;
+    border-color: #2a2a2a;
+  }
+
+  /* Screens that can scroll if the window is short. */
+  .scrollScreen {
+    overflow-y: auto;
+  }
+
+  .screenInner {
+    margin: auto;
+    padding: 56px 20px 30px 20px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    max-width: 100%;
+    box-sizing: border-box;
+  }
+
+  .screenTitle {
+    font-size: 24px;
+    color: #9a3a3a;
+    letter-spacing: 3px;
+    margin-bottom: 20px;
+  }
+
+
+  /* ---------- Posters: angry in manly mode ---------- */
+  body.manlyMode .posterHappy,
+  body:not(.manlyMode) .posterAngry {
+    display: none;
+  }
+
+  /* ---------- Manly mode home menu ---------- */
+  #verityManly {
+    position: absolute;
+    display: none;
+    z-index: 4;
+  }
+
+  body.manlyMode #verityBig {
+    display: none;
+  }
+
+  body.manlyMode #verityManly {
+    display: block;
+  }
+
+  /* In manly mode the glitch flashes the cute Verity back for a moment. */
+  body.manlyMode.manlyBlink #verityBig {
+    display: block;
+  }
+
+  body.manlyMode.manlyBlink #verityManly {
+    display: none;
+  }
+
+  #verityManlyJaw {
+    animation: menuJaw 4s ease-in-out infinite;
+  }
+
+  @keyframes menuJaw {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(2.5px); }
+  }
+
+  #verityManlyPupils {
+    transition: transform 0.08s;
+  }
+
+
+  /* ---------- Newspaper (start of night 1) ---------- */
+  .cutscene {
+    align-items: center;
+    justify-content: center;
+    background-color: #000000;
+    cursor: pointer;
+  }
+
+  .cutPaper {
+    --tilt: -1.5deg;
+    transform: rotate(var(--tilt));
+  }
+
+  .cutscene.active .cutPaper {
+    animation: paperIn 1.2s ease-out, paperZoom 10s linear forwards;
+  }
+
+  .cutscene.leaving .cutPaper {
+    animation: paperOut 0.8s ease-in forwards;
+  }
+
+  @keyframes paperIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+  }
+
+  @keyframes paperZoom {
+    from { transform: rotate(var(--tilt)) scale(1); }
+    to { transform: rotate(var(--tilt)) scale(1.08); }
+  }
+
+  @keyframes paperOut {
+    to { opacity: 0; transform: rotate(var(--tilt)) scale(1.1); }
+  }
+
+  .paper {
+    position: relative;
+    width: 760px;
+    max-width: 90vw;
+    max-height: 86vh;
+    padding: 22px 28px;
+    box-sizing: border-box;
+    background-color: #8f8672;
+    color: #2a241c;
+    font-family: Georgia, 'Times New Roman', serif;
+    overflow: hidden;
+  }
+
+  .paper::after,
+  .check::after,
+  .slip::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    background: radial-gradient(
+        ellipse at center, transparent 50%, rgba(30, 24, 16, 0.55) 100%);
+  }
+
+  .paperMast {
+    text-align: center;
+    font-size: 40px;
+    letter-spacing: 2px;
+    border-bottom: 3px double #2a241c;
+    padding-bottom: 4px;
+  }
+
+  .paperDate {
+    display: flex;
+    justify-content: space-between;
+    font-size: 11px;
+    border-bottom: 1px solid #2a241c;
+    padding: 3px 0;
+    margin-bottom: 12px;
+  }
+
+  .paperBody {
+    display: flex;
+    gap: 18px;
+  }
+
+  .paperAd {
+    flex: 1.5;
+    border: 3px solid #2a241c;
+    padding: 12px;
+    text-align: center;
+  }
+
+  .adTitle {
+    font-size: 38px;
+    font-weight: bold;
+    letter-spacing: 3px;
+  }
+
+  .adPlace {
+    font-size: 18px;
+    font-style: italic;
+    margin-bottom: 6px;
+  }
+
+  .adFaces svg {
+    width: 64px;
+    height: 72px;
+    filter: grayscale(0.7) brightness(0.75);
+  }
+
+  .adText {
+    font-size: 14px;
+    line-height: 1.45;
+    margin: 6px 0;
+  }
+
+  .adPay {
+    font-size: 22px;
+    font-weight: bold;
+    margin: 6px 0;
+  }
+
+  .adSmall {
+    font-size: 11px;
+    font-style: italic;
+  }
+
+  .paperSide {
+    flex: 1;
+  }
+
+  .sideHeadline {
+    font-size: 17px;
+    font-weight: bold;
+    line-height: 1.2;
+    margin-bottom: 8px;
+  }
+
+  .fakeLine {
+    height: 6px;
+    background-color: #5e5646;
+    margin-bottom: 6px;
+  }
+
+  .paperHint {
+    position: absolute;
+    bottom: 18px;
+    left: 0;
+    right: 0;
+    text-align: center;
+    font-size: 12px;
+    color: #888888;
+    z-index: 2;
+  }
+
+  /* A colorful show stage with everyone on it, behind the cutscene. */
+  .cutBackdrop {
+    position: absolute;
+    inset: 0;
+    z-index: 0;
+    filter: blur(1.5px) brightness(0.8);
+  }
+
+  .cutBackdrop > svg {
+    display: block;
+    width: 100%;
+    height: 100%;
+  }
+
+  .cutPaper {
+    z-index: 1;
+  }
+
+
+  /* ---------- Closing newspaper ---------- */
+  .closedHeadline {
+    font-size: 30px;
+    font-weight: bold;
+    line-height: 1.15;
+    text-align: center;
+    margin-bottom: 4px;
+  }
+
+  .closedSub {
+    font-size: 15px;
+    font-style: italic;
+    text-align: center;
+    margin-bottom: 10px;
+  }
+
+  .closedPicture {
+    position: relative;
+    display: flex;
+    justify-content: center;
+    padding: 8px 0;
+    border: 2px solid #2a241c;
+    background-color: #6f6858;
+    margin-bottom: 8px;
+  }
+
+  .closedPicture svg {
+    width: 70px;
+    height: 78px;
+    filter: grayscale(1) brightness(0.55);
+  }
+
+  .closedStamp {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%) rotate(-12deg);
+    font-size: 34px;
+    font-weight: bold;
+    letter-spacing: 6px;
+    color: #6a1e16;
+    border: 4px solid #6a1e16;
+    padding: 0 12px;
+    background-color: rgba(122, 114, 96, 0.85);
+    z-index: 2;
+  }
+
+  /* ---------- Paycheck ---------- */
+  .check {
+    position: relative;
+    width: 720px;
+    max-width: 90vw;
+    padding: 22px 28px 18px 28px;
+    box-sizing: border-box;
+    background-color: #7c8574;
+    background-image: repeating-linear-gradient(
+        45deg, rgba(255, 255, 255, 0.03) 0px, rgba(255, 255, 255, 0.03) 2px,
+        transparent 2px, transparent 8px);
+    border: 2px solid #3a4234;
+    color: #1e241a;
+    font-family: Georgia, 'Times New Roman', serif;
+    overflow: hidden;
+  }
+
+  .checkTop {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+  }
+
+  .checkCompany {
+    font-size: 22px;
+    font-weight: bold;
+  }
+
+  .checkSmall {
+    font-size: 12px;
+  }
+
+  .checkRow {
+    display: flex;
+    align-items: flex-end;
+    gap: 12px;
+    margin-top: 18px;
+  }
+
+  .checkLabel {
+    font-size: 12px;
+    white-space: nowrap;
+  }
+
+  .checkLine {
+    flex: 1;
+    border-bottom: 1px solid #1e241a;
+    font-size: 19px;
+    font-style: italic;
+    padding: 0 6px 2px 6px;
+  }
+
+  .checkAmount {
+    border: 2px solid #1e241a;
+    padding: 4px 12px;
+    font-size: 22px;
+    font-weight: bold;
+    background-color: rgba(255, 255, 255, 0.06);
+  }
+
+  .checkSign {
+    font-family: 'Brush Script MT', 'Segoe Script', cursive;
+    font-size: 30px;
+  }
+
+  .checkNumbers {
+    margin-top: 16px;
+    font-family: 'Courier New', monospace;
+    font-size: 15px;
+    letter-spacing: 3px;
+  }
+
+  /* ---------- Notice of termination ---------- */
+  .slip {
+    position: relative;
+    width: 560px;
+    max-width: 90vw;
+    padding: 26px 34px;
+    box-sizing: border-box;
+    background-color: #8a7470;
+    color: #2a1c1a;
+    font-family: Georgia, 'Times New Roman', serif;
+    overflow: hidden;
+  }
+
+  .slipTitle {
+    font-size: 30px;
+    font-weight: bold;
+    letter-spacing: 2px;
+    text-align: center;
+  }
+
+  .slipFired {
+    font-size: 14px;
+    font-style: italic;
+    text-align: center;
+    margin-bottom: 16px;
+  }
+
+  .slipLine {
+    font-size: 16px;
+    line-height: 1.6;
+    margin-bottom: 8px;
+  }
+
+  .slipSign {
+    font-size: 16px;
+    margin-top: 22px;
+  }
+
+  .slipSign span {
+    font-family: 'Brush Script MT', 'Segoe Script', cursive;
+    font-size: 30px;
+  }
+
+  /* ---------- Cutscene replay menu ---------- */
+  .cutsceneList {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    width: 260px;
+  }
+
+  /* ---------- Credits ---------- */
+  #creditsScreen {
+    overflow: hidden;
+  }
+
+  .creditsRoll {
+    position: absolute;
+    left: 0;
+    right: 0;
+    top: 0;
+    text-align: center;
+    animation: creditsRoll 30s linear infinite;
+  }
+
+  @keyframes creditsRoll {
+    from { transform: translateY(100vh); }
+    to { transform: translateY(-100%); }
+  }
+
+  .creditsTitle {
+    font-size: 34px;
+    color: #9a3a3a;
+    letter-spacing: 3px;
+    line-height: 1.3;
+    margin-bottom: 70px;
+  }
+
+  .creditsHeading {
+    font-size: 13px;
+    color: #777777;
+    letter-spacing: 2px;
+    margin-bottom: 6px;
+  }
+
+  .creditsName {
+    font-size: 20px;
+    color: #c9b35a;
+    line-height: 1.5;
+    margin-bottom: 48px;
+  }
+
+  .creditsSmall {
+    font-size: 12px;
+    color: #555555;
+    margin-bottom: 48px;
+  }
+
+  .creditsWink {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    margin-top: 30px;
+    padding-bottom: 40px;
+  }
+
+  .creditsWinkNote {
+    margin-top: 10px;
+    font-size: 14px;
+    font-style: italic;
+    color: #888888;
+  }
+
+  .creditsBubble {
+    position: relative;
+    max-width: 320px;
+    padding: 12px 18px;
+    margin-bottom: 14px;
+    background-color: #1c1c1e;
+    border: 1px solid #444444;
+    border-radius: 14px;
+    color: #c9b35a;
+    font-size: 16px;
+    line-height: 1.4;
+  }
+
+  /* The little tail pointing down at Verity. */
+  .creditsBubble::after {
+    content: '';
+    position: absolute;
+    bottom: -9px;
+    left: 50%;
+    width: 16px;
+    height: 16px;
+    background-color: #1c1c1e;
+    border-right: 1px solid #444444;
+    border-bottom: 1px solid #444444;
+    transform: translateX(-50%) rotate(45deg);
+  }
+
+  #creditsScreen .backButton {
+    z-index: 2;
+  }
+
+  /* ---------- Extras gallery ---------- */
+  .extrasGrid {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 14px;
+  }
+
+  .extrasCard {
+    width: 210px;
+    padding: 14px;
+    box-sizing: border-box;
+    background-color: #0c0c0e;
+    border: 1px solid #2a2a2d;
+    text-align: center;
+  }
+
+  .extrasCard svg {
+    width: 120px;
+    height: 135px;
+  }
+
+  .extrasName {
+    font-size: 17px;
+    color: #c9b35a;
+    letter-spacing: 1px;
+    margin: 6px 0 2px 0;
+  }
+
+  .extrasMeta {
+    font-size: 11px;
+    color: #666666;
+    margin-bottom: 8px;
+  }
+
+  .extrasStory {
+    font-size: 12px;
+    color: #888888;
+    line-height: 1.5;
+  }
+
+  .extrasCard.locked .extrasName {
+    color: #444444;
+  }
+
+  /* ---------- Custom night ---------- */
+  .customGrid {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 14px;
+  }
+
+  .customCard {
+    width: 160px;
+    padding: 12px;
+    box-sizing: border-box;
+    background-color: #0c0c0e;
+    border: 1px solid #2a2a2d;
+    text-align: center;
+  }
+
+  .customCard svg {
+    width: 90px;
+    height: 100px;
+  }
+
+  .customName {
+    font-size: 15px;
+    color: #c9b35a;
+    margin: 4px 0 8px 0;
+  }
+
+  .customControls {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+  }
+
+  .customControls button {
+    width: 34px;
+    height: 34px;
+    background-color: #1c1c1e;
+    color: #c9b35a;
+    border: 1px solid #444444;
+    font-size: 18px;
+    cursor: pointer;
+  }
+
+  .customValue {
+    width: 34px;
+    font-size: 22px;
+    color: #dddddd;
+  }
+
+  .customPresets {
+    display: flex;
+    gap: 10px;
+    margin: 18px 0 6px 0;
+  }
+
+  .customPresets button {
+    width: 90px;
+  }
+
+  #customStartButton {
+    width: 220px;
+    margin-top: 14px;
+  }
+
+  /* ---------- How to play ---------- */
+  .howToBox {
+    width: 620px;
+    max-width: 100%;
+    padding: 16px 22px;
+    box-sizing: border-box;
+    background-color: #0c0c0e;
+    border: 1px solid #2a2a2d;
+  }
+
+  .howToSection {
+    margin-bottom: 12px;
+  }
+
+  .howToHeading {
+    font-size: 15px;
+    color: #c9b35a;
+    letter-spacing: 1px;
+    margin-bottom: 3px;
+  }
+
+  .howToText {
+    font-size: 13px;
+    color: #999999;
+    line-height: 1.55;
+  }
+
+  /* ---------- Keybinds ---------- */
+  .keyRow {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    width: 320px;
+    margin-bottom: 10px;
+  }
+
+  .keyLabel {
+    font-size: 14px;
+    color: #999999;
+  }
+
+  .keyButton {
+    width: 130px;
+    background-color: #1c1c1e;
+    color: #c9b35a;
+    border: 1px solid #444444;
+    font-size: 14px;
+    padding: 8px 0;
+    cursor: pointer;
+  }
+
+  .keyButton.waiting {
+    color: #dddddd;
+    border-color: #9a8a50;
+  }
+
+  #keyResetButton {
+    width: 180px;
+    margin-top: 10px;
+  }
+
+  #keybindsButton {
+    width: 240px;
+  }
+
+  /* ---------- Night won ---------- */
+  .clockFlipBox {
+    position: relative;
+    height: 50px;
+    width: 220px;
+    text-align: center;
+  }
+
+  .clockFlipBox div {
+    position: absolute;
+    width: 100%;
+    font-size: 40px;
+    letter-spacing: 2px;
+  }
+
+  #wonBefore {
+    color: #999999;
+  }
+
+  #wonAfter {
+    color: #5dcaa5;
+    opacity: 0;
+  }
+
+  .flipOut {
+    animation: flipOut 0.5s forwards;
+  }
+
+  .flipIn {
+    animation: flipIn 0.5s forwards;
+  }
+
+  @keyframes flipOut {
+    to { opacity: 0; transform: translateY(-14px); }
+  }
+
+  @keyframes flipIn {
+    from { opacity: 0; transform: translateY(14px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  .fadeIn {
+    animation: fadeInText 1s forwards;
+  }
+
+  @keyframes fadeInText {
+    from { opacity: 0; }
+    to { opacity: 1; }
+  }
+
+  .hiddenAtStart {
+    opacity: 0;
+  }
+
+  /* Hidden buttons can't be clicked until they fade in. */
+  .hiddenAtStart:not(.fadeIn) {
+    pointer-events: none;
+  }
+
+  .endButtons {
+    display: flex;
+    gap: 12px;
+    margin-top: 24px;
+  }
+
+  /* ---------- Game over ---------- */
+  .gameOverTitle {
+    font-size: 34px;
+    color: #9a3a3a;
+    letter-spacing: 3px;
+  }

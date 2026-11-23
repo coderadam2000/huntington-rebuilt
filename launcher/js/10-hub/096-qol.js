@@ -280,7 +280,7 @@ var WHATSNEW = { id: 'u2026-11-22', title: 'The big Taco update', items: [
   ['🎮 Ten new games', 'Sketch, Zombie vs. You, DoomsDay, Edible Light Bulb Clicker, Crochet & Knitting Simulator, World Conflict, Slither, Design Anything, Bing Bong BANG! and Pancake Simulator.'],
   ['🧊 Design Anything in 3D', 'Cars, sneakers, houses, robots, cakes, spaceships, planets, castles and more, each with dozens of options. Save them or snapshot a picture.'],
   ['🪨 New minigames', 'Rock Simulator (be a rock, or a really dark rock) and Battleship against a friend or three levels of bot.'],
-  ['🌐 External Games tab', 'Baseball Bros, Rocket League 2D and Snowball.io, made by other people and kept safely walled off from your account.'],
+  ['🌐 External Games tab', 'Baseball Bros, Rocket League 2D, Snowball.io, Drive Mad, Kart Bros and Escape Road 3, made by other people and kept safely walled off from your account.'],
   ['❌⭕ Ultimate Tic-Tac-Toe', 'Nine boards in one: where you play decides where your opponent goes next.'],
   ['♟️ Material counter', 'Chess and Checkers now show the pieces each side has taken and who is ahead.'],
   ['🎳 Bowling, rebuilt', 'Sports Mix bowling has a 3D lane, real hook, wobbling pins, splits and turkeys.'],

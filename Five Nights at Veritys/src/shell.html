@@ -1,0 +1,821 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Five Nights at Verity's</title>
+<link rel="stylesheet"
+    href="https://fonts.googleapis.com/css2?family=Creepster&display=swap">
+<style>
+<!--@inline css/10-style.css-->
+</style>
+</head>
+<body>
+
+  <!-- Shared shading used by the Manly mode drawings. -->
+  <svg width="0" height="0" style="position: absolute;" aria-hidden="true">
+    <defs>
+      <radialGradient id="obBlobShade" cx="40%" cy="32%" r="75%">
+        <stop offset="0" stop-color="#ecd060"/>
+        <stop offset="0.45" stop-color="#d2b03e"/>
+        <stop offset="0.85" stop-color="#a8892a"/>
+        <stop offset="1" stop-color="#7a6220"/>
+      </radialGradient>
+      <radialGradient id="obArmShade" cx="40%" cy="35%" r="80%">
+        <stop offset="0" stop-color="#dcbd4c"/>
+        <stop offset="1" stop-color="#8f7424"/>
+      </radialGradient>
+      <radialGradient id="obEyeBall" cx="38%" cy="35%" r="70%">
+        <stop offset="0" stop-color="#ffffff"/>
+        <stop offset="0.7" stop-color="#ebe6dc"/>
+        <stop offset="1" stop-color="#b3ab9c"/>
+      </radialGradient>
+      <radialGradient id="falsityShade" cx="38%" cy="28%" r="80%">
+        <stop offset="0" stop-color="#7aa6ec"/>
+        <stop offset="0.4" stop-color="#3f6cc4"/>
+        <stop offset="0.8" stop-color="#1e3a7e"/>
+        <stop offset="1" stop-color="#0c1838"/>
+      </radialGradient>
+      <radialGradient id="loveityShade" cx="38%" cy="28%" r="80%">
+        <stop offset="0" stop-color="#f0a0c4"/>
+        <stop offset="0.4" stop-color="#cc5c90"/>
+        <stop offset="0.8" stop-color="#86304e"/>
+        <stop offset="1" stop-color="#3a1020"/>
+      </radialGradient>
+      <radialGradient id="stretchSocket" cx="50%" cy="50%" r="50%">
+        <stop offset="0.55" stop-color="#030305"/>
+        <stop offset="1" stop-color="#030305" stop-opacity="0"/>
+      </radialGradient>
+      <filter id="obSoft" x="-20%" y="-20%" width="140%" height="140%">
+        <feGaussianBlur stdDeviation="1.6"/>
+      </filter>
+    </defs>
+  </svg>
+
+  <!-- ============ WARNINGS ============ -->
+  <div id="warningEpilepsy" class="screen centerScreen warningScreen active">
+    <div class="warningTitle">EPILEPSY WARNING</div>
+    <div class="warningText">game includes flashing lights and sounds</div>
+    <button class="menuButton warningButton" id="epilepsyContinueButton">
+      continue
+    </button>
+  </div>
+
+  <div id="warningVolume" class="screen centerScreen warningScreen">
+    <div class="warningTitle">VOLUME WARNING</div>
+    <div class="warningText">game includes loud sounds and jumpscares</div>
+    <button class="menuButton warningButton" id="volumeContinueButton">
+      continue
+    </button>
+  </div>
+
+  <!-- ============ OPTIONS ============ -->
+  <div id="optionsScreen" class="screen centerScreen">
+    <button class="backButton" id="optionsBackButton">back</button>
+    <div class="optionsTitle">options</div>
+    <div class="optionRow">
+      <div class="optionLabel">spookiness level</div>
+      <div class="spookRow">
+        <button class="menuButton spookButton" data-level="baby">
+          baby
+        </button>
+        <button class="menuButton spookButton" data-level="toddler">
+          toddler
+        </button>
+        <button class="menuButton spookButton" data-level="kid">
+          kid
+        </button>
+        <button class="menuButton spookButton manly" data-level="manly">
+          manly
+        </button>
+      </div>
+      <div class="optionHint" id="spookHint"></div>
+    </div>
+    <div class="optionGap"></div>
+    <div class="optionRow">
+      <button class="menuButton" id="epilepticButton">
+        epileptic mode: off
+      </button>
+      <div class="optionHint">
+        Removes Flashes or Blinks
+      </div>
+    </div>
+    <div class="optionGap"></div>
+    <div class="optionRow">
+      <button class="menuButton" id="keybindsButton">keybinds</button>
+      <div class="optionHint">change the keys for doors, lights and cameras</div>
+    </div>
+    <div id="bloodWarning">
+      <div class="warningTitle">BLOOD WARNING</div>
+      <div class="warningText">jumpscares now include blood (a little)</div>
+      <div class="endButtons">
+        <button class="menuButton optionsButton" id="bloodCancelButton"
+            style="width: 230px;">
+          Im a kid and i know it
+        </button>
+        <button class="menuButton" id="bloodAcceptButton"
+            style="width: 230px;">
+          Im a man and i am brave
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ============ ADMINISTRATOR CODE ============ -->
+  <div id="codeScreen" class="screen centerScreen">
+    <button class="backButton" id="codeBackButton">back</button>
+    <div class="adminTitle">ADMINISTRATOR CODE</div>
+    <input id="adminCodeInput" type="text" autocomplete="off"
+        spellcheck="false" maxlength="30">
+    <button class="menuButton" id="adminSubmitButton">enter</button>
+    <div id="adminMessage"></div>
+  </div>
+
+  <!-- ============ KEYBINDS ============ -->
+  <div id="keybindScreen" class="screen scrollScreen">
+    <button class="backButton" id="keybindBackButton">back</button>
+    <div class="screenInner">
+      <div class="screenTitle">keybinds</div>
+      <div id="keyRows"></div>
+      <div class="optionHint" id="keyHint">
+        click a key, then press the new key (esc to cancel)
+      </div>
+      <button class="menuButton optionsButton" id="keyResetButton">
+        reset to default
+      </button>
+    </div>
+  </div>
+
+  <!-- ============ EXTRAS ============ -->
+  <div id="extrasScreen" class="screen scrollScreen">
+    <button class="backButton" id="extrasBackButton">back</button>
+    <div class="screenInner">
+      <div class="screenTitle">extras</div>
+      <div class="extrasGrid" id="extrasGrid"></div>
+    </div>
+  </div>
+
+  <!-- ============ CUSTOM NIGHT ============ -->
+  <div id="customScreen" class="screen scrollScreen">
+    <button class="backButton" id="customBackButton">back</button>
+    <div class="screenInner">
+      <div class="screenTitle">custom night</div>
+      <div class="customGrid" id="customGrid"></div>
+      <div class="customPresets">
+        <button class="menuButton optionsButton" data-preset="0">all 0</button>
+        <button class="menuButton optionsButton" data-preset="10">
+          all 10
+        </button>
+        <button class="menuButton optionsButton" data-preset="20">
+          all 20
+        </button>
+      </div>
+      <div class="optionHint">0 means asleep.</div>
+      <button class="menuButton" id="customStartButton">
+        start custom night
+      </button>
+    </div>
+  </div>
+
+  <!-- ============ HOW TO PLAY ============ -->
+  <div id="howToScreen" class="screen scrollScreen">
+    <button class="backButton" id="howToBackButton">back</button>
+    <div class="screenInner">
+      <div class="screenTitle">how to play</div>
+      <div class="howToBox" id="howToBox"></div>
+    </div>
+  </div>
+
+  <!-- ============ NEWSPAPER ============ -->
+  <div id="newspaper" class="screen cutscene">
+    <div class="paper cutPaper">
+      <div class="paperMast">The Evening Ledger</div>
+      <div class="paperDate">
+        <span>vol. xli, no. 13</span>
+        <span>local news</span>
+        <span>25 cents</span>
+      </div>
+      <div class="paperBody">
+        <div class="paperAd">
+          <div class="adTitle">HELP WANTED</div>
+          <div class="adPlace">Verity's Party Pizzeria</div>
+          <div class="adFaces" id="adFaces"></div>
+          <div class="adText">
+            Night security guard needed. Watch the cameras and keep the
+            place safe from 12 AM to 6 AM.
+          </div>
+          <div class="adPay">$130 a week</div>
+          <div class="adText">Must be brave. Must stay awake.</div>
+          <div class="adSmall">
+            Verity's is not responsible for damage to person or property,
+            or death.
+          </div>
+        </div>
+        <div class="paperSide">
+          <div class="sideHeadline">
+            VERITY'S PARTY PIZZERIA OPENS ITS DOORS FOR THE FIRST TIME
+          </div>
+          <div class="fakeLine" style="width: 100%;"></div>
+          <div class="fakeLine" style="width: 92%;"></div>
+          <div class="fakeLine" style="width: 97%;"></div>
+          <div class="fakeLine" style="width: 88%;"></div>
+          <div class="fakeLine" style="width: 100%;"></div>
+          <div class="fakeLine" style="width: 76%;"></div>
+          <div class="fakeLine" style="width: 94%;"></div>
+          <div class="fakeLine" style="width: 100%;"></div>
+          <div class="fakeLine" style="width: 60%;"></div>
+          <div class="sideHeadline" style="margin-top: 12px;">
+            Workers Hear Strange Noises Before Opening Day
+          </div>
+          <div class="fakeLine" style="width: 100%;"></div>
+          <div class="fakeLine" style="width: 85%;"></div>
+          <div class="fakeLine" style="width: 98%;"></div>
+          <div class="fakeLine" style="width: 90%;"></div>
+          <div class="fakeLine" style="width: 72%;"></div>
+          <div class="fakeLine" style="width: 100%;"></div>
+          <div class="fakeLine" style="width: 64%;"></div>
+        </div>
+      </div>
+    </div>
+    <div class="paperHint">click to continue</div>
+    <div class="cutBackdrop"></div>
+  </div>
+
+  <!-- ============ ENDING: PAYCHECK ============ -->
+  <div id="paycheck" class="screen cutscene">
+    <div class="check cutPaper" style="--tilt: 1deg;">
+      <div class="checkTop">
+        <div>
+          <div class="checkCompany">Verity's Party Pizzeria</div>
+          <div class="checkSmall">payroll department</div>
+        </div>
+        <div style="text-align: right;">
+          <div class="checkSmall">no. 0013</div>
+          <div class="checkSmall">date: friday, 6:00 AM</div>
+        </div>
+      </div>
+      <div class="checkRow">
+        <div class="checkLabel">pay to the order of</div>
+        <div class="checkLine">Night Guard</div>
+        <div class="checkAmount">$130.00</div>
+      </div>
+      <div class="checkRow">
+        <div class="checkLine">One hundred thirty and 00/100</div>
+        <div class="checkLabel">dollars</div>
+      </div>
+      <div class="checkRow">
+        <div class="checkLabel">memo</div>
+        <div class="checkLine" style="font-size: 15px;">
+          five nights of security
+        </div>
+        <div class="checkLabel">signed</div>
+        <div class="checkLine checkSign">Mngmnt</div>
+      </div>
+      <div class="checkTop" style="margin-top: 12px;">
+        <div class="checkNumbers">|: 0412 7731 :| 0013</div>
+        <div class="checkSmall">Ledger Savings and Loan</div>
+      </div>
+    </div>
+    <div class="paperHint">click to continue</div>
+    <div class="cutBackdrop"></div>
+  </div>
+
+  <!-- ============ ENDING: CLOSING NEWSPAPER ============ -->
+  <div id="closingPaper" class="screen cutscene">
+    <div class="paper cutPaper" style="--tilt: -1deg;">
+      <div class="paperMast">The Evening Ledger</div>
+      <div class="paperDate">
+        <span>vol. xli, no. 20</span>
+        <span>local news</span>
+        <span>25 cents</span>
+      </div>
+      <div class="paperBody">
+        <div style="flex: 1.6;">
+          <div class="closedHeadline">
+            VERITY'S PARTY PIZZERIA CLOSES ITS DOORS
+          </div>
+          <div class="closedSub">
+            After a string of strange reports, the owners say they hope to
+            reopen in the future.
+          </div>
+          <div class="closedPicture" id="closedFaces">
+          </div>
+          <div class="fakeLine" style="width: 100%;"></div>
+          <div class="fakeLine" style="width: 94%;"></div>
+          <div class="fakeLine" style="width: 98%;"></div>
+          <div class="fakeLine" style="width: 86%;"></div>
+          <div class="fakeLine" style="width: 100%;"></div>
+          <div class="fakeLine" style="width: 70%;"></div>
+        </div>
+        <div class="paperSide">
+          <div class="sideHeadline">Animatronics Moved Into Storage</div>
+          <div class="fakeLine" style="width: 100%;"></div>
+          <div class="fakeLine" style="width: 90%;"></div>
+          <div class="fakeLine" style="width: 96%;"></div>
+          <div class="fakeLine" style="width: 80%;"></div>
+          <div class="fakeLine" style="width: 100%;"></div>
+          <div class="fakeLine" style="width: 62%;"></div>
+          <div class="sideHeadline" style="margin-top: 12px;">
+            Night Guard Could Not Be Reached For Comment
+          </div>
+          <div class="fakeLine" style="width: 100%;"></div>
+          <div class="fakeLine" style="width: 88%;"></div>
+          <div class="fakeLine" style="width: 97%;"></div>
+          <div class="fakeLine" style="width: 70%;"></div>
+        </div>
+      </div>
+    </div>
+    <div class="paperHint">click to continue</div>
+    <div class="cutBackdrop"></div>
+  </div>
+
+  <!-- ============ ENDING: NOTICE OF TERMINATION ============ -->
+  <div id="termination" class="screen cutscene">
+    <div class="slip cutPaper" style="--tilt: 1.5deg;">
+      <div class="slipTitle">NOTICE OF TERMINATION</div>
+      <div class="slipFired">(you're fired)</div>
+      <div class="slipLine"><b>Verity's Party Pizzeria</b></div>
+      <div class="slipLine"><b>Employee:</b> Night Guard</div>
+      <div class="slipLine">
+        <b>Reason:</b> Tampering with the animatronics. General
+        unprofessionalism. Odor.
+      </div>
+      <div class="slipSign">Thanks, <span>Mngmnt</span></div>
+    </div>
+    <div class="paperHint">click to continue</div>
+    <div class="cutBackdrop"></div>
+  </div>
+
+  <!-- ============ CUTSCENE REPLAY ============ -->
+  <div id="cutsceneMenu" class="screen centerScreen">
+    <button class="backButton" id="cutsceneBackButton">back</button>
+    <div class="screenTitle">cutscenes</div>
+    <div class="cutsceneList">
+      <button class="menuButton" data-cutscene="newspaper">
+        help wanted ad
+      </button>
+      <button class="menuButton" data-cutscene="ending">
+        ending
+      </button>
+    </div>
+  </div>
+
+  <!-- ============ CREDITS ============ -->
+  <div id="creditsScreen" class="screen">
+    <button class="backButton" id="creditsBackButton">back</button>
+    <div class="creditsRoll" id="creditsRoll">
+      <div class="creditsTitle">five nights<br>at verity's</div>
+      <div class="creditsHeading">CREATED BY</div>
+      <div class="creditsName">Claude (AI)</div>
+      <div class="creditsHeading">CODE, ART AND SOUND</div>
+      <div class="creditsName">Claude (AI)</div>
+      <div class="creditsHeading">STARRING</div>
+      <div class="creditsName">
+        Verity<br>Falsity<br>Loveity<br>Obesity
+      </div>
+      <div class="creditsHeading">SPECIAL THANKS</div>
+      <div class="creditsName">you, for playing</div>
+      <div class="creditsSmall">
+        no night guards were harmed in the making of this game.<br>
+        probably.
+      </div>
+      <div class="creditsName">thanks for playing</div>
+      <!-- Verity winks at the very end. -->
+      <div class="creditsWink">
+        <div class="creditsBubble">
+          Nice try but Huntington taught me something
+        </div>
+        <svg viewBox="0 0 80 90" width="160" height="180">
+          <circle cx="40" cy="40" r="34" fill="#c9a83a"/>
+          <ellipse cx="28" cy="34" rx="5" ry="7" fill="#2c2c2a"/>
+          <circle cx="30" cy="31" r="1.5" fill="#e8d9a0"/>
+          <path d="M46 35 Q52 30 58 35" stroke="#2c2c2a" stroke-width="3.5"
+              fill="none" stroke-linecap="round"/>
+          <path d="M24 52 Q42 66 58 50" stroke="#2c2c2a" stroke-width="4"
+              fill="none" stroke-linecap="round"/>
+        </svg>
+        <div class="creditsWinkNote">Im no fool to put my actual name</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ============ MAIN MENU ============ -->
+  <div id="mainMenu" class="screen">
+    <div class="characterArea">
+      <svg id="verityBig" viewBox="0 0 80 90">
+        <circle cx="40" cy="40" r="34" fill="#c9a83a"/>
+        <g id="verityEyes">
+          <ellipse cx="28" cy="34" rx="5" ry="7" fill="#2c2c2a"/>
+          <ellipse cx="52" cy="34" rx="5" ry="7" fill="#2c2c2a"/>
+          <circle cx="54" cy="31" r="1.5" fill="#e8d9a0"/>
+        </g>
+        <path d="M24 52 Q40 64 56 52" stroke="#2c2c2a" stroke-width="4"
+            fill="none" stroke-linecap="round"/>
+      </svg>
+      <!-- Manly mode Verity: the broken face from the manly jump scare. -->
+      <svg id="verityManly" viewBox="0 0 80 90">
+        <circle cx="40" cy="40" r="34" fill="#8a7228"/>
+        <ellipse cx="22" cy="48" rx="5" ry="3" fill="#6a5520"/>
+        <ellipse cx="58" cy="22" rx="6" ry="3" fill="#6a5520"/>
+        <ellipse cx="52" cy="57" rx="4" ry="2.5" fill="#6a5520"/>
+        <g stroke="#3a2e10" stroke-width="0.9" fill="none">
+          <path d="M14 20 L22 28 L19 33 L26 40"/>
+          <path d="M64 14 L57 22 L61 27 L54 33"/>
+          <path d="M40 7 L38 13 L42 16 L39 21"/>
+          <path d="M70 46 L63 44 L66 40"/>
+        </g>
+        <g stroke="#7a1010" stroke-width="0.4" fill="none">
+          <path d="M18 31 L13 29 L10 30"/>
+          <path d="M20 39 L15 43"/>
+          <path d="M33 25 L37 21"/>
+          <path d="M36 37 L40 39 L42 38"/>
+          <path d="M43 30 L39 27"/>
+          <path d="M63 29 L68 26 L71 27"/>
+          <path d="M62 40 L67 44"/>
+        </g>
+        <ellipse cx="27" cy="33" rx="8.5" ry="9.5" fill="#000000"/>
+        <ellipse cx="53" cy="33" rx="10" ry="11" fill="#000000"/>
+        <circle cx="28" cy="34" r="3.2" fill="#3a0505"/>
+        <circle cx="52" cy="35" r="2.8" fill="#3a0505"/>
+        <g id="verityManlyPupils">
+          <circle cx="28" cy="34" r="1.6" fill="#e01c1c"/>
+          <circle cx="52" cy="35" r="1.3" fill="#e01c1c"/>
+          <circle cx="28.5" cy="33.4" r="0.4" fill="#ffffff"/>
+          <circle cx="52.5" cy="34.4" r="0.35" fill="#ffffff"/>
+        </g>
+        <path d="M16 50 L19 58 L22 50 L25 60 L28 50 L31 58 L34 50 L37 60
+            L40 50 L43 58 L46 50 L49 60 L52 50 L55 58 L58 50 L61 59 L64 51 Z"
+            fill="#cfc6a0" stroke="#6a5a30" stroke-width="0.3"/>
+        <g id="verityManlyJaw">
+          <path d="M19.0 63.7 L22.0 60.0 L25.0 67.5 L28.0 61.5 L31.0 68.0
+              L34.0 60.0 L37.0 68.0 L40.0 61.5 L43.0 68.0 L46.0 60.0
+              L49.0 68.0 L52.0 61.5 L55.0 67.5 L58.0 60.0 L61.0 63.7
+              L61.0 63.7 L59.0 65.2 L57.0 66.4 L55.0 67.5 L53.0 68.0
+              L51.0 68.0 L49.0 68.0 L47.0 68.0 L45.0 68.0 L43.0 68.0
+              L41.0 68.0 L39.0 68.0 L37.0 68.0 L35.0 68.0 L33.0 68.0
+              L31.0 68.0 L29.0 68.0 L27.0 68.0 L25.0 67.5 L23.0 66.4
+              L21.0 65.2 L19.0 63.7 Z"
+              fill="#cfc6a0" stroke="#6a5a30" stroke-width="0.3"/>
+        </g>
+        <g stroke="#6a0808" stroke-width="1.1" fill="none"
+            stroke-linecap="round">
+          <path d="M23 42 Q22.5 46 23.5 50"/>
+          <path d="M30 42 Q30.5 45 30 47"/>
+          <path d="M49 44 Q48.5 49 49.5 54"/>
+          <path d="M57 43 Q57.5 46 57 49"/>
+          <path d="M16 51 Q14.5 55 15 58"/>
+          <path d="M64 52 Q65.5 55 65 58"/>
+        </g>
+        <g fill="#6a0808">
+          <circle cx="23.5" cy="50" r="0.9"/>
+          <circle cx="30" cy="47" r="0.8"/>
+          <circle cx="49.5" cy="54" r="0.9"/>
+          <circle cx="57" cy="49" r="0.8"/>
+          <circle cx="15" cy="58" r="0.9"/>
+          <circle cx="65" cy="58" r="0.9"/>
+        </g>
+      </svg>
+      <!-- A broken Verity that flashes up for a split second. -->
+      <svg id="verityGlitch" viewBox="0 0 80 90">
+        <g transform="translate(-3 1)" opacity="0.45">
+          <circle cx="40" cy="40" r="34" fill="#a01010"/>
+        </g>
+        <g transform="translate(3 -1)" opacity="0.45">
+          <circle cx="40" cy="40" r="34" fill="#1030a0"/>
+        </g>
+        <circle cx="40" cy="40" r="34" fill="#8a7228"/>
+        <path d="M14 18 L24 28 L20 34" stroke="#3a2e10" stroke-width="1.2"
+            fill="none"/>
+        <ellipse cx="28" cy="34" rx="8" ry="10" fill="#000000"/>
+        <ellipse cx="52" cy="34" rx="9" ry="11" fill="#000000"/>
+        <circle cx="29" cy="36" r="1.6" fill="#e01c1c"/>
+        <circle cx="51" cy="36" r="1.4" fill="#e01c1c"/>
+        <path d="M20 50 L24 58 L28 50 L32 59 L36 50 L40 60 L44 50 L48 59
+            L52 50 L56 58 L60 50" stroke="#cfc6a0" stroke-width="2"
+            fill="none"/>
+      </svg>
+    </div>
+    <div class="menuTextArea">
+      <div class="gameTitle">five nights<br>at verity's</div>
+      <div id="menuStars"></div>
+      <div class="menuButtons">
+        <button class="menuButton" id="playButton">play</button>
+        <button class="menuButton optionsButton" id="customNightButton">
+          custom night
+        </button>
+        <button class="menuButton optionsButton" id="extrasButton">
+          extras
+        </button>
+        <button class="menuButton optionsButton" id="howToButton">
+          how to play
+        </button>
+        <button class="menuButton optionsButton" id="cutscenesButton"
+            style="display: none;">
+          cutscenes
+        </button>
+        <button class="menuButton optionsButton" id="optionsButton">
+          options
+        </button>
+        <button class="menuButton optionsButton" id="creditsButton">
+          credits
+        </button>
+        <button class="menuButton optionsButton" id="codeButton">
+          code
+        </button>
+      </div>
+      <div class="gameCredit" id="playNightLabel"></div>
+    </div>
+    <div class="messageBox" id="menuMessage"></div>
+    <canvas id="menuStatic" width="384" height="216"></canvas>
+  </div>
+
+  <!-- ============ NIGHT SELECT ============ -->
+  <div id="nightSelect" class="screen centerScreen">
+    <div id="nightBackdrop"></div>
+    <button class="backButton" id="backToMenuButton">back</button>
+    <div class="nightSelectLabel">select night</div>
+    <div class="nightButtonRow" id="nightButtonRow"></div>
+    <div id="nightInfo">
+      <div id="nightInfoTitle"></div>
+      <div id="nightInfoText"></div>
+    </div>
+    <div class="nightSelectHint">beat a night to unlock the next one</div>
+  </div>
+
+  <!-- ============ NIGHT INTRO ============ -->
+  <div id="nightIntro" class="screen centerScreen">
+    <div class="bigClock">12:00 am</div>
+    <div class="subText" id="introNightText">night 1</div>
+  </div>
+
+  <!-- ============ OFFICE ============ -->
+  <div id="office" class="screen">
+    <svg class="officeScene" viewBox="0 0 600 500"
+        preserveAspectRatio="xMidYMax slice">
+      <defs>
+        <pattern id="wallTiles" width="40" height="40"
+            patternUnits="userSpaceOnUse">
+          <rect width="20" height="20" fill="#1a1a1c"/>
+          <rect x="20" y="20" width="20" height="20" fill="#1a1a1c"/>
+          <rect x="20" width="20" height="20" fill="#0e0e10"/>
+          <rect y="20" width="20" height="20" fill="#0e0e10"/>
+        </pattern>
+      </defs>
+
+      <!-- Back wall with a checkered tile stripe -->
+      <rect width="600" height="500" fill="#121214"/>
+      <rect y="250" width="600" height="40" fill="url(#wallTiles)"/>
+      <rect y="246" width="600" height="4" fill="#1e1e20"/>
+      <rect y="290" width="600" height="4" fill="#1e1e20"/>
+
+      <!-- Ceiling light -->
+      <line x1="300" y1="0" x2="300" y2="22" stroke="#2a2a2a"
+          stroke-width="2"/>
+      <circle id="ceilingBulb" cx="300" cy="28" r="7" fill="#4a4530"/>
+
+      <!-- Old poster of Verity -->
+      <g transform="translate(40 0)">
+      <rect x="60" y="50" width="120" height="160" fill="#1c1a16"
+          stroke="#2a2620" stroke-width="3"/>
+      <circle cx="120" cy="115" r="38" fill="#4d4220"/>
+      <ellipse cx="107" cy="108" rx="5" ry="7" fill="#1a1810"/>
+      <ellipse cx="133" cy="108" rx="5" ry="7" fill="#1a1810"/>
+      <!-- Smiling normally, angry and frowning in manly mode. -->
+      <path class="posterHappy" d="M100 128 Q120 142 140 128"
+          stroke="#1a1810" stroke-width="4" fill="none"
+          stroke-linecap="round"/>
+      <g class="posterAngry" stroke="#1a1810" stroke-width="4" fill="none"
+          stroke-linecap="round">
+        <path d="M100 138 Q120 124 140 138"/>
+        <path d="M97 95 L114 103"/>
+        <path d="M143 95 L126 103"/>
+      </g>
+      <text class="posterHappy" x="120" y="190" fill="#4a3434"
+          font-size="14" text-anchor="middle" font-family="Arial">
+        celebrate
+      </text>
+      <text class="posterAngry" x="120" y="194" fill="#7a2020"
+          font-size="22" font-weight="bold" letter-spacing="4"
+          text-anchor="middle" font-family="Arial">DIE</text>
+      <path d="M170 50 L180 50 L180 64 Z" fill="#0e0e10"/>
+      </g>
+
+      <!-- Kids' drawings taped to the wall -->
+      <g transform="rotate(-6 260 120)">
+        <rect x="225" y="80" width="70" height="60" fill="#22201e"/>
+        <circle cx="250" cy="105" r="12" fill="none" stroke="#4a3a20"
+            stroke-width="3"/>
+        <circle cx="275" cy="112" r="10" fill="none" stroke="#2a3a5a"
+            stroke-width="3"/>
+        <rect x="255" y="76" width="14" height="6" fill="#33302a"/>
+      </g>
+      <g transform="rotate(5 360 110)">
+        <rect x="325" y="75" width="70" height="60" fill="#22201e"/>
+        <circle cx="360" cy="100" r="14" fill="none" stroke="#5a2a3a"
+            stroke-width="3"/>
+        <path d="M335 125 L385 125" stroke="#3a3a3a" stroke-width="2"/>
+        <rect x="353" y="71" width="14" height="6" fill="#33302a"/>
+      </g>
+      <g transform="rotate(-3 470 150)">
+        <rect x="430" y="110" width="80" height="70" fill="#1e1c1a"/>
+        <path d="M440 165 Q470 120 500 165" stroke="#4a3a20"
+            stroke-width="3" fill="none"/>
+        <rect x="463" y="106" width="14" height="6" fill="#33302a"/>
+      </g>
+
+      <!-- Desk -->
+      <rect y="400" width="600" height="100" fill="#0a0a0c"/>
+      <rect y="396" width="600" height="6" fill="#1e1e20"/>
+
+      <!-- Old computer monitor -->
+      <rect x="230" y="310" width="140" height="88" rx="4" fill="#18181a"/>
+      <rect x="242" y="320" width="116" height="66" fill="#0b120e"/>
+      <rect x="250" y="330" width="40" height="4" fill="#1d2e22"/>
+      <rect x="250" y="340" width="70" height="4" fill="#1d2e22"/>
+      <rect x="250" y="350" width="55" height="4" fill="#1d2e22"/>
+      <path d="M300 398 Q310 440 280 470" stroke="#151515"
+          stroke-width="4" fill="none"/>
+
+      <!-- Coffee cup and papers -->
+      <rect x="120" y="366" width="26" height="32" rx="3" fill="#2a2622"/>
+      <path d="M146 374 Q158 382 146 390" stroke="#2a2622"
+          stroke-width="4" fill="none"/>
+      <polygon points="160,398 215,392 220,398 165,404" fill="#26241f"/>
+      <polygon points="168,396 222,388 226,394 172,402" fill="#2e2b25"/>
+
+      <!-- Desk fan -->
+      <rect x="470" y="392" width="20" height="8" fill="#1e1e20"/>
+      <rect x="476" y="372" width="8" height="22" fill="#1e1e20"/>
+      <circle cx="480" cy="368" r="30" fill="none" stroke="#2a2a2c"
+          stroke-width="3"/>
+      <g id="fanBlades">
+        <ellipse cx="480" cy="352" rx="7" ry="15" fill="#232325"/>
+        <ellipse cx="480" cy="384" rx="7" ry="15" fill="#232325"/>
+        <ellipse cx="464" cy="368" rx="15" ry="7" fill="#232325"/>
+        <ellipse cx="496" cy="368" rx="15" ry="7" fill="#232325"/>
+      </g>
+      <circle cx="480" cy="368" r="5" fill="#2e2e30"/>
+    </svg>
+
+    <div class="doorSide" id="leftSide">
+      <svg class="sideWallDetail" viewBox="0 0 100 500"
+          preserveAspectRatio="none">
+        <rect x="4" y="0" width="4" height="500" fill="#1d1d20"/>
+        <rect x="2" y="140" width="8" height="6" fill="#262629"/>
+        <rect x="2" y="300" width="8" height="6" fill="#262629"/>
+        <rect x="70" y="18" width="22" height="10" fill="#1a2a1e"/>
+        <rect x="74" y="21" width="14" height="4" fill="#24382a"/>
+        <path d="M88 0 Q84 10 88 18" stroke="#151515" stroke-width="1.5"
+            fill="none"/>
+      </svg>
+      <div class="doorway" id="leftDoorway">
+        <div class="hallView" id="leftHall"></div>
+        <div class="eyeGlint"></div>
+        <div class="doorPanel" id="leftDoorPanel">
+          <div class="doorPart doorPartTop"></div>
+          <div class="doorPart doorPartLeft"></div>
+          <div class="doorPart doorPartRight"></div>
+          <div class="doorPart doorPartBottom"></div>
+          <div class="doorWindowFrame"></div>
+        </div>
+      </div>
+      <div class="doorwayStripes"></div>
+      <div class="doorControls">
+        <button class="officeButton" id="leftDoorButton">door</button>
+        <button class="officeButton" id="leftLightButton">light</button>
+      </div>
+    </div>
+
+    <div class="doorSide" id="rightSide">
+      <svg class="sideWallDetail" viewBox="0 0 100 500"
+          preserveAspectRatio="none">
+        <rect x="92" y="0" width="4" height="500" fill="#1d1d20"/>
+        <rect x="90" y="140" width="8" height="6" fill="#262629"/>
+        <rect x="90" y="300" width="8" height="6" fill="#262629"/>
+        <rect x="8" y="16" width="18" height="24" fill="#1c1c1e"
+            stroke="#2a2a2c" stroke-width="1"/>
+        <rect x="12" y="22" width="4" height="4" fill="#3a2020"/>
+        <path d="M17 40 Q20 60 10 80" stroke="#151515" stroke-width="1.5"
+            fill="none"/>
+      </svg>
+      <div class="doorway" id="rightDoorway">
+        <div class="hallView" id="rightHall"></div>
+        <div class="eyeGlint"></div>
+        <div class="doorPanel" id="rightDoorPanel">
+          <div class="doorPart doorPartTop"></div>
+          <div class="doorPart doorPartLeft"></div>
+          <div class="doorPart doorPartRight"></div>
+          <div class="doorPart doorPartBottom"></div>
+          <div class="doorWindowFrame"></div>
+        </div>
+      </div>
+      <div class="doorwayStripes"></div>
+      <div class="doorControls">
+        <button class="officeButton" id="rightDoorButton">door</button>
+        <button class="officeButton" id="rightLightButton">light</button>
+      </div>
+    </div>
+
+    <div class="officeHud">
+      <div id="officeClock">12 am</div>
+      <div id="officeNightLabel">night 1</div>
+    </div>
+
+    <div class="powerBox">
+      <div>power left: <span id="powerText">100</span>%</div>
+      <div class="usageBars" id="usageBars">
+        <div class="usageBar"></div>
+        <div class="usageBar"></div>
+        <div class="usageBar"></div>
+        <div class="usageBar"></div>
+        <div class="usageBar"></div>
+      </div>
+    </div>
+
+    <button class="officeButton" id="camerasButton">cameras</button>
+
+    <div id="cameraPanel">
+      <div id="camView"></div>
+      <div id="camStatic"></div>
+      <div id="camLabel">show stage</div>
+      <div id="camRec">&#9679; rec</div>
+      <div class="camHud" id="camHud">12 am - power 100%</div>
+      <div id="camMap"></div>
+      <button class="officeButton" id="closeCamerasButton">
+        close cameras
+      </button>
+    </div>
+    <div class="messageBox" id="officeMessage"></div>
+    <div id="darkness"></div>
+  </div>
+
+  <!-- ============ JUMP SCARE ============ -->
+  <div id="jumpScare" class="screen">
+    <div id="jumpScareFace"></div>
+    <div id="jumpScareTint"></div>
+  </div>
+
+  <div id="toddlerBlack" class="screen"></div>
+
+  <div id="manlyScare" class="screen">
+    <div id="manlyFaceBox">
+      <div id="manlyGhostRed" class="manlyGhost"></div>
+      <div id="manlyGhostBlue" class="manlyGhost"></div>
+      <div id="manlyFace"></div>
+      <div id="manlyHiddenFace"></div>
+    </div>
+    <div id="manlyVignette"></div>
+    <div class="tearLine"></div>
+    <div class="tearLine" style="animation-delay: -0.15s;"></div>
+    <div class="tearLine" style="animation-delay: -0.3s;"></div>
+    <div id="manlyRedFlash"></div>
+    <svg id="manlyCrack" viewBox="0 0 160 90" preserveAspectRatio="none">
+      <g stroke="#e8e8e8" stroke-width="0.6" fill="none" opacity="0.85">
+        <path d="M80 50 L60 30 L40 22 L10 4"/>
+        <path d="M80 50 L104 26 L130 18 L158 2"/>
+        <path d="M80 50 L50 60 L22 70 L0 76"/>
+        <path d="M80 50 L112 66 L140 72 L160 84"/>
+        <path d="M80 50 L78 74 L82 90"/>
+        <path d="M80 50 L84 24 L80 0"/>
+        <path d="M60 30 L66 22 M104 26 L98 16 M50 60 L44 48"/>
+        <path d="M112 66 L118 56 M40 22 L30 30 M130 18 L134 30"/>
+        <circle cx="80" cy="50" r="5"/>
+        <circle cx="80" cy="50" r="11"/>
+      </g>
+    </svg>
+    <div id="manlyInsult"></div>
+  </div>
+
+  <!-- ============ NIGHT WON ============ -->
+  <div id="nightWon" class="screen centerScreen">
+    <div class="clockFlipBox">
+      <div id="wonBefore">5:59 am</div>
+      <div id="wonAfter">6:00 am</div>
+    </div>
+    <div class="subText hiddenAtStart" id="wonText">night 1 complete</div>
+    <div class="endButtons hiddenAtStart" id="wonButtons">
+      <button class="menuButton" id="wonMenuButton" style="width: 140px;">
+        main menu
+      </button>
+    </div>
+  </div>
+
+  <!-- ============ GAME OVER ============ -->
+  <div id="gameOver" class="screen centerScreen">
+    <div class="gameOverTitle">game over</div>
+    <div class="subText" id="gameOverReason">the power ran out</div>
+    <div class="endButtons">
+      <button class="menuButton" id="tryAgainButton" style="width: 140px;">
+        try again
+      </button>
+      <button class="menuButton optionsButton" id="gameOverMenuButton"
+          style="width: 140px;">
+        main menu
+      </button>
+    </div>
+  </div>
+
+<script>
+<!--@inline js/10-game.js-->
+</script>
+</body>
+</html>

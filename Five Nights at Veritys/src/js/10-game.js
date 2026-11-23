@@ -1,0 +1,3970 @@
+  /**
+   * @fileoverview Five Nights at Verity's.
+   * Step 4: menu, office, cameras and moving characters.
+   */
+
+  /** @const {string} Name used to save progress in the browser. */
+  const PROGRESS_KEY = 'taco.veritysHighestNightUnlocked';
+
+  /** @const {string} Name used to remember that all nights are beaten. */
+  const ALL_BEATEN_KEY = 'taco.veritysAllNightsBeaten';
+
+  /** @const {string} Name used to save the spookiness level. */
+  const SPOOK_KEY = 'taco.veritysSpookiness';
+
+  /** @const {string} Name used to save the epileptic mode setting. */
+  const NO_FLASH_KEY = 'taco.veritysEpilepticMode';
+
+  /**
+   * What each spookiness level does, shown under the buttons.
+   * @const {!Object<string, string>}
+   */
+  const SPOOK_HINTS = {
+    baby: 'baby: turns off everything jump scare',
+    toddler: 'toddler: no scary face, but you still hear the scream',
+    kid: 'kid: jump scares included, but not the scariest',
+    manly: 'manly: jump scares 10 times scarier and they move faster ' +
+        '(you better be brave)',
+  };
+
+  /** @const {string} The code that unlocks everything, for testers. */
+  const ADMIN_CODE = 'Claude';
+
+  /**
+   * True once the administrator code has been typed in, so everything
+   * stays unlocked even if the browser can't save.
+   * @type {boolean}
+   */
+  let adminUnlocked = false;
+
+  /** @const {number} The night number used for the custom night. */
+  const CUSTOM_NIGHT = 6;
+
+  /** @const {string} Name used to save the stars the player earned. */
+  const STARS_KEY = 'taco.veritysStars';
+
+  /** @const {string} Name used to save the best custom night stars. */
+  const CUSTOM_BEST_KEY = 'taco.veritysCustomBest';
+
+  /** @const {string} Name used to save the custom night levels. */
+  const CUSTOM_LEVELS_KEY = 'taco.veritysCustomLevels';
+
+  /** @const {string} Name used to save the player's keybinds. */
+  const KEYBINDS_KEY = 'taco.veritysKeybinds';
+
+  /** @const {number} Total number of nights in the game. */
+  const TOTAL_NIGHTS = 5;
+
+  /** @const {number} How long one in-game hour lasts, in milliseconds. */
+  const HOUR_LENGTH_MS = 60000;
+
+  /** @const {number} Number of in-game hours from 12 AM to 6 AM. */
+  const HOURS_PER_NIGHT = 6;
+
+  /** @const {number} Power drained per second for each usage bar. */
+  const POWER_DRAIN_PER_USAGE = 0.15;
+
+  /** @const {number} Wait time after the power runs out, in milliseconds. */
+  const POWER_OUT_DELAY_MS = 5000;
+
+  /** @const {!Array<string>} Clock labels for each in-game hour. */
+  const HOUR_LABELS = ['12 am', '1 am', '2 am', '3 am', '4 am', '5 am'];
+
+  /** @const {string} Falsity's normal drawing. */
+  const FALSITY_ART = '<svg viewBox="0 0 80 90">' +
+    '<circle cx="40" cy="40" r="34" fill="#2f5fa3"/>' +
+    '<ellipse cx="28" cy="34" rx="5" ry="7" fill="#0c1a2e"/>' +
+    '<ellipse cx="52" cy="34" rx="5" ry="7" fill="#0c1a2e"/>' +
+    '<circle cx="54" cy="31" r="1.5" fill="#9fb7dd"/>' +
+    '<path d="M24 52 Q40 46 56 52" stroke="#0c1a2e" stroke-width="4"' +
+    ' fill="none" stroke-linecap="round"/></svg>';
+
+  /** @const {string} Loveity's normal drawing. */
+  const LOVEITY_ART = '<svg viewBox="0 0 80 90">' +
+    '<circle cx="40" cy="40" r="34" fill="#c85f8e"/>' +
+    '<ellipse cx="28" cy="34" rx="5" ry="7" fill="#4a1b2c"/>' +
+    '<ellipse cx="52" cy="34" rx="5" ry="7" fill="#4a1b2c"/>' +
+    '<circle cx="54" cy="31" r="1.5" fill="#eab3c6"/>' +
+    '<path d="M22 28 L32 24" stroke="#4a1b2c" stroke-width="3"' +
+    ' stroke-linecap="round"/>' +
+    '<path d="M58 28 L48 24" stroke="#4a1b2c" stroke-width="3"' +
+    ' stroke-linecap="round"/>' +
+    '<path d="M24 52 Q40 64 56 52" stroke="#4a1b2c" stroke-width="4"' +
+    ' fill="none" stroke-linecap="round"/></svg>';
+
+  /**
+   * Drawings of the characters, used on the cameras and,
+   * later, in the jump scares.
+   * @const {!Object<string, string>}
+   */
+  const CHARACTER_ART = {
+    verity: '<svg viewBox="0 0 80 90">' +
+        '<circle cx="40" cy="40" r="34" fill="#c9a83a"/>' +
+        '<ellipse cx="28" cy="34" rx="5" ry="7" fill="#2c2c2a"/>' +
+        '<ellipse cx="52" cy="34" rx="5" ry="7" fill="#2c2c2a"/>' +
+        '<circle cx="54" cy="31" r="1.5" fill="#e8d9a0"/>' +
+        '<path d="M24 52 Q40 64 56 52" stroke="#2c2c2a" stroke-width="4"' +
+        ' fill="none" stroke-linecap="round"/></svg>',
+    /**
+     * Falsity: a blue head. In manly mode, a stretched grinning face.
+     * @return {string}
+     */
+    get falsity() {
+      return getSpookiness() === 'manly' ?
+          drawStretchFace('falsity') : FALSITY_ART;
+    },
+    /**
+     * Loveity: a pink head. In manly mode, a stretched grinning face.
+     * @return {string}
+     */
+    get loveity() {
+      return getSpookiness() === 'manly' ?
+          drawStretchFace('loveity') : LOVEITY_ART;
+    },
+
+    /**
+     * Obesity: a soft blob body. In manly mode his eyes look realistic.
+     * @return {string}
+     */
+    get obesity() {
+      return drawObesityArt(getSpookiness() === 'manly');
+    },
+  };
+
+
+  /**
+   * One camera on the map.
+   * @typedef {{id: string, name: string, x: number, y: number,
+   *     w: number, h: number, audioOnly: boolean}}
+   */
+  let CameraInfo;
+
+  /**
+   * Every camera, with where its button sits on the map (in percent).
+   * @const {!Array<!CameraInfo>}
+   */
+  const CAMERAS = [
+    {id: '1a', name: 'show stage', x: 36, y: 3, w: 28, h: 11,
+      audioOnly: false},
+    {id: '1b', name: 'dining area', x: 30, y: 18, w: 40, h: 13,
+      audioOnly: false},
+    {id: '1c', name: 'backstage', x: 3, y: 18, w: 22, h: 12,
+      audioOnly: false},
+    {id: '5', name: 'restrooms', x: 75, y: 18, w: 22, h: 12,
+      audioOnly: false},
+    {id: '6', name: 'kitchen', x: 75, y: 40, w: 22, h: 12,
+      audioOnly: true},
+    {id: '3', name: 'supply closet', x: 3, y: 48, w: 22, h: 12,
+      audioOnly: false},
+    {id: '2a', name: 'west hall', x: 28, y: 36, w: 18, h: 20,
+      audioOnly: false},
+    {id: '2b', name: 'west hall corner', x: 28, y: 60, w: 18, h: 14,
+      audioOnly: false},
+    {id: '4a', name: 'east hall', x: 54, y: 36, w: 18, h: 20,
+      audioOnly: false},
+    {id: '4b', name: 'east hall corner', x: 54, y: 60, w: 18, h: 14,
+      audioOnly: false},
+  ];
+
+
+  /**
+   * Where each character starts the night.
+   * @const {!Object<string, string>}
+   */
+  const START_ROOMS = {
+    verity: '1a',
+    falsity: '1a',
+    loveity: '1a',
+    obesity: '1c',
+  };
+
+  /**
+   * The rooms each character walks through, ending at a door.
+   * @const {!Object<string, !Array<string>>}
+   */
+  const PATHS = {
+    verity: ['1a', '1b', '4a', '4b', 'rightDoor'],
+    falsity: ['1a', '1b', '1c', '2a', '2b', 'leftDoor'],
+    loveity: ['1a', '1b', '5', '4a', '4b', 'rightDoor'],
+    obesity: ['1c', '3', '2a', '2b', 'leftDoor'],
+  };
+
+  /**
+   * How eager each character is to move on each night (out of 20).
+   * A character missing from a night stays asleep that night.
+   * @const {!Object<number, !Object<string, number>>}
+   */
+  const NIGHT_LEVELS = {
+    1: {verity: 4},
+    2: {verity: 6, falsity: 5},
+    3: {verity: 8, falsity: 7, loveity: 6},
+    4: {verity: 10, falsity: 9, loveity: 9, obesity: 8},
+    5: {verity: 14, falsity: 13, loveity: 13, obesity: 12},
+  };
+
+  /**
+   * How long the player has to shut the door, per night, in milliseconds.
+   * @const {!Object<number, number>}
+   */
+  const DOOR_GRACE_MS = {
+    1: 10000, 2: 8000, 3: 6000, 4: 5000, 5: 5000, 6: 5000,
+  };
+
+  /** @const {number} Time between move chances, in milliseconds. */
+  const MOVE_CHANCE_MS = 5000;
+
+  /** @const {number} How long a closed door takes to scare them off. */
+  const GIVE_UP_MS = 3000;
+
+  /**
+   * Insults shown after a Manly mode jump scare. One is picked at random.
+   * @const {!Array<string>}
+   */
+  const MANLY_INSULTS = [
+    'you baby',
+    'you weren\'t brave enough',
+    'why did you even try',
+    'someone get him a diaper he peed himself again',
+    'Now you see why its called manly mode',
+  ];
+
+  /**
+   * Colors for each character's broken face.
+   * @const {!Object<string, !Object<string, string>>}
+   */
+  const BROKEN_COLORS = {
+    verity: {face: '#8a7228', crack: '#3a2e10', shade: '#6a5520'},
+    falsity: {face: '#24497a', crack: '#0c1a2e', shade: '#1a3560'},
+    loveity: {face: '#9a4a6e', crack: '#3a1424', shade: '#7a3654'},
+    obesity: {face: '#8a7228', crack: '#3a2e10', shade: '#6a5520'},
+  };
+
+  /**
+   * How early the Manly build-up starts before the character gets in,
+   * in milliseconds. It plays over the office, with no warning screen.
+   * @const {number}
+   */
+  const MANLY_LEAD_MS = 1000;
+
+  /** @const {number} Extra boldness for every character in Manly mode. */
+  const MANLY_LEVEL_BONUS = 4;
+
+  /** @const {number} How long the jump scare lasts, in milliseconds. */
+  const JUMP_SCARE_MS = 1300;
+
+  /**
+   * Everything the game needs to remember during a night.
+   * @type {{
+   *   nightNumber: number,
+   *   elapsedMs: number,
+   *   power: number,
+   *   leftDoorClosed: boolean,
+   *   rightDoorClosed: boolean,
+   *   leftLightOn: boolean,
+   *   rightLightOn: boolean,
+   *   powerOut: boolean,
+   *   camerasOpen: boolean,
+   *   currentCamera: string,
+   *   characterRooms: !Object<string, string>,
+   *   pathStep: !Object<string, number>,
+   *   moveTimers: !Object<string, number>,
+   *   doorOpenMs: !Object<string, number>,
+   *   doorClosedMs: !Object<string, number>,
+   *   running: boolean,
+   *   lastFrameTime: number
+   * }}
+   */
+  const nightState = {
+    nightNumber: 1,
+    elapsedMs: 0,
+    power: 100,
+    leftDoorClosed: false,
+    rightDoorClosed: false,
+    leftLightOn: false,
+    rightLightOn: false,
+    powerOut: false,
+    camerasOpen: false,
+    currentCamera: '1a',
+    characterRooms: {},
+    pathStep: {},
+    moveTimers: {},
+    doorOpenMs: {},
+    doorClosedMs: {},
+    running: false,
+    lastFrameTime: 0,
+  };
+
+  /**
+   * Gets a page element by its id.
+   * @param {string} id The element id.
+   * @return {!HTMLElement} The element.
+   */
+  function byId(id) {
+    return /** @type {!HTMLElement} */ (document.getElementById(id));
+  }
+
+  /**
+   * Reads the player's saved progress. Defaults to Night 1.
+   * @return {number} The highest night the player can play.
+   */
+  function getHighestUnlockedNight() {
+    if (adminUnlocked) {
+      return TOTAL_NIGHTS;
+    }
+    let saved = null;
+    try {
+      saved = localStorage.getItem(PROGRESS_KEY);
+    } catch (error) {
+      saved = null;
+    }
+    if (saved === null) {
+      return 1;
+    }
+    return parseInt(saved, 10);
+  }
+
+  /**
+   * Unlocks the night after the one just beaten.
+   * @param {number} beatenNight The night the player survived.
+   */
+  function unlockNextNight(beatenNight) {
+    if (beatenNight >= TOTAL_NIGHTS) {
+      try {
+        localStorage.setItem(ALL_BEATEN_KEY, 'yes');
+      } catch (error) {
+        // Saving is not possible here, so progress lasts until reload.
+      }
+    }
+    const next = Math.min(beatenNight + 1, TOTAL_NIGHTS);
+    if (next > getHighestUnlockedNight()) {
+      try {
+        localStorage.setItem(PROGRESS_KEY, String(next));
+      } catch (error) {
+        // Saving is not possible here, so progress lasts until reload.
+      }
+    }
+  }
+
+  /**
+   * Checks whether the player has beaten all five nights.
+   * @return {boolean} True once Night 5 has been beaten.
+   */
+  function hasBeatenAllNights() {
+    if (adminUnlocked) {
+      return true;
+    }
+    try {
+      return localStorage.getItem(ALL_BEATEN_KEY) === 'yes';
+    } catch (error) {
+      return false;
+    }
+  }
+
+  /**
+   * Updates the small text under the play button.
+   */
+  function updatePlayLabel() {
+    byId('playNightLabel').textContent = hasBeatenAllNights() ?
+        'choose any night' :
+        'next up: night ' + getHighestUnlockedNight();
+  }
+
+  /**
+   * Reads a saved setting.
+   * @param {string} key The setting's saved name.
+   * @param {string} fallback What to use if nothing is saved.
+   * @return {string} The saved value.
+   */
+  function readSetting(key, fallback) {
+    try {
+      const value = localStorage.getItem(key);
+      return value === null ? fallback : value;
+    } catch (error) {
+      return fallback;
+    }
+  }
+
+  /**
+   * Saves a setting.
+   * @param {string} key The setting's saved name.
+   * @param {string} value The value to save.
+   */
+  function saveSetting(key, value) {
+    try {
+      localStorage.setItem(key, value);
+    } catch (error) {
+      // Saving is not possible here, so the setting lasts until reload.
+      memorySettings[key] = value;
+    }
+  }
+
+  /**
+   * Backup settings for when the browser can't save.
+   * @type {!Object<string, string>}
+   */
+  const memorySettings = {};
+
+  /**
+   * Gets the current spookiness level.
+   * @return {string} 'baby', 'toddler', 'kid' or 'manly'.
+   */
+  function getSpookiness() {
+    return memorySettings[SPOOK_KEY] || readSetting(SPOOK_KEY, 'kid');
+  }
+
+  /**
+   * Checks whether epileptic mode (no flashing) is on.
+   * @return {boolean} True if epileptic mode is on.
+   */
+  function isNoFlashing() {
+    return (memorySettings[NO_FLASH_KEY] ||
+        readSetting(NO_FLASH_KEY, 'off')) === 'on';
+  }
+
+  /**
+   * Makes the options screen and the page match the saved settings.
+   */
+  function updateOptionsLooks() {
+    const level = getSpookiness();
+    document.querySelectorAll('.spookButton').forEach((button) => {
+      button.classList.toggle('on', button.dataset.level === level);
+    });
+    byId('spookHint').textContent = SPOOK_HINTS[level];
+
+    const noFlash = isNoFlashing();
+    const epileptic = byId('epilepticButton');
+    epileptic.textContent = 'epileptic mode: ' + (noFlash ? 'on' : 'off');
+    epileptic.classList.toggle('on', noFlash);
+    document.body.classList.toggle('noFlashing', noFlash);
+    document.body.classList.toggle('manlyMode', level === 'manly');
+  }
+
+  /**
+   * Shows one screen and hides all the others.
+   * @param {string} screenId The id of the screen to show.
+   */
+  function showScreen(screenId) {
+    document.querySelectorAll('.screen').forEach((screenElement) => {
+      screenElement.classList.remove('active');
+    });
+    byId(screenId).classList.add('active');
+    if (screenId === 'mainMenu') {
+      byId('menuMessage').textContent = '';
+      updatePlayLabel();
+      updateMenuExtras();
+      startMenuEffects();
+    } else {
+      stopMenuEffects();
+    }
+    if (MENU_SCREENS.includes(screenId)) {
+      startMenuSound();
+    } else {
+      stopMenuSound();
+    }
+  }
+
+  /**
+   * What each night is like, shown when pointing at a night button.
+   * @const {!Object<number, {title: string, text: string}>}
+   */
+  const NIGHT_DESCRIPTIONS = {
+    1: {
+      title: 'night 1 - first shift',
+      text: 'Only Verity is awake, and she\'s slow. She comes to the ' +
+          'right door. A good night to learn the doors, lights and ' +
+          'cameras. You get 10 seconds to shut the door.',
+    },
+    2: {
+      title: 'night 2 - company',
+      text: 'Falsity wakes up and sneaks through backstage to the left ' +
+          'door while Verity takes the right. Both move faster. ' +
+          'You get 8 seconds to shut the door.',
+    },
+    3: {
+      title: 'night 3 - lovely',
+      text: 'Loveity joins in, slipping through the restrooms to the ' +
+          'right door. Three of them now, and they\'re getting bolder. ' +
+          'You get 6 seconds to shut the door.',
+    },
+    4: {
+      title: 'night 4 - heavy footsteps',
+      text: 'Obesity finally gets up from backstage and lumbers through ' +
+          'the supply closet to the left door. All four are hunting you. ' +
+          'You get 5 seconds to shut the door.',
+    },
+    5: {
+      title: 'night 5 - the last night',
+      text: 'All four, faster than ever. Every door, every camera check ' +
+          'costs power you can\'t spare. You get 5 seconds to shut ' +
+          'the door. Survive until 6 AM.',
+    },
+  };
+
+  /**
+   * Who is new each night, and which door they come to. Night 5 has no
+   * one new, so it shows everyone at both doors.
+   * @const {!Object<number, !Array<{side: string, names: !Array<string>}>>}
+   */
+  const NIGHT_NEWCOMERS = {
+    1: [{side: 'right', names: ['verity']}],
+    2: [{side: 'left', names: ['falsity']}],
+    3: [{side: 'right', names: ['loveity']}],
+    4: [{side: 'left', names: ['obesity']}],
+    5: [
+      {side: 'left', names: ['falsity', 'obesity']},
+      {side: 'right', names: ['verity', 'loveity']},
+    ],
+  };
+
+  /**
+   * Draws a doorway frame around a hallway picture.
+   * @param {number} width Picture width.
+   * @param {number} height Picture height.
+   * @return {string} SVG shapes for the frame.
+   */
+  function drawDoorFrame(width, height) {
+    const l = width * 0.12;
+    const r = width * 0.88;
+    const t = height * 0.07;
+    return '<path fill-rule="evenodd" fill="#141416" d="M0 0 H' + width +
+        ' V' + height + ' H0 Z M' + l + ' ' + t + ' H' + r + ' V' + height +
+        ' H' + l + ' Z"/>' +
+        '<rect x="' + l + '" y="' + t + '" width="' + (r - l) +
+        '" height="' + (height - t) + '" fill="none" stroke="#2e2e31" ' +
+        'stroke-width="6"/>';
+  }
+
+  /**
+   * Shows the new character for a night standing in their doorway as the
+   * night select background. Locked nights show only glowing eyes.
+   * @param {number} nightNumber The night being pointed at.
+   * @param {boolean} isLocked True if the player can't play it yet.
+   */
+  function showNightBackdrop(nightNumber, isLocked) {
+    const backdrop = byId('nightBackdrop');
+    const key = nightNumber + (isLocked ? 'locked' : '') + getSpookiness();
+    if (backdrop.dataset.night !== key) {
+      backdrop.dataset.night = key;
+      let svg = '<svg viewBox="0 0 600 340" ' +
+          'preserveAspectRatio="xMidYMid slice">';
+      if (isLocked) {
+        svg += '<rect width="600" height="340" fill="#030303"/>' +
+            '<circle cx="288" cy="150" r="3" fill="#6a5a3a"/>' +
+            '<circle cx="312" cy="150" r="3" fill="#6a5a3a"/>' +
+            drawDoorFrame(600, 340);
+      } else {
+        const doors = NIGHT_NEWCOMERS[nightNumber];
+        const doorWidth = 600 / doors.length;
+        doors.forEach((door, index) => {
+          const visitors = spreadAcross(door.names.map(
+              (name) => ({name: name, depth: 0.1})));
+          svg += '<g transform="translate(' + index * doorWidth + ' 0)">' +
+              '<svg width="' + doorWidth + '" height="340" viewBox="0 0 ' +
+              doorWidth + ' 340">' +
+              drawHallScene(doorWidth, 340, visitors, 'pick' + index,
+                  door.side === 'right') +
+              drawDoorFrame(doorWidth, 340) + '</svg></g>';
+        });
+      }
+      // Darken it so the buttons and words stay easy to read.
+      svg += '<rect width="600" height="340" fill="#000000" ' +
+          'opacity="0.45"/></svg>';
+      backdrop.innerHTML = svg;
+    }
+    backdrop.classList.add('show');
+  }
+
+  /**
+   * Shows the description for one night under the night buttons.
+   * @param {number} nightNumber The night to describe.
+   * @param {boolean} isLocked True if the player can't play it yet.
+   */
+  function showNightInfo(nightNumber, isLocked) {
+    const info = NIGHT_DESCRIPTIONS[nightNumber];
+    byId('nightInfo').classList.toggle('locked', isLocked);
+    byId('nightInfoTitle').textContent = isLocked ?
+        'night ' + nightNumber + ' - locked' : info.title;
+    byId('nightInfoText').textContent = isLocked ?
+        'Beat night ' + (nightNumber - 1) + ' to unlock this night.' :
+        info.text;
+    document.querySelectorAll('.nightButton').forEach((button) => {
+      button.classList.toggle(
+          'picked', button.textContent === String(nightNumber));
+    });
+    showNightBackdrop(nightNumber, isLocked);
+  }
+
+  /**
+   * Builds the night buttons, locking nights not yet unlocked.
+   */
+  function buildNightButtons() {
+    const row = byId('nightButtonRow');
+    row.innerHTML = '';
+    const highestUnlocked = getHighestUnlockedNight();
+
+    for (let nightNumber = 1; nightNumber <= TOTAL_NIGHTS; nightNumber++) {
+      const button = document.createElement('button');
+      button.textContent = String(nightNumber);
+      button.classList.add('nightButton');
+      const isLocked = nightNumber > highestUnlocked;
+      if (isLocked) {
+        // Locked buttons can't be played, but still show their info.
+        button.classList.add('locked');
+        button.setAttribute('aria-disabled', 'true');
+      } else {
+        button.addEventListener('click', () => {
+          startNight(nightNumber);
+        });
+      }
+      button.addEventListener('mouseenter', () => {
+        showNightInfo(nightNumber, isLocked);
+      });
+      button.addEventListener('focus', () => {
+        showNightInfo(nightNumber, isLocked);
+      });
+      row.appendChild(button);
+    }
+    byId('nightInfo').classList.remove('locked');
+    byId('nightBackdrop').classList.remove('show');
+    byId('nightInfoTitle').textContent = 'point at a night';
+    byId('nightInfoText').textContent =
+        'See who\'s coming before you start your shift.';
+  }
+
+  /**
+   * Shows the night intro, then opens the office.
+   * @param {number} nightNumber The night the player picked.
+   */
+  function startNight(nightNumber) {
+    getAudio();
+    byId('introNightText').textContent = nightName(nightNumber);
+    showScreen('nightIntro');
+    setTimeout(() => {
+      beginOffice(nightNumber);
+    }, 2500);
+  }
+
+  /**
+   * Resets everything and starts the office for a night.
+   * @param {number} nightNumber The night being played.
+   */
+  function beginOffice(nightNumber) {
+    nightState.nightNumber = nightNumber;
+    nightState.elapsedMs = 0;
+    nightState.power = 100;
+    nightState.leftDoorClosed = false;
+    nightState.rightDoorClosed = false;
+    nightState.leftLightOn = false;
+    nightState.rightLightOn = false;
+    nightState.powerOut = false;
+    nightState.camerasOpen = false;
+    nightState.currentCamera = '1a';
+    nightState.characterRooms = Object.assign({}, START_ROOMS);
+    nightState.pathStep = {};
+    nightState.moveTimers = {};
+    nightState.doorOpenMs = {};
+    nightState.doorClosedMs = {};
+    Object.keys(START_ROOMS).forEach((name, index) => {
+      nightState.pathStep[name] = 0;
+      // Stagger the move chances so they don't all roll at once.
+      nightState.moveTimers[name] = MOVE_CHANCE_MS + index * 1200;
+      nightState.doorOpenMs[name] = 0;
+      nightState.doorClosedMs[name] = 0;
+    });
+    getAudio();
+    nightState.running = true;
+    nightState.lastFrameTime = performance.now();
+
+    byId('officeNightLabel').textContent = nightName(nightNumber);
+    byId('officeMessage').textContent = '';
+    byId('darkness').classList.remove('on');
+    byId('cameraPanel').classList.remove('open');
+    updateOfficeLooks();
+    showScreen('office');
+    requestAnimationFrame(gameLoop);
+  }
+
+  /**
+   * Counts how many things are using power right now.
+   * @return {number} Usage level from 1 to 5.
+   */
+  function getUsageLevel() {
+    let usage = 1;
+    if (nightState.leftDoorClosed) {
+      usage++;
+    }
+    if (nightState.rightDoorClosed) {
+      usage++;
+    }
+    if (nightState.leftLightOn || nightState.rightLightOn) {
+      usage++;
+    }
+    if (nightState.camerasOpen) {
+      usage++;
+    }
+    return usage;
+  }
+
+  /**
+   * Makes the doors, lights, power and clock match the current state.
+   */
+  function updateOfficeLooks() {
+    byId('leftDoorPanel').classList.toggle(
+        'closed', nightState.leftDoorClosed);
+    byId('rightDoorPanel').classList.toggle(
+        'closed', nightState.rightDoorClosed);
+    byId('leftDoorButton').classList.toggle('on', nightState.leftDoorClosed);
+    byId('rightDoorButton').classList.toggle(
+        'on', nightState.rightDoorClosed);
+    byId('leftDoorway').classList.toggle('lit', nightState.leftLightOn);
+    byId('rightDoorway').classList.toggle('lit', nightState.rightLightOn);
+    byId('leftLightButton').classList.toggle('on', nightState.leftLightOn);
+    byId('rightLightButton').classList.toggle('on', nightState.rightLightOn);
+
+    updateDoorVisitors();
+
+    byId('powerText').textContent = String(Math.ceil(nightState.power));
+
+    const usage = nightState.powerOut ? 0 : getUsageLevel();
+    const bars = byId('usageBars').children;
+    for (let i = 0; i < bars.length; i++) {
+      bars[i].classList.toggle('filled', i < usage);
+      bars[i].classList.toggle('high', usage >= 3);
+    }
+
+    const hour = Math.min(
+        Math.floor(nightState.elapsedMs / HOUR_LENGTH_MS),
+        HOURS_PER_NIGHT - 1);
+    byId('officeClock').textContent = HOUR_LABELS[hour];
+    byId('camHud').textContent = HOUR_LABELS[hour] + ' - power ' +
+        Math.ceil(nightState.power) + '%';
+  }
+
+  /**
+   * Runs every frame while a night is being played.
+   * @param {number} now The current time from the browser.
+   */
+  function gameLoop(now) {
+    if (!nightState.running) {
+      return;
+    }
+    const deltaMs = now - nightState.lastFrameTime;
+    nightState.lastFrameTime = now;
+    nightState.elapsedMs += deltaMs;
+
+    if (nightState.elapsedMs >= HOUR_LENGTH_MS * HOURS_PER_NIGHT) {
+      winNight();
+      return;
+    }
+
+    updateCharacters(deltaMs);
+    if (!nightState.running) {
+      return;
+    }
+
+    if (!nightState.powerOut) {
+      const drain = POWER_DRAIN_PER_USAGE * getUsageLevel() * (deltaMs / 1000);
+      nightState.power = Math.max(0, nightState.power - drain);
+      if (nightState.power <= 0) {
+        cutPower();
+      }
+    }
+
+    updateOfficeLooks();
+    requestAnimationFrame(gameLoop);
+  }
+
+  /**
+   * Turns everything off when the power hits zero.
+   */
+  function cutPower() {
+    nightState.powerOut = true;
+    nightState.leftDoorClosed = false;
+    nightState.rightDoorClosed = false;
+    nightState.leftLightOn = false;
+    nightState.rightLightOn = false;
+    closeCameras();
+    byId('darkness').classList.add('on');
+    setTimeout(() => {
+      if (nightState.running && nightState.powerOut) {
+        loseNight('the power ran out');
+      }
+    }, POWER_OUT_DELAY_MS);
+  }
+
+  /**
+   * Ends the night with a loss.
+   * @param {string} reason The message shown on the game over screen.
+   */
+  function loseNight(reason) {
+    nightState.running = false;
+    byId('gameOverReason').textContent =
+        reason + ' - ' + nightName(nightState.nightNumber);
+    showScreen('gameOver');
+  }
+
+  /**
+   * Ends the night with a win and plays the clock flip.
+   */
+  function winNight() {
+    nightState.running = false;
+    if (nightState.nightNumber === CUSTOM_NIGHT) {
+      earnCustomStars(customStarsFor(getCustomLevels()));
+    } else {
+      unlockNextNight(nightState.nightNumber);
+      if (nightState.nightNumber === TOTAL_NIGHTS) {
+        earnStar('beat5');
+        if (getSpookiness() === 'manly') {
+          earnStar('manly5');
+        }
+      }
+    }
+
+    const before = byId('wonBefore');
+    const after = byId('wonAfter');
+    const text = byId('wonText');
+    const buttons = byId('wonButtons');
+    [before, after, text, buttons].forEach((element) => {
+      element.classList.remove('flipOut', 'flipIn', 'fadeIn');
+    });
+    text.textContent = nightName(nightState.nightNumber) + ' complete';
+    showScreen('nightWon');
+
+    setTimeout(() => {
+      before.classList.add('flipOut');
+      after.classList.add('flipIn');
+    }, 1500);
+    // Night 5 and the custom night end with a cutscene instead of buttons.
+    const night = nightState.nightNumber;
+    const hasEnding = night === TOTAL_NIGHTS || night === CUSTOM_NIGHT;
+    setTimeout(() => {
+      text.classList.add('fadeIn');
+      if (!hasEnding) {
+        buttons.classList.add('fadeIn');
+      }
+    }, 2500);
+    if (hasEnding) {
+      setTimeout(() => {
+        if (!byId('nightWon').classList.contains('active')) {
+          return;
+        }
+        playEnding(() => {
+          showScreen('mainMenu');
+        });
+      }, 5000);
+    }
+  }
+
+  /**
+   * Flips a door open or closed.
+   * @param {string} side Either 'left' or 'right'.
+   */
+  function toggleDoor(side) {
+    if (!nightState.running || nightState.powerOut) {
+      return;
+    }
+    let nowClosed = false;
+    if (side === 'left') {
+      nightState.leftDoorClosed = !nightState.leftDoorClosed;
+      nowClosed = nightState.leftDoorClosed;
+    } else {
+      nightState.rightDoorClosed = !nightState.rightDoorClosed;
+      nowClosed = nightState.rightDoorClosed;
+    }
+    updateOfficeLooks();
+    if (nowClosed) {
+      playDoorSlam(side);
+    }
+  }
+
+  /**
+   * Shakes the doorway right as the door hits the floor.
+   * @param {string} side Either 'left' or 'right'.
+   */
+  function playDoorSlam(side) {
+    const doorway = byId(side + 'Doorway');
+    doorway.classList.remove('slam');
+    setTimeout(() => {
+      doorway.classList.add('slam');
+    }, 330);
+    setTimeout(() => {
+      doorway.classList.remove('slam');
+    }, 700);
+  }
+
+  /**
+   * Turns a hallway light on or off. Only one light can be on at once.
+   * @param {string} side Either 'left' or 'right'.
+   */
+  function toggleLight(side) {
+    if (!nightState.running || nightState.powerOut) {
+      return;
+    }
+    if (side === 'left') {
+      nightState.leftLightOn = !nightState.leftLightOn;
+      nightState.rightLightOn = false;
+    } else {
+      nightState.rightLightOn = !nightState.rightLightOn;
+      nightState.leftLightOn = false;
+    }
+    updateOfficeLooks();
+  }
+
+  /**
+   * Makes an SVG rectangle.
+   * @param {number} x Left edge.
+   * @param {number} y Top edge.
+   * @param {number} w Width.
+   * @param {number} h Height.
+   * @param {string} fill Fill color.
+   * @return {string} The SVG shape.
+   */
+  function rect(x, y, w, h, fill) {
+    return '<rect x="' + x + '" y="' + y + '" width="' + w + '" height="' +
+        h + '" fill="' + fill + '"/>';
+  }
+
+  /**
+   * Makes an SVG shape from a list of corner points.
+   * @param {string} points Corner points, like "0,0 10,0 10,10".
+   * @param {string} fill Fill color.
+   * @return {string} The SVG shape.
+   */
+  function poly(points, fill) {
+    return '<polygon points="' + points + '" fill="' + fill + '"/>';
+  }
+
+  /**
+   * Makes an SVG circle.
+   * @param {number} cx Center x.
+   * @param {number} cy Center y.
+   * @param {number} r Radius.
+   * @param {string} fill Fill color.
+   * @return {string} The SVG shape.
+   */
+  function circle(cx, cy, r, fill) {
+    return '<circle cx="' + cx + '" cy="' + cy + '" r="' + r +
+        '" fill="' + fill + '"/>';
+  }
+
+  /**
+   * Makes an SVG line.
+   * @param {number} x1 Start x.
+   * @param {number} y1 Start y.
+   * @param {number} x2 End x.
+   * @param {number} y2 End y.
+   * @param {string} color Line color.
+   * @param {number} width Line thickness.
+   * @return {string} The SVG line.
+   */
+  function line(x1, y1, x2, y2, color, width) {
+    return '<line x1="' + x1 + '" y1="' + y1 + '" x2="' + x2 + '" y2="' +
+        y2 + '" stroke="' + color + '" stroke-width="' + width + '"/>';
+  }
+
+  /**
+   * Makes dim SVG text.
+   * @param {number} x Center x.
+   * @param {number} y Baseline y.
+   * @param {string} words The text.
+   * @param {string} color Text color.
+   * @param {number} size Font size.
+   * @return {string} The SVG text.
+   */
+  function label(x, y, words, color, size) {
+    return '<text x="' + x + '" y="' + y + '" fill="' + color +
+        '" font-size="' + size + '" text-anchor="middle" ' +
+        'font-family="Arial">' + words + '</text>';
+  }
+
+  /**
+   * Draws a 3D-looking room: ceiling, side walls, back wall and a
+   * checkered floor that shrinks toward the back.
+   * @param {string} wall Back wall color.
+   * @param {string} side Side wall color.
+   * @param {string} tileA First floor tile color.
+   * @param {string} tileB Second floor tile color.
+   * @return {string} SVG shapes for the empty room.
+   */
+  function drawRoomShell(wall, side, tileA, tileB) {
+    let svg = poly('0,0 600,0 460,50 140,50', '#0b0b0c') +
+        poly('0,0 140,50 140,230 0,340', side) +
+        poly('600,0 460,50 460,230 600,340', side) +
+        rect(140, 50, 320, 180, wall) +
+        poly('0,340 140,230 460,230 600,340', tileA);
+
+    // Checkered floor: rows get thinner toward the back wall.
+    const rows = [230, 242, 258, 280, 306, 340];
+    const columns = 8;
+    for (let r = 0; r < rows.length - 1; r++) {
+      const yTop = rows[r];
+      const yBottom = rows[r + 1];
+      const topLeft = 140 - (yTop - 230) * (140 / 110);
+      const topRight = 460 + (yTop - 230) * (140 / 110);
+      const bottomLeft = 140 - (yBottom - 230) * (140 / 110);
+      const bottomRight = 460 + (yBottom - 230) * (140 / 110);
+      for (let c = 0; c < columns; c++) {
+        if ((r + c) % 2 === 0) {
+          continue;
+        }
+        const t1 = topLeft + (topRight - topLeft) * (c / columns);
+        const t2 = topLeft + (topRight - topLeft) * ((c + 1) / columns);
+        const b1 = bottomLeft + (bottomRight - bottomLeft) * (c / columns);
+        const b2 = bottomLeft + (bottomRight - bottomLeft) *
+            ((c + 1) / columns);
+        svg += poly(t1 + ',' + yTop + ' ' + t2 + ',' + yTop + ' ' +
+            b2 + ',' + yBottom + ' ' + b1 + ',' + yBottom, tileB);
+      }
+    }
+
+    // Baseboard trim where the walls meet the floor.
+    svg += rect(140, 226, 320, 4, '#1e1c18') +
+        poly('0,334 140,226 140,230 0,340', '#1e1c18') +
+        poly('600,334 460,226 460,230 600,340', '#1e1c18');
+    return svg;
+  }
+
+  /**
+   * Draws a hanging ceiling light.
+   * @param {number} x Where the light hangs.
+   * @return {string} SVG shapes for the light.
+   */
+  function drawCeilingLight(x) {
+    return line(x, 0, x, 30, '#222222', 2) +
+        poly((x - 16) + ',30 ' + (x + 16) + ',30 ' + (x + 10) + ',22 ' +
+            (x - 10) + ',22', '#1e1e20') +
+        circle(x, 32, 5, '#4a4530');
+  }
+
+  /**
+   * Draws a kid's drawing taped to a wall.
+   * @param {number} x Left edge.
+   * @param {number} y Top edge.
+   * @param {number} tilt How crooked it is, in degrees.
+   * @param {string} color Crayon color.
+   * @return {string} SVG shapes for the drawing.
+   */
+  function drawKidsDrawing(x, y, tilt, color) {
+    return '<g transform="rotate(' + tilt + ' ' + (x + 20) + ' ' +
+        (y + 16) + ')">' + rect(x, y, 40, 32, '#22201e') +
+        '<circle cx="' + (x + 20) + '" cy="' + (y + 15) +
+        '" r="8" fill="none" stroke="' + color + '" stroke-width="2"/>' +
+        line(x + 12, y + 26, x + 28, y + 26, color, 2) +
+        rect(x + 14, y - 3, 12, 5, '#33302a') + '</g>';
+  }
+
+  /**
+   * Draws the room and its props (no characters) for one camera.
+   * @param {string} cameraId The camera to draw.
+   * @return {string} SVG shapes for the room.
+   */
+  function drawRoomProps(cameraId) {
+    switch (cameraId) {
+      case '1a':
+        return drawShowStage();
+      case '1b':
+        return drawDiningArea();
+      case '1c':
+        return drawBackstage();
+      case '3':
+        return drawSupplyCloset();
+      case '5':
+        return drawRestrooms();
+      case '2b':
+      case '4b':
+        return drawHallCorner(cameraId === '2b');
+      default:
+        return '';
+    }
+  }
+
+  /**
+   * Show stage: curtains, a raised stage, speakers and spotlights.
+   * @return {string} SVG shapes for the room.
+   */
+  function drawShowStage() {
+    let svg = drawRoomShell('#1a0c0e', '#140a0c', '#121012', '#1c1a1c');
+    // Curtain folds across the back wall.
+    for (let x = 140; x < 460; x += 20) {
+      svg += rect(x, 50, 10, 180, '#240f12');
+    }
+    // Side curtains pulled open.
+    svg += poly('140,50 200,50 170,230 140,230', '#2c1216') +
+        poly('460,50 400,50 430,230 460,230', '#2c1216');
+    // Banner and stars.
+    svg += rect(220, 60, 160, 26, '#1e1a12') +
+        label(300, 79, 'verity\'s', '#5a4a2a', 16) +
+        circle(170, 110, 4, '#3a3218') + circle(430, 110, 4, '#3a3218') +
+        circle(200, 150, 3, '#3a3218') + circle(400, 150, 3, '#3a3218');
+    // Raised stage in front.
+    svg += poly('60,270 540,270 600,300 0,300', '#1e1610') +
+        rect(0, 300, 600, 40, '#141008') +
+        line(0, 300, 600, 300, '#2a2014', 3);
+    // Speakers on each side.
+    svg += rect(20, 180, 50, 90, '#101012') + circle(45, 210, 14, '#1a1a1c') +
+        circle(45, 248, 9, '#1a1a1c') +
+        rect(530, 180, 50, 90, '#101012') + circle(555, 210, 14, '#1a1a1c') +
+        circle(555, 248, 9, '#1a1a1c');
+    // Spotlights on the ceiling bar.
+    svg += rect(120, 14, 360, 6, '#1a1a1a');
+    [160, 250, 350, 440].forEach((x) => {
+      svg += rect(x - 8, 20, 16, 16, '#202022') + circle(x, 38, 5, '#3a3528');
+    });
+    return svg;
+  }
+
+  /**
+   * Dining area: long party tables, hats, plates, balloons, banner.
+   * @return {string} SVG shapes for the room.
+   */
+  function drawDiningArea() {
+    let svg = drawRoomShell('#141416', '#111113', '#0e0e10', '#1a1a1c') +
+        rect(140, 150, 320, 16, '#2a2614');
+    // Banner and streamers.
+    svg += rect(200, 64, 200, 24, '#1c1418') +
+        label(300, 81, 'happy birthday', '#5a3a44', 13) +
+        '<path d="M140 50 Q220 80 300 50 Q380 80 460 50" stroke="#2a1a24" ' +
+        'stroke-width="3" fill="none"/>';
+    // Two long tables going toward the back.
+    [[150, 250], [350, 450]].forEach((table) => {
+      const nearLeft = table[0] - 60;
+      const nearRight = table[0] + 20;
+      svg += poly(table[0] + ',236 ' + (table[0] + 50) + ',236 ' +
+          nearRight + ',320 ' + nearLeft + ',320', '#1e1c22');
+      svg += rect(nearLeft + 4, 320, 6, 20, '#111111') +
+          rect(nearRight - 10, 320, 6, 20, '#111111');
+      for (let i = 0; i < 3; i++) {
+        const y = 250 + i * 24;
+        const x = table[0] + 10 - i * 22;
+        svg += '<ellipse cx="' + (x + 6) + '" cy="' + y +
+            '" rx="8" ry="3" fill="#2a2a2c"/>' +
+            poly((x + 18) + ',' + y + ' ' + (x + 24) + ',' + (y - 16) +
+                ' ' + (x + 30) + ',' + y, i % 2 ? '#2a1a24' : '#1a2430');
+      }
+    });
+    // Balloons tied to the tables.
+    [[110, 170, '#3a1e28'], [130, 160, '#1e2a3a'], [470, 165, '#3a3218'],
+      [490, 175, '#3a1e28']].forEach((b) => {
+      svg += '<ellipse cx="' + b[0] + '" cy="' + b[1] +
+          '" rx="12" ry="15" fill="' + b[2] + '"/>' +
+          line(b[0], b[1] + 15, b[0] + 4, b[1] + 70, '#1a1a1a', 1);
+    });
+    return svg + drawCeilingLight(220) + drawCeilingLight(380);
+  }
+
+  /**
+   * Backstage: shelves of spare heads, a workbench and tools.
+   * @return {string} SVG shapes for the room.
+   */
+  function drawBackstage() {
+    let svg = drawRoomShell('#121214', '#0f0f11', '#0c0c0d', '#161618');
+    // Shelves on the back wall with spare heads.
+    svg += rect(150, 100, 300, 6, '#1e1a14') +
+        rect(150, 170, 300, 6, '#1e1a14');
+    [[185, 80, '#2a2414'], [245, 80, '#14202e'], [305, 80, '#2e1420'],
+      [365, 80, '#2a2414'], [215, 150, '#1e1e1e'],
+      [335, 150, '#14202e']].forEach((h) => {
+      svg += circle(h[0], h[1], 18, h[2]) +
+          '<ellipse cx="' + (h[0] - 6) + '" cy="' + (h[1] - 3) +
+          '" rx="3" ry="4" fill="#050505"/>' +
+          '<ellipse cx="' + (h[0] + 6) + '" cy="' + (h[1] - 3) +
+          '" rx="3" ry="4" fill="#050505"/>';
+    });
+    // Pegboard of tools on the left wall.
+    svg += poly('20,70 110,90 110,180 20,190', '#1a1612');
+    svg += line(40, 100, 40, 150, '#2a2a2a', 4) +
+        line(70, 105, 80, 160, '#2a2a2a', 3) +
+        circle(95, 120, 7, '#2a2a2a');
+    // Workbench in front with scattered parts.
+    svg += poly('380,250 590,260 600,300 360,290', '#1a1612') +
+        rect(370, 290, 8, 50, '#101010') + rect(580, 300, 8, 40, '#101010') +
+        circle(430, 268, 8, '#2a2a2c') + rect(480, 262, 30, 8, '#24211b') +
+        circle(540, 274, 6, '#3a2020');
+    // Boxes stacked on the floor.
+    svg += rect(40, 260, 70, 60, '#1c1812') + rect(55, 220, 50, 40, '#201c14') +
+        line(40, 290, 110, 290, '#141008', 2);
+    return svg + drawCeilingLight(300);
+  }
+
+  /**
+   * Supply closet: shelves of boxes and bottles, mop and bucket.
+   * @return {string} SVG shapes for the room.
+   */
+  function drawSupplyCloset() {
+    let svg = drawRoomShell('#131312', '#10100f', '#0d0d0c', '#171715');
+    // Shelving unit across the back wall.
+    [90, 140, 190].forEach((y) => {
+      svg += rect(150, y, 300, 6, '#1e1a14');
+    });
+    svg += rect(150, 60, 6, 170, '#1a1612') + rect(444, 60, 6, 170, '#1a1612');
+    // Boxes and bottles on the shelves.
+    svg += rect(170, 62, 50, 28, '#201c14') + rect(230, 70, 40, 20, '#1c1812') +
+        rect(330, 112, 60, 28, '#201c14') + rect(180, 160, 30, 30, '#1a2420') +
+        rect(220, 166, 14, 24, '#1a2a30') + rect(240, 164, 14, 26, '#2a1a1a') +
+        rect(380, 160, 40, 30, '#1c1812');
+    // Fuse box on the left wall.
+    svg += poly('40,90 100,104 100,170 40,170', '#18181a') +
+        circle(60, 120, 4, '#3a2020') + circle(80, 124, 4, '#203a20');
+    // Mop and bucket.
+    svg += line(500, 120, 470, 310, '#2a2418', 6) +
+        poly('450,300 495,300 490,330 455,330', '#1a1a1a') +
+        poly('520,290 580,290 572,338 528,338', '#1e2226') +
+        rect(518, 286, 64, 6, '#262a2e');
+    // Wet floor sign.
+    svg += poly('110,330 140,250 170,330', '#3a3418') +
+        label(140, 312, '!', '#141008', 22);
+    return svg + drawCeilingLight(300);
+  }
+
+  /**
+   * Restrooms: tiled walls, two doors with signs, sinks and a mirror.
+   * @return {string} SVG shapes for the room.
+   */
+  function drawRestrooms() {
+    let svg = drawRoomShell('#141618', '#111315', '#0e1012', '#181a1c');
+    // Wall tiles.
+    for (let y = 60; y < 226; y += 20) {
+      svg += line(140, y, 460, y, '#1a1c1e', 1);
+    }
+    // Two bathroom doors.
+    svg += rect(170, 80, 90, 146, '#0c0d0e') + rect(340, 80, 90, 146,
+        '#0c0d0e') + circle(250, 160, 4, '#2a2a2a') +
+        circle(350, 160, 4, '#2a2a2a') +
+        circle(215, 110, 12, '#1e2a3a') + circle(385, 110, 12, '#3a1e2a');
+    // Sinks and mirror on the right wall.
+    svg += poly('480,70 570,40 570,140 480,140', '#1a1e22') +
+        poly('480,180 580,190 580,210 480,200', '#202428') +
+        line(530, 190, 530, 260, '#1a1a1a', 4);
+    // Paper towel holder and trash on the left wall.
+    svg += poly('60,120 100,130 100,170 60,168', '#1c1c1e') +
+        rect(50, 270, 40, 60, '#161618');
+    // Wet floor sign.
+    svg += poly('260,330 290,262 320,330', '#3a3418') +
+        label(290, 316, '!', '#141008', 20);
+    return svg + drawCeilingLight(300);
+  }
+
+  /**
+   * Corner of the hallway right before the office doors.
+   * @param {boolean} isWest True for the west corner, false for the east.
+   * @return {string} SVG shapes for the room.
+   */
+  function drawHallCorner(isWest) {
+    let svg = drawRoomShell('#131315', '#111113', '#0d0d0e', '#171719') +
+        rect(140, 170, 320, 18, '#2a2614') +
+        poly('0,250 140,170 140,188 0,274', '#2a2614') +
+        poly('600,250 460,170 460,188 600,274', '#2a2614');
+    // Celebrate poster (angry in manly mode) and kids' drawings.
+    const angry = getSpookiness() === 'manly';
+    const ink = 'stroke="#141008" stroke-width="3" fill="none" ' +
+        'stroke-linecap="round"';
+    svg += rect(250, 66, 100, 96, '#1c1a16') + circle(300, 104, 26,
+        '#3a3218') +
+        '<ellipse cx="291" cy="99" rx="3" ry="4" fill="#141008"/>' +
+        '<ellipse cx="309" cy="99" rx="3" ry="4" fill="#141008"/>' +
+        (angry ?
+          '<path d="M288 118 Q300 110 312 118" ' + ink + '/>' +
+          '<path d="M283 89 L294 94 M317 89 L306 94" ' + ink + '/>' :
+          '<path d="M288 112 Q300 120 312 112" ' + ink + '/>') +
+        (angry ?
+          '<text x="300" y="156" fill="#7a2020" font-size="18" ' +
+          'font-weight="bold" letter-spacing="3" text-anchor="middle" ' +
+          'font-family="Arial">DIE</text>' :
+          label(300, 154, 'celebrate', '#4a3434', 12)) +
+        drawKidsDrawing(170, 80, -6, '#2a3a5a') +
+        drawKidsDrawing(380, 90, 5, '#5a2a3a') +
+        drawKidsDrawing(190, 132, 3, '#4a3a20');
+    // The office door is just around the corner.
+    svg += isWest ?
+        poly('600,40 520,62 520,262 600,310', '#060607') :
+        poly('0,40 80,62 80,262 0,310', '#060607');
+    // Trash can and a sagging cable.
+    const canX = isWest ? 60 : 490;
+    svg += rect(canX, 270, 50, 60, '#18181a') +
+        rect(canX - 4, 264, 58, 8, '#202022') +
+        '<path d="M0 22 Q150 52 300 16 T600 34" stroke="#1a1a1a" ' +
+        'stroke-width="3" fill="none"/>';
+    return svg + drawCeilingLight(300);
+  }
+
+
+  /**
+   * How dark the hallway is at a spot, from 0 (fully lit) to 0.95.
+   * The light fades the farther down the hall you look, and the last
+   * 25% of the hallway is almost black.
+   * @param {number} depth How far down the hall, from 0 (near) to 1 (end).
+   * @return {number} How much darkness covers that spot.
+   */
+  function hallDarkness(depth) {
+    if (depth < 0.08) {
+      return 0;
+    }
+    if (depth < 0.75) {
+      return 0.85 * Math.pow((depth - 0.08) / 0.67, 1.3);
+    }
+    return Math.min(0.95, 0.85 + 0.1 * (depth - 0.75) / 0.25);
+  }
+
+  /**
+   * Draws a character in the hallway. Verity, Falsity and Loveity are
+   * giant floating heads; Obesity keeps his own look for now.
+   * @param {string} name The character.
+   * @return {string} SVG markup, with the bottom middle at (0, 0).
+   */
+  function hallCharacterArt(name) {
+    if (name === 'obesity') {
+      return CHARACTER_ART.obesity.replace(
+          '<svg ', '<svg x="-82" y="-220" width="165" height="220" ');
+    }
+    return CHARACTER_ART[name].replace(
+        '<svg ', '<svg x="-135" y="-320" width="270" height="304" ');
+  }
+
+  /**
+   * Draws the wide hallway, with the dining area at the far end in the
+   * dark. Everything farther down gets darker.
+   * @param {number} width Picture width.
+   * @param {number} height Picture height.
+   * @param {!Array<{name: string, depth: number, across: number}>}
+   *     visitors Characters in the hall, where they are along it (0 near,
+   *     1 far) and across it (0 left wall, 1 right wall).
+   * @param {string} id A short name that keeps this picture's parts
+   *     separate from other pictures on the page.
+   * @param {boolean} mirror True to flip the picture left to right.
+   * @return {string} SVG shapes (put inside an svg with a matching
+   *     viewBox).
+   */
+  function drawHallScene(width, height, visitors, id, mirror) {
+    const cx = width / 2;
+    const hy = height * 0.44;
+    const k = height / 340;
+    const scaleAt = (u) => 1 / (1 + 3 * u);
+    const sec = (u) => {
+      const s = scaleAt(u);
+      return {
+        l: cx - cx * s,
+        r: cx + cx * s,
+        t: hy - hy * s,
+        b: hy + (height - hy) * s,
+      };
+    };
+    // A point at depth u, across x (0 to 1) and height h (0 floor, 1 roof).
+    const at = (u, x, h) => {
+      const c = sec(u);
+      return [c.l + (c.r - c.l) * x, c.b - h * (c.b - c.t)];
+    };
+    const pts = (list) => list.map(
+        (pt) => pt[0].toFixed(1) + ',' + pt[1].toFixed(1)).join(' ');
+    const shape = (list, fill, extra) => '<polygon points="' + pts(list) +
+        '" fill="' + fill + '"' + (extra ? ' ' + extra : '') + '/>';
+    const wallQuad = (side, u0, u1, h0, h1, fill) => {
+      const x = side < 0 ? 0 : 1;
+      return shape([at(u0, x, h0), at(u1, x, h0), at(u1, x, h1),
+        at(u0, x, h1)], fill);
+    };
+    const floorQuad = (u0, u1, x0, x1, fill) => shape([at(u0, x0, 0),
+      at(u0, x1, 0), at(u1, x1, 0), at(u1, x0, 0)], fill);
+    const ceilQuad = (u0, u1, x0, x1, fill) => shape([at(u0, x0, 1),
+      at(u0, x1, 1), at(u1, x1, 1), at(u1, x0, 1)], fill);
+    const seg = (a, b, color, w) => '<line x1="' + a[0].toFixed(1) +
+        '" y1="' + a[1].toFixed(1) + '" x2="' + b[0].toFixed(1) +
+        '" y2="' + b[1].toFixed(1) + '" stroke="' + color +
+        '" stroke-width="' + w + '"/>';
+    const wallOval = (side, u0, u1, h, size, fill) => {
+      const x = side < 0 ? 0 : 1;
+      const a = at(u0, x, h);
+      const b = at(u1, x, h);
+      const c = sec((u0 + u1) / 2);
+      return '<ellipse cx="' + ((a[0] + b[0]) / 2).toFixed(1) + '" cy="' +
+          ((a[1] + b[1]) / 2).toFixed(1) + '" rx="' +
+          (Math.abs(b[0] - a[0]) * 0.32).toFixed(1) + '" ry="' +
+          ((c.b - c.t) * size).toFixed(1) + '" fill="' + fill + '"/>';
+    };
+    // Something standing (or floating) on the floor, dimmed by distance.
+    const standing = (u, x, art, extra) => {
+      const p = at(u, x, 0);
+      const s = scaleAt(u) * k;
+      const move = 'translate(' + p[0].toFixed(1) + ',' + p[1].toFixed(1) +
+          ') scale(' + s.toFixed(3) + ')';
+      return '<g transform="' + move + '">' + (extra || '') + '</g>' +
+          '<g transform="' + move + '">' + art + '</g>' +
+          '<g transform="' + move + '" opacity="' +
+          hallDarkness(u).toFixed(3) + '" filter="url(#hallBlack' + id +
+          ')">' + art + '</g>';
+    };
+
+    const F = sec(1);
+    const fx = (a) => F.l + (F.r - F.l) * a;
+    const fy = (b) => F.t + (F.b - F.t) * b;
+    const box = (a0, b0, a1, b1, fill) => '<rect x="' + fx(a0).toFixed(1) +
+        '" y="' + fy(b0).toFixed(1) + '" width="' +
+        (fx(a1) - fx(a0)).toFixed(1) + '" height="' +
+        (fy(b1) - fy(b0)).toFixed(1) + '" fill="' + fill + '"/>';
+
+    let svg = '<defs>' +
+        '<radialGradient id="hallWarm' + id + '" cx="50%" cy="100%" r="80%">' +
+        '<stop offset="0" stop-color="#ffc070" stop-opacity="0.09"/>' +
+        '<stop offset="1" stop-color="#ffc070" stop-opacity="0"/>' +
+        '</radialGradient>' +
+        '<linearGradient id="hallMoon' + id + '" x1="0" y1="0" x2="0" y2="1">' +
+        '<stop offset="0" stop-color="#4a6488" stop-opacity="0.35"/>' +
+        '<stop offset="1" stop-color="#4a6488" stop-opacity="0"/>' +
+        '</linearGradient>' +
+        '<filter id="hallBlack' + id + '"><feColorMatrix type="matrix" ' +
+        'values="0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1 0"/></filter>' +
+        '</defs>';
+    svg += mirror ?
+        '<g transform="translate(' + width + ' 0) scale(-1 1)">' : '<g>';
+
+    // Ceiling, walls and floor.
+    svg += shape([[0, 0], [width, 0], [F.r, F.t], [F.l, F.t]], '#0d0d0f') +
+        shape([[0, 0], [F.l, F.t], [F.l, F.b], [0, height]], '#1c1a1d') +
+        shape([[width, 0], [F.r, F.t], [F.r, F.b], [width, height]],
+            '#1c1a1d') +
+        shape([[0, height], [F.l, F.b], [F.r, F.b], [width, height]],
+            '#1a1814');
+
+    // The dining area at the far end, lit only by moonlight.
+    svg += box(0, 0, 1, 1, '#0a0d13') + box(0, 0.818, 1, 1, '#07090d') +
+        box(0, 0, 0.08, 1, '#160a0c') + box(0.7, 0.11, 0.9, 0.42, '#121a28') +
+        seg([fx(0.8), fy(0.11)], [fx(0.8), fy(0.42)], '#0a0d13', 2) +
+        seg([fx(0.7), fy(0.265)], [fx(0.9), fy(0.265)], '#0a0d13', 2) +
+        shape([[fx(0.7), fy(0.42)], [fx(0.9), fy(0.42)], [fx(0.833), fy(1)],
+          [fx(0.5), fy(1)]], 'url(#hallMoon' + id + ')');
+    for (let i = 0; i < 14; i++) {
+      const a = 0.093 + i * 0.0633;
+      svg += shape([[fx(a), fy(0.135)], [fx(a + 0.0633), fy(0.135)],
+        [fx(a + 0.0317), fy(0.217)]], i % 2 ? '#1e121c' : '#121a26');
+    }
+    svg += box(0.133, 0.724, 0.667, 0.771, '#161a24') +
+        box(0.167, 0.771, 0.187, 0.912, '#10131a') +
+        box(0.613, 0.771, 0.633, 0.912, '#10131a');
+    [0.2, 0.333, 0.5].forEach((a) => {
+      svg += shape([[fx(a), fy(0.724)], [fx(a + 0.033), fy(0.594)],
+        [fx(a + 0.067), fy(0.724)]], '#1e2432');
+    });
+    svg += '<ellipse cx="' + fx(0.1).toFixed(1) + '" cy="' +
+        fy(0.441).toFixed(1) + '" rx="' + (6 * scaleAt(1) * 4 * k).toFixed(1) +
+        '" ry="' + (8 * scaleAt(1) * 4 * k).toFixed(1) + '" fill="#1a2030"/>' +
+        seg([fx(0.1), fy(0.535)], [fx(0.12), fy(0.724)], '#10131a', 1) +
+        '<ellipse cx="' + fx(0.753).toFixed(1) + '" cy="' +
+        fy(0.559).toFixed(1) + '" rx="' + (5 * scaleAt(1) * 4 * k).toFixed(1) +
+        '" ry="' + (7 * scaleAt(1) * 4 * k).toFixed(1) + '" fill="#22161e"/>' +
+        seg([fx(0.753), fy(0.641)], [fx(0.74), fy(0.818)], '#10131a', 1);
+    svg += box(0.38, -0.135, 0.62, -0.041, '#0e1c12') +
+        box(0.42, -0.112, 0.58, -0.065, '#1c3424');
+
+    // Checkered floor tiles.
+    for (let i = 0; i < 14; i++) {
+      for (let j = 0; j < 8; j++) {
+        if ((i + j) % 2) {
+          svg += floorQuad(i / 14, (i + 1) / 14, j / 8, (j + 1) / 8,
+              '#2a251c');
+        }
+      }
+    }
+
+    // Both walls: trim, lower panels and the checkered stripe.
+    [-1, 1].forEach((side) => {
+      svg += wallQuad(side, 0, 1, 0, 0.03, '#121011') +
+          wallQuad(side, 0, 1, 0.03, 0.36, '#171518');
+      for (let i = 0; i < 30; i++) {
+        const u0 = i / 30;
+        const u1 = (i + 1) / 30;
+        svg += wallQuad(side, u0, u1, 0.36, 0.40,
+            i % 2 ? '#3a3418' : '#121212') +
+            wallQuad(side, u0, u1, 0.40, 0.44,
+                i % 2 ? '#121212' : '#3a3418');
+      }
+    });
+
+    // Side doors (one left open a crack).
+    svg += wallQuad(-1, 0.165, 0.295, 0, 0.69, '#2a2a2d') +
+        wallQuad(-1, 0.175, 0.285, 0, 0.66, '#09090b') +
+        wallQuad(-1, 0.2, 0.26, 0.5, 0.56, '#1e2a3a') +
+        wallQuad(-1, 0.615, 0.725, 0, 0.69, '#2a2a2d') +
+        wallQuad(-1, 0.625, 0.715, 0, 0.66, '#060607') +
+        wallQuad(1, 0.435, 0.565, 0, 0.69, '#2a2a2d') +
+        wallQuad(1, 0.445, 0.555, 0, 0.66, '#040405') +
+        shape([at(0.445, 1, 0), at(0.47, 0.86, 0), at(0.47, 0.86, 0.66),
+          at(0.445, 1, 0.66)], '#18181b');
+
+    // Posters, kids' drawings, a fire alarm and a crack in the wall.
+    svg += wallQuad(-1, 0.03, 0.11, 0.5, 0.84, '#1c1a16') +
+        wallOval(-1, 0.03, 0.11, 0.68, 0.11, '#4d4220') +
+        wallQuad(1, 0.07, 0.15, 0.52, 0.84, '#2a1416') +
+        wallOval(1, 0.07, 0.15, 0.69, 0.1, '#24385a') +
+        wallQuad(1, 0.2, 0.235, 0.55, 0.67, '#22201e') +
+        wallOval(1, 0.2, 0.235, 0.61, 0.035, '#3a2030') +
+        wallQuad(1, 0.25, 0.285, 0.5, 0.6, '#201e1c') +
+        wallOval(1, 0.25, 0.285, 0.55, 0.03, '#20304a') +
+        wallQuad(-1, 0.36, 0.4, 0.55, 0.66, '#22201e') +
+        wallOval(-1, 0.36, 0.4, 0.6, 0.035, '#4a3a20') +
+        wallQuad(1, 0.33, 0.345, 0.6, 0.66, '#4a1414') +
+        '<polyline points="' + pts([at(0.45, 0, 0.85), at(0.48, 0, 0.7),
+          at(0.5, 0, 0.74), at(0.54, 0, 0.58)]) +
+        '" stroke="#0e0d0f" stroke-width="1.5" fill="none"/>';
+
+    // Ceiling tiles, a missing tile with dangling wires, pipe and duct.
+    for (let i = 1; i < 14; i++) {
+      svg += seg(at(i / 14, 0, 1), at(i / 14, 1, 1), '#161618', 1);
+    }
+    [0.33, 0.67].forEach((x) => {
+      svg += seg(at(0, x, 1), at(1, x, 1), '#161618', 1);
+    });
+    const hole = at(0.23, 0.66, 1);
+    svg += ceilQuad(0.2, 0.26, 0.55, 0.75, '#030303') +
+        '<path d="M' + hole[0].toFixed(1) + ' ' + hole[1].toFixed(1) +
+        ' q' + (12 * k) + ' ' + (40 * k) + ' ' + (-4 * k) + ' ' + (72 * k) +
+        '" stroke="#0c0c0c" stroke-width="2" fill="none"/>' +
+        '<path d="M' + (hole[0] + 8 * k).toFixed(1) + ' ' +
+        hole[1].toFixed(1) + ' q' + (-6 * k) + ' ' + (30 * k) + ' ' +
+        (6 * k) + ' ' + (50 * k) +
+        '" stroke="#0c0c0c" stroke-width="1.5" fill="none"/>';
+    svg += wallQuad(-1, 0, 1, 0.92, 0.97, '#202024');
+    [0.1, 0.3, 0.5, 0.7].forEach((u) => {
+      svg += wallQuad(-1, u, u + 0.012, 0.91, 0.98, '#2c2c30');
+    });
+    svg += wallQuad(1, 0, 1, 0.88, 0.98, '#1d1d21');
+    [0.15, 0.35, 0.55, 0.75].forEach((u) => {
+      svg += seg(at(u, 1, 0.88), at(u, 1, 0.98), '#141417', 1);
+    });
+
+    // A streamer lying on the floor.
+    const streamer = [];
+    for (let i = 0; i <= 10; i++) {
+      streamer.push(at(0.04 + i * 0.012,
+          0.28 + 0.06 * Math.sin(i * 1.4) + i * 0.02, 0));
+    }
+    svg += '<polyline points="' + pts(streamer) +
+        '" stroke="#3a2030" stroke-width="3" fill="none"/>';
+
+    // Ceiling lights: two work, one is dim, the last one is broken.
+    [[0.07, 2], [0.3, 2], [0.56, 1], [0.83, 0]].forEach((light) => {
+      const u = light[0];
+      const level = light[1];
+      svg += ceilQuad(u - 0.012, u + 0.012, 0.38, 0.62, '#232326') +
+          ceilQuad(u - 0.007, u + 0.007, 0.41, 0.59,
+              level === 2 ? '#9a8a5a' : level === 1 ? '#4a4230' : '#161616');
+      if (level) {
+        const c = sec(u);
+        const half = (c.r - c.l) * 0.3;
+        svg += shape([at(u, 0.41, 1), at(u, 0.59, 1), [cx + half, c.b],
+          [cx - half, c.b]], '#ffd080', 'opacity="' +
+          (level === 2 ? 0.03 : 0.015) + '"') +
+            '<ellipse cx="' + cx + '" cy="' + (c.b - 2).toFixed(1) +
+            '" rx="' + half.toFixed(1) + '" ry="' +
+            (18 * scaleAt(u) * k).toFixed(1) + '" fill="#ffd080" opacity="' +
+            (level === 2 ? 0.07 : 0.035) + '"/>';
+      }
+    });
+
+    // The darkness: thin layers that pile up the farther back you look.
+    let before = 0;
+    for (let n = 0; n <= 46; n++) {
+      const u = Math.min(1, 0.08 + n * 0.02);
+      const target = hallDarkness(u);
+      const layer = 1 - (1 - target) / (1 - before);
+      before = target;
+      const c = sec(u);
+      svg += '<path fill-rule="evenodd" fill="#000000" fill-opacity="' +
+          layer.toFixed(3) + '" d="M' + c.l.toFixed(1) + ' ' +
+          c.t.toFixed(1) + ' H' + c.r.toFixed(1) + ' V' + c.b.toFixed(1) +
+          ' H' + c.l.toFixed(1) + ' Z M' + F.l.toFixed(1) + ' ' +
+          F.t.toFixed(1) + ' H' + F.r.toFixed(1) + ' V' + F.b.toFixed(1) +
+          ' H' + F.l.toFixed(1) + ' Z"/>';
+    }
+
+    // Things on the floor.
+    svg += standing(0.12, 0.82, '<polygon points="-22,0 0,-70 22,0" ' +
+        'fill="#4a4218"/><polygon points="-13,-10 0,-50 13,-10" ' +
+        'fill="#2a2610"/>');
+    svg += standing(0.38, 0.07, '<rect x="-20" y="-60" width="40" ' +
+        'height="60" fill="#1c1c20"/><rect x="-23" y="-66" width="46" ' +
+        'height="8" fill="#26262a"/><polygon points="-8,-66 4,-80 10,-66" ' +
+        'fill="#2a2822"/>');
+    svg += standing(0.24, 0.42, '<polygon points="-16,0 18,0 4,-22" ' +
+        'fill="#3a1e2c"/><line x1="-6" y1="-8" x2="11" y2="-8" ' +
+        'stroke="#5a4a20" stroke-width="3"/>');
+    svg += standing(0.58, 0.62, '<ellipse cx="0" cy="-5" rx="16" ry="6" ' +
+        'fill="#2a1420"/><path d="M14 -4 q12 4 22 -2" stroke="#141414" ' +
+        'stroke-width="2" fill="none"/>');
+    svg += standing(0.7, 0.28, '<rect x="-30" y="-10" width="60" ' +
+        'height="8" fill="#1e1c18"/><rect x="-26" y="-34" width="6" ' +
+        'height="26" fill="#1a1814"/><rect x="20" y="-2" width="16" ' +
+        'height="6" fill="#1a1814"/>');
+
+    // Characters, farthest first so closer ones are drawn on top.
+    visitors.slice().sort((a, b) => b.depth - a.depth).forEach(
+        (visitor, index) => {
+          const shadow = '<ellipse cx="0" cy="0" rx="90" ry="14" ' +
+              'fill="#000000" opacity="0.5"/>';
+          const drawn = standing(visitor.depth, visitor.across,
+              hallCharacterArt(visitor.name), shadow);
+          svg += visitor.name === 'obesity' ? drawn :
+              '<g class="floatHead" style="animation-delay: -' +
+              (index * 1.1).toFixed(1) + 's">' + drawn + '</g>';
+        });
+
+    svg += '</g><rect width="' + width + '" height="' + height +
+        '" fill="url(#hallWarm' + id + ')"/>';
+    return svg;
+  }
+
+  /**
+   * Spreads out characters standing at the same spot so they don't
+   * cover each other.
+   * @param {!Array<{name: string, depth: number}>} list The characters.
+   * @return {!Array<{name: string, depth: number, across: number}>}
+   *     The same characters, each with a spot across the hall.
+   */
+  function spreadAcross(list) {
+    const groups = {};
+    list.forEach((item) => {
+      (groups[item.depth] = groups[item.depth] || []).push(item);
+    });
+    const spread = [];
+    Object.keys(groups).forEach((depth) => {
+      const group = groups[depth];
+      group.forEach((item, index) => {
+        spread.push({
+          name: item.name,
+          depth: item.depth,
+          across: group.length === 1 ? 0.5 :
+              0.25 + (0.5 * index) / (group.length - 1),
+        });
+      });
+    });
+    return spread;
+  }
+
+  /**
+   * Builds the full picture for one camera, including any characters.
+   * @param {string} cameraId The camera to draw.
+   * @return {string} The SVG markup for the camera view.
+   */
+  function drawCameraView(cameraId) {
+    const camera = CAMERAS.find((c) => c.id === cameraId);
+    if (camera && camera.audioOnly) {
+      return '<svg viewBox="0 0 600 340" preserveAspectRatio="xMidYMid slice">' +
+          '<rect width="600" height="340" fill="#000000"/>' +
+          '<text x="300" y="170" fill="#666666" font-size="16" ' +
+          'text-anchor="middle" font-family="Arial">camera disabled - ' +
+          'audio only</text></svg>';
+    }
+
+    const here = Object.keys(nightState.characterRooms).filter(
+        (name) => nightState.characterRooms[name] === cameraId);
+
+    if (cameraId === '2a' || cameraId === '4a') {
+      const visitors = spreadAcross(
+          here.map((name) => ({name: name, depth: 0.35})));
+      return '<svg viewBox="0 0 600 340" ' +
+          'preserveAspectRatio="xMidYMid slice">' +
+          drawHallScene(600, 340, visitors, 'cam', cameraId === '4a') +
+          '<rect width="600" height="340" fill="#000000" opacity="0.35"/>' +
+          '</svg>';
+    }
+
+    // Giant floating heads; Obesity keeps his own look for now.
+    const slotWidth = 190;
+    const startX = 300 - (here.length * slotWidth) / 2;
+    const raise = cameraId === '1a' ? 36 : 0;
+    let characters = '';
+    here.forEach((name, index) => {
+      const x = startX + index * slotWidth;
+      if (name === 'obesity') {
+        characters += CHARACTER_ART[name].replace('<svg ', '<svg x="' +
+            (x + 27) + '" y="' + (120 - raise) +
+            '" width="135" height="180" ');
+        return;
+      }
+      characters += '<ellipse cx="' + (x + 95) + '" cy="' +
+          (300 - raise) + '" rx="60" ry="8" fill="#000000" opacity="0.5"/>' +
+          '<g class="floatHead" style="animation-delay: -' +
+          (index * 1.1).toFixed(1) + 's">' +
+          CHARACTER_ART[name].replace('<svg ', '<svg x="' + x + '" y="' +
+              (79 - raise) + '" width="190" height="214" ') + '</g>';
+    });
+
+    return '<svg viewBox="0 0 600 340" preserveAspectRatio="xMidYMid slice">' +
+        '<rect width="600" height="340" fill="#0e0e10"/>' +
+        drawRoomProps(cameraId) + characters +
+        '<rect width="600" height="340" fill="#000000" opacity="0.35"/>' +
+        '</svg>';
+  }
+
+  /**
+   * Builds the clickable camera map.
+   */
+  function buildCameraMap() {
+    const map = byId('camMap');
+    map.innerHTML = '';
+    CAMERAS.forEach((camera) => {
+      const button = document.createElement('button');
+      button.className = 'camMapButton';
+      button.textContent = camera.name;
+      button.title = camera.name;
+      button.style.left = camera.x + '%';
+      button.style.top = camera.y + '%';
+      button.style.width = camera.w + '%';
+      button.style.height = camera.h + '%';
+      button.dataset.camId = camera.id;
+      button.addEventListener('click', () => {
+        switchCamera(camera.id);
+      });
+      map.appendChild(button);
+    });
+    const you = document.createElement('div');
+    you.className = 'mapYou';
+    you.textContent = 'you';
+    you.style.left = '40%';
+    you.style.top = '82%';
+    you.style.width = '20%';
+    you.style.height = '12%';
+    map.appendChild(you);
+  }
+
+  /**
+   * Shows a different camera, with a burst of static.
+   * @param {string} cameraId The camera to show.
+   */
+  function switchCamera(cameraId) {
+    nightState.currentCamera = cameraId;
+    const camera = CAMERAS.find((c) => c.id === cameraId);
+    byId('camLabel').textContent = camera.name;
+    byId('camView').innerHTML = drawCameraView(cameraId);
+    byId('camMap').querySelectorAll('.camMapButton').forEach((button) => {
+      button.classList.toggle('selected', button.dataset.camId === cameraId);
+    });
+    const staticLayer = byId('camStatic');
+    staticLayer.classList.remove('burst');
+    void staticLayer.offsetWidth;
+    staticLayer.classList.add('burst');
+  }
+
+  /**
+   * Raises the camera tablet. Lights turn off while it's up.
+   */
+  function openCameras() {
+    if (!nightState.running || nightState.powerOut) {
+      return;
+    }
+    nightState.camerasOpen = true;
+    nightState.leftLightOn = false;
+    nightState.rightLightOn = false;
+    byId('cameraPanel').classList.add('open');
+    switchCamera(nightState.currentCamera);
+    updateOfficeLooks();
+  }
+
+  /**
+   * Puts the camera tablet down.
+   */
+  function closeCameras() {
+    nightState.camerasOpen = false;
+    byId('cameraPanel').classList.remove('open');
+    updateOfficeLooks();
+  }
+
+  // ---------- Sounds (made with the browser's built-in Web Audio) ----------
+
+  /** @type {?AudioContext} */
+  let audioContext = null;
+
+  /**
+   * Gets the sound system, starting it if needed. Browsers only allow
+   * sound after the player clicks something, which they already have.
+   * @return {?AudioContext} The sound system, or null if not available.
+   */
+  function getAudio() {
+    if (audioContext === null) {
+      const AudioType = window.AudioContext || window.webkitAudioContext;
+      if (!AudioType) {
+        return null;
+      }
+      audioContext = new AudioType();
+    }
+    if (audioContext.state === 'suspended') {
+      audioContext.resume();
+    }
+    return audioContext;
+  }
+
+  /**
+   * Plays one heavy thud, panned to the left or right speaker.
+   * @param {number} startTime When to play it, in sound-system time.
+   * @param {number} pan -1 for left, 1 for right.
+   * @param {number} volume How loud, from 0 to 1.
+   */
+  function playThud(startTime, pan, volume) {
+    const audio = getAudio();
+    if (!audio) {
+      return;
+    }
+    const tone = audio.createOscillator();
+    const gain = audio.createGain();
+    const panner = audio.createStereoPanner ?
+        audio.createStereoPanner() : null;
+    tone.type = 'sine';
+    tone.frequency.setValueAtTime(90, startTime);
+    tone.frequency.exponentialRampToValueAtTime(40, startTime + 0.18);
+    gain.gain.setValueAtTime(volume, startTime);
+    gain.gain.exponentialRampToValueAtTime(0.001, startTime + 0.25);
+    tone.connect(gain);
+    if (panner) {
+      panner.pan.value = pan;
+      gain.connect(panner);
+      panner.connect(audio.destination);
+    } else {
+      gain.connect(audio.destination);
+    }
+    tone.start(startTime);
+    tone.stop(startTime + 0.3);
+  }
+
+  /**
+   * Plays footsteps coming from one side.
+   * @param {string} side Either 'left' or 'right'.
+   * @param {boolean} arriving True if walking up, false if walking away.
+   */
+  function playFootsteps(side, arriving) {
+    const audio = getAudio();
+    if (!audio) {
+      return;
+    }
+    const pan = side === 'left' ? -0.8 : 0.8;
+    const now = audio.currentTime;
+    for (let step = 0; step < 4; step++) {
+      // Walking up gets louder; walking away gets quieter.
+      const loudness = arriving ? 0.2 + step * 0.15 : 0.5 - step * 0.11;
+      playThud(now + step * 0.45, pan, loudness);
+    }
+  }
+
+  /**
+   * Plays a harsh scream for the jump scare.
+   */
+  function playScream() {
+    const audio = getAudio();
+    if (!audio) {
+      return;
+    }
+    const now = audio.currentTime;
+    const length = JUMP_SCARE_MS / 1000;
+    const buffer = audio.createBuffer(
+        1, Math.floor(audio.sampleRate * length), audio.sampleRate);
+    const data = buffer.getChannelData(0);
+    for (let i = 0; i < data.length; i++) {
+      data[i] = Math.random() * 2 - 1;
+    }
+    const noise = audio.createBufferSource();
+    noise.buffer = buffer;
+    const noiseGain = audio.createGain();
+    noiseGain.gain.setValueAtTime(0.35, now);
+    noiseGain.gain.linearRampToValueAtTime(0.0, now + length);
+    noise.connect(noiseGain);
+    noiseGain.connect(audio.destination);
+
+    const shriek = audio.createOscillator();
+    shriek.type = 'sawtooth';
+    shriek.frequency.setValueAtTime(900, now);
+    shriek.frequency.linearRampToValueAtTime(500, now + length);
+    const shriekGain = audio.createGain();
+    shriekGain.gain.setValueAtTime(0.18, now);
+    shriekGain.gain.linearRampToValueAtTime(0.0, now + length);
+    shriek.connect(shriekGain);
+    shriekGain.connect(audio.destination);
+
+    noise.start(now);
+    shriek.start(now);
+    shriek.stop(now + length);
+  }
+
+  // ---------- Character movement ----------
+
+  /**
+   * Gets how eager a character is right now. They get a little
+   * bolder every two hours.
+   * @param {string} name The character.
+   * @return {number} Their level out of 20 (0 means asleep).
+   */
+  function getLevel(name) {
+    const levels = NIGHT_LEVELS[nightState.nightNumber] || {};
+    if (!(name in levels)) {
+      return 0;
+    }
+    const hour = Math.floor(nightState.elapsedMs / HOUR_LENGTH_MS);
+    // The custom night stays at exactly the levels the player picked.
+    const lateBonus = nightState.nightNumber === CUSTOM_NIGHT ?
+        0 : Math.floor(hour / 2);
+    const bonus = getSpookiness() === 'manly' ? MANLY_LEVEL_BONUS : 0;
+    return Math.min(20, levels[name] + lateBonus + bonus);
+  }
+
+  /**
+   * Turns a door spot into the side it belongs to.
+   * @param {string} room A room id or door spot.
+   * @return {?string} 'left', 'right' or null if not at a door.
+   */
+  function doorSideOf(room) {
+    if (room === 'leftDoor') {
+      return 'left';
+    }
+    if (room === 'rightDoor') {
+      return 'right';
+    }
+    return null;
+  }
+
+  /**
+   * Moves a character to a new spot and refreshes anything showing it.
+   * @param {string} name The character.
+   * @param {number} step Where along their path to put them.
+   */
+  function moveCharacter(name, step) {
+    const oldRoom = nightState.characterRooms[name];
+    const newRoom = PATHS[name][step];
+    nightState.pathStep[name] = step;
+    nightState.characterRooms[name] = newRoom;
+    nightState.doorOpenMs[name] = 0;
+    nightState.doorClosedMs[name] = 0;
+
+    const arrivingSide = doorSideOf(newRoom);
+    const leavingSide = doorSideOf(oldRoom);
+    if (arrivingSide) {
+      playFootsteps(arrivingSide, true);
+    } else if (leavingSide) {
+      playFootsteps(leavingSide, false);
+    }
+
+    const watching = nightState.currentCamera;
+    if (nightState.camerasOpen &&
+        (watching === oldRoom || watching === newRoom)) {
+      switchCamera(watching);
+    }
+    updateDoorVisitors();
+  }
+
+  /**
+   * Runs every frame: rolls move chances and handles characters at doors.
+   * @param {number} deltaMs Time since the last frame, in milliseconds.
+   */
+  function updateCharacters(deltaMs) {
+    const grace = DOOR_GRACE_MS[nightState.nightNumber] || 5000;
+    Object.keys(PATHS).forEach((name) => {
+      if (!nightState.running) {
+        return;
+      }
+      const level = getLevel(name);
+      if (level === 0) {
+        return;
+      }
+      const room = nightState.characterRooms[name];
+      const side = doorSideOf(room);
+
+      if (side) {
+        const doorClosed = side === 'left' ?
+            nightState.leftDoorClosed : nightState.rightDoorClosed;
+        if (doorClosed) {
+          nightState.doorClosedMs[name] += deltaMs;
+          if (nightState.doorClosedMs[name] >= GIVE_UP_MS) {
+            moveCharacter(name, 0);
+          }
+        } else {
+          nightState.doorOpenMs[name] += deltaMs;
+          // Manly mode starts its build-up a moment early, while the
+          // player is still in the office, so the face hits right on time.
+          const leadMs = getSpookiness() === 'manly' ? MANLY_LEAD_MS : 0;
+          if (nightState.doorOpenMs[name] >= grace - leadMs) {
+            startJumpScare(name);
+          }
+        }
+        return;
+      }
+
+      nightState.moveTimers[name] -= deltaMs;
+      if (nightState.moveTimers[name] <= 0) {
+        nightState.moveTimers[name] += MOVE_CHANCE_MS;
+        const roll = Math.floor(Math.random() * 20) + 1;
+        if (roll <= level) {
+          moveCharacter(name, nightState.pathStep[name] + 1);
+        }
+      }
+    });
+  }
+
+  /**
+   * Where each spot outside a door shows up in the hallway view,
+   * from 0 (right outside the door) to 1 (far end).
+   * @const {!Object<string, !Object<string, number>>}
+   */
+  const HALL_SPOTS = {
+    left: {leftDoor: 0.04, '2b': 0.3, '2a': 0.62},
+    right: {rightDoor: 0.04, '4b': 0.3, '4a': 0.62},
+  };
+
+  /**
+   * Redraws the hallway outside each door with whoever is at the door
+   * or farther down the hall, and turns on the glowing-eyes cue.
+   */
+  function updateDoorVisitors() {
+    ['left', 'right'].forEach((side) => {
+      const spots = HALL_SPOTS[side];
+      const list = [];
+      Object.keys(nightState.characterRooms).forEach((name) => {
+        const room = nightState.characterRooms[name];
+        if (room in spots && getLevel(name) > 0) {
+          list.push({name: name, depth: spots[room]});
+        }
+      });
+      const box = byId(side + 'Hall');
+      const key = getSpookiness() + ':' +
+          list.map((item) => item.name + '@' + item.depth).join(',');
+      if (box.dataset.who !== key) {
+        box.dataset.who = key;
+        box.innerHTML = '<svg viewBox="0 0 240 340" ' +
+            'preserveAspectRatio="xMidYMid slice">' +
+            drawHallScene(240, 340, spreadAcross(list), side,
+                side === 'right') + '</svg>';
+      }
+      const atDoor = list.some((item) => item.depth === spots[side + 'Door']);
+      byId(side + 'Doorway').classList.toggle(
+          'occupied', atDoor && !nightState.powerOut);
+    });
+  }
+
+  /**
+   * Shows a character's face up close, then the game over screen.
+   * @param {string} name The character who got in.
+   */
+  function startJumpScare(name) {
+    nightState.running = false;
+    if (getSpookiness() === 'manly') {
+      startManlyScare(name, () => {
+        byId('gameOverReason').textContent =
+            'caught by ' + name + ' - ' + nightName(nightState.nightNumber);
+        showScreen('gameOver');
+      });
+      return;
+    }
+    closeCameras();
+    const level = getSpookiness();
+    const showGameOver = () => {
+      byId('gameOverReason').textContent =
+          'caught by ' + name + ' - ' + nightName(nightState.nightNumber);
+      showScreen('gameOver');
+    };
+    if (level === 'baby') {
+      showGameOver();
+      return;
+    }
+    if (level === 'toddler') {
+      showScreen('toddlerBlack');
+      playScream();
+      setTimeout(showGameOver, JUMP_SCARE_MS);
+      return;
+    }
+    byId('jumpScareFace').innerHTML = CHARACTER_ART[name];
+    showScreen('jumpScare');
+    playScream();
+    setTimeout(() => {
+      byId('gameOverReason').textContent =
+          'caught by ' + name + ' - ' + nightName(nightState.nightNumber);
+      showScreen('gameOver');
+    }, JUMP_SCARE_MS);
+  }
+
+  // ---------- Manly mode jump scare ----------
+
+
+
+  /**
+   * Draws a curved row of teeth.
+   * @param {!Array<number>} start Where the row starts [x, y].
+   * @param {!Array<number>} bend The point the row curves toward [x, y].
+   * @param {!Array<number>} end Where the row ends [x, y].
+   * @param {number} count How many teeth.
+   * @param {number} length How long the teeth are.
+   * @param {boolean} pointUp True for bottom teeth (pointing up).
+   * @param {string} fill Tooth color.
+   * @return {string} SVG shapes for the teeth.
+   */
+  function drawTeethRow(start, bend, end, count, length, pointUp, fill) {
+    const span = Math.hypot(end[0] - start[0], end[1] - start[1]);
+    let svg = '';
+    for (let i = 0; i < count; i++) {
+      const t = (i + 0.5) / count;
+      const a = (1 - t) * (1 - t);
+      const b = 2 * (1 - t) * t;
+      const c = t * t;
+      const x = a * start[0] + b * bend[0] + c * end[0];
+      const y = a * start[1] + b * bend[1] + c * end[1];
+      const dx = 2 * (1 - t) * (bend[0] - start[0]) +
+          2 * t * (end[0] - bend[0]);
+      const dy = 2 * (1 - t) * (bend[1] - start[1]) +
+          2 * t * (end[1] - bend[1]);
+      const angle = (Math.atan2(dy, dx) * 180) / Math.PI;
+      const width = (span / count) * 1.05;
+      const height = length * (0.75 + 0.25 * Math.sin(t * Math.PI));
+      svg += '<g transform="translate(' + x.toFixed(2) + ' ' + y.toFixed(2) +
+          ') rotate(' + angle.toFixed(1) + ')"><rect x="' +
+          (-width / 2).toFixed(2) + '" y="' +
+          (pointUp ? -height : 0).toFixed(2) + '" width="' +
+          width.toFixed(2) + '" height="' + height.toFixed(2) + '" rx="' +
+          (width * 0.35).toFixed(2) + '" fill="' + fill +
+          '" stroke="#9a9484" stroke-width="0.25"/></g>';
+    }
+    return svg;
+  }
+
+  /**
+   * Draws Manly Falsity or Loveity: a long stretched face with hollow eye
+   * holes and a huge grin full of teeth. Fits the same space as their
+   * normal heads (viewBox 80 by 90).
+   * @param {string} name 'falsity' or 'loveity'.
+   * @return {string} SVG markup.
+   */
+  function drawStretchFace(name) {
+    const isFalsity = name === 'falsity';
+    const shade = isFalsity ? 'falsityShade' : 'loveityShade';
+    const lip = isFalsity ? '#16264e' : '#4a1424';
+    const gum = isFalsity ? '#6a2a3a' : '#8a2a44';
+    // Drawn 80 by 110, then squeezed to fit the 80 by 90 space.
+    let svg = '<svg viewBox="0 0 80 90"><g transform="translate(7.3 0) ' +
+        'scale(0.818)">' +
+        '<path d="M40 3 C17 3 9 24 11 46 C12 72 22 105 40 107 C58 105 68 72 ' +
+        '69 46 C71 24 63 3 40 3 Z" fill="url(#' + shade + ')"/>' +
+        '<g filter="url(#obSoft)" opacity="0.55">' +
+        '<ellipse cx="26" cy="35" rx="12" ry="14" fill="#000000"/>' +
+        '<ellipse cx="54" cy="35" rx="12" ry="14" fill="#000000"/></g>' +
+        '<ellipse cx="26" cy="35" rx="9" ry="11.5" fill="url(#stretchSocket)" ' +
+        'transform="rotate(-12 26 35)"/>' +
+        '<ellipse cx="54" cy="35" rx="9" ry="11.5" fill="url(#stretchSocket)" ' +
+        'transform="rotate(12 54 35)"/>' +
+        '<ellipse cx="26" cy="35" rx="6.5" ry="9" fill="#020203" ' +
+        'transform="rotate(-12 26 35)"/>' +
+        '<ellipse cx="54" cy="35" rx="6.5" ry="9" fill="#020203" ' +
+        'transform="rotate(12 54 35)"/>' +
+        '<circle cx="27" cy="37" r="0.6" fill="#ffffff" opacity="0.5"/>' +
+        '<circle cx="53" cy="37" r="0.6" fill="#ffffff" opacity="0.5"/>' +
+        '<g filter="url(#obSoft)"><ellipse cx="34" cy="14" rx="12" ry="6" ' +
+        'fill="#ffffff" opacity="0.18"/></g>' +
+        '<path d="M37 49 q1.5 -2 3 0 M40 49 q1.5 -2 3 0" stroke="#000000" ' +
+        'stroke-width="0.9" fill="none" opacity="0.6"/>' +
+        '<path d="M10 52 Q40 70 70 52 Q68 100 40 104 Q12 100 10 52 Z" ' +
+        'fill="' + lip + '"/>' +
+        '<path d="M13 54 Q40 70 67 54 Q65 97 40 101 Q15 97 13 54 Z" ' +
+        'fill="#14060a"/>' +
+        '<path d="M13 54 Q40 70 67 54 Q40 75 13 54 Z" fill="' + gum + '"/>' +
+        '<path d="M18 92 Q40 104 62 92 Q40 98 18 92 Z" fill="' + gum + '"/>' +
+        drawTeethRow([15, 56], [40, 72], [65, 56], 14, 8, false, '#ece6d6') +
+        drawTeethRow([19, 91], [40, 101], [61, 91], 12, 6.5, true, '#e0d9c6') +
+        '<g stroke="#d8e4ff" stroke-width="0.35" opacity="0.45" fill="none">' +
+        '<path d="M24 64 q-1 10 1 22"/><path d="M47 70 q1 9 -1 20"/>' +
+        '<path d="M58 63 q2 12 -1 24"/></g>';
+    return svg + '</g></svg>';
+  }
+
+  /**
+   * Manly Falsity or Loveity's jump scare: the stretched face filling the
+   * screen, with the grin snapping shut, spit strings and a little blood.
+   * @param {string} name 'falsity' or 'loveity'.
+   * @param {?string} tint Paint everything one color (ghost copies), or
+   *     null for real colors.
+   * @return {string} SVG markup for the face.
+   */
+  function drawStretchScareFace(name, tint) {
+    const isFalsity = name === 'falsity';
+    const skin = tint ||
+        (isFalsity ? 'url(#falsityShade)' : 'url(#loveityShade)');
+    const lip = tint || (isFalsity ? '#16264e' : '#4a1424');
+    const gum = tint || (isFalsity ? '#6a2a3a' : '#8a2a44');
+    const dark = tint || '#020203';
+    const inside = tint || '#14060a';
+    let svg = '<svg viewBox="0 0 160 90" preserveAspectRatio="none">' +
+        '<ellipse cx="80" cy="48" rx="104" ry="70" fill="' + skin + '"/>';
+    if (!tint) {
+      svg += '<g filter="url(#obSoft)" opacity="0.6">' +
+          '<ellipse cx="46" cy="20" rx="26" ry="22" fill="#000000"/>' +
+          '<ellipse cx="114" cy="20" rx="26" ry="22" fill="#000000"/></g>';
+    }
+    svg += '<ellipse cx="46" cy="20" rx="17" ry="20" fill="' + dark + '" ' +
+        'transform="rotate(-12 46 20)"/>' +
+        '<ellipse cx="114" cy="20" rx="17" ry="20" fill="' + dark + '" ' +
+        'transform="rotate(12 114 20)"/>';
+    if (!tint) {
+      svg += '<g class="brokenPupils">' +
+          '<circle cx="48" cy="24" r="1.2" fill="#ffffff" opacity="0.5"/>' +
+          '<circle cx="112" cy="24" r="1.2" fill="#ffffff" opacity="0.5"/>' +
+          '</g>';
+    }
+    svg += '<path d="M6 40 Q80 66 154 40 Q150 104 80 106 Q10 104 6 40 Z" ' +
+        'fill="' + lip + '"/>' +
+        '<path d="M12 43 Q80 66 148 43 Q144 100 80 102 Q16 100 12 43 Z" ' +
+        'fill="' + inside + '"/>' +
+        '<path d="M12 43 Q80 66 148 43 Q80 74 12 43 Z" fill="' + gum + '"/>';
+    if (tint) {
+      return svg + '</svg>';
+    }
+    return svg + '<g class="brokenUpperJaw">' +
+        drawTeethRow([16, 46], [80, 70], [144, 46], 18, 13, false,
+            '#ece6d6') + '</g>' +
+        '<g class="brokenJaw">' +
+        '<path d="M24 92 Q80 108 136 92 Q80 100 24 92 Z" fill="' + gum + '"/>' +
+        drawTeethRow([26, 92], [80, 106], [134, 92], 16, 11, true,
+            '#e0d9c6') + '</g>' +
+        '<g stroke="#d8e4ff" stroke-width="0.5" opacity="0.45" fill="none">' +
+        '<path d="M40 56 q-2 16 2 32"/><path d="M92 64 q2 12 -1 26"/>' +
+        '<path d="M124 52 q3 18 -1 36"/></g>' +
+        drawStretchBlood() + '</svg>';
+  }
+
+  /**
+   * A little blood dripping from the eye holes and the mouth corners,
+   * for Manly Falsity and Loveity's jump scare.
+   * @return {string} SVG shapes for the blood.
+   */
+  function drawStretchBlood() {
+    let svg = '';
+    ['M38 38 Q37 46 39 54', 'M52 36 Q53 42 51 48',
+      'M108 36 Q107 44 109 52', 'M122 38 Q123 46 121 54',
+      'M8 44 Q5 54 7 64', 'M152 44 Q155 54 153 64'].forEach((drip) => {
+      const end = drip.split(' ').slice(-2);
+      svg += '<path d="' + drip + '" stroke="#6a0808" stroke-width="2.2" ' +
+          'fill="none" stroke-linecap="round"/><circle cx="' + end[0] +
+          '" cy="' + end[1] + '" r="1.8" fill="#6a0808"/>';
+    });
+    return svg;
+  }
+
+  /**
+   * Draws one big, round, bulging eye for Manly Obesity.
+   * @param {number} cx Center x.
+   * @param {number} cy Center y.
+   * @param {number} r How big the eye is.
+   * @param {?string} tint Paint the whole eye one color (ghost copies), or
+   *     null for real colors.
+   * @param {string=} irisClass A class for the iris, so it can twitch.
+   * @return {string} SVG shapes for the eye.
+   */
+  function drawBlobEye(cx, cy, r, tint, irisClass) {
+    const circle = (x, y, radius, fill, extra) => '<circle cx="' +
+        x.toFixed(2) + '" cy="' + y.toFixed(2) + '" r="' +
+        radius.toFixed(2) + '" fill="' + fill + '"' + (extra || '') + '/>';
+    if (tint) {
+      return circle(cx, cy, r + 1.4, tint);
+    }
+    const ix = cx + r * 0.22;
+    const iy = cy + r * 0.08;
+    return circle(cx, cy, r + 1.4, '#5a4518', ' opacity="0.55"') +
+        circle(cx, cy, r, 'url(#obEyeBall)') +
+        '<g' + (irisClass ? ' class="' + irisClass + '"' : '') + '>' +
+        circle(ix, iy, r * 0.34, '#3e8a48') +
+        circle(ix, iy, r * 0.34, 'none', ' stroke="#1c3a22" stroke-width="' +
+            (r * 0.06).toFixed(2) + '"') +
+        circle(ix, iy, r * 0.19, '#0a0a0a') + '</g>' +
+        '<ellipse cx="' + (cx - r * 0.35).toFixed(2) + '" cy="' +
+        (cy - r * 0.42).toFixed(2) + '" rx="' + (r * 0.24).toFixed(2) +
+        '" ry="' + (r * 0.15).toFixed(2) +
+        '" fill="#ffffff" opacity="0.85"/>' +
+        '<path d="M' + (cx - r) + ' ' + cy + ' Q' + cx + ' ' +
+        (cy - r * 1.3) + ' ' + (cx + r) + ' ' + cy + ' Q' + cx + ' ' +
+        (cy - r * 0.6) + ' ' + (cx - r) + ' ' + cy +
+        ' Z" fill="#000000" opacity="0.14"/>';
+  }
+
+  /**
+   * Draws Obesity: one big soft blob with fat rolls and long arms.
+   * No blood.
+   * @param {boolean} realisticEyes True for manly mode's big bulging eyes,
+   *     false for his normal cartoon eyes.
+   * @return {string} SVG markup (viewBox 120 by 160).
+   */
+  function drawObesityBlobArt(realisticEyes) {
+    const eyes = realisticEyes ?
+        drawBlobEye(47, 46, 9.5, null) + drawBlobEye(74, 46, 10, null) :
+        '<ellipse cx="48" cy="46" rx="4.5" ry="6" fill="#2c2c2a"/>' +
+        '<ellipse cx="73" cy="46" rx="4.5" ry="6" fill="#2c2c2a"/>' +
+        '<circle cx="49.6" cy="43.6" r="1.2" fill="#e8d9a0"/>' +
+        '<circle cx="74.6" cy="43.6" r="1.2" fill="#e8d9a0"/>';
+    return '<svg viewBox="0 0 120 160">' +
+        '<ellipse cx="42" cy="153" rx="13" ry="5" fill="#6e581c"/>' +
+        '<ellipse cx="78" cy="153" rx="13" ry="5" fill="#6e581c"/>' +
+        '<path d="M60 26 C34 26 26 46 27 62 C8 80 4 122 17 140 C30 157 90 ' +
+        '157 103 140 C116 122 112 80 93 62 C94 46 86 26 60 26 Z" ' +
+        'fill="url(#obBlobShade)"/>' +
+        '<g filter="url(#obSoft)" fill="none" stroke-linecap="round">' +
+        '<path d="M27 74 Q60 84 93 74" stroke="#7a6220" stroke-width="2.5" ' +
+        'opacity="0.45"/>' +
+        '<path d="M30 88 Q44 98 57 90" stroke="#7a6220" stroke-width="3" ' +
+        'opacity="0.5"/>' +
+        '<path d="M63 90 Q76 98 90 88" stroke="#7a6220" stroke-width="3" ' +
+        'opacity="0.5"/>' +
+        '<path d="M22 113 Q60 129 98 113" stroke="#6e581c" ' +
+        'stroke-width="3.5" opacity="0.5"/>' +
+        '<path d="M24 134 Q60 150 96 134" stroke="#6e581c" stroke-width="3" ' +
+        'opacity="0.45"/></g>' +
+        '<g filter="url(#obSoft)">' +
+        '<ellipse cx="46" cy="38" rx="13" ry="6" fill="#ffffff" ' +
+        'opacity="0.18"/>' +
+        '<ellipse cx="50" cy="102" rx="20" ry="10" fill="#ffffff" ' +
+        'opacity="0.1"/></g>' +
+        '<ellipse cx="60" cy="128" rx="2.2" ry="1.4" fill="#4a3810"/>' +
+        // Long arms hanging down his sides, in front of his belly.
+        '<g filter="url(#obSoft)" opacity="0.45">' +
+        '<ellipse cx="21" cy="102" rx="23" ry="8" fill="#5a4518" ' +
+        'transform="rotate(-75 21 102)"/>' +
+        '<ellipse cx="99" cy="102" rx="23" ry="8" fill="#5a4518" ' +
+        'transform="rotate(75 99 102)"/></g>' +
+        '<ellipse cx="18" cy="100" rx="23" ry="7.5" fill="url(#obArmShade)" ' +
+        'transform="rotate(-75 18 100)"/>' +
+        '<ellipse cx="102" cy="100" rx="23" ry="7.5" ' +
+        'fill="url(#obArmShade)" transform="rotate(75 102 100)"/>' +
+        '<circle cx="10" cy="122" r="3" fill="#b8962e"/>' +
+        '<circle cx="14" cy="124" r="2.8" fill="#b8962e"/>' +
+        '<circle cx="110" cy="122" r="3" fill="#b8962e"/>' +
+        '<circle cx="106" cy="124" r="2.8" fill="#b8962e"/>' +
+        eyes +
+        '<path d="M48 64 Q60 70 72 63" stroke="#4a3810" stroke-width="1.8" ' +
+        'fill="none" stroke-linecap="round"/>' +
+        '<path d="M46 62 q-1.5 2 0 3.5 M74 61 q1.5 2 0 3.5" stroke="#7a6220" ' +
+        'stroke-width="0.8" fill="none"/></svg>';
+  }
+
+  /**
+   * Draws Obesity for wherever he shows up.
+   * @param {boolean} realisticEyes True in manly mode.
+   * @return {string} SVG markup (viewBox 120 by 160).
+   */
+  function drawObesityArt(realisticEyes) {
+    return drawObesityBlobArt(realisticEyes);
+  }
+
+  /**
+   * Obesity's manly jump scare face: his soft blob face filling the
+   * screen, clean (no blood or cracks), with big bulging eyes and teeth
+   * for the bite.
+   * @param {?string} tint Paint everything one color (ghost copies), or
+   *     null for real colors.
+   * @return {string} SVG markup for the face.
+   */
+  function drawObesityScareFace(tint) {
+    const face = tint || '#c9a83a';
+    const fold = tint || '#8a7228';
+    const cheek = tint || '#b8982f';
+    const tooth = tint || '#e3dcc6';
+    const edge = tint || '#b0a588';
+    const topTeeth = 'M12 58 L19 76 L26 58 L33 80 L40 58 L47 74 L54 58 ' +
+        'L61 79 L68 58 L75 75 L82 58 L89 81 L96 58 L103 74 L110 58 ' +
+        'L117 78 L124 58 L131 75 L138 58 L145 72 L150 60 Z';
+    const bottomTeeth = 'M16 90 L22 76 L29 90 L36 79 L43 90 L50 75 ' +
+        'L57 90 L64 78 L71 90 L78 74 L85 90 L92 79 L99 90 L106 76 ' +
+        'L113 90 L120 78 L127 90 L134 75 L141 90 L146 80 L150 90 Z';
+    const skin = tint || 'url(#obBlobShade)';
+    return '<svg viewBox="0 0 160 90" preserveAspectRatio="none">' +
+        '<ellipse cx="80" cy="48" rx="104" ry="70" fill="' + face + '"/>' +
+        '<ellipse cx="80" cy="48" rx="104" ry="70" fill="' + skin + '"/>' +
+        '<ellipse cx="20" cy="54" rx="16" ry="9" fill="' + cheek + '" ' +
+        'opacity="0.6"/>' +
+        '<ellipse cx="140" cy="54" rx="16" ry="9" fill="' + cheek + '" ' +
+        'opacity="0.6"/>' +
+        drawBlobEye(46, 30, 20, tint, 'brokenPupils') +
+        drawBlobEye(114, 30, 21, tint, 'brokenPupils') +
+        '<g class="brokenUpperJaw"><path d="' + topTeeth + '" fill="' +
+        tooth + '" stroke="' + edge + '" stroke-width="0.6"/></g>' +
+        '<g class="brokenJaw"><path d="' + bottomTeeth + '" fill="' + tooth +
+        '" stroke="' + edge + '" stroke-width="0.6"/></g>' +
+        '<path d="M0 86 Q80 100 160 86" stroke="' + fold +
+        '" stroke-width="2" fill="none"/></svg>';
+  }
+
+  /**
+   * Draws a character's broken face, stretched to fill the whole screen.
+   * @param {string} name The character.
+   * @param {?string} tint A color to paint the whole face (for the
+   *     red and blue ghost copies), or null for the real colors.
+   * @return {string} SVG markup for the face.
+   */
+  function drawBrokenFace(name, tint) {
+    if (name === 'obesity') {
+      return drawObesityScareFace(tint);
+    }
+    if (name === 'falsity' || name === 'loveity') {
+      return drawStretchScareFace(name, tint);
+    }
+    const colors = BROKEN_COLORS[name];
+    const face = tint || colors.face;
+    const shade = tint || colors.shade;
+    const crack = tint || colors.crack;
+    const dark = tint || '#000000';
+    const vein = tint || '#7a1010';
+    const glow = tint || '#3a0505';
+    const pupil = tint || '#e01c1c';
+    const shine = tint || '#ffffff';
+    const tooth = tint || '#cfc6a0';
+    const stain = tint || '#6a5a30';
+    const blood = tint || '#6a0808';
+
+    const strokePath = (d, color, width) => '<path d="' + d +
+        '" stroke="' + color + '" stroke-width="' + width +
+        '" fill="none" stroke-linecap="round"/>';
+
+    let svg = '<svg viewBox="0 0 160 90" preserveAspectRatio="none">' +
+        '<ellipse cx="80" cy="48" rx="104" ry="70" fill="' + face + '"/>';
+
+    // Rotting blotches on the skin.
+    [[20, 50, 10, 6], [140, 48, 12, 7], [80, 8, 14, 5], [96, 46, 8, 5],
+      [62, 50, 6, 4]].forEach((b) => {
+      svg += '<ellipse cx="' + b[0] + '" cy="' + b[1] + '" rx="' + b[2] +
+          '" ry="' + b[3] + '" fill="' + shade + '"/>';
+    });
+
+    // Deep cracks.
+    [['M10 8 L30 24 L22 34 L44 46', 1.8],
+      ['M150 6 L128 22 L138 30 L120 42', 1.8],
+      ['M80 0 L76 12 L84 18 L78 28 L82 36', 1.4],
+      ['M150 70 L136 60 L142 52', 1.3],
+      ['M0 40 L8 44 L4 52', 1.2],
+      ['M30 24 L36 18', 1.0]].forEach((c) => {
+      svg += strokePath(c[0], crack, c[1]);
+    });
+
+    // Bloodshot veins spreading out from the eye holes.
+    ['M22 30 L14 26 L8 28', 'M24 40 L16 46', 'M60 18 L68 12',
+      'M64 36 L72 40 L76 38', 'M42 10 L40 4', 'M94 24 L86 20 L82 22',
+      'M96 40 L88 44', 'M140 24 L148 20 L154 22', 'M140 40 L150 46',
+      'M118 8 L120 2'].forEach((v) => {
+      svg += strokePath(v, vein, 0.7);
+    });
+
+    // Empty eye holes (one bigger), glowing pupils staring at you.
+    svg += '<ellipse cx="44" cy="30" rx="22" ry="20" fill="' + dark + '"/>' +
+        '<ellipse cx="118" cy="30" rx="25" ry="22" fill="' + dark + '"/>' +
+        '<circle cx="46" cy="33" r="6" fill="' + glow + '"/>' +
+        '<circle cx="115" cy="34" r="5" fill="' + glow + '"/>' +
+        '<g class="brokenPupils">' +
+        '<circle cx="46" cy="33" r="3" fill="' + pupil + '"/>' +
+        '<circle cx="115" cy="34" r="2.4" fill="' + pupil + '"/>' +
+        '<circle cx="47" cy="32" r="0.7" fill="' + shine + '"/>' +
+        '<circle cx="116" cy="33" r="0.6" fill="' + shine + '"/></g>';
+
+    // Just the teeth: two uneven, stained rows that interlock.
+    const topTeeth = 'M12 58 L19 76 L26 58 L33 80 L40 58 L47 74 L54 58 ' +
+        'L61 79 L68 58 L75 75 L82 58 L89 81 L96 58 L103 74 L110 58 ' +
+        'L117 78 L124 58 L131 75 L138 58 L145 72 L150 60 Z';
+    const bottomTeeth = 'M16 90 L22 76 L29 90 L36 79 L43 90 L50 75 ' +
+        'L57 90 L64 78 L71 90 L78 74 L85 90 L92 79 L99 90 L106 76 ' +
+        'L113 90 L120 78 L127 90 L134 75 L141 90 L146 80 L150 90 Z';
+    svg += '<g class="brokenUpperJaw"><path d="' + topTeeth +
+        '" fill="' + tooth + '" stroke="' + stain +
+        '" stroke-width="0.6"/></g>' +
+        '<g class="brokenJaw"><path d="' + bottomTeeth + '" fill="' +
+        tooth + '" stroke="' + stain + '" stroke-width="0.6"/></g>';
+
+    // A little blood dripping from the eyes and the mouth corners.
+    ['M38 48 Q37 56 39 64', 'M50 48 Q51 54 49 60',
+      'M112 50 Q111 58 113 68', 'M124 49 Q125 55 123 60',
+      'M13 59 Q10 68 12 78', 'M149 61 Q152 69 150 77'].forEach((drip) => {
+      const end = drip.split(' ').slice(-2);
+      svg += strokePath(drip, blood, 2.2) + '<circle cx="' + end[0] +
+          '" cy="' + end[1] + '" r="1.8" fill="' + blood + '"/>';
+    });
+
+    if (name === 'loveity') {
+      svg += strokePath('M20 12 L32 4 M28 10 L38 2 M100 8 L110 0 ' +
+          'M110 10 L122 2 M124 12 L134 4', crack, 2);
+    }
+    if (name === 'obesity') {
+      svg += strokePath('M0 84 Q80 100 160 84', crack, 2);
+    }
+    return svg + '</svg>';
+  }
+
+  /**
+   * Makes a buffer of random noise.
+   * @param {!AudioContext} audio The sound system.
+   * @param {number} lengthSec How long the noise lasts, in seconds.
+   * @return {!AudioBuffer} The noise.
+   */
+  function makeNoise(audio, lengthSec) {
+    const buffer = audio.createBuffer(
+        1, Math.floor(audio.sampleRate * lengthSec), audio.sampleRate);
+    const data = buffer.getChannelData(0);
+    for (let i = 0; i < data.length; i++) {
+      data[i] = Math.random() * 2 - 1;
+    }
+    return buffer;
+  }
+
+  /**
+   * Makes an echo that sounds like a big, empty building.
+   * @param {!AudioContext} audio The sound system.
+   * @param {number} lengthSec How long the echo rings, in seconds.
+   * @return {!ConvolverNode} The echo.
+   */
+  function makeEcho(audio, lengthSec) {
+    const size = Math.floor(audio.sampleRate * lengthSec);
+    const buffer = audio.createBuffer(2, size, audio.sampleRate);
+    for (let channel = 0; channel < 2; channel++) {
+      const data = buffer.getChannelData(channel);
+      for (let i = 0; i < size; i++) {
+        data[i] = (Math.random() * 2 - 1) * Math.pow(1 - i / size, 2.5);
+      }
+    }
+    const echo = audio.createConvolver();
+    echo.buffer = buffer;
+    return echo;
+  }
+
+  /**
+   * Makes a distortion curve that crushes a sound so it sounds broken.
+   * @param {number} amount How crushed it gets.
+   * @return {!Float32Array} The distortion curve.
+   */
+  function makeDistortionCurve(amount) {
+    const size = 2048;
+    const curve = new Float32Array(size);
+    for (let i = 0; i < size; i++) {
+      const x = (i * 2) / size - 1;
+      curve[i] = ((3 + amount) * x * 20 * (Math.PI / 180)) /
+          (Math.PI + amount * Math.abs(x));
+    }
+    return curve;
+  }
+
+  /**
+   * Plays the build-up during the quiet part: a speeding heartbeat,
+   * something breathing right behind you, and a rising swell that goes
+   * silent a split second before the face hits.
+   * @param {number} lengthSec How long the build-up lasts, in seconds.
+   */
+  function playHorrorBuild(lengthSec) {
+    const audio = getAudio();
+    if (!audio) {
+      return;
+    }
+    const now = audio.currentTime;
+
+    // Heartbeat: "lub-dub" thumps that come faster and faster.
+    [0, 0.18, 0.5, 0.64, 0.82, 0.92].forEach((beat, index) => {
+      const start = now + beat;
+      const thump = audio.createOscillator();
+      thump.type = 'sine';
+      thump.frequency.setValueAtTime(index % 2 ? 48 : 60, start);
+      thump.frequency.exponentialRampToValueAtTime(30, start + 0.12);
+      const gain = audio.createGain();
+      gain.gain.setValueAtTime(index % 2 ? 0.5 : 0.8, start);
+      gain.gain.exponentialRampToValueAtTime(0.001, start + 0.15);
+      thump.connect(gain);
+      gain.connect(audio.destination);
+      thump.start(start);
+      thump.stop(start + 0.2);
+    });
+
+    // Breathing right behind you, slightly to the left.
+    const breath = audio.createBufferSource();
+    breath.buffer = makeNoise(audio, lengthSec);
+    const breathFilter = audio.createBiquadFilter();
+    breathFilter.type = 'bandpass';
+    breathFilter.frequency.value = 1400;
+    breathFilter.Q.value = 0.8;
+    const breathGain = audio.createGain();
+    breathGain.gain.setValueAtTime(0.0, now);
+    breathGain.gain.linearRampToValueAtTime(0.18, now + lengthSec * 0.55);
+    breathGain.gain.linearRampToValueAtTime(0.0, now + lengthSec * 0.7);
+    breath.connect(breathFilter);
+    breathFilter.connect(breathGain);
+    if (audio.createStereoPanner) {
+      const panner = audio.createStereoPanner();
+      panner.pan.value = -0.6;
+      breathGain.connect(panner);
+      panner.connect(audio.destination);
+    } else {
+      breathGain.connect(audio.destination);
+    }
+    breath.start(now);
+
+    // Rising swell that cuts to silence just before the hit.
+    const swellStart = now + lengthSec * 0.45;
+    const swellEnd = now + lengthSec - 0.06;
+    const swell = audio.createBufferSource();
+    swell.buffer = makeNoise(audio, lengthSec);
+    const swellFilter = audio.createBiquadFilter();
+    swellFilter.type = 'bandpass';
+    swellFilter.Q.value = 2;
+    swellFilter.frequency.setValueAtTime(200, swellStart);
+    swellFilter.frequency.exponentialRampToValueAtTime(3000, swellEnd);
+    const swellTone = audio.createOscillator();
+    swellTone.type = 'sawtooth';
+    swellTone.frequency.setValueAtTime(110, swellStart);
+    swellTone.frequency.exponentialRampToValueAtTime(880, swellEnd);
+    const swellGain = audio.createGain();
+    swellGain.gain.setValueAtTime(0.001, swellStart);
+    swellGain.gain.exponentialRampToValueAtTime(0.5, swellEnd);
+    swellGain.gain.setValueAtTime(0.0, swellEnd);
+    swell.connect(swellFilter);
+    swellFilter.connect(swellGain);
+    const toneGain = audio.createGain();
+    toneGain.gain.value = 0.15;
+    swellTone.connect(toneGain);
+    toneGain.connect(swellGain);
+    swellGain.connect(audio.destination);
+    swell.start(swellStart);
+    swell.stop(swellEnd + 0.01);
+    swellTone.start(swellStart);
+    swellTone.stop(swellEnd + 0.01);
+  }
+
+  /**
+   * Plays the Manly jump scare hit: a bass drop, a metal clang, clashing
+   * stab notes and a rough, cracking scream (grumble, high scream and
+   * "AAA" rising low to high), with a glitch at the bite. The dry sound
+   * cuts off hard, but its echo rings through the empty building.
+   * A limiter keeps it from getting dangerously loud.
+   * @param {number} lengthSec How long the scream lasts, in seconds.
+   */
+  function playManlyScream(lengthSec) {
+    const audio = getAudio();
+    if (!audio) {
+      return;
+    }
+    const now = audio.currentTime;
+    const end = now + lengthSec;
+
+    const limiter = audio.createDynamicsCompressor();
+    limiter.threshold.value = -10;
+    limiter.ratio.value = 20;
+    limiter.connect(audio.destination);
+
+    // Everything goes through "dry" (cut off hard) and an echo send.
+    const dry = audio.createGain();
+    dry.gain.setValueAtTime(0.75, now);
+    dry.gain.setValueAtTime(0.0, end);
+    dry.connect(limiter);
+    const echo = makeEcho(audio, 2.2);
+    const echoGain = audio.createGain();
+    echoGain.gain.value = 0.45;
+    echo.connect(echoGain);
+    echoGain.connect(limiter);
+    const send = audio.createGain();
+    send.gain.setValueAtTime(1.0, now);
+    send.gain.setValueAtTime(0.0, end);
+    send.connect(dry);
+    send.connect(echo);
+
+    /**
+     * Makes a wobble that moves a sound setting up and down.
+     * @param {!AudioParam} setting The setting to wobble.
+     * @param {number} speed Wobbles per second.
+     * @param {number} amount How far it wobbles.
+     * @param {string=} shape The wobble's wave shape.
+     */
+    const addWobble = (setting, speed, amount, shape) => {
+      const wobble = audio.createOscillator();
+      wobble.type = shape || 'sine';
+      wobble.frequency.value = speed;
+      const depth = audio.createGain();
+      depth.gain.value = amount;
+      wobble.connect(depth);
+      depth.connect(setting);
+      wobble.start(now);
+      wobble.stop(end);
+    };
+
+    /**
+     * Makes a pitch crack and jitter like a real voice breaking.
+     * @param {!AudioParam} pitch The pitch to shake.
+     * @param {number} base The starting pitch.
+     * @param {number} top The ending pitch.
+     */
+    const addCracks = (pitch, base, top) => {
+      for (let t = 0; t < lengthSec; t += 0.025) {
+        const progress = t / lengthSec;
+        const target = base * Math.pow(top / base, progress);
+        const jitter = 1 + (Math.random() - 0.5) * 0.16;
+        pitch.setValueAtTime(target * jitter, now + t);
+      }
+    };
+
+    const sources = [];
+
+    // 1. Bass drop you can feel.
+    const slam = audio.createOscillator();
+    slam.frequency.setValueAtTime(130, now);
+    slam.frequency.exponentialRampToValueAtTime(24, now + 0.45);
+    const slamGain = audio.createGain();
+    slamGain.gain.setValueAtTime(1.0, now);
+    slamGain.gain.exponentialRampToValueAtTime(0.001, now + 0.5);
+    slam.connect(slamGain);
+    slamGain.connect(limiter);
+    sources.push(slam);
+
+    // 2. Metal clang: uneven ringing tones, like hitting a pipe.
+    [231, 627, 1031, 1689, 2443].forEach((pitch, index) => {
+      const clang = audio.createOscillator();
+      clang.frequency.value = pitch;
+      const clangGain = audio.createGain();
+      clangGain.gain.setValueAtTime(0.3 / (index + 1), now);
+      clangGain.gain.exponentialRampToValueAtTime(0.001, now + 0.6);
+      clang.connect(clangGain);
+      clangGain.connect(send);
+      sources.push(clang);
+    });
+
+    // 3. Clashing stab notes that sound wrong together.
+    [1760, 1865, 2489].forEach((pitch) => {
+      const stab = audio.createOscillator();
+      stab.type = 'sawtooth';
+      stab.frequency.value = pitch;
+      const stabGain = audio.createGain();
+      stabGain.gain.setValueAtTime(0.07, now);
+      stabGain.gain.exponentialRampToValueAtTime(0.001, end);
+      addWobble(stabGain.gain, 14, 0.05);
+      stab.connect(stabGain);
+      stabGain.connect(send);
+      sources.push(stab);
+    });
+
+    // 4. The rough scream: crushed, rattling fast and cracking in pitch.
+    const distortion = audio.createWaveShaper();
+    distortion.curve = makeDistortionCurve(50);
+    const rattle = audio.createGain();
+    rattle.gain.value = 0.55;
+    addWobble(rattle.gain, 70, 0.45);
+    distortion.connect(rattle);
+    rattle.connect(send);
+
+    const grumble = audio.createOscillator();
+    grumble.type = 'sawtooth';
+    addCracks(grumble.frequency, 40, 110);
+    const grumbleGain = audio.createGain();
+    grumbleGain.gain.value = 0.45;
+    grumble.connect(grumbleGain);
+    grumbleGain.connect(distortion);
+    sources.push(grumble);
+
+    const shriek = audio.createOscillator();
+    shriek.type = 'square';
+    addCracks(shriek.frequency, 900, 3600);
+    const shriekGain = audio.createGain();
+    shriekGain.gain.value = 0.1;
+    shriek.connect(shriekGain);
+    shriekGain.connect(distortion);
+    sources.push(shriek);
+
+    // The "AAA" voice, plus a lower copy that makes it sound inhuman.
+    const voiceGain = audio.createGain();
+    voiceGain.gain.value = 0.5;
+    [[300, 820], [150, 410]].forEach((range) => {
+      const voice = audio.createOscillator();
+      voice.type = 'sawtooth';
+      addCracks(voice.frequency, range[0], range[1]);
+      [[950, 6, 1.0], [1450, 8, 0.6], [3000, 10, 0.3]].forEach((shape) => {
+        const filter = audio.createBiquadFilter();
+        filter.type = 'bandpass';
+        filter.frequency.value = shape[0];
+        filter.Q.value = shape[1];
+        const level = audio.createGain();
+        level.gain.value = shape[2];
+        voice.connect(filter);
+        filter.connect(level);
+        level.connect(voiceGain);
+      });
+      sources.push(voice);
+    });
+    voiceGain.connect(distortion);
+
+    // 5. Glitch squeal jumping to random pitches at the bite.
+    const glitchStart = now + 0.3;
+    const glitch = audio.createOscillator();
+    glitch.type = 'square';
+    for (let t = 0; t < lengthSec - 0.3; t += 0.03) {
+      glitch.frequency.setValueAtTime(
+          400 + Math.random() * 3000, glitchStart + t);
+    }
+    const glitchGain = audio.createGain();
+    glitchGain.gain.value = 0.08;
+    glitch.connect(glitchGain);
+    glitchGain.connect(send);
+
+    sources.forEach((sound) => {
+      sound.start(now);
+      sound.stop(end);
+    });
+    glitch.start(glitchStart);
+    glitch.stop(end);
+  }
+
+  /**
+   * Plays a short glass-crunching sound for the bite.
+   */
+  function playCrunch() {
+    const audio = getAudio();
+    if (!audio) {
+      return;
+    }
+    const now = audio.currentTime;
+    const length = 0.25;
+    const buffer = audio.createBuffer(
+        1, Math.floor(audio.sampleRate * length), audio.sampleRate);
+    const data = buffer.getChannelData(0);
+    for (let i = 0; i < data.length; i++) {
+      // Crackly bursts that fade out.
+      const fade = 1 - i / data.length;
+      data[i] = (Math.random() > 0.7 ? Math.random() * 2 - 1 : 0) * fade;
+    }
+    const crunch = audio.createBufferSource();
+    crunch.buffer = buffer;
+    const gain = audio.createGain();
+    gain.gain.value = 0.6;
+    crunch.connect(gain);
+    gain.connect(audio.destination);
+    crunch.start(now);
+  }
+
+  /**
+   * For a split second at a time, swaps the face to another
+   * character's broken face, then back.
+   * @param {string} name The character doing the jump scare.
+   * @param {number} lengthMs How long the face is on screen.
+   */
+  function startHiddenFaces(name, lengthMs) {
+    const others = Object.keys(BROKEN_COLORS).filter((n) => n !== name);
+    const hidden = byId('manlyHiddenFace');
+    for (let time = 180; time < lengthMs - 60; time += 200) {
+      setTimeout(() => {
+        const pick = others[Math.floor(Math.random() * others.length)];
+        hidden.innerHTML = drawBrokenFace(pick, null);
+        hidden.style.display = 'block';
+      }, time);
+      setTimeout(() => {
+        hidden.style.display = 'none';
+      }, time + 50);
+    }
+  }
+
+  /**
+   * Runs the 4-part Manly mode scare, then calls the game over screen.
+   * @param {string} name The character who got in.
+   * @param {function()} showGameOver Shows the game over screen.
+   */
+  function startManlyScare(name, showGameOver) {
+    const faceBox = byId('manlyFaceBox');
+    const redFlash = byId('manlyRedFlash');
+    const insult = byId('manlyInsult');
+    byId('manlyFace').innerHTML = drawBrokenFace(name, null);
+    byId('manlyGhostRed').innerHTML = drawBrokenFace(name, '#a01010');
+    byId('manlyGhostBlue').innerHTML = drawBrokenFace(name, '#1030a0');
+    faceBox.classList.remove('show');
+    redFlash.classList.remove('show');
+    insult.classList.remove('show');
+
+    // Part 1: the build-up plays over the office (or cameras), with no
+    // warning: a heartbeat, breathing and a rising swell.
+    playHorrorBuild(1.0);
+    const crack = byId('manlyCrack');
+    crack.classList.remove('show');
+    const quietMs = MANLY_LEAD_MS;
+    const faceMs = 400;
+    const biteMs = 300;
+    const insultMs = 2800;
+
+    // Part 2 and 3: the face, the glitch and the red flash.
+    setTimeout(() => {
+      closeCameras();
+      showScreen('manlyScare');
+      faceBox.classList.add('show');
+      redFlash.classList.add('show');
+      // The scream rings on a little after the face is gone.
+      playManlyScream(0.9);
+      if (!isNoFlashing()) {
+        startHiddenFaces(name, biteMs);
+      }
+    }, quietMs);
+
+    // The bite: teeth slam shut and the screen cracks.
+    setTimeout(() => {
+      crack.classList.add('show');
+      playCrunch();
+    }, quietMs + biteMs);
+
+    // Part 4: cut to black and insult the player.
+    setTimeout(() => {
+      faceBox.classList.remove('show');
+      redFlash.classList.remove('show');
+      crack.classList.remove('show');
+      const pick = Math.floor(Math.random() * MANLY_INSULTS.length);
+      insult.textContent = MANLY_INSULTS[pick];
+      insult.classList.add('show');
+    }, quietMs + faceMs);
+
+    setTimeout(showGameOver, quietMs + faceMs + insultMs);
+  }
+
+  // ---------- Administrator code ----------
+
+  /**
+   * Gives the player everything: all nights and the night picker.
+   */
+  function unlockEverything() {
+    adminUnlocked = true;
+    STAR_LIST.forEach((star) => {
+      earnStar(star);
+    });
+    earnCustomStars(3);
+    try {
+      localStorage.setItem(PROGRESS_KEY, String(TOTAL_NIGHTS));
+      localStorage.setItem(ALL_BEATEN_KEY, 'yes');
+    } catch (error) {
+      // Saving is not possible here, so it lasts until the page reloads.
+    }
+  }
+
+  /**
+   * Shows a message under the code box.
+   * @param {string} text The message.
+   * @param {string} kind 'wrong', 'granted' or '' for none.
+   */
+  function showAdminMessage(text, kind) {
+    const message = byId('adminMessage');
+    message.textContent = text;
+    message.className = kind;
+  }
+
+  /**
+   * Checks the typed code and unlocks everything if it's right.
+   */
+  function tryAdminCode() {
+    const typed = byId('adminCodeInput').value.trim();
+    if (typed === '') {
+      showAdminMessage('type a code first', 'wrong');
+      return;
+    }
+    if (typed !== ADMIN_CODE) {
+      showAdminMessage('wrong code', 'wrong');
+      return;
+    }
+    unlockEverything();
+    showAdminMessage('access granted - everything is unlocked', 'granted');
+  }
+
+  // ---------- Night names ----------
+
+  /**
+   * Gets the name shown for a night.
+   * @param {number} nightNumber The night.
+   * @return {string} Like "night 3" or "custom night".
+   */
+  function nightName(nightNumber) {
+    return nightNumber === CUSTOM_NIGHT ? 'custom night' :
+        'night ' + nightNumber;
+  }
+
+  // ---------- Stars ----------
+
+  /**
+   * The story stars, in the order they show on the menu.
+   * beat5: beat night 5. manly5: beat night 5 on manly mode.
+   * The custom night adds up to 3 more stars.
+   * @const {!Array<string>}
+   */
+  const STAR_LIST = ['beat5', 'manly5'];
+
+  /**
+   * Gets the stars the player has earned.
+   * @return {!Array<string>} The earned stars.
+   */
+  function getStars() {
+    const saved = memorySettings[STARS_KEY] || readSetting(STARS_KEY, '');
+    return saved === '' ? [] : saved.split(',');
+  }
+
+  /**
+   * Gives the player a star (once).
+   * @param {string} star The star to give.
+   */
+  function earnStar(star) {
+    const stars = getStars();
+    if (!stars.includes(star)) {
+      stars.push(star);
+      memorySettings[STARS_KEY] = stars.join(',');
+      saveSetting(STARS_KEY, stars.join(','));
+    }
+  }
+
+  /**
+   * Gets the most custom night stars the player has earned (0 to 3).
+   * @return {number} The best custom night stars.
+   */
+  function getCustomBest() {
+    // Older saves gave one "max" star for beating everyone on 20.
+    if (getStars().includes('max')) {
+      return 3;
+    }
+    const saved = memorySettings[CUSTOM_BEST_KEY] ||
+        readSetting(CUSTOM_BEST_KEY, '0');
+    return Math.max(0, Math.min(3, parseInt(saved, 10) || 0));
+  }
+
+  /**
+   * Saves custom night stars, if they beat the player's best.
+   * @param {number} count Stars earned, 1 to 3.
+   */
+  function earnCustomStars(count) {
+    if (count > getCustomBest()) {
+      memorySettings[CUSTOM_BEST_KEY] = String(count);
+      saveSetting(CUSTOM_BEST_KEY, String(count));
+    }
+  }
+
+  /**
+   * Works out how many stars a custom night is worth.
+   * Everyone on 20: 3 stars. Everyone on 10 or more: 2 stars.
+   * Anything lower: 1 star.
+   * @param {!Object<string, number>} levels The custom night levels.
+   * @return {number} Stars, 1 to 3.
+   */
+  function customStarsFor(levels) {
+    const values = Object.keys(levels).map((name) => levels[name]);
+    if (values.every((value) => value === 20)) {
+      return 3;
+    }
+    if (values.every((value) => value >= 10)) {
+      return 2;
+    }
+    return 1;
+  }
+
+  /**
+   * Updates the stars and the custom night button on the main menu.
+   */
+  function updateMenuExtras() {
+    const count = STAR_LIST.filter((star) => getStars().includes(star))
+        .length + getCustomBest();
+    byId('menuStars').textContent = '★'.repeat(count);
+    byId('customNightButton').classList.toggle(
+        'locked', !hasBeatenAllNights());
+    byId('cutscenesButton').style.display =
+        hasBeatenAllNights() ? '' : 'none';
+  }
+
+  // ---------- Spooky main menu ----------
+
+  /** The screens that count as menus, where the menu sound plays. */
+  const MENU_SCREENS = [
+    'mainMenu', 'optionsScreen', 'keybindScreen', 'codeScreen',
+    'nightSelect', 'extrasScreen', 'customScreen', 'howToScreen',
+    'cutsceneMenu', 'creditsScreen',
+  ];
+
+  /** @type {!Array<number>} Timers for the menu effects. */
+  let menuEffectTimers = [];
+
+  /** @type {number} Timer that redraws the menu static. */
+  let staticTimer = 0;
+
+  /**
+   * Draws one frame of TV static on the main menu.
+   */
+  function drawMenuStatic() {
+    const canvas = byId('menuStatic');
+    const context = canvas.getContext('2d');
+    const image = context.createImageData(canvas.width, canvas.height);
+    for (let i = 0; i < image.data.length; i += 4) {
+      const shade = Math.random() * 255;
+      image.data[i] = shade;
+      image.data[i + 1] = shade;
+      image.data[i + 2] = shade;
+      image.data[i + 3] = 255;
+    }
+    context.putImageData(image, 0, 0);
+  }
+
+  /**
+   * Waits a random time, then runs something.
+   * @param {number} minMs Shortest wait.
+   * @param {number} maxMs Longest wait.
+   * @param {function()} action What to run.
+   */
+  function menuLater(minMs, maxMs, action) {
+    menuEffectTimers.push(
+        setTimeout(action, minMs + Math.random() * (maxMs - minMs)));
+  }
+
+  /**
+   * Makes Verity's eyes twitch now and then.
+   */
+  function twitchVerityEyes() {
+    const dx = (Math.random() * 4 - 2).toFixed(1);
+    const dy = (Math.random() * 2 - 1).toFixed(1);
+    ['verityEyes', 'verityManlyPupils'].forEach((id) => {
+      byId(id).setAttribute('transform', 'translate(' + dx + ' ' + dy + ')');
+    });
+    menuLater(150, 260, () => {
+      byId('verityEyes').setAttribute('transform', '');
+      byId('verityManlyPupils').setAttribute('transform', '');
+    });
+    menuLater(2500, 6000, twitchVerityEyes);
+  }
+
+  /**
+   * Flashes a broken Verity for a split second. Skipped in epileptic
+   * mode and on baby and toddler spookiness.
+   */
+  function glitchVerity() {
+    const level = getSpookiness();
+    if (level === 'manly' && !isNoFlashing()) {
+      // Manly mode is already scary, so it flashes the cute Verity.
+      document.body.classList.add('manlyBlink');
+      menuLater(90, 130, () => {
+        document.body.classList.remove('manlyBlink');
+      });
+    } else if (!isNoFlashing() && level !== 'baby' && level !== 'toddler') {
+      const glitch = byId('verityGlitch');
+      glitch.classList.add('show');
+      menuLater(90, 130, () => {
+        glitch.classList.remove('show');
+      });
+    }
+    menuLater(9000, 16000, glitchVerity);
+  }
+
+  /**
+   * Starts the static, eye twitches and glitches on the main menu.
+   */
+  function startMenuEffects() {
+    stopMenuEffects();
+    drawMenuStatic();
+    if (!isNoFlashing()) {
+      staticTimer = setInterval(drawMenuStatic, 70);
+    }
+    menuLater(2000, 4000, twitchVerityEyes);
+    menuLater(6000, 10000, glitchVerity);
+  }
+
+  /**
+   * Stops all main menu effects.
+   */
+  function stopMenuEffects() {
+    clearInterval(staticTimer);
+    menuEffectTimers.forEach((timer) => {
+      clearTimeout(timer);
+    });
+    menuEffectTimers = [];
+    byId('verityGlitch').classList.remove('show');
+    document.body.classList.remove('manlyBlink');
+    byId('verityEyes').setAttribute('transform', '');
+    byId('verityManlyPupils').setAttribute('transform', '');
+  }
+
+  // ---------- Menu sound ----------
+
+  /**
+   * The menu's background sound while it plays.
+   * @type {?{master: !GainNode, sources: !Array<!AudioScheduledSourceNode>,
+   *     timer: number}}
+   */
+  let menuSound = null;
+
+  /**
+   * Plays a creepy little sound now and then: a creak or a music box note.
+   */
+  function playMenuNoise() {
+    const audio = getAudio();
+    if (!audio || !menuSound) {
+      return;
+    }
+    const now = audio.currentTime;
+    if (Math.random() < 0.5) {
+      // A slow creak, like a door or a floorboard.
+      const creak = audio.createOscillator();
+      creak.type = 'sawtooth';
+      creak.frequency.setValueAtTime(190, now);
+      creak.frequency.linearRampToValueAtTime(120, now + 0.7);
+      const filter = audio.createBiquadFilter();
+      filter.type = 'bandpass';
+      filter.frequency.value = 700;
+      filter.Q.value = 6;
+      const gain = audio.createGain();
+      gain.gain.setValueAtTime(0.0, now);
+      gain.gain.linearRampToValueAtTime(0.08, now + 0.15);
+      gain.gain.linearRampToValueAtTime(0.0, now + 0.8);
+      creak.connect(filter);
+      filter.connect(gain);
+      gain.connect(menuSound.master);
+      creak.start(now);
+      creak.stop(now + 0.85);
+    } else {
+      // A lonely music box note, slightly out of tune.
+      const notes = [880, 1047, 1175, 1319];
+      const note = audio.createOscillator();
+      note.type = 'triangle';
+      note.frequency.value =
+          notes[Math.floor(Math.random() * notes.length)] * 0.985;
+      const gain = audio.createGain();
+      gain.gain.setValueAtTime(0.12, now);
+      gain.gain.exponentialRampToValueAtTime(0.001, now + 1.4);
+      note.connect(gain);
+      gain.connect(menuSound.master);
+      note.start(now);
+      note.stop(now + 1.5);
+    }
+    menuSound.timer = setTimeout(playMenuNoise, 5000 + Math.random() * 6000);
+  }
+
+  /**
+   * Starts the low hum and creepy noises behind the menus.
+   */
+  function startMenuSound() {
+    const audio = getAudio();
+    if (!audio || menuSound) {
+      return;
+    }
+    const now = audio.currentTime;
+    const master = audio.createGain();
+    master.gain.setValueAtTime(0.0, now);
+    master.gain.linearRampToValueAtTime(1.0, now + 1.5);
+    master.connect(audio.destination);
+    const sources = [];
+    // A deep drone, two tones slightly apart so it slowly wobbles.
+    [55, 55.7].forEach((pitch) => {
+      const drone = audio.createOscillator();
+      drone.frequency.value = pitch;
+      const gain = audio.createGain();
+      gain.gain.value = 0.05;
+      drone.connect(gain);
+      gain.connect(master);
+      sources.push(drone);
+    });
+    // The buzz of old lights.
+    const buzz = audio.createOscillator();
+    buzz.type = 'sawtooth';
+    buzz.frequency.value = 120;
+    const buzzFilter = audio.createBiquadFilter();
+    buzzFilter.type = 'lowpass';
+    buzzFilter.frequency.value = 400;
+    const buzzGain = audio.createGain();
+    buzzGain.gain.value = 0.012;
+    buzz.connect(buzzFilter);
+    buzzFilter.connect(buzzGain);
+    buzzGain.connect(master);
+    sources.push(buzz);
+    sources.forEach((source) => {
+      source.start(now);
+    });
+    menuSound = {master: master, sources: sources, timer: 0};
+    menuSound.timer = setTimeout(playMenuNoise, 3000);
+  }
+
+  /**
+   * Fades out and stops the menu sound.
+   */
+  function stopMenuSound() {
+    if (!menuSound || !audioContext) {
+      return;
+    }
+    const sound = menuSound;
+    menuSound = null;
+    clearTimeout(sound.timer);
+    const now = audioContext.currentTime;
+    sound.master.gain.cancelScheduledValues(now);
+    sound.master.gain.setValueAtTime(sound.master.gain.value, now);
+    sound.master.gain.linearRampToValueAtTime(0.0, now + 0.5);
+    sound.sources.forEach((source) => {
+      source.stop(now + 0.6);
+    });
+  }
+
+  // ---------- Extras gallery ----------
+
+  /**
+   * Each character's card in the extras gallery.
+   * @const {!Array<{name: string, night: number, door: string,
+   *     story: string}>}
+   */
+  const EXTRAS = [
+    {
+      name: 'verity', night: 1, door: 'right door',
+      story: 'The star of every birthday party. Verity sang to the kids ' +
+          'night after night, until the music stopped for good. Staff ' +
+          'say Verity still smiles at the empty tables. Verity never ' +
+          'blinks.',
+    },
+    {
+      name: 'falsity', night: 2, door: 'left door',
+      story: 'Verity\'s partner on stage, and the only one who never ' +
+          'smiled. Kids said Falsity told lies: that the party wasn\'t ' +
+          'over, that their parents were just around the corner. ' +
+          'Falsity still waits backstage.',
+    },
+    {
+      name: 'loveity', night: 3, door: 'right door',
+      story: 'Always the first to hug a crying kid. Loveity loves ' +
+          'visitors so much that Loveity never wants them to leave. ' +
+          'Ever. Listen for humming near the restroom mirrors.',
+    },
+    {
+      name: 'obesity', night: 4, door: 'left door',
+      story: 'The hungriest one at every party. Obesity was locked away ' +
+          'after the wheels broke, but somehow still finds a way out of ' +
+          'the supply closet. Heavy footsteps mean Obesity is close.',
+    },
+  ];
+
+  /**
+   * Builds the extras gallery. Characters unlock once their night is
+   * reached.
+   */
+  function buildExtras() {
+    const reached = getHighestUnlockedNight();
+    byId('extrasGrid').innerHTML = EXTRAS.map((card) => {
+      const unlocked = reached >= card.night;
+      const picture = unlocked ? CHARACTER_ART[card.name] :
+          '<svg viewBox="0 0 80 90"><circle cx="40" cy="40" r="34" ' +
+          'fill="#141416"/><circle cx="31" cy="36" r="2" fill="#6a5a3a"/>' +
+          '<circle cx="49" cy="36" r="2" fill="#6a5a3a"/></svg>';
+      return '<div class="extrasCard' + (unlocked ? '' : ' locked') + '">' +
+          picture +
+          '<div class="extrasName">' + (unlocked ? card.name : '???') +
+          '</div>' +
+          '<div class="extrasMeta">' + (unlocked ?
+            'first seen night ' + card.night + ' - ' + card.door :
+            'reach night ' + card.night + ' to meet them') + '</div>' +
+          '<div class="extrasStory">' + (unlocked ? card.story : '') +
+          '</div></div>';
+    }).join('');
+  }
+
+  // ---------- Custom night ----------
+
+  /**
+   * Gets the custom night levels the player picked.
+   * @return {!Object<string, number>} Level 0 to 20 for each character.
+   */
+  function getCustomLevels() {
+    const saved = memorySettings[CUSTOM_LEVELS_KEY] ||
+        readSetting(CUSTOM_LEVELS_KEY, '');
+    const levels = {verity: 5, falsity: 5, loveity: 5, obesity: 5};
+    saved.split(',').forEach((pair) => {
+      const parts = pair.split(':');
+      if (parts.length === 2 && parts[0] in levels) {
+        levels[parts[0]] = Math.max(0, Math.min(20, parseInt(parts[1], 10)));
+      }
+    });
+    return levels;
+  }
+
+  /**
+   * Saves the custom night levels.
+   * @param {!Object<string, number>} levels Level 0 to 20 for each one.
+   */
+  function saveCustomLevels(levels) {
+    const text = Object.keys(levels).map(
+        (name) => name + ':' + levels[name]).join(',');
+    memorySettings[CUSTOM_LEVELS_KEY] = text;
+    saveSetting(CUSTOM_LEVELS_KEY, text);
+  }
+
+  /**
+   * Builds the custom night cards with - and + buttons.
+   */
+  function buildCustomNight() {
+    const levels = getCustomLevels();
+    byId('customGrid').innerHTML = Object.keys(levels).map((name) =>
+      '<div class="customCard">' + CHARACTER_ART[name] +
+      '<div class="customName">' + name + '</div>' +
+      '<div class="customControls">' +
+      '<button data-name="' + name + '" data-change="-1" ' +
+      'aria-label="less ' + name + '">-</button>' +
+      '<div class="customValue">' + levels[name] + '</div>' +
+      '<button data-name="' + name + '" data-change="1" ' +
+      'aria-label="more ' + name + '">+</button>' +
+      '</div></div>').join('');
+    byId('customGrid').querySelectorAll('button').forEach((button) => {
+      button.addEventListener('click', () => {
+        const current = getCustomLevels();
+        const name = button.dataset.name;
+        current[name] = Math.max(0, Math.min(20,
+            current[name] + parseInt(button.dataset.change, 10)));
+        saveCustomLevels(current);
+        buildCustomNight();
+      });
+    });
+  }
+
+  /**
+   * Starts the custom night with the picked levels. Anyone on 0 sleeps.
+   */
+  function startCustomNight() {
+    const levels = getCustomLevels();
+    const awake = {};
+    Object.keys(levels).forEach((name) => {
+      if (levels[name] > 0) {
+        awake[name] = levels[name];
+      }
+    });
+    NIGHT_LEVELS[CUSTOM_NIGHT] = awake;
+    startNight(CUSTOM_NIGHT);
+  }
+
+  // ---------- Keybinds ----------
+
+  /**
+   * The actions that can have a key, in the order they're listed.
+   * @const {!Array<{id: string, label: string, key: string}>}
+   */
+  const KEY_ACTIONS = [
+    {id: 'leftDoor', label: 'left door', key: 'KeyA'},
+    {id: 'leftLight', label: 'left light', key: 'KeyQ'},
+    {id: 'rightDoor', label: 'right door', key: 'KeyD'},
+    {id: 'rightLight', label: 'right light', key: 'KeyE'},
+    {id: 'cameras', label: 'cameras', key: 'Space'},
+  ];
+
+  /** @type {?string} The action waiting for a new key, if any. */
+  let waitingForKey = null;
+
+  /**
+   * Gets the player's keybinds.
+   * @return {!Object<string, string>} The key code for each action.
+   */
+  function getKeybinds() {
+    const binds = {};
+    KEY_ACTIONS.forEach((action) => {
+      binds[action.id] = action.key;
+    });
+    const saved = memorySettings[KEYBINDS_KEY] ||
+        readSetting(KEYBINDS_KEY, '');
+    saved.split(',').forEach((pair) => {
+      const parts = pair.split(':');
+      if (parts.length === 2 && parts[0] in binds) {
+        binds[parts[0]] = parts[1];
+      }
+    });
+    return binds;
+  }
+
+  /**
+   * Saves the player's keybinds.
+   * @param {!Object<string, string>} binds The key code for each action.
+   */
+  function saveKeybinds(binds) {
+    const text = Object.keys(binds).map(
+        (id) => id + ':' + binds[id]).join(',');
+    memorySettings[KEYBINDS_KEY] = text;
+    saveSetting(KEYBINDS_KEY, text);
+  }
+
+  /**
+   * Turns a key code into a short name people can read.
+   * @param {string} code A key code, like "KeyA" or "Space".
+   * @return {string} A readable name, like "A" or "space".
+   */
+  function keyName(code) {
+    const letter = code.match(/^Key([A-Z])$/);
+    if (letter) {
+      return letter[1];
+    }
+    const digit = code.match(/^Digit([0-9])$/);
+    if (digit) {
+      return digit[1];
+    }
+    const names = {
+      Space: 'space', ArrowUp: 'up', ArrowDown: 'down', ArrowLeft: 'left',
+      ArrowRight: 'right', ShiftLeft: 'left shift', ShiftRight: 'right shift',
+      ControlLeft: 'left ctrl', ControlRight: 'right ctrl', Enter: 'enter',
+      Tab: 'tab',
+    };
+    return names[code] || code;
+  }
+
+  /**
+   * Builds the keybind rows on the keybinds screen.
+   */
+  function buildKeybinds() {
+    const binds = getKeybinds();
+    byId('keyRows').innerHTML = KEY_ACTIONS.map((action) =>
+      '<div class="keyRow"><div class="keyLabel">' + action.label +
+      '</div><button class="keyButton' +
+      (waitingForKey === action.id ? ' waiting' : '') +
+      '" data-action="' + action.id + '">' +
+      (waitingForKey === action.id ? 'press a key...' :
+        keyName(binds[action.id])) + '</button></div>').join('');
+    byId('keyRows').querySelectorAll('.keyButton').forEach((button) => {
+      button.addEventListener('click', () => {
+        waitingForKey = button.dataset.action;
+        buildKeybinds();
+      });
+    });
+  }
+
+  /**
+   * Gives an action a new key. If another action already uses that key,
+   * the two swap keys.
+   * @param {string} actionId The action to change.
+   * @param {string} code The new key code.
+   */
+  function setKeybind(actionId, code) {
+    const binds = getKeybinds();
+    const oldCode = binds[actionId];
+    Object.keys(binds).forEach((id) => {
+      if (binds[id] === code) {
+        binds[id] = oldCode;
+      }
+    });
+    binds[actionId] = code;
+    saveKeybinds(binds);
+    updateKeyHints();
+  }
+
+  /**
+   * Shows each key on its office button, like "door [A]".
+   */
+  function updateKeyHints() {
+    const binds = getKeybinds();
+    byId('leftDoorButton').textContent =
+        'door [' + keyName(binds.leftDoor) + ']';
+    byId('leftLightButton').textContent =
+        'light [' + keyName(binds.leftLight) + ']';
+    byId('rightDoorButton').textContent =
+        'door [' + keyName(binds.rightDoor) + ']';
+    byId('rightLightButton').textContent =
+        'light [' + keyName(binds.rightLight) + ']';
+    byId('camerasButton').textContent =
+        'cameras [' + keyName(binds.cameras) + ']';
+    byId('closeCamerasButton').textContent =
+        'close cameras [' + keyName(binds.cameras) + ']';
+  }
+
+  /**
+   * Handles key presses: changing keybinds, and playing in the office.
+   * @param {!KeyboardEvent} event The key press.
+   */
+  function handleKeyDown(event) {
+    if (document.querySelector('.cutscene.active')) {
+      leaveCutscene();
+      return;
+    }
+    if (waitingForKey) {
+      event.preventDefault();
+      if (event.code !== 'Escape') {
+        setKeybind(waitingForKey, event.code);
+      }
+      waitingForKey = null;
+      buildKeybinds();
+      return;
+    }
+    if (!byId('office').classList.contains('active') || event.repeat) {
+      return;
+    }
+    const binds = getKeybinds();
+    const action = Object.keys(binds).find((id) => binds[id] === event.code);
+    if (!action) {
+      return;
+    }
+    event.preventDefault();
+    if (action === 'leftDoor') {
+      toggleDoor('left');
+    } else if (action === 'rightDoor') {
+      toggleDoor('right');
+    } else if (action === 'leftLight') {
+      toggleLight('left');
+    } else if (action === 'rightLight') {
+      toggleLight('right');
+    } else if (nightState.camerasOpen) {
+      closeCameras();
+    } else {
+      openCameras();
+    }
+  }
+
+  // ---------- How to play ----------
+
+  /**
+   * Builds the how to play screen, showing the player's current keys.
+   */
+  function buildHowTo() {
+    const binds = getKeybinds();
+    const key = (id) => keyName(binds[id]);
+    const sections = [
+      ['your goal', 'You\'re the night guard at Verity\'s. Survive from ' +
+          '12 AM to 6 AM. Each hour lasts one minute.'],
+      ['doors', 'Shut a door to keep them out. If someone waits at an ' +
+          'open door too long, they get in. A shut door makes them give ' +
+          'up and go back.'],
+      ['lights', 'Turn on a hallway light to see who\'s coming. The light ' +
+          'fades the farther down the hall you look. You can still see ' +
+          'through the window in a shut door.'],
+      ['cameras', 'Watch the cameras to see where everyone is. Click a ' +
+          'room on the map to switch cameras.'],
+      ['power', 'Doors, lights and cameras all use power. If it runs out, ' +
+          'everything shuts off.'],
+      ['warnings', 'Listen for footsteps from the left or right. Glowing ' +
+          'eyes in a dark doorway mean someone is right there.'],
+      ['keys', 'left door: ' + key('leftDoor') + '. left light: ' +
+          key('leftLight') + '. right door: ' + key('rightDoor') +
+          '. right light: ' + key('rightLight') + '. cameras: ' +
+          key('cameras') + '. You can change these in options.'],
+    ];
+    byId('howToBox').innerHTML = sections.map((section) =>
+      '<div class="howToSection"><div class="howToHeading">' + section[0] +
+      '</div><div class="howToText">' + section[1] + '</div></div>')
+        .join('');
+  }
+
+  // ---------- Cutscenes (newspapers, paycheck, termination) ----------
+
+  /** @type {number} Timer that moves on from a cutscene by itself. */
+  let cutsceneTimer = 0;
+
+  /** @type {?function()} What to do after the cutscene. */
+  let afterCutscene = null;
+
+  /** @type {string} The cutscene showing right now. */
+  let currentCutscene = '';
+
+  /**
+   * Draws the colorful show stage with all four animatronics on it, used
+   * behind the cutscenes.
+   * @return {string} SVG markup for the background.
+   */
+  function drawCutsceneBackdrop() {
+    const place = (name, x, y, width, height) =>
+      CHARACTER_ART[name].replace('<svg ', '<svg x="' + x + '" y="' + y +
+          '" width="' + width + '" height="' + height + '" ');
+    let svg = '<svg viewBox="0 0 600 340" ' +
+        'preserveAspectRatio="xMidYMid slice">' +
+        '<rect width="600" height="340" fill="#0e0e10"/>' + drawShowStage();
+    // Warm spotlight beams.
+    [160, 250, 350, 440].forEach((x) => {
+      svg += '<polygon points="' + (x - 6) + ',38 ' + (x + 6) + ',38 ' +
+          (x + 60) + ',290 ' + (x - 60) + ',290" fill="#ffd890" ' +
+          'opacity="0.07"/>';
+    });
+    // Shadows on the stage, then everyone in full color.
+    [[105, 55], [245, 50], [370, 48], [500, 50]].forEach((shadow) => {
+      svg += '<ellipse cx="' + shadow[0] + '" cy="288" rx="' + shadow[1] +
+          '" ry="8" fill="#000000" opacity="0.5"/>';
+    });
+    svg += place('obesity', 40, 115, 131, 175) +
+        '<g class="floatHead">' + place('verity', 170, 48, 150, 169) +
+        '</g><g class="floatHead" style="animation-delay: -1.1s">' +
+        place('falsity', 300, 58, 140, 158) +
+        '</g><g class="floatHead" style="animation-delay: -2.2s">' +
+        place('loveity', 428, 52, 145, 163) + '</g>';
+    return svg + '</svg>';
+  }
+
+  /**
+   * Shows a cutscene, then runs the next step. The player can click or
+   * press any key to move on.
+   * @param {string} screenId The cutscene screen to show.
+   * @param {function()} next What to do afterwards.
+   * @param {number} autoMs Move on by itself after this long (0 = never).
+   */
+  function showCutscene(screenId, next, autoMs) {
+    const faces = ['verity', 'falsity', 'loveity', 'obesity']
+        .map((name) => CHARACTER_ART[name]).join('');
+    if (screenId === 'newspaper') {
+      byId('adFaces').innerHTML = faces;
+    }
+    if (screenId === 'closingPaper') {
+      byId('closedFaces').innerHTML = faces +
+          '<div class="closedStamp">CLOSED</div>';
+    }
+    const backdrop = byId(screenId).querySelector('.cutBackdrop');
+    if (backdrop.dataset.mode !== getSpookiness()) {
+      backdrop.dataset.mode = getSpookiness();
+      backdrop.innerHTML = drawCutsceneBackdrop();
+    }
+    afterCutscene = next;
+    currentCutscene = screenId;
+    byId(screenId).classList.remove('leaving');
+    showScreen(screenId);
+    clearTimeout(cutsceneTimer);
+    if (autoMs) {
+      cutsceneTimer = setTimeout(leaveCutscene, autoMs);
+    }
+  }
+
+  /**
+   * Fades the cutscene out and moves on.
+   */
+  function leaveCutscene() {
+    if (!afterCutscene) {
+      return;
+    }
+    const next = afterCutscene;
+    afterCutscene = null;
+    clearTimeout(cutsceneTimer);
+    byId(currentCutscene).classList.add('leaving');
+    setTimeout(next, 800);
+  }
+
+  /**
+   * Shows the help wanted newspaper, then runs the next step.
+   * @param {function()} next What to do after the newspaper.
+   */
+  function showNewspaper(next) {
+    showCutscene('newspaper', next, 9000);
+  }
+
+  /**
+   * Plays the ending: the newspaper saying the pizzeria closed, then the
+   * paycheck, then the notice of termination. Each part moves on by
+   * itself, or the player can click to skip ahead.
+   * @param {function()} next What to do after the ending.
+   */
+  function playEnding(next) {
+    showCutscene('closingPaper', () => {
+      showCutscene('paycheck', () => {
+        showCutscene('termination', next, 7000);
+      }, 6000);
+    }, 8000);
+  }
+
+  // ---------- Button setup ----------
+  updatePlayLabel();
+
+  byId('playButton').addEventListener('click', () => {
+    if (hasBeatenAllNights()) {
+      buildNightButtons();
+      showScreen('nightSelect');
+    } else if (getHighestUnlockedNight() === 1) {
+      // A brand new guard reads the help wanted ad first.
+      showNewspaper(() => {
+        startNight(1);
+      });
+    } else {
+      startNight(getHighestUnlockedNight());
+    }
+  });
+
+  document.querySelectorAll('.cutscene').forEach((screen) => {
+    screen.addEventListener('click', () => {
+      leaveCutscene();
+    });
+  });
+
+  byId('cutscenesButton').addEventListener('click', () => {
+    showScreen('cutsceneMenu');
+  });
+
+  byId('cutsceneBackButton').addEventListener('click', () => {
+    showScreen('mainMenu');
+  });
+
+  document.querySelectorAll('[data-cutscene]').forEach((button) => {
+    button.addEventListener('click', () => {
+      const backToList = () => {
+        showScreen('cutsceneMenu');
+      };
+      if (button.dataset.cutscene === 'ending') {
+        playEnding(backToList);
+      } else {
+        showCutscene(button.dataset.cutscene, backToList, 9000);
+      }
+    });
+  });
+
+  byId('customNightButton').addEventListener('click', () => {
+    if (!hasBeatenAllNights()) {
+      byId('menuMessage').textContent = 'beat night 5 to unlock custom night';
+      return;
+    }
+    buildCustomNight();
+    showScreen('customScreen');
+  });
+
+  byId('customStartButton').addEventListener('click', () => {
+    startCustomNight();
+  });
+
+  document.querySelectorAll('.customPresets button').forEach((button) => {
+    button.addEventListener('click', () => {
+      const value = parseInt(button.dataset.preset, 10);
+      saveCustomLevels({
+        verity: value, falsity: value, loveity: value, obesity: value,
+      });
+      buildCustomNight();
+    });
+  });
+
+  byId('extrasButton').addEventListener('click', () => {
+    buildExtras();
+    showScreen('extrasScreen');
+  });
+
+  byId('howToButton').addEventListener('click', () => {
+    buildHowTo();
+    showScreen('howToScreen');
+  });
+
+  byId('keybindsButton').addEventListener('click', () => {
+    waitingForKey = null;
+    buildKeybinds();
+    showScreen('keybindScreen');
+  });
+
+  byId('keyResetButton').addEventListener('click', () => {
+    const binds = {};
+    KEY_ACTIONS.forEach((action) => {
+      binds[action.id] = action.key;
+    });
+    saveKeybinds(binds);
+    waitingForKey = null;
+    updateKeyHints();
+    buildKeybinds();
+  });
+
+  byId('keybindBackButton').addEventListener('click', () => {
+    waitingForKey = null;
+    showScreen('optionsScreen');
+  });
+
+  ['customBackButton', 'extrasBackButton', 'howToBackButton'].forEach(
+      (id) => {
+        byId(id).addEventListener('click', () => {
+          showScreen('mainMenu');
+        });
+      });
+
+  document.addEventListener('keydown', handleKeyDown);
+  updateKeyHints();
+
+  byId('creditsButton').addEventListener('click', () => {
+    // Start the credits from the bottom every time.
+    const roll = byId('creditsRoll');
+    roll.style.animation = 'none';
+    void roll.offsetWidth;
+    roll.style.animation = '';
+    showScreen('creditsScreen');
+  });
+
+  byId('creditsBackButton').addEventListener('click', () => {
+    showScreen('mainMenu');
+  });
+
+  byId('codeButton').addEventListener('click', () => {
+    byId('adminCodeInput').value = '';
+    showAdminMessage('', '');
+    showScreen('codeScreen');
+    byId('adminCodeInput').focus();
+  });
+
+  byId('adminSubmitButton').addEventListener('click', () => {
+    tryAdminCode();
+  });
+
+  byId('adminCodeInput').addEventListener('keydown', (event) => {
+    if (event.key === 'Enter') {
+      tryAdminCode();
+    }
+  });
+
+  byId('adminCodeInput').addEventListener('input', () => {
+    if (byId('adminMessage').className === 'wrong') {
+      showAdminMessage('', '');
+    }
+  });
+
+  byId('codeBackButton').addEventListener('click', () => {
+    showScreen('mainMenu');
+  });
+
+  byId('optionsButton').addEventListener('click', () => {
+    updateOptionsLooks();
+    showScreen('optionsScreen');
+  });
+
+  document.querySelectorAll('.spookButton').forEach((button) => {
+    button.addEventListener('click', () => {
+      if (button.classList.contains('locked')) {
+        return;
+      }
+      if (button.dataset.level === 'manly' && getSpookiness() !== 'manly') {
+        byId('bloodWarning').classList.add('show');
+        return;
+      }
+      saveSetting(SPOOK_KEY, button.dataset.level);
+      memorySettings[SPOOK_KEY] = button.dataset.level;
+      updateOptionsLooks();
+    });
+  });
+
+  byId('bloodAcceptButton').addEventListener('click', () => {
+    saveSetting(SPOOK_KEY, 'manly');
+    memorySettings[SPOOK_KEY] = 'manly';
+    byId('bloodWarning').classList.remove('show');
+    updateOptionsLooks();
+  });
+
+  byId('bloodCancelButton').addEventListener('click', () => {
+    saveSetting(SPOOK_KEY, 'kid');
+    memorySettings[SPOOK_KEY] = 'kid';
+    byId('bloodWarning').classList.remove('show');
+    updateOptionsLooks();
+  });
+
+  byId('epilepticButton').addEventListener('click', () => {
+    const next = isNoFlashing() ? 'off' : 'on';
+    saveSetting(NO_FLASH_KEY, next);
+    memorySettings[NO_FLASH_KEY] = next;
+    updateOptionsLooks();
+  });
+
+  updateOptionsLooks();
+
+  byId('optionsBackButton').addEventListener('click', () => {
+    showScreen('mainMenu');
+  });
+
+  byId('epilepsyContinueButton').addEventListener('click', () => {
+    getAudio();
+    showScreen('warningVolume');
+  });
+
+  byId('volumeContinueButton').addEventListener('click', () => {
+    getAudio();
+    showScreen('mainMenu');
+  });
+
+  byId('backToMenuButton').addEventListener('click', () => {
+    showScreen('mainMenu');
+  });
+
+  byId('leftDoorButton').addEventListener('click', () => {
+    toggleDoor('left');
+  });
+  byId('rightDoorButton').addEventListener('click', () => {
+    toggleDoor('right');
+  });
+  byId('leftLightButton').addEventListener('click', () => {
+    toggleLight('left');
+  });
+  byId('rightLightButton').addEventListener('click', () => {
+    toggleLight('right');
+  });
+
+  buildCameraMap();
+
+  byId('camerasButton').addEventListener('click', () => {
+    openCameras();
+  });
+
+  byId('closeCamerasButton').addEventListener('click', () => {
+    closeCameras();
+  });
+
+  byId('wonMenuButton').addEventListener('click', () => {
+    showScreen('mainMenu');
+  });
+
+  byId('tryAgainButton').addEventListener('click', () => {
+    startNight(nightState.nightNumber);
+  });
+
+  byId('gameOverMenuButton').addEventListener('click', () => {
+    showScreen('mainMenu');
+  });
