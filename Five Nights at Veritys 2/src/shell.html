@@ -1,0 +1,200 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Five Nights at Verity's 2</title>
+<style>
+<!--@inline css/10-style.css-->
+</style>
+</head>
+<body>
+
+<div id="game">
+
+  <!-- Warning 1: epilepsy -->
+  <div class="screen show" id="epilepsyScreen">
+    <div class="center">
+      <div class="warnTitle">EPILEPSY WARNING</div>
+      <div class="warnText">
+        This game has flashing lights, blinking and sudden jump scares.
+        If you have epilepsy or are sensitive to flashing, turn on
+        Epileptic mode in Options. It removes all flashes and blinks.
+      </div>
+      <div class="hint">Click anywhere to continue</div>
+    </div>
+  </div>
+
+  <!-- Warning 2: volume -->
+  <div class="screen" id="volumeScreen">
+    <div class="center">
+      <div class="warnTitle">VOLUME WARNING</div>
+      <div class="warnText">
+        This game has loud screams and sudden sounds.
+        Turn your volume down before you play. Headphones make it
+        scarier.
+      </div>
+      <div class="hint">Click anywhere to continue</div>
+    </div>
+  </div>
+
+  <!-- Warning 3: jump scares -->
+  <div class="screen" id="scareWarnScreen">
+    <div class="center">
+      <div class="warnTitle">JUMPSCARE WARNING</div>
+      <div class="warnText">
+        This game has jump scares. Monsters will pop out at you with loud
+        screams. You can make them calmer with the Spookiness setting in
+        Options.
+      </div>
+      <div class="warnText" style="margin-top:18px;color:#888780">
+        however dont worry there not that overly scary
+      </div>
+      <div class="hint">Click anywhere to continue</div>
+    </div>
+  </div>
+
+  <!-- Home screen -->
+  <div class="screen" id="homeScreen">
+    <svg id="homeArt" viewBox="0 0 680 420"
+        preserveAspectRatio="xMidYMid slice"></svg>
+    <canvas id="staticCanvas" width="170" height="105"></canvas>
+    <div id="menuPanel">
+      <div class="title1">Five Nights at</div>
+      <div class="title2">Verity's 2</div>
+      <div id="stars"></div>
+      <div class="menuItem" data-action="newGame">New game</div>
+      <div class="menuItem" data-action="continue" id="continueItem">
+        Continue
+      </div>
+      <div class="menuItem" data-action="nightSelect"
+          id="nightSelectItem">Night select</div>
+      <div class="menuItem" data-action="customNight"
+          id="customNightItem">Custom night</div>
+      <div class="menuItem" data-action="extras">Extras</div>
+      <div class="menuItem" data-action="index">Index</div>
+      <div class="menuItem" data-action="howToPlay">How to play</div>
+      <div class="menuItem" data-action="options">Options</div>
+      <div class="menuItem" data-action="sandbox" id="sandboxItem">
+        Sandbox</div>
+    </div>
+    <div id="codeButton">Code</div>
+  </div>
+
+  <!-- Options -->
+  <div class="screen" id="optionsScreen">
+    <div class="panel">
+      <div class="panelTitle">OPTIONS</div>
+
+      <div class="label">Spookiness</div>
+      <div class="row">
+        <button class="btn spookBtn" data-level="baby">Baby</button>
+        <button class="btn spookBtn" data-level="toddler">Toddler</button>
+        <button class="btn spookBtn" data-level="kid">Kid</button>
+        <button class="btn spookBtn" data-level="manly"
+            id="manlyBtn">MANLY</button>
+      </div>
+      <div class="spookNote" id="spookNote"></div>
+
+      <div class="label">Epileptic mode (no flashes or blinking)</div>
+      <div class="row">
+        <div class="switch" id="epilepticSwitch"></div>
+        <span id="epilepticLabel" class="spookNote">Off</span>
+      </div>
+
+      <div class="label">Volume</div>
+      <div class="row">
+        <input type="range" min="0" max="100" step="1" id="volumeSlider">
+        <span id="volumeLabel"></span>
+      </div>
+
+      <div class="label">Keybinds (click a key, then press the new key)</div>
+      <div class="keyGrid" id="keyGrid"></div>
+
+      <div class="bottomRow">
+        <button class="btn" id="optionsBack">Back</button>
+        <button class="btn" id="resetKeys">Reset keybinds</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Small screens shown over everything -->
+  <div id="popup"><div class="panel" id="popupPanel"></div></div>
+
+  <!-- The office, where each night is played -->
+  <div class="screen" id="officeScreen">
+    <svg id="officeView" viewBox="460 0 680 420"
+        preserveAspectRatio="xMidYMid slice"></svg>
+    <div id="darkness"></div>
+    <div id="maskLayer">
+      <svg viewBox="0 0 680 420" preserveAspectRatio="none">
+        <path fill="#141210" fill-rule="evenodd" d="M0 0 H680 V420 H0 Z
+            M280 175 a55 40 0 1 0 0.1 0 Z M400 175 a55 40 0 1 0 0.1 0 Z"/>
+        <path d="M120 0 Q340 60 560 0" stroke="#2a241c" stroke-width="14"
+            fill="none"/>
+      </svg>
+    </div>
+    <div id="camLayer">
+      <svg id="camView" viewBox="0 0 680 420"
+          preserveAspectRatio="xMidYMid slice"></svg>
+      <canvas id="camStatic" width="170" height="105"></canvas>
+      <div id="camLabel"></div>
+      <div id="camRec">&#9679; REC</div>
+      <div id="camMap"></div>
+      <div id="windBox">
+        <button class="btn" id="windBtn">Hold to wind music box</button>
+        <div class="meter"><div id="windFill"></div></div>
+      </div>
+    </div>
+    <div id="hud">
+      <div id="hudTime">12 AM</div>
+      <div id="hudNight">Night 1</div>
+      <div id="hudMusicBox">
+        <div class="hudLabel">Music box</div>
+        <div class="meter small"><div id="hudMusic"></div></div>
+      </div>
+      <div id="musicAlert"></div>
+    </div>
+    <div id="hudRight">
+      <div class="hudLabel">Flashlight battery</div>
+      <div class="meter small"><div id="hudBattery"></div></div>
+    </div>
+    <button class="btn bigBtn" id="maskBtn">Mask</button>
+    <button class="btn bigBtn" id="camBtn">Cameras</button>
+    <div id="goldenText">hey its me its verity</div>
+    <div id="introBox" class="center"></div>
+    <div id="sandboxPanel"></div>
+    <div id="scareLayer"></div>
+  </div>
+
+  <!-- Game over -->
+  <div class="screen" id="gameOverScreen">
+    <canvas id="overStatic" width="170" height="105"></canvas>
+    <div class="center">
+      <div class="nightIntro">GAME OVER</div>
+      <div class="warnText" id="overText" style="margin-top:14px"></div>
+    </div>
+  </div>
+
+  <!-- Night select, custom night, index and extras -->
+  <div class="screen" id="pageScreen">
+    <svg id="pageArt" viewBox="0 0 680 420"
+        preserveAspectRatio="xMidYMid slice"></svg>
+    <div id="pageContent"></div>
+    <div id="previewLayer"></div>
+  </div>
+
+  <!-- 6 AM -->
+  <div class="screen" id="winScreen">
+    <div class="center">
+      <div class="nightIntro" id="winTime">5:59 AM</div>
+      <div class="warnText" id="winText" style="margin-top:14px"></div>
+    </div>
+  </div>
+</div>
+
+<script>
+<!--@inline js/10-game.js-->
+</script>
+</body>
+</html>
