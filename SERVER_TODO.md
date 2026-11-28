@@ -96,7 +96,25 @@ items), so new ones are added there.
 - Server: the rating, the checks (a game cannot just send any number), the board, the goon boost. Games: report
   each ranked result (Chess and Checkers, Zoom, Sports Mix, Steel Storm Duel are good first ones).
 
-## 8. Final checks (from the roadmap)
+## 8. Linked Google and Apple calendars (branch `wip/calendar-sync`)
+
+The Calendar tab (r84, `launcher/calendar/`) should show the events of a player's Google or Apple calendar and pick
+up new ones by itself. The player pastes the calendar's private link: Google "Secret address in iCal format", or an
+iCloud public-calendar link (`webcal://` becomes `https://`). Browsers cannot read those links (CORS), so the server
+fetches them for the launcher.
+
+- Server: one request "read this .ics link" that fetches it (https only, Google and iCloud hosts only, size and time
+  limits), turns it into a short event list (title, start, end, all-day, repeat rule, location) and returns it.
+  Keep each link's answer cached about 10-15 minutes, so a class opening the tab at once makes one fetch. No database
+  reads or writes (egress). Rate-limit as a `soft` class. If it is a new socket reply type, add it to `LITE_OK`.
+- Launcher (not built yet): "Linked calendars" in the Calendar settings (link, name, colour, remove), linked events
+  read-only in their own colour, refreshed when the tab opens and every 15 minutes while it is open, last good copy
+  kept in `hgq:calendar` so it still shows offline. A new launcher suite for it.
+- One way only (Google/Apple to Taco). Two-way sync was ruled out: Google needs a verified OAuth app (school admins
+  usually block it) and Apple has no web API.
+- School Google accounts often have the secret iCal link turned off; personal Gmail and iCloud work.
+
+## 9. Final checks (from the roadmap)
 
 - Everything above works together: Battle Pass, Goon Points, ranks and game progress.
 - Menus still fit on small screens with the new tabs and buttons.
