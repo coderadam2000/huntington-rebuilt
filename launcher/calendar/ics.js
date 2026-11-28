@@ -33,14 +33,15 @@ var ICS = (function () {
     var ls = lines(text), cal = { name: '', tz: '', events: [] }, ev = null, depth = 0;
     for (var i = 0; i < ls.length; i++) {
       var l = ls[i], n = l.name;
-      if (n === 'BEGIN') { if (l.val.toUpperCase() === 'VEVENT' && !ev) { ev = { exdate: [], rdate: [] }; depth = 0; } else if (ev) depth++; continue; }
+      if (n === 'BEGIN') { if (l.val.toUpperCase() === 'VEVENT' && !ev) { ev = { exdate: [], rdate: [], rem: [] }; depth = 0; } else if (ev) depth++; continue; }
       if (n === 'END') { if (ev) { if (depth) depth--; else { cal.events.push(ev); ev = null; } } continue; }
       if (!ev) { if (n === 'X-WR-CALNAME') cal.name = unesc(l.val); else if (n === 'X-WR-TIMEZONE') cal.tz = l.val.trim(); continue; }
-      if (depth) continue;      // inside a VALARM
+      if (depth) { if (n === 'TRIGGER' && depth === 1) { var tm = /^(-)?P(?:(\d+)W)?(?:(\d+)D)?(?:T(?:(\d+)H)?(?:(\d+)M)?(?:\d+S)?)?$/.exec(l.val.trim()); if (tm && (tm[1] || !+(tm[2] || 0) && !+(tm[3] || 0) && !+(tm[4] || 0) && !+(tm[5] || 0))) ev.rem.push((+(tm[2] || 0)) * 10080 + (+(tm[3] || 0)) * 1440 + (+(tm[4] || 0)) * 60 + (+(tm[5] || 0))); } continue; }      // inside a VALARM: only its reminder time
       if (n === 'SUMMARY') ev.title = unesc(l.val);
       else if (n === 'DESCRIPTION') ev.notes = unesc(l.val);
       else if (n === 'LOCATION') ev.loc = unesc(l.val);
       else if (n === 'UID') ev.uid = l.val;
+      else if (n === 'URL') ev.url = l.val.trim();
       else if (n === 'STATUS') ev.status = l.val.toUpperCase();
       else if (n === 'DTSTART' || n === 'DTEND' || n === 'RECURRENCE-ID') ev[n] = l;
       else if (n === 'DURATION') ev.dur = l.val;
@@ -145,7 +146,7 @@ var ICS = (function () {
       days.forEach(function (n) {
         if (skip[n] || mv[n] || seen[n]) return; seen[n] = 1;
         var o = { uid: uid, title: e.title || '(no title)' };
-        if (e.notes) o.notes = e.notes.slice(0, 2000); if (e.loc) o.loc = e.loc.slice(0, 300);
+        if (e.notes) o.notes = e.notes.slice(0, 2000); if (e.loc) o.loc = e.loc.slice(0, 300); if (/^https?:\/\//i.test(e.url || '')) o.url = e.url.slice(0, 500); if (e.rem.length) o.rem = e.rem.slice(0, 5);
         if (st.allDay) { var span = Math.max(1, Math.round(dur / 86400)); o.date = dstr(n); if (span > 1) o.end = dstr(n + span - 1); if (n + span - 1 < from || n > to) return; }
         else {
           var a = wallToMs(n, st.sec, st.tz), b = a + dur * 1000, la = new Date(a), lb = new Date(Math.max(a, b - 1));
@@ -176,10 +177,15 @@ var ICS = (function () {
         var endD = e.end || e.date, endT = e.endTime || e.time;
         if (e.endTime || e.end) L.push('DTEND:' + d8(endD) + 'T' + endT.replace(':', '') + '00'); else L.push('DURATION:PT1H');
       } else { L.push('DTSTART;VALUE=DATE:' + d8(e.date), 'DTEND;VALUE=DATE:' + dstr(Math.round(Date.UTC(+(e.end || e.date).slice(0, 4), +(e.end || e.date).slice(5, 7) - 1, +(e.end || e.date).slice(8, 10)) / 864e5) + 1).replace(/-/g, '')); }
-      if (e.rep && RR[e.rep]) L.push('RRULE:' + RR[e.rep] + (e.until ? ';UNTIL=' + d8(e.until) + (e.time ? 'T235959' : '') : ''));
+      var rr = e.rep === 'custom' ? e.rrule : RR[e.rep];
+      if (e.rep && e.rep !== 'none' && rr) L.push('RRULE:' + rr + (e.count ? ';COUNT=' + e.count : '') + (e.until ? ';UNTIL=' + d8(e.until) + (e.time ? 'T235959' : '') : ''));
       (e.skip || []).forEach(function (s) { L.push(e.time ? 'EXDATE:' + d8(s) + 'T' + e.time.replace(':', '') + '00' : 'EXDATE;VALUE=DATE:' + d8(s)); });
       if (e.notes) L.push('DESCRIPTION:' + esc(e.notes));
+      if (e.loc) L.push('LOCATION:' + esc(e.loc));
+      if (e.url) L.push('URL:' + e.url);
       if (c) L.push('CATEGORIES:' + esc(c.name));
+      (e.rem || []).forEach(function (m) { var b = e.time ? m : m - 540;   // an all-day event's reminders count back from 9am
+        L.push('BEGIN:VALARM', 'ACTION:DISPLAY', 'DESCRIPTION:' + esc(e.title), 'TRIGGER:' + (b >= 0 ? '-PT' + b + 'M' : 'PT' + -b + 'M'), 'END:VALARM'); });
       L.push('END:VEVENT');
     });
     L.push('END:VCALENDAR');

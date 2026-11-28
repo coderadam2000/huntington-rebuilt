@@ -209,6 +209,79 @@ const r5 = await page.evaluate(async () => {
 });
 check('settings: link added from the box', [r5.rows, r5.name], [1, 'Linked calendar']);
 
+// 6. Google / Apple features: custom repeats, this/following/all, quick add, reminders, the hour grid, sharing
+const r6 = await page.evaluate(() => {
+  const C = window.__cal, days = (e, a, b) => { const out = []; for (let n = ICS.dnum(+a.slice(0, 4), +a.slice(5, 7) - 1, +a.slice(8)); ; n++) { const d = ICS.dstr(n); if (d > b) break; if (C.startsOn(e, d)) out.push(d); } return out; };
+  const bi = { id: 't-bi', title: 'Bi', date: '2026-11-30', rep: 'custom', rrule: 'FREQ=WEEKLY;INTERVAL=2;BYDAY=MO,WE', count: 5, cat: 'other' };
+  const lastFr = { id: 't-lf', title: 'LF', date: '2026-11-27', rep: 'custom', rrule: 'FREQ=MONTHLY;BYDAY=-1FR', cat: 'other' };
+  C.S.events = [];
+  const w1 = { id: 't-w1', title: 'Gym', date: '2026-12-01', time: '07:00', endTime: '08:00', rep: 'weekly', cat: 'other' }; C.S.events.push(w1);
+  const one = C.applyScope(w1, '2026-12-08', { time: '09:00', endTime: '10:00', rep: 'weekly' }, 'one');
+  const w2 = { id: 't-w2', title: 'Piano', date: '2026-12-01', rep: 'weekly', count: 6, cat: 'other' }; C.S.events.push(w2);
+  const nx = C.applyScope(w2, '2026-12-15', { title: 'Piano (new teacher)' }, 'next');
+  const w3 = { id: 't-w3', title: 'Art', date: '2026-12-01', rep: 'weekly', until: '2026-12-29', cat: 'other' }; C.S.events.push(w3);
+  C.applyScope(w3, '2026-12-08', { date: '2026-12-09' }, 'all');
+  const qs = ['Math test fri 3pm', "Sam's party Dec 5 at 7:30pm", 'Club every tuesday 3-4pm', 'trip jan 3 - jan 7', 'essay due tomorrow', 'dentist 12/10 at 9:15am'].map(t => {
+    const q = C.parseQuick(t, '2026-11-28'); return [q.title, q.date, q.end || '', q.time || '', q.endTime || '', q.rep || '', q.cat || ''].join('|'); });
+  const ics = ICS.write([Object.assign({ loc: 'Room 5', rem: [10], url: 'https://x.test/a', time: '16:00', endTime: '17:00' }, bi)], C.S.cats), back = ICS.read(ics, { from: ICS.dnum(2026, 10, 1), to: ICS.dnum(2027, 5, 1) }).events;
+  return { bi: days(bi, '2026-11-01', '2027-01-31'), lf: days(lastFr, '2026-12-01', '2027-02-28'), text: C.repText(bi),
+    one: [w1.skip, one.date, one.time, one.rep, C.startsOn(w1, '2026-12-08'), C.startsOn(w1, '2026-12-15')],
+    next: [w2.until, w2.count, nx.date, nx.count, nx.title, days(w2, '2026-12-01', '2027-03-01').length + days(nx, '2026-12-01', '2027-03-01').length],
+    all: [w3.date, w3.until], qs,
+    ics: [/RRULE:FREQ=WEEKLY;INTERVAL=2;BYDAY=MO,WE;COUNT=5/.test(ics), /LOCATION:Room 5/.test(ics), /TRIGGER:-PT10M/.test(ics), back.length, back[0] && back[0].rem, back[0] && back[0].url],
+    gcal: /dates=20261204T150000\/20261204T160000/.test(C.gcalUrl({ title: 'x', date: '2026-12-04', time: '15:00', endTime: '16:00', rep: 'none' })) };
+});
+check('custom: every 2 weeks on Mon+Wed, 5 times', r6.bi, ['2026-11-30', '2026-12-02', '2026-12-14', '2026-12-16', '2026-12-28']);
+check('custom: last Friday of the month', r6.lf, ['2026-12-25', '2027-01-29', '2027-02-26']);
+check('custom: said in words', r6.text, 'Every 2 weeks on Mon, Wed, 5 times');
+check('change just this one', r6.one, [['2026-12-08'], '2026-12-08', '09:00', 'none', false, true]);
+check('change this and following (count splits)', r6.next, ['2026-12-14', 2, '2026-12-15', 4, 'Piano (new teacher)', 6]);
+check('change all (moves the series)', r6.all, ['2026-12-02', '2026-12-30']);
+check('quick add understands plain words', r6.qs, ['Math test|2026-12-04||15:00|16:00||test', "Sam's party|2026-12-05||19:30|20:30||", 'Club|2026-12-01||15:00|16:00|weekly|meet',
+  'trip|2027-01-03|2027-01-07||||', 'essay due|2026-11-29|||||hw', 'dentist|2026-12-10||09:15|10:15||']);
+check('export: custom rule, count, place, link, reminder; reads back', r6.ics, [true, true, true, 5, [10], 'https://x.test/a']);
+check('add to Google Calendar link', r6.gcal, true);
+
+const r8 = await page.evaluate(async (text) => {
+  const C = window.__cal; C.S.events = []; C.importIcs(text);
+  const club = C.S.events.find(e => e.title === 'Club');
+  // reminders: an event 5 minutes from now with a 10-minute reminder rings once
+  const d = new Date(Date.now() + 5 * 60e3), p = n => String(n).padStart(2, '0'), day = d.getFullYear() + '-' + p(d.getMonth() + 1) + '-' + p(d.getDate());
+  localStorage.removeItem('hgcal:fired');
+  C.S.events.push({ id: 'ring1', title: 'Bus', date: day, time: p(d.getHours()) + ':' + p(d.getMinutes()), rep: 'none', rem: [10], cat: 'other' });
+  localStorage.setItem('hgq:calendar', JSON.stringify(C.S));
+  C.remTick(); const a = document.querySelectorAll('.cal-ring').length; C.remTick(); const b = document.querySelectorAll('.cal-ring').length;
+  document.querySelectorAll('.cal-ring').forEach(x => x.remove());
+  return { club: club && [club.rep, club.rrule, club.until], rings: [a, b] };
+}, ICS_TEXT);
+check('import keeps "2nd Tuesday" as a repeat', r8.club, ['custom', 'FREQ=MONTHLY;BYDAY=2TU', '2027-03-01']);
+check('a reminder rings once', r8.rings, [1, 1]);
+
+// the hour grid and the editor, by hand
+await page.evaluate(() => { const C = window.__cal; const bt = document.getElementById('boot'); if (bt) bt.remove(); if (typeof showTab === 'function') showTab('cal'); C.S.events = [{ id: 'g1', title: 'Lab', date: '2026-12-02', time: '13:00', endTime: '14:00', rep: 'none', cat: 'other' }, { id: 'g2', title: 'Lunch', date: '2026-12-02', time: '13:30', endTime: '14:30', rep: 'none', cat: 'other' }]; C.ui.cur = '2026-12-02'; C.setView('day'); });
+const lay = await page.evaluate(() => [...document.querySelectorAll('#view-cal .cal-tev')].map(e => e.style.width));
+check('day view: two at once sit side by side', lay, ['calc(50% - 3px)', 'calc(50% - 3px)']);
+const box = await page.evaluate(() => { const c = document.querySelector('#view-cal .cal-tg-col'), b = document.getElementById('cal-tgb'); b.scrollIntoView({ block: 'center' }); b.scrollTop = 9 * 48; const r = c.getBoundingClientRect(); return { x: r.left + r.width / 2, top: r.top }; });
+await page.mouse.move(box.x, box.top + 10 * 48 + 2); await page.mouse.down(); await page.mouse.move(box.x, box.top + 11 * 48, { steps: 4 }); await page.mouse.move(box.x, box.top + 11.5 * 48, { steps: 4 }); await page.mouse.up();
+const made = await page.evaluate(() => { const o = document.querySelector('.cal-ov'); return o ? [o.querySelector('#ce-date').value, o.querySelector('#ce-time').value, o.querySelector('#ce-etime').value] : null; });
+check('day view: drag in an empty spot makes an event there', made, ['2026-12-02', '10:00', '11:30']);
+const ed = await page.evaluate(async () => {
+  const o = document.querySelector('.cal-ov'), $ = s => o.querySelector(s), fire = (el, t) => el.dispatchEvent(new Event(t, { bubbles: true }));
+  $('#ce-title').value = 'Tutoring'; $('#ce-rep').value = 'custom'; fire($('#ce-rep'), 'change');
+  $('#cr-f').value = 'WEEKLY'; fire($('#cr-f'), 'change'); o.querySelector('[data-wd="MO"]').click(); o.querySelector('[data-wd="TH"]').click();
+  $('#ce-ends').value = 'count'; fire($('#ce-ends'), 'change'); $('#ce-count').value = '4'; fire($('#ce-count'), 'input');
+  $('#ce-loc').value = 'Library'; const txt = $('#ce-rtxt').textContent;
+  $('#ce-addrem').value = '15'; fire($('#ce-addrem'), 'change'); o.querySelectorAll('.cal-sw')[3].click(); $('[data-ok]').click();
+  const e = window.__cal.S.events.find(x => x.title === 'Tutoring');
+  return [txt, e && e.rrule, e && e.count, e && e.loc, e && e.rem && e.rem.indexOf(15) >= 0, !!(e && e.color)];
+});
+check('editor: custom repeat, ends after, place, reminder, colour', ed, ['Every week on Mon, Thu, 4 times', 'FREQ=WEEKLY;BYDAY=MO,TH', 4, 'Library', true, true]);
+const mv = await page.evaluate(() => { const C = window.__cal; C.ui.cur = '2026-12-02'; C.setView('day'); const el = [...document.querySelectorAll('#view-cal .cal-tev')].find(x => x.textContent.indexOf('Lab') >= 0), r = el.getBoundingClientRect(); return { x: r.left + 10, y: r.top + 10 }; });
+await page.mouse.move(mv.x, mv.y); await page.mouse.down(); await page.mouse.move(mv.x, mv.y + 24, { steps: 3 }); await page.mouse.move(mv.x, mv.y + 48, { steps: 3 }); await page.mouse.up();
+const moved = await page.evaluate(() => { const e = window.__cal.S.events.find(x => x.id === 'g1'); return [e.time, e.endTime]; });
+check('day view: drag an event an hour later', moved, ['14:00', '15:00']);
+await page.evaluate(() => { const C = window.__cal; C.setView('week'); C.setView('month'); });
+
 check('no script errors', errs, []);
 await page.screenshot({ path: process.env.CAL_SHOT || '/dev/null' }).catch(() => {});
 await browser.close(); srv.close();
