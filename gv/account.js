@@ -462,6 +462,7 @@ const GVLink = (() => {
         if (st.conn !== c) return;
         mark('signed in'); st.welcomeOk = true; st.ready = true; st.sendKey = false;
         st.userId = m.userId; st.name = m.displayName || st.name;
+        st.feats = Array.isArray(m.feats) ? m.feats : [];      // what this server can do beyond the basics (e.g. 'calIcs')
         store.set('name', st.name);
         st.signup = false;
         setStatus('online', 'Connected to Grapevine');
@@ -519,6 +520,7 @@ const GVLink = (() => {
       case 'mpBonus': st.mpBonus = m; emit('mpBonus', m); return;
       case 'gchat': emit('gchat', m); return;
       case 'stats': return rpcDone('stats', m);
+      case 'calIcs': return rpcDone('cal:' + m.rid, m);      // a linked calendar's .ics, fetched by the server (launcher calendar/)
       case 'song': return rpcDone('song', m);      // the game chat over a running game (launcher 097-gamechat.js)
       case 'modNotice': case 'modFx': emit(m.type, m); return;      // an admin's warning or mute, or a bonk (the launcher shows them)
       case 'tagSet': return rpcDone('tagSet', m);
@@ -1060,6 +1062,17 @@ const GVLink = (() => {
     songs: {
       share: function (o) { o = o || {}; return st.ready ? rpc0({ type: 'songShare', name: String(o.name || 'Untitled').slice(0, 60), data: String(o.data || ''), post: !!o.post }, 'song') : Promise.resolve({ ok: false, err: 'Sign in to the launcher to share songs.' }); },
       get: function (code) { return st.ready ? rpc0({ type: 'songGet', code: String(code || '') }, 'song') : Promise.resolve({ ok: false, err: 'Sign in to the launcher to open shared songs.' }); }
+    },
+    // the Calendar tab's linked calendars: the server fetches a Google/iCloud .ics link (browsers cannot: CORS) and returns
+    // its text. Sent only to a server that says it can (welcome feats), so an older server never sees an unknown request.
+    cal: {
+      can: function () { return !!(st.ready && st.feats && st.feats.indexOf('calIcs') >= 0); },
+      ics: function (url) {
+        if (!st.ready) return Promise.reject(new Error('Not connected to Grapevine.'));
+        if (!(st.feats && st.feats.indexOf('calIcs') >= 0)) return Promise.reject(new Error('server'));
+        var rid = Math.random().toString(36).slice(2, 10);
+        return rpc({ type: 'calIcs', url: String(url || '').slice(0, 2000), rid: rid }, 'cal:' + rid);
+      }
     },
     party: {
       open: function (o) { if (st.ready) send({ type: 'partyOpen', game: o.game, code: String(o.code), n: o.n || 1, max: o.max || 10, pub: o.pub !== false, net: o.net || null, mode: o.mode || null }); },

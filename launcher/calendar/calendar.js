@@ -48,8 +48,77 @@ var CAL = (function () {
     S = d;
   }
   function save() { try { localStorage.setItem(KEY, JSON.stringify(S)); } catch (e) { toast('Could not save: storage is full.'); } }
-  function cat(id) { for (var i = 0; i < S.cats.length; i++) if (S.cats[i].id === id) return S.cats[i]; return S.cats[0] || { id: 'other', name: 'Other', color: '#94a3b8' }; }
+  function cat(id) {
+    if (/^link:/.test(id)) { var l = link(id.slice(5)); return { id: id, name: l ? l.name : 'Linked calendar', color: l ? l.color : '#94a3b8' }; }
+    for (var i = 0; i < S.cats.length; i++) if (S.cats[i].id === id) return S.cats[i]; return S.cats[0] || { id: 'other', name: 'Other', color: '#94a3b8' }; }
   function evById(id) { for (var i = 0; i < S.events.length; i++) if (S.events[i].id === id) return S.events[i]; return null; }
+
+  // ---- linked calendars (2026-11-28): a Google / Apple / Outlook calendar's private .ics link, shown read-only.
+  // The links are in S.links (synced with the rest). What a link returned is kept on this device only, in 'hgcal:links'
+  // (not a synced key: a big calendar would bloat the save), and read again every 15 minutes while the tab is open.
+  // Browsers cannot read Google's or iCloud's links themselves (CORS): Grapevine fetches them (HGGrapevine.cal.ics),
+  // once the server can (see SERVER_TODO.md, "Linked Google and Apple calendars").
+  var LKEY = 'hgcal:links', LEVERY = 15 * 60e3, LC = null, LIDX = {}, LBY = {}, LMETA = {}, LBUSY = false, paintLinks = function () {};
+  function lcache() { if (!LC) { try { LC = JSON.parse(localStorage.getItem(LKEY) || '{}') || {}; } catch (e) { LC = {}; } } return LC; }
+  function lsave() { try { localStorage.setItem(LKEY, JSON.stringify(LC)); } catch (e) { toast('This device is out of space for linked calendars.'); } }
+  function link(id) { var ls = (S && S.links) || []; for (var i = 0; i < ls.length; i++) if (ls[i].id === id) return ls[i]; return null; }
+  function linkUrl(u) { u = String(u || '').trim(); if (/^webcals?:\/\//i.test(u)) u = 'https://' + u.replace(/^webcals?:\/\//i, ''); return /^https:\/\/[^\s\/]+\.[^\s\/]+\/\S+$/i.test(u) ? u : ''; }
+  function linkName(u) { return /google\./i.test(u) ? 'Google Calendar' : /icloud\./i.test(u) ? 'Apple Calendar' : /outlook|office365|live\.com/i.test(u) ? 'Outlook Calendar' : 'Linked calendar'; }
+  function relink() {   // the day index, from every linked calendar's last good copy
+    LIDX = {}; LBY = {}; LMETA = {};
+    var t = num(todayS()), win = { from: t - 400, to: t + 730 };
+    (S.links || []).forEach(function (l) {
+      var c = lcache()[l.id], m = LMETA[l.id] = { n: 0 }; if (!c || !c.text) return;
+      var r; try { r = ICS.read(c.text, win); } catch (e) { m.bad = true; return; }
+      m.n = r.events.length; m.name = r.name;
+      r.events.forEach(function (e) {
+        e.cat = 'link:' + l.id; e.link = l.id; e.id = 'L' + l.id + ':' + e.id; LBY[e.id] = e;
+        for (var k = 0, sp = Math.min(span(e), 60); k <= sp; k++) { var d = str(num(e.date) + k); (LIDX[d] = LIDX[d] || []).push(e); }
+      });
+    });
+  }
+  function fetchIcs(url) {
+    // straight from the browser first (works when the calendar's host allows it), then through Grapevine
+    var direct = typeof fetch !== 'function' ? Promise.reject(new Error('no fetch')) : Promise.race([
+      fetch(url, { cache: 'no-store', credentials: 'omit' }).then(function (r) { if (!r.ok) throw new Error('http ' + r.status); return r.text(); }),
+      new Promise(function (_, no) { setTimeout(function () { no(new Error('timeout')); }, 8000); })]);
+    return direct.then(function (t) { if (!/BEGIN:VCALENDAR/i.test(t)) throw new Error('not a calendar'); return t; }).catch(function (e0) {
+      if (e0 && /not a calendar|http 4/.test(e0.message)) throw e0;
+      var L = window.HGGrapevine;
+      if (!L || !L.cal || !L.cal.ics) throw new Error('server');
+      return L.cal.ics(url).then(function (m) { if (!m || !m.ok) throw new Error((m && m.err) || 'server'); return String(m.text || ''); })
+        .then(function (t) { if (!/BEGIN:VCALENDAR/i.test(t)) throw new Error('not a calendar'); return t; });
+    });
+  }
+  function linkErr(m) {
+    m = String(m || '');
+    return m === 'server' ? 'Waiting for the Grapevine update that fetches linked calendars.' :
+      /Not connected|did not answer/.test(m) ? 'Sign in to Grapevine to update linked calendars.' :
+      m === 'too big' ? 'This calendar is too big (over 3 MB).' : m === 'not a calendar' ? 'That link is not a calendar link.' :
+      /http 40[134]|http 410|gone|not-found/.test(m) ? 'This link no longer works. Copy it again from your calendar.' : 'Could not update: ' + m;
+  }
+  function refreshLinks(force) {   // force: true for every link, or one link's id; otherwise only links not tried in 15 minutes
+    if (LBUSY || !S || !(S.links || []).length) return Promise.resolve();
+    var now = Date.now(), due = S.links.filter(function (l) { var c = lcache()[l.id]; return force === true || force === l.id || !c || now - (c.tried || 0) > LEVERY; });
+    if (!due.length) return Promise.resolve();
+    LBUSY = true; paintLinks();
+    return due.reduce(function (p, l) {
+      return p.then(function () {
+        var c = lcache()[l.id] = lcache()[l.id] || {}; c.tried = Date.now();
+        return fetchIcs(l.url).then(function (t) { if (t.length > 3e6) throw new Error('too big'); c.text = t; c.at = Date.now(); c.err = ''; },
+          function (e) { c.err = linkErr(e && e.message); });
+      });
+    }, Promise.resolve()).then(function () { LBUSY = false; lsave(); relink(); if (shown()) render(); paintLinks(); });
+  }
+  function ago(ms) { var m = Math.round((Date.now() - ms) / 60000); return m < 1 ? 'just now' : m < 60 ? m + ' min ago' : m < 1440 ? Math.round(m / 60) + ' h ago' : Math.round(m / 1440) + ' days ago'; }
+  function linkStatus(l) {
+    var c = lcache()[l.id] || {}, m = LMETA[l.id] || {};
+    if (LBUSY && !c.at && !c.err) return 'Loading...';
+    if (c.err) return '&#9888;&#65039; ' + esc(c.err) + (c.at ? ' Showing the copy from ' + ago(c.at) + '.' : '');
+    if (m.bad) return '&#9888;&#65039; Could not read this calendar.';
+    return c.at ? '&#10003; ' + m.n + ' event' + (m.n === 1 ? '' : 's') + ' · updated ' + ago(c.at) : 'Not loaded yet.';
+  }
+  function openEv(id, st) { if (LBY[id]) viewer(LBY[id]); else editor(id, null, st); }
 
   // ---- when an event happens ----
   function startsOn(e, s) {   // does an occurrence of e start on day s?
@@ -71,6 +140,11 @@ var CAL = (function () {
       if (hid.indexOf(e.cat) >= 0) return;
       if (q && (e.title + ' ' + (e.notes || '')).toLowerCase().indexOf(q) < 0) return;
       for (var k = 0, sp = span(e); k <= sp; k++) { var st = str(num(day) - k); if (startsOn(e, st)) { out.push({ e: e, start: st, first: k === 0 }); break; } }
+    });
+    (LIDX[day] || []).forEach(function (e) {
+      if (!link(e.link) || hid.indexOf(e.cat) >= 0) return;
+      if (q && (e.title + ' ' + (e.notes || '') + ' ' + (e.loc || '')).toLowerCase().indexOf(q) < 0) return;
+      out.push({ e: e, start: e.date, first: e.date === day });
     });
     return out.sort(function (a, b) { var ta = a.e.time || '', tb = b.e.time || ''; return (span(b.e) - span(a.e)) || (ta < tb ? -1 : ta > tb ? 1 : 0) || (a.e.title < b.e.title ? -1 : 1); });
   }
@@ -96,7 +170,7 @@ var CAL = (function () {
   // ---- drawing ----
   function chip(o, day, withTime) {
     var e = o.e, c = cat(e.cat), t = e.time && o.first ? '<em class="t">' + fmtT(e.time) + '</em>' : '';
-    return '<div class="cal-ev' + (isDone(e, o.start) ? ' done' : '') + (o.first ? '' : ' cont') + '" style="--c:' + c.color + '" draggable="true" data-ev="' + esc(e.id) + '" data-st="' + o.start + '" title="' + esc(e.title + (e.time ? ' · ' + fmtT(e.time) + (e.endTime ? '-' + fmtT(e.endTime) : '') : '') + ' · ' + c.name + (e.notes ? '\n' + e.notes : '')) + '">' +
+    return '<div class="cal-ev' + (isDone(e, o.start) ? ' done' : '') + (o.first ? '' : ' cont') + '" style="--c:' + c.color + '"' + (e.link ? '' : ' draggable="true"') + ' data-ev="' + esc(e.id) + '" data-st="' + o.start + '" title="' + esc(e.title + (e.time ? ' · ' + fmtT(e.time) + (e.endTime ? '-' + fmtT(e.endTime) : '') : '') + ' · ' + c.name + (e.loc ? '\n' + e.loc : '') + (e.notes ? '\n' + e.notes : '')) + '">' +
       (withTime === false ? '' : t) + '<span>' + esc(e.title) + '</span></div>';
   }
   function cols() { var c = []; for (var i = 0; i < 7; i++) { var d = (S.set.weekStart + i) % 7; if (S.set.weekends || (d > 0 && d < 6)) c.push(d); } return c; }
@@ -174,7 +248,10 @@ var CAL = (function () {
     var counts = {}; S.events.forEach(function (e) { counts[e.cat] = (counts[e.cat] || 0) + 1; });
     h += '<div class="cal-card"><b>Categories <span class="rdesc" style="font-weight:400">· click to hide or show</span></b><div class="cal-cats">' + S.cats.map(function (c) {
       return '<div class="cal-cat' + (S.set.hidden.indexOf(c.id) >= 0 ? ' off' : '') + '" style="--c:' + c.color + '" data-cat="' + esc(c.id) + '"><i></i><span>' + esc(c.name) + '</span><em>' + (counts[c.id] || 0) + '</em></div>'; }).join('') +
-      '</div><button class="cal-btn" data-cal="settings" style="margin-top:10px;width:100%">Edit categories</button></div>';
+      '</div>' + ((S.links || []).length ? '<div class="cal-sec" style="margin:10px 0 4px">Linked calendars</div><div class="cal-cats">' + S.links.map(function (l) {
+        var c = lcache()[l.id] || {};
+        return '<div class="cal-cat' + (S.set.hidden.indexOf('link:' + l.id) >= 0 ? ' off' : '') + '" style="--c:' + l.color + '" data-cat="link:' + esc(l.id) + '" title="' + esc(c.err || (c.at ? 'Updated ' + ago(c.at) : 'Not loaded yet')) + '"><i></i><span>' + esc(l.name) + '</span><em>' + (c.err ? '&#9888;&#65039;' : (LMETA[l.id] || {}).n || 0) + '</em></div>'; }).join('') + '</div>' : '') +
+      '<button class="cal-btn" data-cal="settings" style="margin-top:10px;width:100%">Categories &amp; linked calendars</button></div>';
     h += '<div class="cal-card cal-keys"><b style="color:var(--text)">Keys</b><kbd>&larr;</kbd> <kbd>&rarr;</kbd> move · <kbd>T</kbd> today · <kbd>N</kbd> new event<br><kbd>M</kbd> month · <kbd>W</kbd> week · <kbd>A</kbd> agenda · <kbd>Y</kbd> year · <kbd>/</kbd> search<br>Drag an event to another day to move it.</div>';
     return h;
   }
@@ -273,6 +350,53 @@ var CAL = (function () {
     [].forEach.call(o.querySelectorAll('[data-x]'), function (b) { b.onclick = close; });
     o.querySelector('[data-add]').onclick = function () { editor(null, day); };
   }
+  // a .ics file from Google / Apple / Outlook, copied in as your own events. Simple repeats stay repeats; anything
+  // fancier (every 2nd Tuesday, moved or cancelled single repeats) is written out day by day for the next two years.
+  function importIcs(text) {
+    var t = num(todayS()), raw = ICS.parse(text), got = ICS.read(text, { from: t - 400, to: t + 730 }), byUid = {}, fancy = {}, simple = {}, have = {}, n = 0;
+    got.events.forEach(function (e) { (byUid[e.uid] = byUid[e.uid] || []).push(e); });
+    raw.events.forEach(function (v) {
+      if (!v.uid || !v.rrule) return;
+      if (v['RECURRENCE-ID'] || v.exdate.length || v.rdate.length) { fancy[v.uid] = 1; return; }
+      var r = ICS.rule(v.rrule), keys = Object.keys(r).filter(function (k) { return k !== 'FREQ' && k !== 'INTERVAL' && k !== 'UNTIL' && k !== 'WKST' && k !== 'BYDAY'; }), iv = +r.INTERVAL || 1, k = null;
+      if (!keys.length) {
+        if (r.FREQ === 'DAILY' && iv === 1 && !r.BYDAY) k = 'daily';
+        else if (r.FREQ === 'WEEKLY' && r.BYDAY === 'MO,TU,WE,TH,FR' && iv === 1) k = 'weekdays';
+        else if (r.FREQ === 'WEEKLY' && (!r.BYDAY || r.BYDAY.indexOf(',') < 0)) k = iv === 1 ? 'weekly' : iv === 2 ? 'biweekly' : null;
+        else if (r.FREQ === 'MONTHLY' && iv === 1 && !r.BYDAY) k = 'monthly';
+        else if (r.FREQ === 'YEARLY' && iv === 1 && !r.BYDAY) k = 'yearly';
+      }
+      if (k) { var u = r.UNTIL ? ICS.dt(r.UNTIL) : null; simple[v.uid] = { rep: k, until: u ? ICS.dstr(u.n) : undefined }; }
+    });
+    var ic = S.cats.filter(function (c) { return c.id === 'imp'; })[0];
+    if (!ic) S.cats.push({ id: 'imp', name: 'Imported', color: '#22d3ee' });
+    S.events.forEach(function (e) { have[e.id] = 1; });
+    Object.keys(byUid).forEach(function (u) {
+      var list = byUid[u], rp = simple[u] && !fancy[u] ? simple[u] : null;
+      (rp ? list.slice(0, 1) : list).forEach(function (e) {
+        var id = 'ics:' + (rp ? u : e.id); if (have[id] || n >= 1500) return; have[id] = 1; n++;
+        S.events.push({ id: id, title: String(e.title).slice(0, 120), date: e.date, end: e.end, time: e.time, endTime: e.endTime, cat: 'imp', rep: rp ? rp.rep : 'none',
+          until: rp ? rp.until : undefined, notes: [e.loc, e.notes].filter(Boolean).join('\n').slice(0, 2000) || undefined });
+      });
+    });
+    return n;
+  }
+  function viewer(e) {
+    var l = link(e.link) || { name: 'Linked calendar', color: '#94a3b8' };
+    var when = nice(e.date, { weekday: 'long', month: 'long', day: 'numeric', year: 'numeric' }) + (e.end ? ' - ' + nice(e.end, { weekday: 'short', month: 'short', day: 'numeric' }) : '') +
+      ' · ' + (e.time ? fmtT(e.time) + (e.endTime ? ' - ' + fmtT(e.endTime) : '') : 'All day');
+    var o = dlg('<div class="cal-dh"><div><b>' + esc(e.title) + '</b><div class="rdesc"><span style="color:' + l.color + '">&#9679;</span> From ' + esc(l.name) + ' (read-only)</div></div><button class="cal-x" data-x>&times;</button></div>' +
+      '<div class="cal-db"><div>' + esc(when) + '<div class="rdesc">' + rel(e.date) + '</div></div>' +
+      (e.loc ? '<div><div class="cal-sec">Where</div>' + esc(e.loc) + '</div>' : '') +
+      (e.notes ? '<div><div class="cal-sec">Notes</div><div style="white-space:pre-wrap;font-size:13px;max-height:220px;overflow:auto">' + esc(e.notes) + '</div></div>' : '') + '</div>' +
+      '<div class="cal-df"><button class="cal-btn" data-copy title="Make your own copy you can change">Copy to my events</button><span class="cal-sp"></span><button class="cal-btn pri" data-x>Close</button></div>');
+    [].forEach.call(o.querySelectorAll('[data-x]'), function (b) { b.onclick = close; });
+    o.querySelector('[data-copy]').onclick = function () {
+      var undo = snapshot();
+      S.events.push({ id: uid(), title: e.title, date: e.date, end: e.end, time: e.time, endTime: e.endTime, cat: (S.cats.filter(function (c) { return c.id === 'other'; })[0] || S.cats[S.cats.length - 1]).id, rep: 'none', notes: [e.loc, e.notes].filter(Boolean).join('\n').slice(0, 2000) || undefined });
+      save(); close(); render(); toast('Copied to your events.', undo);
+    };
+  }
   function settings() {
     var st = S.set, cats = JSON.parse(JSON.stringify(S.cats));
     var o = dlg('<div class="cal-dh"><b>Calendar settings</b><button class="cal-x" data-x>&times;</button></div><div class="cal-db">' +
@@ -285,7 +409,14 @@ var CAL = (function () {
       '<label class="cal-chk"><input type="checkbox" id="cs-24"' + (st.h24 ? ' checked' : '') + '> 24-hour time</label>' +
       '<label class="cal-chk"><input type="checkbox" id="cs-hol"' + (st.holidays ? ' checked' : '') + '> Show holidays</label>' +
       '<div class="cal-sec">Categories</div><div id="cs-cats" style="display:flex;flex-direction:column;gap:8px"></div><button class="cal-btn" id="cs-add" style="align-self:flex-start">+ Add category</button>' +
-      '<div class="cal-sec">Your events (' + S.events.length + ')</div><div style="display:flex;gap:8px;flex-wrap:wrap"><button class="cal-btn" id="cs-exp">Export file</button><button class="cal-btn" id="cs-imp">Import file</button><button class="cal-btn dng" id="cs-clr">Delete every event</button><input type="file" id="cs-file" accept=".json,application/json" hidden></div>' +
+      '<div class="cal-sec">Linked calendars</div><div class="rdesc">Show a Google or Apple calendar here. Its new events show up by themselves (it is checked every 15 minutes while this tab is open). They are read-only here: change them in Google or Apple. Changes in this box apply right away.</div>' +
+      '<div id="cs-links" class="cal-links"></div>' +
+      '<div style="display:flex;gap:8px"><input class="cal-search" id="cs-lurl" style="flex:1;width:auto" placeholder="Paste the calendar\'s private link (https:// or webcal://)" autocomplete="off"><button class="cal-btn" id="cs-ladd">Link</button></div>' +
+      '<details class="cal-help"><summary>Where do I find the link?</summary>' +
+      '<p><b>Google Calendar</b> (on a computer): open calendar.google.com → Settings (gear) → under "Settings for my calendars" click your calendar → "Integrate calendar" → copy <b>Secret address in iCal format</b>. School accounts sometimes have this turned off; a personal Gmail calendar works.</p>' +
+      '<p><b>Apple Calendar</b>: on iPhone, Calendar → Calendars → the &#9432; next to a calendar → turn on <b>Public Calendar</b> → Share Link → Copy Link. On a Mac, right-click the calendar → Share Calendar → Public Calendar. On icloud.com, the share button next to the calendar.</p>' +
+      '<p>Keep the link to yourself: anyone who has it can see that calendar.</p></details>' +
+      '<div class="cal-sec">Your events (' + S.events.length + ')</div><div style="display:flex;gap:8px;flex-wrap:wrap"><button class="cal-btn" id="cs-ics" title="A file Google Calendar, Apple Calendar and Outlook can import">Export for Google / Apple (.ics)</button><button class="cal-btn" id="cs-exp" title="Everything, settings too, to bring back here later">Back up (.json)</button><button class="cal-btn" id="cs-imp" title="A .ics file from Google, Apple or Outlook, or a backup from here">Import file</button><button class="cal-btn dng" id="cs-clr">Delete every event</button><input type="file" id="cs-file" accept=".json,.ics,application/json,text/calendar" hidden></div>' +
       '</div><div class="cal-df"><button class="cal-btn" data-x>Cancel</button><button class="cal-btn pri" data-ok>Save</button></div>', true);
     var $ = function (s) { return o.querySelector(s); }, pick = -1;
     function paintCats() {
@@ -308,11 +439,49 @@ var CAL = (function () {
       var a = document.createElement('a'); a.href = URL.createObjectURL(new Blob([JSON.stringify(S, null, 1)], { type: 'application/json' }));
       a.download = 'calendar-' + todayS() + '.json'; document.body.appendChild(a); a.click(); a.remove();
     };
+    $('#cs-ics').onclick = function () {
+      var a = document.createElement('a'); a.href = URL.createObjectURL(new Blob([ICS.write(S.events, S.cats)], { type: 'text/calendar' }));
+      a.download = 'taco-calendar-' + todayS() + '.ics'; document.body.appendChild(a); a.click(); a.remove();
+    };
+    paintLinks = function () {
+      var box = o.querySelector('#cs-links'); if (!box || !document.body.contains(box)) { paintLinks = function () {}; return; }
+      var foc = document.activeElement && document.activeElement.dataset && document.activeElement.dataset.lname;
+      box.innerHTML = (S.links || []).map(function (l) {
+        return '<div class="cal-lrow"><div class="cal-catrow"><button class="cal-dot" data-lpick="' + esc(l.id) + '" style="background:' + l.color + '" title="Colour"></button><input class="cal-search" style="width:100%" data-lname="' + esc(l.id) + '" value="' + esc(l.name) + '" maxlength="30">' +
+          '<span style="display:flex;gap:6px"><button class="cal-btn ico" data-lref="' + esc(l.id) + '" title="Update now"' + (LBUSY ? ' disabled' : '') + '>&#8635;</button><button class="cal-btn dng ico" data-lrm="' + esc(l.id) + '" title="Unlink">&times;</button></span></div>' +
+          (lpick === l.id ? '<div class="cal-swatches" style="margin:6px 0 0 34px">' + COLORS.map(function (k) { return '<button class="cal-sw' + (k === l.color ? ' on' : '') + '" data-lcol="' + k + '" style="background:' + k + '"></button>'; }).join('') + '</div>' : '') +
+          '<div class="cal-lst">' + linkStatus(l) + '</div></div>';
+      }).join('') || '<div class="cal-empty">No linked calendars yet.</div>';
+      if (foc) { var fi = box.querySelector('[data-lname="' + foc + '"]'); if (fi) { fi.focus(); fi.setSelectionRange(fi.value.length, fi.value.length); } }
+    };
+    var lpick = null;
+    paintLinks();
+    $('#cs-links').addEventListener('input', function (e) { var l = link(e.target.dataset.lname); if (l) { l.name = e.target.value.slice(0, 30) || 'Linked calendar'; save(); } });
+    $('#cs-links').addEventListener('click', function (e) {
+      var b = e.target.closest('button'); if (!b) return; var d = b.dataset;
+      if (d.lpick) { lpick = lpick === d.lpick ? null : d.lpick; paintLinks(); }
+      else if (d.lcol) { var l = link(lpick); if (l) { l.color = d.lcol; save(); } lpick = null; paintLinks(); }
+      else if (d.lref) refreshLinks(d.lref);
+      else if (d.lrm) {
+        var l2 = link(d.lrm); if (!l2 || !confirm('Unlink "' + l2.name + '"? Its events disappear from here (nothing changes in Google or Apple).')) return;
+        S.links = S.links.filter(function (x) { return x !== l2; }); delete lcache()[l2.id]; lsave(); save(); relink(); paintLinks(); render();
+      }
+    });
+    $('#cs-ladd').onclick = function () {
+      var u = linkUrl($('#cs-lurl').value);
+      if (!u) { toast('Paste the calendar\'s link: it starts with https:// or webcal://'); $('#cs-lurl').focus(); return; }
+      if ((S.links || []).some(function (l) { return l.url === u; })) { toast('That calendar is already linked.'); return; }
+      if ((S.links || []).length >= 8) { toast('Up to 8 linked calendars.'); return; }
+      var l = { id: 'k' + uid(), url: u, name: linkName(u), color: COLORS[((S.links || []).length + 7) % COLORS.length] };
+      S.links = (S.links || []).concat([l]); save(); $('#cs-lurl').value = ''; paintLinks(); refreshLinks(l.id);
+    };
+    $('#cs-lurl').addEventListener('keydown', function (e) { if (e.key === 'Enter') { e.preventDefault(); $('#cs-ladd').click(); } });
     $('#cs-imp').onclick = function () { $('#cs-file').click(); };
     $('#cs-file').onchange = function () {
       var f = this.files[0]; if (!f) return; var r = new FileReader();
       r.onload = function () {
         try {
+          if (/BEGIN:VCALENDAR/i.test(r.result)) { var u0 = snapshot(), n0 = importIcs(r.result); save(); close(); render(); toast(n0 ? 'Brought in ' + n0 + ' event' + (n0 === 1 ? '' : 's') + ' (category "Imported").' : 'No new events in that file.', n0 ? u0 : null); return; }
           var d = JSON.parse(r.result), have = {}, n = 0, undo = snapshot();
           if (!d || !Array.isArray(d.events)) throw 0;
           S.events.forEach(function (e) { have[e.id] = 1; });
@@ -329,7 +498,7 @@ var CAL = (function () {
       cats.forEach(function (c) { c.name = c.name.trim() || 'Untitled'; });
       var ids = cats.map(function (c) { return c.id; });
       S.events.forEach(function (e) { if (ids.indexOf(e.cat) < 0) e.cat = ids[ids.length - 1]; });   // events of a removed category go to the last one
-      S.cats = cats; st.hidden = st.hidden.filter(function (h) { return ids.indexOf(h) >= 0; });
+      S.cats = cats; st.hidden = st.hidden.filter(function (h) { return ids.indexOf(h) >= 0 || /^link:/.test(h); });
       st.weekStart = +$('#cs-ws').value; st.view = $('#cs-view').value; st.weekends = $('#cs-we').checked; st.weekNums = $('#cs-wn').checked;
       st.compact = $('#cs-cp').checked; st.h24 = $('#cs-24').checked; st.holidays = $('#cs-hol').checked;
       save(); close(); render(); toast('Settings saved.');
@@ -340,7 +509,7 @@ var CAL = (function () {
   function shown() { var v = document.getElementById('view-cal'); return v && !v.hidden; }
   document.addEventListener('click', function (e) {
     if (!shown() || !e.target.closest) return;
-    if (ov && ov.contains(e.target)) { var c0 = e.target.closest('.cal-ev'); if (c0) editor(c0.dataset.ev, null, c0.dataset.st); return; }
+    if (ov && ov.contains(e.target)) { var c0 = e.target.closest('.cal-ev'); if (c0) openEv(c0.dataset.ev, c0.dataset.st); return; }
     var b = e.target.closest('[data-cal],[data-view],[data-ev],[data-more],[data-cat],[data-month],[data-day]'); if (!b || !document.getElementById('view-cal').contains(b)) return;
     var d = b.dataset;
     if (d.cal === 'prev') move(-1); else if (d.cal === 'next') move(1);
@@ -348,7 +517,7 @@ var CAL = (function () {
     else if (d.cal === 'new') editor(null, S.set.view === 'month' && ui.cur.slice(0, 7) !== todayS().slice(0, 7) ? ui.cur : todayS());
     else if (d.cal === 'settings') settings();
     else if (d.view) setView(d.view);
-    else if (d.ev) editor(d.ev, null, d.st);
+    else if (d.ev) openEv(d.ev, d.st);
     else if (d.more) dayList(d.more);
     else if (d.cat) { var h = S.set.hidden, i = h.indexOf(d.cat); if (i >= 0) h.splice(i, 1); else h.push(d.cat); save(); render(); }
     else if (d.month) { ui.cur = d.month; setView('month'); }
@@ -394,12 +563,13 @@ var CAL = (function () {
       var r = st0.apply(this, arguments), v = document.getElementById('view-cal'), t = document.getElementById('tab-cal');
       if (!v || !t) return r;
       v.hidden = which !== 'cal'; t.className = 'tab' + (which === 'cal' ? ' on' : '');
-      if (which === 'cal') { document.getElementById('view-games').hidden = true; load(); render(); }
+      if (which === 'cal') { document.getElementById('view-games').hidden = true; load(); relink(); render(); refreshLinks(false); }
       else close();
       return r;
     };
+    setInterval(function () { if (shown() && !document.hidden) refreshLinks(false); }, 60000);
     var tab = document.getElementById('tab-cal'); if (tab) tab.addEventListener('click', function () { showTab('cal'); });
   })();
-  return { get S() { return S; }, load: load, render: render, on: on, holidays: holidays, editor: editor, settings: settings, close: close, setView: setView, move: move, ui: ui };
+  return { get S() { return S; }, load: load, relink: relink, refreshLinks: refreshLinks, importIcs: importIcs, lcache: lcache, get LIDX() { return LIDX; }, linkUrl: linkUrl, render: render, on: on, holidays: holidays, editor: editor, settings: settings, close: close, setView: setView, move: move, ui: ui };
 })();
 window.__cal = CAL;

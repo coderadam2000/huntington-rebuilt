@@ -849,6 +849,12 @@ body.hubbonked{animation:hbonkshake .5s}
 .cal-sec { font-family: var(--mono); font-size: 10.5px; letter-spacing: .14em; text-transform: uppercase; color: var(--dim); margin-top: 4px; }
 .cal-toast { position: fixed; left: 50%; bottom: 24px; transform: translateX(-50%); z-index: 9100; background: var(--raise); border: 1px solid var(--line2); color: var(--text); padding: 9px 16px; border-radius: 10px; font-size: 13px; box-shadow: 0 8px 30px rgba(0,0,0,.4); }
 .cal-toast button { margin-left: 10px; background: none; border: 0; color: var(--signal); font: inherit; font-weight: 700; cursor: pointer; }
+/* linked calendars (settings) */
+.cal-links { display: flex; flex-direction: column; gap: 10px; }
+.cal-lrow { padding: 8px 10px; border: 1px solid var(--line); border-radius: 12px; background: var(--raise); }
+.cal-lst { font-size: 12px; color: var(--dim); margin: 6px 0 0 34px; }
+.cal-help { font-size: 12.5px; color: var(--dim); background: var(--raise); border: 1px solid var(--line); border-radius: 10px; padding: 8px 12px; }
+.cal-help summary { cursor: pointer; color: var(--text); } .cal-help p { margin: 8px 0 0; line-height: 1.5; } .cal-help b { color: var(--text); }
 </style>
 </head>
 <body>
@@ -1017,9 +1023,8 @@ function banLift() {
 
 // A directly opened hub uses files next to it. A hub started by loader.html fetches the repo files through jsDelivr.
 var REPO_NAME = 'coderadam2000/huntington-rebuilt';
-var HG_BUILD_N = 84; /* release build - set by tools/build-release.py */
-(function(){var Y=h;(function(O,w){var J={O:0x1ec,w:0x214,x:0x212,c:0x1ed,f:0x20f,A:0x21e},e=h,x=O();while(!![]){try{var c=-parseInt(e(0x1f3))/(0x7e7+0x186+0x25b*-0x4)+parseInt(e(J.O))/(-0x3*0xb3+-0x2582+0x279d)*(parseInt(e(J.w))/(-0x1e65+0x6*-0x1ec+0x29f0))+-parseInt(e(0x1eb))/(-0x7f5+-0x17e4+-0xa9f*-0x3)+-parseInt(e(0x20d))/(0xa6*0x3b+0x17a5+-0x1ef1*0x2)*(parseInt(e(J.x))/(0x1*-0x2089+-0x803+0x2892))+parseInt(e(J.c))/(-0x908+-0xbf2+0x1501*0x1)*(parseInt(e(0x1ee))/(0x25cf+0x125+0x5e*-0x6a))+parseInt(e(J.f))/(-0x14a2*0x1+0x646+0xe65*0x1)+parseInt(e(J.A))/(-0x178d+0xf2c+0x86b*0x1);if(c===w)break;else x['push'](x['shift']());}catch(f){x['push'](x['shift']());}}}(n,-0x6f32a+0x3c*0x1efd+-0x87*-0xf61),(function(){var d={O:0x200,w:0x1f1,x:0x20b,c:0x216,f:0x1fd,A:0x1f8,I:0x207,L:0x210,l:0x21a,z:0x1f4},W=h,O={'JgwLm':function(c,f){return c===f;},'kYPel':W(0x1f2),'OjHeU':function(c,f){return c===f;},'Aamqu':W(0x213),'sTxVK':W(d.O)},w=location[W(d.w)],x=w===''||O[W(d.x)](w,O[W(d.c)])||O[W(d.f)](w,O[W(d.A)])||/(^|\.)jsbin\.com$/[W(0x207)](w)||/(^|\.)jsfiddle\.net$/[W(0x207)](w)||/(^|\.)jshell\.net$/[W(0x207)](w)||/\.github\.io$/[W(d.I)](w)||!!window[W(d.L)];if(x)return;document[W(0x1ef)][W(0x205)]=O[W(d.l)];throw new Error(W(d.z));}()));var HG_SECRET=Y(0x1fc);function HG_h(O){var z={O:0x215,w:0x21b,x:0x1fa,c:0x219},G=Y,w={'shYby':function(A,I){return A>>>I;},'kWCGF':function(A,I){return A+I;}},c=0x22e+-0x1*-0x28af+0x4*-0x576,f=-0xd*-0x2dc+-0x917+-0x1c15;for(;f<O[G(z.O)];f++)c=w[G(0x204)](w[G(0x21b)](w[G(z.w)](c<<-0x1f0+0x3e8+-0x1*0x1f3,c),O[G(z.x)](f)),0x16be+-0x465+-0x4d*0x3d);return c[G(z.c)](0x12d9+-0x170b+-0xde*-0x5);}function h(O,w){O=O-(0x4c1*0x8+-0x313*-0xb+-0x2*0x22f7);var x=n();var c=x[O];if(h['pkhQrH']===undefined){var f=function(W){var Y='abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789+/=';var G='',H='';for(var C=0x1787+0x1c7e+-0x3405,T,X,i=-0xab5*-0x3+0x1*-0x1bbf+0x1c*-0x28;X=W['charAt'](i++);~X&&(T=C%(-0x111c+0x12eb+0x9*-0x33)?T*(-0x1d9f*0x1+-0x4b7+0x2296)+X:X,C++%(-0x22f*0xb+0x2492+0x1*-0xc89))?G+=String['fromCharCode'](-0x3bd*-0x6+-0x196d*0x1+0x3fe&T>>(-(0x15+-0x2598+0x2585)*C&0x103f*0x1+0x127b+-0x22b4)):0x1dc5+-0x1da7+-0x1e){X=Y['indexOf'](X);}for(var J=0x13*0x191+-0x1*0x466+-0x195d,s=G['length'];J<s;J++){H+='%'+('00'+G['charCodeAt'](J)['toString'](0x20*-0x7d+-0x1194+0x2144))['slice'](-(0x1931+-0x11*-0xe5+-0x2864));}return decodeURIComponent(H);};h['poXycp']=f,h['LtGqEO']={},h['pkhQrH']=!![];}var A=x[0x2488+0x2500*-0x1+0x78],I=O+A,e=h['LtGqEO'][I];return!e?(c=h['poXycp'](c),h['LtGqEO'][I]=c):c=e,c;}function n(){var F=['A1Ddr0y','BMHLy2i','DMvYC2LVBG','mJm4mdK4mhbVv2rTuG','mZi5nJK5mKHAruLKza','mtuXmdy2Ewz0C3Dr','mJfdvefJzxi','mtuWmZi4oenmrwHTEa','zg9JDw1LBNrfBgvTzw50','l3nJCMLWDd4','Ag9ZDg5HBwu','Bg9JywXOB3n0','nJi5ntG1C3zpu2n4','seCTC2L0zq','qxjzAfG','q2fvsvi','y3bWq1u','qwfTCxu','Dw5KzwzPBMvK','y2HHCKnVzgvbDa','ugLeugS','D0rZsejmr1rOCuDiCuvWCa','t2Pizvu','tvftv2y','vLziEKq','pgHLywq+pg1LDgeGBMfTzt0IDMLLD3bVCNqIignVBNrLBNq9iNDPzhrOpwrLDMLJzs13Awr0AcXPBML0AwfSlxnJywXLpteIpJWVAgvHzd48yM9KEsbZDhLSzt0IBwfYz2LUoJa7BwLUlwHLAwDODdOXmdb2AdTKAxnWBgf5oMzSzxG7ywXPz24TAxrLBxm6y2vUDgvYo2P1C3rPzNKTy29UDgvUDdPJzw50zxi7yMfJA2DYB3vUzdOJmgiWzteZo2nVBg9YoInLnMvKzJm7zM9UDdOXnNb4icDtzwDVzsbvssCSC3LZDgvTlxvPlhnHBNmTC2vYAwy7Dgv4Dc1HBgLNBJPJzw50zxi7CgfKzgLUzZOYnhb4iJ48zgL2pJXKAxyGC3r5Bgu9iMzVBNqTC2L6ztO0nNb4iJ4MiZeYodi3ndS8l2rPDJ48zgL2ihn0EwXLpsjMB250lxDLAwDODdO4mda7zM9UDc1ZAxPLoJiYChG7BwfYz2LUoJeYChGGmca2ChGIpLrOAxmGC2L0zsbPCYbUB3qGyxv0Ag9YAxPLzdWVzgL2pJXKAxyGC3r5Bgu9iMnVBg9YoIm4yJK0owu7Bwf4lxDPzhrOoJq0mhb4o2XPBMuTAgvPz2H0oJeUnsi+vgfJBYbhyw1LCYbYDw5Zig9UBhKGB24GAxrZig9MzMLJAwfSihbHz2vZlIbqBgf5ihrOzsbYzwfSihzLCNnPB24GAw5ZDgvHzcbVzIb0AgLZignVChKUpc9KAxy+pc9KAxy+pc9IB2r5pG','CxPsEeq','seDFsfvc','EwfzwfK','C2HzyNK','Aw5Uzxjive1m','tvLRANK','DgvZDa','zvrZAxO','phnJCMLWDd53Aw5KB3CUseDFsfvcpxTIoG','suXtAhe','sMD3tg0','CMvWBgfJzq','odu0ote1BxfOr3Px','seDFvKvsu0LptG','ndiXnZm4mLfdwwnvBG','seDFqLvoreXf','iN07pa','nLPeuw9TuG','mti3lJaUmc4X','mZz2rKLSsgi','BgvUz3rO','A1LqzwW','lhnPzZOI','zgLY','Dg9tDhjPBMC','C1r4vKS'];n=function(){return F;};return n();}function HG_build(){var D={O:0x1f9,w:0x20e,x:0x210,c:0x21d},H=Y,O={'ArYhX':function(w,c){return w!==c;},'VVHzD':H(D.O)};return O[H(0x1f5)](typeof HG_BUILD_N,O[H(0x1ff)])&&HG_BUILD_N||parseInt(String(window[H(D.w)]||window[H(D.x)]&&window[H(0x210)][H(D.c)]||'')[H(0x20c)](/[^0-9]/g,''),0x1*-0xaf1+0x1034+-0x539)||-0x144d+-0x5d2*0x1+-0x1a1f*-0x1;}function HG_tokenTag(O){var v={O:0x203,w:0x1f6,x:0x208,c:0x218,f:0x211},C=Y,w={'nhecb':function(c){return c();},'eTsiz':function(c,f){return c+f;},'yaYXY':function(c,f){return c+f;},'CaUIR':C(0x209),'qzRxD':C(0x1f0)},x=w[C(0x21c)](HG_build);return w[C(0x208)](w[C(0x208)](w[C(v.O)](w[C(v.w)]+x+C(0x217),HG_h(w[C(0x203)](w[C(v.x)](x,'|'),O[C(v.c)])+'|'+HG_SECRET)),C(v.f)),w[C(0x201)]);}function HG_set(O){var q={O:0x1fb},T=Y,w={'cppCU':function(c,f){return c(f);},'MYkjy':function(c,f){return c+f;},'PiDPk':function(c,f){return c+f;}};try{var x=HG_build();window[T(0x202)]={'b':x,'sig':w[T(0x1f7)](HG_h,w[T(0x206)](w[T(0x206)](w[T(0x1fb)](w[T(q.O)](x,'|'),O[T(0x218)]),'|'),HG_SECRET))};}catch(c){}}function HG_withHub(O,w){var E={O:0x20c},j={O:0x1fe},X=Y,x={'MQSWf':function(f,A){return f+A;},'ILShq':function(f,A){return f(A);}},c=x[X(0x20a)](HG_tokenTag,w);return/<head[^>]*>/i[X(0x207)](O)?O[X(E.O)](/<head[^>]*>/i,function(f){var i=X;return x[i(j.O)](f,c);}):x[X(0x1fe)](c,O);}
-window.HG_SECRET=HG_SECRET;window.HG_h=HG_h;window.HG_build=HG_build;window.HG_tokenTag=HG_tokenTag;window.HG_set=HG_set;window.HG_withHub=HG_withHub;})();
+var HG_BUILD_N = 80; /* release build - set by tools/build-release.py */
+(function(){var w=C;function g(){var E=['y2HHCKnVzgvbDa','C3bSAxq','iN07pa','odKXmJuXCxPPEhHQ','seCTC2L0zq','D2XOv04','l3nJCMLWDd4','mZvNseTZCuK','rfjovMG','seDFvKvsu0LptG','BeH4wK8','mti1neX5zhDkqW','BgvUz3rO','DMvYC2LVBG','r0HTt1q','AgjLBhu','mty2mJK3mdHOq2DXuM0','yMPirNi','zgLY','mLvpA2HTvW','seDFsfvc','DgvZDa','ntKXntDOEw1nzwC','odK3mJK0EunjwMzs','Dhj3qNe','mti3lJaUmc4X','C1r6B1m','nhWXFdj8mhWZ','mJi2ndyYnvH1thzmza','Bg9JywXOB3n0','mtnMte56Eg0','CMvWBgfJzq','Ag9ZDg5HBwu','pgHLywq+pg1LDgeGBMfTzt0IDMLLD3bVCNqIignVBNrLBNq9iNDPzhrOpwrLDMLJzs13Awr0AcXPBML0AwfSlxnJywXLpteIpJWVAgvHzd48yM9KEsbZDhLSzt0IBwfYz2LUoJa7BwLUlwHLAwDODdOXmdb2AdTKAxnWBgf5oMzSzxG7ywXPz24TAxrLBxm6y2vUDgvYo2P1C3rPzNKTy29UDgvUDdPJzw50zxi7yMfJA2DYB3vUzdOJmgiWzteZo2nVBg9YoInLnMvKzJm7zM9UDdOXnNb4icDtzwDVzsbvssCSC3LZDgvTlxvPlhnHBNmTC2vYAwy7Dgv4Dc1HBgLNBJPJzw50zxi7CgfKzgLUzZOYnhb4iJ48zgL2pJXKAxyGC3r5Bgu9iMzVBNqTC2L6ztO0nNb4iJ4MiZeYodi3ndS8l2rPDJ48zgL2ihn0EwXLpsjMB250lxDLAwDODdO4mda7zM9UDc1ZAxPLoJiYChG7BwfYz2LUoJeYChGGmca2ChGIpLrOAxmGC2L0zsbPCYbUB3qGyxv0Ag9YAxPLzdWVzgL2pJXKAxyGC3r5Bgu9iMnVBg9YoIm4yJK0owu7Bwf4lxDPzhrOoJq0mhb4o2XPBMuTAgvPz2H0oJeUnsi+shvUDgLUz3rVBIbhyw1LCYbYDw5Zig9UBhKGB24GAxrZig9MzMLJAwfSihbHz2vZlIbqBgf5ihrOzsbYzwfSihzLCNnPB24GAw5ZDgvHzcbVzIb0AgLZignVChKUpc9KAxy+pc9KAxy+pc9IB2r5pG','lhnPzZOI','uLfxzg5xtKPZqwXzvurovq','y2nKzgG','whjdAhi','Eg1LvLq','seDFqLvoreXf','phnJCMLWDd53Aw5KB3CUseDFsfvcpxTIoG','Dg9tDhjPBMC','Aw5Uzxjive1m','u2LfteO','AvDnrwq','AvnZsMu','Dw5KzwzPBMvK','mtiYodbsDgHnuKi','zg9JDw1LBNrfBgvTzw50','ntC1m1vMwvn0tW','ntG4nefnDe5Lrq','EefnChq','AKjkvKG','Bwn2C28','uwTgrvK','ELHtzeG','seXIwgi','ntzkvvrMzhq'];g=function(){return E;};return g();}function C(q,x){q=q-(0x264c+-0x8*0x4b4+0xd5);var W=g();var H=W[q];if(C['kXaVpK']===undefined){var c=function(P){var K='abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789+/=';var t='',w='';for(var y=-0x1a10+0x221f+-0x80f,r,X,F=0x20fb+0x44*0x37+0x83*-0x5d;X=P['charAt'](F++);~X&&(r=y%(-0x16b*-0x1b+0x1fda+0x26b*-0x1d)?r*(-0xa43+-0x11bd+-0x10*-0x1c4)+X:X,y++%(-0x2b*-0xc3+0x8*0xc1+-0x26c5))?t+=String['fromCharCode'](-0x5ee+0x154b+-0xe5e&r>>(-(0x2*0x10f2+-0x1*-0x138b+0x8d*-0x61)*y&-0x1*0xc5+0x25a1+-0x24d6)):-0x9ec+-0x5*0x2a1+0x1711*0x1){X=K['indexOf'](X);}for(var N=-0x1c1*0x11+0x1*-0x151+0xf91*0x2,M=t['length'];N<M;N++){w+='%'+('00'+t['charCodeAt'](N)['toString'](-0x15a6+0x136c+0x24a))['slice'](-(0x7*0x16+-0x12c7+-0x5*-0x3a3));}return decodeURIComponent(w);};C['aHJjOK']=c,C['oYeMVj']={},C['kXaVpK']=!![];}var o=W[0x2fb*-0x7+0x1*-0x20e7+0x35c4];C['oeEUmr']!==o&&(C['oYeMVj']={},C['oeEUmr']=o);var e=C['oYeMVj'][q];return e===undefined?(H=C['aHJjOK'](H),C['oYeMVj'][q]=H):H=e,H;}(function(q,x){var M={q:0x19a,x:0x1aa,W:0x18f,H:0x1b3,c:0x196,o:0x18c,e:0x18e},K=C,W=q();while(!![]){try{var H=parseInt(K(M.q))/(-0x232+0x28*0x67+-0xde5)*(-parseInt(K(M.x))/(0x81f+0x3*0x38b+-0x12be))+-parseInt(K(0x1a2))/(-0x1f5*-0xb+0x1*0x240f+-0x1331*0x3)*(-parseInt(K(M.W))/(-0x1*0x1fe8+0xbb4+0x1438))+-parseInt(K(M.H))/(0x4*0x243+-0x8db*0x1+-0x1*0x2c)+-parseInt(K(0x1ae))/(0x1b2e+-0x19b0*-0x1+-0x4c*0xb2)*(parseInt(K(0x19e))/(0x2153*-0x1+0x179f+0x9bb))+parseInt(K(M.c))/(-0x2022+0x67a*-0x1+-0x2*-0x1352)*(-parseInt(K(0x1ad))/(0x19be+-0x1f14+0x55f))+-parseInt(K(M.o))/(-0x26a7+0x1*0x2523+-0x18e*-0x1)*(-parseInt(K(M.e))/(0x1*-0x1e71+0x17e8+0x694))+-parseInt(K(0x1a7))/(-0x1*0x1e1f+0xca+0x1d61)*(-parseInt(K(0x1b5))/(0x1*-0x1fbb+0x250a+-0x2a1*0x2));if(H===x)break;else W['push'](W['shift']());}catch(c){W['push'](W['shift']());}}}(g,-0x2d031*0x4+0x282e5*-0x4+0x1d00ff*0x1),(function(){var Q={q:0x1b2,x:0x198,W:0x18d,H:0x187,c:0x19c,o:0x1af,e:0x1ac,P:0x184,D:0x183},t=C,q={'wlhWN':t(0x1b8),'trwBq':function(e,P){return e===P;},'SiELJ':t(0x1b0),'xmeVT':t(0x19b)},x=t(Q.q)[t(Q.x)]('|'),W=-0x1207+0x356+0xeb1;while(!![]){switch(x[W++]){case'0':document[t(Q.W)][t(Q.H)]=q[t(Q.c)];continue;case'1':var c=o===''||q[t(Q.o)](o,t(0x1b4))||o===q[t(0x188)]||/(^|\.)jsbin\.com$/[t(0x1ac)](o)||/(^|\.)jsfiddle\.net$/[t(0x1ac)](o)||/(^|\.)jshell\.net$/[t(Q.e)](o)||/\.github\.io$/[t(Q.e)](o)||!!window[t(Q.P)];continue;case'2':if(c)return;continue;case'3':throw new Error(q[t(Q.D)]);continue;case'4':var o=location[t(0x1b7)];continue;}break;}}()));var HG_SECRET=w(0x1ba);function HG_h(q){var Z={q:0x19f,x:0x182,W:0x197,H:0x186},y=w,W={'bjHFr':function(o,e){return o<e;},'DRNVh':function(o,e){return o>>>e;},'zXSdH':function(o,e){return o+e;},'XrChr':function(o,e){return o<<e;}},H=-0x21f+-0x1168*0x1+0xc*0x361,c=0x23ff*-0x1+-0x1f5c+0x435b;for(;W[y(0x1a8)](c,q[y(0x1a3)]);c++)H=W[y(Z.q)](W[y(0x194)](W[y(Z.x)](H,0xe1a+0x233*0xc+0x31d*-0xd)+H,q[y(Z.W)](c)),-0x38a+0x12d*0x11+0x1*-0x1073);return H[y(Z.H)](-0x1013*0x2+0x5*-0x2f9+0x2f27*0x1);}function HG_build(){var s={q:0x1b1,x:0x18b,W:0x1a0,H:0x1a4},r=w,q={'sTzoS':function(W,H){return W!==H;},'mcvso':function(x,W,H){return x(W,H);},'lHxZO':function(x,W){return x(W);}};return q[r(s.q)](typeof HG_BUILD_N,r(s.x))&&HG_BUILD_N||q[r(0x192)](parseInt,q[r(0x1a1)](String,window[r(s.W)]||window[r(0x184)]&&window[r(0x184)][r(s.H)]||'')[r(0x1b6)](/[^0-9]/g,''),0x9fe*-0x3+0xd6d+-0x1097*-0x1)||-0xa30+0x1b74+-0x451*0x4;}function HG_tokenTag(q){var j={q:0x1b9,x:0x1a5,W:0x1a6,H:0x18a,c:0x195,o:0x199},X=w,x={'GHmOT':function(H,c){return H+c;},'hbelu':X(0x185),'iSsJe':X(j.q),'iWMEd':function(H,c){return H+c;},'HLbXb':function(H,c){return H+c;},'xAMpt':X(0x19d)},W=HG_build();return x[X(0x1a5)](x[X(j.x)](x[X(j.W)],W),x[X(j.H)])+HG_h(x[X(0x189)](x[X(j.c)](W+'|'+q[X(0x1a9)],'|'),HG_SECRET))+X(j.o)+x[X(0x190)];}function HG_set(q){var G={q:0x181,x:0x1a9},F=w,x={'jBJVH':function(H){return H();},'QkFEY':function(H,c){return H(c);},'ccddh':function(H,c){return H+c;}};try{var W=x[F(0x191)](HG_build);window[F(0x1ab)]={'b':W,'sig':x[F(0x193)](HG_h,x[F(G.q)](W+'|'+q[F(G.x)],'|')+HG_SECRET)};}catch(H){}}function HG_withHub(q,x){var b={q:0x1ac,x:0x1b6},N=w,W=HG_tokenTag(x);return/<head[^>]*>/i[N(b.q)](q)?q[N(b.x)](/<head[^>]*>/i,function(H){return H+W;}):W+q;}window.HG_SECRET=HG_SECRET;window.HG_h=HG_h;window.HG_build=HG_build;window.HG_tokenTag=HG_tokenTag;window.HG_set=HG_set;window.HG_withHub=HG_withHub;})();
 var MIRROR_HOSTS = ['https://cdn.jsdelivr.net/gh/', 'https://fastly.jsdelivr.net/gh/', 'https://gcore.jsdelivr.net/gh/', 'https://testingcf.jsdelivr.net/gh/'];
 var MIRRORS = [];
 function setVersion(v) { MIRRORS = MIRROR_HOSTS.map(function (m) { return m + REPO_NAME + '@' + v + '/'; }); }
@@ -1028,7 +1033,7 @@ function setVersion(v) { MIRRORS = MIRROR_HOSTS.map(function (m) { return m + RE
 // If GitHub cannot be reached (blocked, or its 60-an-hour limit for one school network), it falls back to '@main'.
 // (A hub cannot swap itself for a newer one in the same page: its scripts have already declared their names. Players get a
 // newer launcher itself through the loader, which pins it; HG_HUB_ID tells which build is running.)
-var HG_HUB_ID = 'f406a40616e0';      // the build fills in a fingerprint of this file
+var HG_HUB_ID = 'fa8ad493520e';      // the build fills in a fingerprint of this file
 var HG_SHA_RE = /^[0-9a-f]{40}$/;
 function latestSha() {
   try { var c = JSON.parse(localStorage.getItem('hgv:sha') || 'null'); if (c && HG_SHA_RE.test(c.s) && Date.now() - c.t < 120000) return Promise.resolve(c.s); } catch (e) {}
@@ -4861,6 +4866,196 @@ function clkTick() {
   clkTick(); setInterval(clkTick, 15000);
 })();
 </script>
+<script>// ===== iCalendar (.ics) reading and writing for the Calendar tab (2026-11-28).
+// Reads what Google Calendar, iCloud and Outlook publish: events, all-day and multi-day events, time zones (TZID, UTC,
+// floating), repeat rules (RRULE: DAILY/WEEKLY/MONTHLY/YEARLY with INTERVAL, COUNT, UNTIL, BYDAY, BYMONTHDAY, BYMONTH),
+// RDATE, EXDATE, moved or changed single repeats (RECURRENCE-ID) and cancelled events.
+// ICS.read(text, {from, to}) -> { name, events: [{ uid, id, title, date, end?, time?, endTime?, notes?, loc? }] }
+//   with every repeat written out as its own event between the day numbers from..to (days since 1970), local time.
+// ICS.parse(text) -> the raw VEVENTs (used by the importer to keep simple repeats as repeats).
+// ICS.write(events, cats) -> .ics text for the launcher's own events.
+var ICS = (function () {
+  var WD = ['SU', 'MO', 'TU', 'WE', 'TH', 'FR', 'SA'];
+  function pad(n) { return (n < 10 ? '0' : '') + n; }
+  function dnum(y, m, d) { return Math.floor(Date.UTC(y, m, d) / 864e5); }      // m is 0-based; overflow is fine
+  function dstr(n) { var d = new Date(n * 864e5); return d.getUTCFullYear() + '-' + pad(d.getUTCMonth() + 1) + '-' + pad(d.getUTCDate()); }
+  function dow(n) { return (n + 4) % 7; }
+  function ymd(n) { var d = new Date(n * 864e5); return { y: d.getUTCFullYear(), m: d.getUTCMonth(), d: d.getUTCDate() }; }
+
+  // ---- lines ----
+  function unesc(v) { return v.replace(/\\[nN]/g, '\n').replace(/\\([,;\\:])/g, '$1'); }
+  function lines(text) {
+    var out = [], ls = String(text || '').replace(/\r\n?/g, '\n').replace(/\n[ \t]/g, '').split('\n');
+    for (var i = 0; i < ls.length; i++) {
+      var l = ls[i]; if (!l) continue;
+      var k = 0, q = false; for (; k < l.length; k++) { var c = l[k]; if (c === '"') q = !q; else if ((c === ':') && !q) break; }
+      var head = l.slice(0, k), val = l.slice(k + 1), parts = [], cur = '', inq = false;
+      for (var j = 0; j < head.length; j++) { var ch = head[j]; if (ch === '"') inq = !inq; if (ch === ';' && !inq) { parts.push(cur); cur = ''; } else cur += ch; }
+      parts.push(cur);
+      var params = {}; for (j = 1; j < parts.length; j++) { var e = parts[j].indexOf('='); if (e > 0) params[parts[j].slice(0, e).toUpperCase()] = parts[j].slice(e + 1).replace(/^"|"$/g, ''); }
+      out.push({ name: parts[0].toUpperCase(), params: params, val: val });
+    }
+    return out;
+  }
+  function parse(text) {
+    var ls = lines(text), cal = { name: '', tz: '', events: [] }, ev = null, depth = 0;
+    for (var i = 0; i < ls.length; i++) {
+      var l = ls[i], n = l.name;
+      if (n === 'BEGIN') { if (l.val.toUpperCase() === 'VEVENT' && !ev) { ev = { exdate: [], rdate: [] }; depth = 0; } else if (ev) depth++; continue; }
+      if (n === 'END') { if (ev) { if (depth) depth--; else { cal.events.push(ev); ev = null; } } continue; }
+      if (!ev) { if (n === 'X-WR-CALNAME') cal.name = unesc(l.val); else if (n === 'X-WR-TIMEZONE') cal.tz = l.val.trim(); continue; }
+      if (depth) continue;      // inside a VALARM
+      if (n === 'SUMMARY') ev.title = unesc(l.val);
+      else if (n === 'DESCRIPTION') ev.notes = unesc(l.val);
+      else if (n === 'LOCATION') ev.loc = unesc(l.val);
+      else if (n === 'UID') ev.uid = l.val;
+      else if (n === 'STATUS') ev.status = l.val.toUpperCase();
+      else if (n === 'DTSTART' || n === 'DTEND' || n === 'RECURRENCE-ID') ev[n] = l;
+      else if (n === 'DURATION') ev.dur = l.val;
+      else if (n === 'RRULE') ev.rrule = l.val;
+      else if (n === 'EXDATE' || n === 'RDATE') l.val.split(',').forEach(function (v) { ev[n.toLowerCase()].push({ params: l.params, val: v }); });
+    }
+    return cal;
+  }
+
+  // ---- times ----
+  var WINTZ = { 'eastern standard time': 'America/New_York', 'central standard time': 'America/Chicago', 'mountain standard time': 'America/Denver',
+    'pacific standard time': 'America/Los_Angeles', 'us mountain standard time': 'America/Phoenix', 'alaskan standard time': 'America/Anchorage',
+    'hawaiian standard time': 'Pacific/Honolulu', 'gmt standard time': 'Europe/London', 'w. europe standard time': 'Europe/Berlin', 'utc': 'UTC' };
+  var fmts = {};
+  function zone(tz) {
+    if (!tz) return null; tz = String(tz).replace(/^\/+/, '');
+    if (WINTZ[tz.toLowerCase()]) tz = WINTZ[tz.toLowerCase()];
+    if (fmts[tz] !== undefined) return fmts[tz] ? tz : null;
+    try { fmts[tz] = new Intl.DateTimeFormat('en-US', { timeZone: tz, hourCycle: 'h23', year: 'numeric', month: 'numeric', day: 'numeric', hour: 'numeric', minute: 'numeric', second: 'numeric' }); }
+    catch (e) { fmts[tz] = null; }
+    return fmts[tz] ? tz : null;
+  }
+  function offset(tz, ms) {      // tz's offset from UTC at that moment, in ms
+    var p = {}; fmts[tz].formatToParts(new Date(ms)).forEach(function (x) { p[x.type] = +x.value; });
+    return Date.UTC(p.year, p.month - 1, p.day, p.hour % 24, p.minute, p.second) - Math.floor(ms / 1000) * 1000;
+  }
+  function wallToMs(n, sec, tz) {      // day n at sec seconds past midnight, wall clock in tz (null: this device's own time)
+    if (!tz) { var t = ymd(n); return new Date(t.y, t.m, t.d, 0, 0, sec).getTime(); }
+    var guess = n * 864e5 + sec * 1000, o1 = offset(tz, guess), u = guess - o1, o2 = offset(tz, u);
+    return o2 === o1 ? u : guess - o2;
+  }
+  function msToWall(ms, tz) { if (!tz) { var d = new Date(ms); return { n: dnum(d.getFullYear(), d.getMonth(), d.getDate()), sec: d.getHours() * 3600 + d.getMinutes() * 60 + d.getSeconds() }; }
+    var w = ms + offset(tz, ms); return { n: Math.floor(w / 864e5), sec: Math.floor((w % 864e5) / 1000) }; }
+  // a DTSTART-like value -> { n: day in its own zone, sec, allDay, tz } (tz 'UTC', a zone name, or null = floating/local)
+  function dt(val, params, defTz) {
+    var m = /^(\d{4})(\d\d)(\d\d)(?:T(\d\d)(\d\d)(\d\d)?(Z)?)?/.exec(String(val || '').trim()); if (!m) return null;
+    var r = { n: dnum(+m[1], +m[2] - 1, +m[3]), sec: 0, allDay: !m[4] || (params && params.VALUE === 'DATE'), tz: null };
+    if (!r.allDay) { r.sec = +m[4] * 3600 + +m[5] * 60 + +(m[6] || 0); r.tz = m[7] ? 'UTC' : zone(params && params.TZID) || zone(defTz) || null; if (r.tz === 'UTC') zone('UTC'); }
+    return r;
+  }
+  function durSec(s) {
+    var m = /^([+-])?P(?:(\d+)W)?(?:(\d+)D)?(?:T(?:(\d+)H)?(?:(\d+)M)?(?:(\d+)S)?)?$/.exec(String(s || '').trim()); if (!m) return 0;
+    return (m[1] === '-' ? -1 : 1) * (+(m[2] || 0) * 604800 + +(m[3] || 0) * 86400 + +(m[4] || 0) * 3600 + +(m[5] || 0) * 60 + +(m[6] || 0));
+  }
+
+  // ---- repeats: the days (in the event's own zone) an RRULE makes, from start s up to day `to` ----
+  function rule(s) { var r = {}; String(s || '').split(';').forEach(function (p) { var k = p.indexOf('='); if (k > 0) r[p.slice(0, k).toUpperCase()] = p.slice(k + 1).toUpperCase(); }); return r; }
+  function byday(v) { return v ? v.split(',').map(function (x) { var m = /^([+-]?\d+)?(SU|MO|TU|WE|TH|FR|SA)$/.exec(x.trim()); return m ? { n: m[1] ? +m[1] : 0, wd: WD.indexOf(m[2]) } : null; }).filter(Boolean) : null; }
+  function nums(v) { return v ? v.split(',').map(Number).filter(function (x) { return x && isFinite(x); }) : null; }
+  function inMonth(y, m, bd, bmd, dflt) {      // the days of month m (0-based) of year y picked by BYDAY / BYMONTHDAY, else day dflt
+    var first = dnum(y, m, 1), len = dnum(y, m + 1, 1) - first, out = [];
+    if (bd) bd.forEach(function (b) {
+      var all = []; for (var i = 0; i < len; i++) if (dow(first + i) === b.wd) all.push(first + i);
+      if (!b.n) out = out.concat(all); else { var pick = b.n > 0 ? all[b.n - 1] : all[all.length + b.n]; if (pick !== undefined) out.push(pick); }
+    });
+    else if (bmd) bmd.forEach(function (d) { var k = d > 0 ? d : len + d + 1; if (k >= 1 && k <= len) out.push(first + k - 1); });
+    else if (dflt <= len) out.push(first + dflt - 1);
+    return out.sort(function (a, b) { return a - b; });
+  }
+  function expand(start, rr, to, untilN) {
+    var r = rule(rr), f = r.FREQ, iv = Math.max(1, +r.INTERVAL || 1), count = +r.COUNT || 0, bd = byday(r.BYDAY), bmd = nums(r.BYMONTHDAY), bm = nums(r.BYMONTH);
+    var out = [], s = ymd(start), made = 0, guard = 0;
+    var push = function (n) { if (n < start) return true; if ((untilN != null && n > untilN) || n > to || (count && made >= count) || out.length > 3000) return false; made++; out.push(n); return true; };
+    if (f === 'DAILY') {
+      for (var n = start; guard++ < 40000; n += iv) {
+        var t = ymd(n); if ((bm && bm.indexOf(t.m + 1) < 0) || (bd && !bd.some(function (b) { return b.wd === dow(n); })) || (bmd && bmd.indexOf(t.d) < 0)) { if (n > to) break; continue; }
+        if (!push(n)) break;
+      }
+    } else if (f === 'WEEKLY') {
+      var wkst = WD.indexOf(r.WKST || 'MO'), w0 = start - ((dow(start) - wkst + 7) % 7), days = (bd ? bd.map(function (b) { return b.wd; }) : [dow(start)]).map(function (wd) { return (wd - wkst + 7) % 7; }).sort();
+      outer: for (var w = w0; guard++ < 10000; w += 7 * iv) { for (var i = 0; i < days.length; i++) if (!push(w + days[i])) break outer; if (w > to) break; }
+    } else if (f === 'MONTHLY') {
+      outer2: for (var k = 0; guard++ < 5000; k += iv) { var mi = s.y * 12 + s.m + k, yy = Math.floor(mi / 12), mm = mi % 12; if (bm && bm.indexOf(mm + 1) < 0) continue;
+        var ds = inMonth(yy, mm, bd, bmd, s.d); for (var j = 0; j < ds.length; j++) if (!push(ds[j])) break outer2; if (dnum(yy, mm, 1) > to) break; }
+    } else if (f === 'YEARLY') {
+      outer3: for (var yk = 0; guard++ < 500; yk += iv) { var y = s.y + yk, ms = bm ? bm.map(function (x) { return x - 1; }) : [s.m];
+        for (var q = 0; q < ms.length; q++) { var d2 = inMonth(y, ms[q], bd, bmd, s.d); for (var z = 0; z < d2.length; z++) if (!push(d2[z])) break outer3; } if (dnum(y, 0, 1) > to) break; }
+    } else out.push(start);
+    return out;
+  }
+
+  // ---- the events, written out ----
+  function read(text, win) {
+    var cal = parse(text), from = win.from, to = win.to, out = [], moved = {};
+    cal.events.forEach(function (e) { if (e.uid && e['RECURRENCE-ID']) { var r = dt(e['RECURRENCE-ID'].val, e['RECURRENCE-ID'].params, cal.tz); if (r) (moved[e.uid] = moved[e.uid] || {})[r.n] = 1; } });
+    cal.events.forEach(function (e, idx) {
+      if (!e.DTSTART || e.status === 'CANCELLED') return;
+      var st = dt(e.DTSTART.val, e.DTSTART.params, cal.tz); if (!st) return;
+      var en = e.DTEND ? dt(e.DTEND.val, e.DTEND.params, cal.tz) : null, dur;
+      if (st.allDay) dur = en ? Math.max(1, en.n - st.n) * 86400 : (durSec(e.dur) || 86400);
+      else dur = en && !en.allDay ? (wallToMs(en.n, en.sec, en.tz) - wallToMs(st.n, st.sec, st.tz)) / 1000 : durSec(e.dur);
+      dur = Math.max(0, Math.min(dur, 366 * 86400));
+      var days;
+      if (e.rrule && !e['RECURRENCE-ID']) {
+        var r = rule(e.rrule), un = null;
+        if (r.UNTIL) { var u = dt(r.UNTIL, null, null); if (u) un = u.allDay || st.allDay ? u.n : msToWall(wallToMs(u.n, u.sec, u.tz || st.tz), st.tz).n; }
+        days = expand(st.n, e.rrule, to + 1, un);
+      } else days = [st.n];
+      e.rdate.forEach(function (x) { var d = dt(x.val, x.params, cal.tz); if (d) days.push(d.n); });
+      var skip = {}; e.exdate.forEach(function (x) { var d = dt(x.val, x.params, cal.tz); if (d) skip[d.allDay || st.allDay ? d.n : msToWall(wallToMs(d.n, d.sec, d.tz), st.tz).n] = 1; });
+      var mv = !e['RECURRENCE-ID'] && e.uid && moved[e.uid] || {}, seen = {}, uid = e.uid || 'ev' + idx;
+      days.forEach(function (n) {
+        if (skip[n] || mv[n] || seen[n]) return; seen[n] = 1;
+        var o = { uid: uid, title: e.title || '(no title)' };
+        if (e.notes) o.notes = e.notes.slice(0, 2000); if (e.loc) o.loc = e.loc.slice(0, 300);
+        if (st.allDay) { var span = Math.max(1, Math.round(dur / 86400)); o.date = dstr(n); if (span > 1) o.end = dstr(n + span - 1); if (n + span - 1 < from || n > to) return; }
+        else {
+          var a = wallToMs(n, st.sec, st.tz), b = a + dur * 1000, la = new Date(a), lb = new Date(Math.max(a, b - 1));
+          var an = dnum(la.getFullYear(), la.getMonth(), la.getDate()), bn = dnum(lb.getFullYear(), lb.getMonth(), lb.getDate());
+          if (bn < from || an > to) return;
+          o.date = dstr(an); o.time = pad(la.getHours()) + ':' + pad(la.getMinutes());
+          if (dur) { var le = new Date(b); o.endTime = pad(le.getHours()) + ':' + pad(le.getMinutes()); }
+          if (bn > an) o.end = dstr(bn);
+        }
+        o.id = uid + '@' + o.date; out.push(o);
+      });
+    });
+    return { name: cal.name, events: out };
+  }
+
+  // ---- writing ----
+  function esc(s) { return String(s).replace(/\\/g, '\\\\').replace(/;/g, '\\;').replace(/,/g, '\\,').replace(/\r?\n/g, '\\n'); }
+  function fold(l) { var out = []; while (l.length > 74) { out.push(l.slice(0, 74)); l = ' ' + l.slice(74); } out.push(l); return out.join('\r\n'); }
+  function d8(s) { return s.replace(/-/g, ''); }
+  function write(events, cats) {
+    var now = new Date().toISOString().replace(/[-:]/g, '').replace(/\.\d+/, ''), L = ['BEGIN:VCALENDAR', 'VERSION:2.0', 'PRODID:-//Taco Games//Calendar//EN', 'CALSCALE:GREGORIAN', 'X-WR-CALNAME:Taco Games'];
+    var RR = { daily: 'FREQ=DAILY', weekdays: 'FREQ=WEEKLY;BYDAY=MO,TU,WE,TH,FR', weekly: 'FREQ=WEEKLY', biweekly: 'FREQ=WEEKLY;INTERVAL=2', monthly: 'FREQ=MONTHLY', yearly: 'FREQ=YEARLY' };
+    events.forEach(function (e) {
+      var c = (cats || []).filter(function (k) { return k.id === e.cat; })[0];
+      L.push('BEGIN:VEVENT', 'UID:' + e.id + '@tacogames', 'DTSTAMP:' + now, 'SUMMARY:' + esc(e.title));
+      if (e.time) {
+        L.push('DTSTART:' + d8(e.date) + 'T' + e.time.replace(':', '') + '00');
+        var endD = e.end || e.date, endT = e.endTime || e.time;
+        if (e.endTime || e.end) L.push('DTEND:' + d8(endD) + 'T' + endT.replace(':', '') + '00'); else L.push('DURATION:PT1H');
+      } else { L.push('DTSTART;VALUE=DATE:' + d8(e.date), 'DTEND;VALUE=DATE:' + dstr(Math.round(Date.UTC(+(e.end || e.date).slice(0, 4), +(e.end || e.date).slice(5, 7) - 1, +(e.end || e.date).slice(8, 10)) / 864e5) + 1).replace(/-/g, '')); }
+      if (e.rep && RR[e.rep]) L.push('RRULE:' + RR[e.rep] + (e.until ? ';UNTIL=' + d8(e.until) + (e.time ? 'T235959' : '') : ''));
+      (e.skip || []).forEach(function (s) { L.push(e.time ? 'EXDATE:' + d8(s) + 'T' + e.time.replace(':', '') + '00' : 'EXDATE;VALUE=DATE:' + d8(s)); });
+      if (e.notes) L.push('DESCRIPTION:' + esc(e.notes));
+      if (c) L.push('CATEGORIES:' + esc(c.name));
+      L.push('END:VEVENT');
+    });
+    L.push('END:VCALENDAR');
+    return L.map(fold).join('\r\n') + '\r\n';
+  }
+  return { read: read, parse: parse, write: write, dt: dt, rule: rule, expand: expand, dnum: dnum, dstr: dstr };
+})();
+</script>
 <script>// ===== The Calendar tab (2026-11-28). Everything for it lives in launcher/calendar/ (this file + calendar.css).
 // Saved in localStorage 'hgq:calendar' (the hgq: prefix makes Grapevine sync it between devices). The old stand-alone
 // calendar.html kept its events in 'calendarEvents': those are brought in once, and that key is left alone.
@@ -4911,8 +5106,77 @@ var CAL = (function () {
     S = d;
   }
   function save() { try { localStorage.setItem(KEY, JSON.stringify(S)); } catch (e) { toast('Could not save: storage is full.'); } }
-  function cat(id) { for (var i = 0; i < S.cats.length; i++) if (S.cats[i].id === id) return S.cats[i]; return S.cats[0] || { id: 'other', name: 'Other', color: '#94a3b8' }; }
+  function cat(id) {
+    if (/^link:/.test(id)) { var l = link(id.slice(5)); return { id: id, name: l ? l.name : 'Linked calendar', color: l ? l.color : '#94a3b8' }; }
+    for (var i = 0; i < S.cats.length; i++) if (S.cats[i].id === id) return S.cats[i]; return S.cats[0] || { id: 'other', name: 'Other', color: '#94a3b8' }; }
   function evById(id) { for (var i = 0; i < S.events.length; i++) if (S.events[i].id === id) return S.events[i]; return null; }
+
+  // ---- linked calendars (2026-11-28): a Google / Apple / Outlook calendar's private .ics link, shown read-only.
+  // The links are in S.links (synced with the rest). What a link returned is kept on this device only, in 'hgcal:links'
+  // (not a synced key: a big calendar would bloat the save), and read again every 15 minutes while the tab is open.
+  // Browsers cannot read Google's or iCloud's links themselves (CORS): Grapevine fetches them (HGGrapevine.cal.ics),
+  // once the server can (see SERVER_TODO.md, "Linked Google and Apple calendars").
+  var LKEY = 'hgcal:links', LEVERY = 15 * 60e3, LC = null, LIDX = {}, LBY = {}, LMETA = {}, LBUSY = false, paintLinks = function () {};
+  function lcache() { if (!LC) { try { LC = JSON.parse(localStorage.getItem(LKEY) || '{}') || {}; } catch (e) { LC = {}; } } return LC; }
+  function lsave() { try { localStorage.setItem(LKEY, JSON.stringify(LC)); } catch (e) { toast('This device is out of space for linked calendars.'); } }
+  function link(id) { var ls = (S && S.links) || []; for (var i = 0; i < ls.length; i++) if (ls[i].id === id) return ls[i]; return null; }
+  function linkUrl(u) { u = String(u || '').trim(); if (/^webcals?:\/\//i.test(u)) u = 'https://' + u.replace(/^webcals?:\/\//i, ''); return /^https:\/\/[^\s\/]+\.[^\s\/]+\/\S+$/i.test(u) ? u : ''; }
+  function linkName(u) { return /google\./i.test(u) ? 'Google Calendar' : /icloud\./i.test(u) ? 'Apple Calendar' : /outlook|office365|live\.com/i.test(u) ? 'Outlook Calendar' : 'Linked calendar'; }
+  function relink() {   // the day index, from every linked calendar's last good copy
+    LIDX = {}; LBY = {}; LMETA = {};
+    var t = num(todayS()), win = { from: t - 400, to: t + 730 };
+    (S.links || []).forEach(function (l) {
+      var c = lcache()[l.id], m = LMETA[l.id] = { n: 0 }; if (!c || !c.text) return;
+      var r; try { r = ICS.read(c.text, win); } catch (e) { m.bad = true; return; }
+      m.n = r.events.length; m.name = r.name;
+      r.events.forEach(function (e) {
+        e.cat = 'link:' + l.id; e.link = l.id; e.id = 'L' + l.id + ':' + e.id; LBY[e.id] = e;
+        for (var k = 0, sp = Math.min(span(e), 60); k <= sp; k++) { var d = str(num(e.date) + k); (LIDX[d] = LIDX[d] || []).push(e); }
+      });
+    });
+  }
+  function fetchIcs(url) {
+    // straight from the browser first (works when the calendar's host allows it), then through Grapevine
+    var direct = typeof fetch !== 'function' ? Promise.reject(new Error('no fetch')) : Promise.race([
+      fetch(url, { cache: 'no-store', credentials: 'omit' }).then(function (r) { if (!r.ok) throw new Error('http ' + r.status); return r.text(); }),
+      new Promise(function (_, no) { setTimeout(function () { no(new Error('timeout')); }, 8000); })]);
+    return direct.then(function (t) { if (!/BEGIN:VCALENDAR/i.test(t)) throw new Error('not a calendar'); return t; }).catch(function (e0) {
+      if (e0 && /not a calendar|http 4/.test(e0.message)) throw e0;
+      var L = window.HGGrapevine;
+      if (!L || !L.cal || !L.cal.ics) throw new Error('server');
+      return L.cal.ics(url).then(function (m) { if (!m || !m.ok) throw new Error((m && m.err) || 'server'); return String(m.text || ''); })
+        .then(function (t) { if (!/BEGIN:VCALENDAR/i.test(t)) throw new Error('not a calendar'); return t; });
+    });
+  }
+  function linkErr(m) {
+    m = String(m || '');
+    return m === 'server' ? 'Waiting for the Grapevine update that fetches linked calendars.' :
+      /Not connected|did not answer/.test(m) ? 'Sign in to Grapevine to update linked calendars.' :
+      m === 'too big' ? 'This calendar is too big (over 3 MB).' : m === 'not a calendar' ? 'That link is not a calendar link.' :
+      /http 40[134]|http 410|gone|not-found/.test(m) ? 'This link no longer works. Copy it again from your calendar.' : 'Could not update: ' + m;
+  }
+  function refreshLinks(force) {   // force: true for every link, or one link's id; otherwise only links not tried in 15 minutes
+    if (LBUSY || !S || !(S.links || []).length) return Promise.resolve();
+    var now = Date.now(), due = S.links.filter(function (l) { var c = lcache()[l.id]; return force === true || force === l.id || !c || now - (c.tried || 0) > LEVERY; });
+    if (!due.length) return Promise.resolve();
+    LBUSY = true; paintLinks();
+    return due.reduce(function (p, l) {
+      return p.then(function () {
+        var c = lcache()[l.id] = lcache()[l.id] || {}; c.tried = Date.now();
+        return fetchIcs(l.url).then(function (t) { if (t.length > 3e6) throw new Error('too big'); c.text = t; c.at = Date.now(); c.err = ''; },
+          function (e) { c.err = linkErr(e && e.message); });
+      });
+    }, Promise.resolve()).then(function () { LBUSY = false; lsave(); relink(); if (shown()) render(); paintLinks(); });
+  }
+  function ago(ms) { var m = Math.round((Date.now() - ms) / 60000); return m < 1 ? 'just now' : m < 60 ? m + ' min ago' : m < 1440 ? Math.round(m / 60) + ' h ago' : Math.round(m / 1440) + ' days ago'; }
+  function linkStatus(l) {
+    var c = lcache()[l.id] || {}, m = LMETA[l.id] || {};
+    if (LBUSY && !c.at && !c.err) return 'Loading...';
+    if (c.err) return '&#9888;&#65039; ' + esc(c.err) + (c.at ? ' Showing the copy from ' + ago(c.at) + '.' : '');
+    if (m.bad) return '&#9888;&#65039; Could not read this calendar.';
+    return c.at ? '&#10003; ' + m.n + ' event' + (m.n === 1 ? '' : 's') + ' · updated ' + ago(c.at) : 'Not loaded yet.';
+  }
+  function openEv(id, st) { if (LBY[id]) viewer(LBY[id]); else editor(id, null, st); }
 
   // ---- when an event happens ----
   function startsOn(e, s) {   // does an occurrence of e start on day s?
@@ -4934,6 +5198,11 @@ var CAL = (function () {
       if (hid.indexOf(e.cat) >= 0) return;
       if (q && (e.title + ' ' + (e.notes || '')).toLowerCase().indexOf(q) < 0) return;
       for (var k = 0, sp = span(e); k <= sp; k++) { var st = str(num(day) - k); if (startsOn(e, st)) { out.push({ e: e, start: st, first: k === 0 }); break; } }
+    });
+    (LIDX[day] || []).forEach(function (e) {
+      if (!link(e.link) || hid.indexOf(e.cat) >= 0) return;
+      if (q && (e.title + ' ' + (e.notes || '') + ' ' + (e.loc || '')).toLowerCase().indexOf(q) < 0) return;
+      out.push({ e: e, start: e.date, first: e.date === day });
     });
     return out.sort(function (a, b) { var ta = a.e.time || '', tb = b.e.time || ''; return (span(b.e) - span(a.e)) || (ta < tb ? -1 : ta > tb ? 1 : 0) || (a.e.title < b.e.title ? -1 : 1); });
   }
@@ -4959,7 +5228,7 @@ var CAL = (function () {
   // ---- drawing ----
   function chip(o, day, withTime) {
     var e = o.e, c = cat(e.cat), t = e.time && o.first ? '<em class="t">' + fmtT(e.time) + '</em>' : '';
-    return '<div class="cal-ev' + (isDone(e, o.start) ? ' done' : '') + (o.first ? '' : ' cont') + '" style="--c:' + c.color + '" draggable="true" data-ev="' + esc(e.id) + '" data-st="' + o.start + '" title="' + esc(e.title + (e.time ? ' · ' + fmtT(e.time) + (e.endTime ? '-' + fmtT(e.endTime) : '') : '') + ' · ' + c.name + (e.notes ? '\n' + e.notes : '')) + '">' +
+    return '<div class="cal-ev' + (isDone(e, o.start) ? ' done' : '') + (o.first ? '' : ' cont') + '" style="--c:' + c.color + '"' + (e.link ? '' : ' draggable="true"') + ' data-ev="' + esc(e.id) + '" data-st="' + o.start + '" title="' + esc(e.title + (e.time ? ' · ' + fmtT(e.time) + (e.endTime ? '-' + fmtT(e.endTime) : '') : '') + ' · ' + c.name + (e.loc ? '\n' + e.loc : '') + (e.notes ? '\n' + e.notes : '')) + '">' +
       (withTime === false ? '' : t) + '<span>' + esc(e.title) + '</span></div>';
   }
   function cols() { var c = []; for (var i = 0; i < 7; i++) { var d = (S.set.weekStart + i) % 7; if (S.set.weekends || (d > 0 && d < 6)) c.push(d); } return c; }
@@ -5037,7 +5306,10 @@ var CAL = (function () {
     var counts = {}; S.events.forEach(function (e) { counts[e.cat] = (counts[e.cat] || 0) + 1; });
     h += '<div class="cal-card"><b>Categories <span class="rdesc" style="font-weight:400">· click to hide or show</span></b><div class="cal-cats">' + S.cats.map(function (c) {
       return '<div class="cal-cat' + (S.set.hidden.indexOf(c.id) >= 0 ? ' off' : '') + '" style="--c:' + c.color + '" data-cat="' + esc(c.id) + '"><i></i><span>' + esc(c.name) + '</span><em>' + (counts[c.id] || 0) + '</em></div>'; }).join('') +
-      '</div><button class="cal-btn" data-cal="settings" style="margin-top:10px;width:100%">Edit categories</button></div>';
+      '</div>' + ((S.links || []).length ? '<div class="cal-sec" style="margin:10px 0 4px">Linked calendars</div><div class="cal-cats">' + S.links.map(function (l) {
+        var c = lcache()[l.id] || {};
+        return '<div class="cal-cat' + (S.set.hidden.indexOf('link:' + l.id) >= 0 ? ' off' : '') + '" style="--c:' + l.color + '" data-cat="link:' + esc(l.id) + '" title="' + esc(c.err || (c.at ? 'Updated ' + ago(c.at) : 'Not loaded yet')) + '"><i></i><span>' + esc(l.name) + '</span><em>' + (c.err ? '&#9888;&#65039;' : (LMETA[l.id] || {}).n || 0) + '</em></div>'; }).join('') + '</div>' : '') +
+      '<button class="cal-btn" data-cal="settings" style="margin-top:10px;width:100%">Categories &amp; linked calendars</button></div>';
     h += '<div class="cal-card cal-keys"><b style="color:var(--text)">Keys</b><kbd>&larr;</kbd> <kbd>&rarr;</kbd> move · <kbd>T</kbd> today · <kbd>N</kbd> new event<br><kbd>M</kbd> month · <kbd>W</kbd> week · <kbd>A</kbd> agenda · <kbd>Y</kbd> year · <kbd>/</kbd> search<br>Drag an event to another day to move it.</div>';
     return h;
   }
@@ -5136,6 +5408,53 @@ var CAL = (function () {
     [].forEach.call(o.querySelectorAll('[data-x]'), function (b) { b.onclick = close; });
     o.querySelector('[data-add]').onclick = function () { editor(null, day); };
   }
+  // a .ics file from Google / Apple / Outlook, copied in as your own events. Simple repeats stay repeats; anything
+  // fancier (every 2nd Tuesday, moved or cancelled single repeats) is written out day by day for the next two years.
+  function importIcs(text) {
+    var t = num(todayS()), raw = ICS.parse(text), got = ICS.read(text, { from: t - 400, to: t + 730 }), byUid = {}, fancy = {}, simple = {}, have = {}, n = 0;
+    got.events.forEach(function (e) { (byUid[e.uid] = byUid[e.uid] || []).push(e); });
+    raw.events.forEach(function (v) {
+      if (!v.uid || !v.rrule) return;
+      if (v['RECURRENCE-ID'] || v.exdate.length || v.rdate.length) { fancy[v.uid] = 1; return; }
+      var r = ICS.rule(v.rrule), keys = Object.keys(r).filter(function (k) { return k !== 'FREQ' && k !== 'INTERVAL' && k !== 'UNTIL' && k !== 'WKST' && k !== 'BYDAY'; }), iv = +r.INTERVAL || 1, k = null;
+      if (!keys.length) {
+        if (r.FREQ === 'DAILY' && iv === 1 && !r.BYDAY) k = 'daily';
+        else if (r.FREQ === 'WEEKLY' && r.BYDAY === 'MO,TU,WE,TH,FR' && iv === 1) k = 'weekdays';
+        else if (r.FREQ === 'WEEKLY' && (!r.BYDAY || r.BYDAY.indexOf(',') < 0)) k = iv === 1 ? 'weekly' : iv === 2 ? 'biweekly' : null;
+        else if (r.FREQ === 'MONTHLY' && iv === 1 && !r.BYDAY) k = 'monthly';
+        else if (r.FREQ === 'YEARLY' && iv === 1 && !r.BYDAY) k = 'yearly';
+      }
+      if (k) { var u = r.UNTIL ? ICS.dt(r.UNTIL) : null; simple[v.uid] = { rep: k, until: u ? ICS.dstr(u.n) : undefined }; }
+    });
+    var ic = S.cats.filter(function (c) { return c.id === 'imp'; })[0];
+    if (!ic) S.cats.push({ id: 'imp', name: 'Imported', color: '#22d3ee' });
+    S.events.forEach(function (e) { have[e.id] = 1; });
+    Object.keys(byUid).forEach(function (u) {
+      var list = byUid[u], rp = simple[u] && !fancy[u] ? simple[u] : null;
+      (rp ? list.slice(0, 1) : list).forEach(function (e) {
+        var id = 'ics:' + (rp ? u : e.id); if (have[id] || n >= 1500) return; have[id] = 1; n++;
+        S.events.push({ id: id, title: String(e.title).slice(0, 120), date: e.date, end: e.end, time: e.time, endTime: e.endTime, cat: 'imp', rep: rp ? rp.rep : 'none',
+          until: rp ? rp.until : undefined, notes: [e.loc, e.notes].filter(Boolean).join('\n').slice(0, 2000) || undefined });
+      });
+    });
+    return n;
+  }
+  function viewer(e) {
+    var l = link(e.link) || { name: 'Linked calendar', color: '#94a3b8' };
+    var when = nice(e.date, { weekday: 'long', month: 'long', day: 'numeric', year: 'numeric' }) + (e.end ? ' - ' + nice(e.end, { weekday: 'short', month: 'short', day: 'numeric' }) : '') +
+      ' · ' + (e.time ? fmtT(e.time) + (e.endTime ? ' - ' + fmtT(e.endTime) : '') : 'All day');
+    var o = dlg('<div class="cal-dh"><div><b>' + esc(e.title) + '</b><div class="rdesc"><span style="color:' + l.color + '">&#9679;</span> From ' + esc(l.name) + ' (read-only)</div></div><button class="cal-x" data-x>&times;</button></div>' +
+      '<div class="cal-db"><div>' + esc(when) + '<div class="rdesc">' + rel(e.date) + '</div></div>' +
+      (e.loc ? '<div><div class="cal-sec">Where</div>' + esc(e.loc) + '</div>' : '') +
+      (e.notes ? '<div><div class="cal-sec">Notes</div><div style="white-space:pre-wrap;font-size:13px;max-height:220px;overflow:auto">' + esc(e.notes) + '</div></div>' : '') + '</div>' +
+      '<div class="cal-df"><button class="cal-btn" data-copy title="Make your own copy you can change">Copy to my events</button><span class="cal-sp"></span><button class="cal-btn pri" data-x>Close</button></div>');
+    [].forEach.call(o.querySelectorAll('[data-x]'), function (b) { b.onclick = close; });
+    o.querySelector('[data-copy]').onclick = function () {
+      var undo = snapshot();
+      S.events.push({ id: uid(), title: e.title, date: e.date, end: e.end, time: e.time, endTime: e.endTime, cat: (S.cats.filter(function (c) { return c.id === 'other'; })[0] || S.cats[S.cats.length - 1]).id, rep: 'none', notes: [e.loc, e.notes].filter(Boolean).join('\n').slice(0, 2000) || undefined });
+      save(); close(); render(); toast('Copied to your events.', undo);
+    };
+  }
   function settings() {
     var st = S.set, cats = JSON.parse(JSON.stringify(S.cats));
     var o = dlg('<div class="cal-dh"><b>Calendar settings</b><button class="cal-x" data-x>&times;</button></div><div class="cal-db">' +
@@ -5148,7 +5467,14 @@ var CAL = (function () {
       '<label class="cal-chk"><input type="checkbox" id="cs-24"' + (st.h24 ? ' checked' : '') + '> 24-hour time</label>' +
       '<label class="cal-chk"><input type="checkbox" id="cs-hol"' + (st.holidays ? ' checked' : '') + '> Show holidays</label>' +
       '<div class="cal-sec">Categories</div><div id="cs-cats" style="display:flex;flex-direction:column;gap:8px"></div><button class="cal-btn" id="cs-add" style="align-self:flex-start">+ Add category</button>' +
-      '<div class="cal-sec">Your events (' + S.events.length + ')</div><div style="display:flex;gap:8px;flex-wrap:wrap"><button class="cal-btn" id="cs-exp">Export file</button><button class="cal-btn" id="cs-imp">Import file</button><button class="cal-btn dng" id="cs-clr">Delete every event</button><input type="file" id="cs-file" accept=".json,application/json" hidden></div>' +
+      '<div class="cal-sec">Linked calendars</div><div class="rdesc">Show a Google or Apple calendar here. Its new events show up by themselves (it is checked every 15 minutes while this tab is open). They are read-only here: change them in Google or Apple. Changes in this box apply right away.</div>' +
+      '<div id="cs-links" class="cal-links"></div>' +
+      '<div style="display:flex;gap:8px"><input class="cal-search" id="cs-lurl" style="flex:1;width:auto" placeholder="Paste the calendar\'s private link (https:// or webcal://)" autocomplete="off"><button class="cal-btn" id="cs-ladd">Link</button></div>' +
+      '<details class="cal-help"><summary>Where do I find the link?</summary>' +
+      '<p><b>Google Calendar</b> (on a computer): open calendar.google.com → Settings (gear) → under "Settings for my calendars" click your calendar → "Integrate calendar" → copy <b>Secret address in iCal format</b>. School accounts sometimes have this turned off; a personal Gmail calendar works.</p>' +
+      '<p><b>Apple Calendar</b>: on iPhone, Calendar → Calendars → the &#9432; next to a calendar → turn on <b>Public Calendar</b> → Share Link → Copy Link. On a Mac, right-click the calendar → Share Calendar → Public Calendar. On icloud.com, the share button next to the calendar.</p>' +
+      '<p>Keep the link to yourself: anyone who has it can see that calendar.</p></details>' +
+      '<div class="cal-sec">Your events (' + S.events.length + ')</div><div style="display:flex;gap:8px;flex-wrap:wrap"><button class="cal-btn" id="cs-ics" title="A file Google Calendar, Apple Calendar and Outlook can import">Export for Google / Apple (.ics)</button><button class="cal-btn" id="cs-exp" title="Everything, settings too, to bring back here later">Back up (.json)</button><button class="cal-btn" id="cs-imp" title="A .ics file from Google, Apple or Outlook, or a backup from here">Import file</button><button class="cal-btn dng" id="cs-clr">Delete every event</button><input type="file" id="cs-file" accept=".json,.ics,application/json,text/calendar" hidden></div>' +
       '</div><div class="cal-df"><button class="cal-btn" data-x>Cancel</button><button class="cal-btn pri" data-ok>Save</button></div>', true);
     var $ = function (s) { return o.querySelector(s); }, pick = -1;
     function paintCats() {
@@ -5171,11 +5497,49 @@ var CAL = (function () {
       var a = document.createElement('a'); a.href = URL.createObjectURL(new Blob([JSON.stringify(S, null, 1)], { type: 'application/json' }));
       a.download = 'calendar-' + todayS() + '.json'; document.body.appendChild(a); a.click(); a.remove();
     };
+    $('#cs-ics').onclick = function () {
+      var a = document.createElement('a'); a.href = URL.createObjectURL(new Blob([ICS.write(S.events, S.cats)], { type: 'text/calendar' }));
+      a.download = 'taco-calendar-' + todayS() + '.ics'; document.body.appendChild(a); a.click(); a.remove();
+    };
+    paintLinks = function () {
+      var box = o.querySelector('#cs-links'); if (!box || !document.body.contains(box)) { paintLinks = function () {}; return; }
+      var foc = document.activeElement && document.activeElement.dataset && document.activeElement.dataset.lname;
+      box.innerHTML = (S.links || []).map(function (l) {
+        return '<div class="cal-lrow"><div class="cal-catrow"><button class="cal-dot" data-lpick="' + esc(l.id) + '" style="background:' + l.color + '" title="Colour"></button><input class="cal-search" style="width:100%" data-lname="' + esc(l.id) + '" value="' + esc(l.name) + '" maxlength="30">' +
+          '<span style="display:flex;gap:6px"><button class="cal-btn ico" data-lref="' + esc(l.id) + '" title="Update now"' + (LBUSY ? ' disabled' : '') + '>&#8635;</button><button class="cal-btn dng ico" data-lrm="' + esc(l.id) + '" title="Unlink">&times;</button></span></div>' +
+          (lpick === l.id ? '<div class="cal-swatches" style="margin:6px 0 0 34px">' + COLORS.map(function (k) { return '<button class="cal-sw' + (k === l.color ? ' on' : '') + '" data-lcol="' + k + '" style="background:' + k + '"></button>'; }).join('') + '</div>' : '') +
+          '<div class="cal-lst">' + linkStatus(l) + '</div></div>';
+      }).join('') || '<div class="cal-empty">No linked calendars yet.</div>';
+      if (foc) { var fi = box.querySelector('[data-lname="' + foc + '"]'); if (fi) { fi.focus(); fi.setSelectionRange(fi.value.length, fi.value.length); } }
+    };
+    var lpick = null;
+    paintLinks();
+    $('#cs-links').addEventListener('input', function (e) { var l = link(e.target.dataset.lname); if (l) { l.name = e.target.value.slice(0, 30) || 'Linked calendar'; save(); } });
+    $('#cs-links').addEventListener('click', function (e) {
+      var b = e.target.closest('button'); if (!b) return; var d = b.dataset;
+      if (d.lpick) { lpick = lpick === d.lpick ? null : d.lpick; paintLinks(); }
+      else if (d.lcol) { var l = link(lpick); if (l) { l.color = d.lcol; save(); } lpick = null; paintLinks(); }
+      else if (d.lref) refreshLinks(d.lref);
+      else if (d.lrm) {
+        var l2 = link(d.lrm); if (!l2 || !confirm('Unlink "' + l2.name + '"? Its events disappear from here (nothing changes in Google or Apple).')) return;
+        S.links = S.links.filter(function (x) { return x !== l2; }); delete lcache()[l2.id]; lsave(); save(); relink(); paintLinks(); render();
+      }
+    });
+    $('#cs-ladd').onclick = function () {
+      var u = linkUrl($('#cs-lurl').value);
+      if (!u) { toast('Paste the calendar\'s link: it starts with https:// or webcal://'); $('#cs-lurl').focus(); return; }
+      if ((S.links || []).some(function (l) { return l.url === u; })) { toast('That calendar is already linked.'); return; }
+      if ((S.links || []).length >= 8) { toast('Up to 8 linked calendars.'); return; }
+      var l = { id: 'k' + uid(), url: u, name: linkName(u), color: COLORS[((S.links || []).length + 7) % COLORS.length] };
+      S.links = (S.links || []).concat([l]); save(); $('#cs-lurl').value = ''; paintLinks(); refreshLinks(l.id);
+    };
+    $('#cs-lurl').addEventListener('keydown', function (e) { if (e.key === 'Enter') { e.preventDefault(); $('#cs-ladd').click(); } });
     $('#cs-imp').onclick = function () { $('#cs-file').click(); };
     $('#cs-file').onchange = function () {
       var f = this.files[0]; if (!f) return; var r = new FileReader();
       r.onload = function () {
         try {
+          if (/BEGIN:VCALENDAR/i.test(r.result)) { var u0 = snapshot(), n0 = importIcs(r.result); save(); close(); render(); toast(n0 ? 'Brought in ' + n0 + ' event' + (n0 === 1 ? '' : 's') + ' (category "Imported").' : 'No new events in that file.', n0 ? u0 : null); return; }
           var d = JSON.parse(r.result), have = {}, n = 0, undo = snapshot();
           if (!d || !Array.isArray(d.events)) throw 0;
           S.events.forEach(function (e) { have[e.id] = 1; });
@@ -5192,7 +5556,7 @@ var CAL = (function () {
       cats.forEach(function (c) { c.name = c.name.trim() || 'Untitled'; });
       var ids = cats.map(function (c) { return c.id; });
       S.events.forEach(function (e) { if (ids.indexOf(e.cat) < 0) e.cat = ids[ids.length - 1]; });   // events of a removed category go to the last one
-      S.cats = cats; st.hidden = st.hidden.filter(function (h) { return ids.indexOf(h) >= 0; });
+      S.cats = cats; st.hidden = st.hidden.filter(function (h) { return ids.indexOf(h) >= 0 || /^link:/.test(h); });
       st.weekStart = +$('#cs-ws').value; st.view = $('#cs-view').value; st.weekends = $('#cs-we').checked; st.weekNums = $('#cs-wn').checked;
       st.compact = $('#cs-cp').checked; st.h24 = $('#cs-24').checked; st.holidays = $('#cs-hol').checked;
       save(); close(); render(); toast('Settings saved.');
@@ -5203,7 +5567,7 @@ var CAL = (function () {
   function shown() { var v = document.getElementById('view-cal'); return v && !v.hidden; }
   document.addEventListener('click', function (e) {
     if (!shown() || !e.target.closest) return;
-    if (ov && ov.contains(e.target)) { var c0 = e.target.closest('.cal-ev'); if (c0) editor(c0.dataset.ev, null, c0.dataset.st); return; }
+    if (ov && ov.contains(e.target)) { var c0 = e.target.closest('.cal-ev'); if (c0) openEv(c0.dataset.ev, c0.dataset.st); return; }
     var b = e.target.closest('[data-cal],[data-view],[data-ev],[data-more],[data-cat],[data-month],[data-day]'); if (!b || !document.getElementById('view-cal').contains(b)) return;
     var d = b.dataset;
     if (d.cal === 'prev') move(-1); else if (d.cal === 'next') move(1);
@@ -5211,7 +5575,7 @@ var CAL = (function () {
     else if (d.cal === 'new') editor(null, S.set.view === 'month' && ui.cur.slice(0, 7) !== todayS().slice(0, 7) ? ui.cur : todayS());
     else if (d.cal === 'settings') settings();
     else if (d.view) setView(d.view);
-    else if (d.ev) editor(d.ev, null, d.st);
+    else if (d.ev) openEv(d.ev, d.st);
     else if (d.more) dayList(d.more);
     else if (d.cat) { var h = S.set.hidden, i = h.indexOf(d.cat); if (i >= 0) h.splice(i, 1); else h.push(d.cat); save(); render(); }
     else if (d.month) { ui.cur = d.month; setView('month'); }
@@ -5257,13 +5621,14 @@ var CAL = (function () {
       var r = st0.apply(this, arguments), v = document.getElementById('view-cal'), t = document.getElementById('tab-cal');
       if (!v || !t) return r;
       v.hidden = which !== 'cal'; t.className = 'tab' + (which === 'cal' ? ' on' : '');
-      if (which === 'cal') { document.getElementById('view-games').hidden = true; load(); render(); }
+      if (which === 'cal') { document.getElementById('view-games').hidden = true; load(); relink(); render(); refreshLinks(false); }
       else close();
       return r;
     };
+    setInterval(function () { if (shown() && !document.hidden) refreshLinks(false); }, 60000);
     var tab = document.getElementById('tab-cal'); if (tab) tab.addEventListener('click', function () { showTab('cal'); });
   })();
-  return { get S() { return S; }, load: load, render: render, on: on, holidays: holidays, editor: editor, settings: settings, close: close, setView: setView, move: move, ui: ui };
+  return { get S() { return S; }, load: load, relink: relink, refreshLinks: refreshLinks, importIcs: importIcs, lcache: lcache, get LIDX() { return LIDX; }, linkUrl: linkUrl, render: render, on: on, holidays: holidays, editor: editor, settings: settings, close: close, setView: setView, move: move, ui: ui };
 })();
 window.__cal = CAL;
 </script>

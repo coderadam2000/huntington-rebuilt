@@ -103,13 +103,21 @@ up new ones by itself. The player pastes the calendar's private link: Google "Se
 iCloud public-calendar link (`webcal://` becomes `https://`). Browsers cannot read those links (CORS), so the server
 fetches them for the launcher.
 
-- Server: one request "read this .ics link" that fetches it (https only, Google and iCloud hosts only, size and time
-  limits), turns it into a short event list (title, start, end, all-day, repeat rule, location) and returns it.
-  Keep each link's answer cached about 10-15 minutes, so a class opening the tab at once makes one fetch. No database
-  reads or writes (egress). Rate-limit as a `soft` class. If it is a new socket reply type, add it to `LITE_OK`.
-- Launcher (not built yet): "Linked calendars" in the Calendar settings (link, name, colour, remove), linked events
-  read-only in their own colour, refreshed when the tab opens and every 15 minutes while it is open, last good copy
-  kept in `hgq:calendar` so it still shows offline. A new launcher suite for it.
+- **The launcher side is done** (branch `wip/calendar-sync`): the "Linked calendars" box in Calendar settings, the .ics
+  reader (`launcher/calendar/ics.js`: time zones, repeats, EXDATE, moved and cancelled repeats), read-only display,
+  refresh on opening the tab and every 15 minutes, the last good copy kept on the device (`hgcal:links`, not synced).
+  Test: `tools/tests/calendar.mjs` (no rig). It already works for links the browser may read; Google and iCloud need:
+- **Server, still to do:**
+  - Add `'calIcs'` to the `feats` list in the `welcome` message. The launcher sends nothing until it sees it
+    (`gv/core.js` `cal.ics`), so the current server never gets an unknown request.
+  - Handle `{ type: 'calIcs', url, rid }`: fetch the URL (https only; hosts `calendar.google.com`, `*.icloud.com`,
+    `outlook.live.com`, `outlook.office365.com`; at most 3 MB and 10 s; follow at most 3 redirects, same hosts) and reply
+    `{ type: 'calIcs', rid, ok: true, text }` or `{ type: 'calIcs', rid, ok: false, err }` (err `not-found` for 404/410).
+    The launcher reads the .ics itself, so the server just passes the text on.
+  - Cache each URL's answer 10-15 minutes in memory, so a class opening the tab together makes one fetch. No database
+    reads or writes (egress). Rate-limit as a `soft` class (a few per minute per account).
+  - Add `calIcs` to `LITE_OK` (040-hello) or launcher sessions never get the reply.
+  - Then add a rig suite (`tools/tests/gv-calendar.mjs`) that links a calendar through the real server.
 - One way only (Google/Apple to Taco). Two-way sync was ruled out: Google needs a verified OAuth app (school admins
   usually block it) and Apple has no web API.
 - School Google accounts often have the secret iCal link turned off; personal Gmail and iCloud work.
