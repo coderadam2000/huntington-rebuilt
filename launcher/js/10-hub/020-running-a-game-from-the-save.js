@@ -532,7 +532,7 @@ window.addEventListener('blur', function () {
   setTimeout(function () { var f = document.getElementById('gvapp'); if (document.activeElement === f && document.getElementById('view-chat').hidden) { f.blur(); window.focus(); } }, 0);
 });
 function showTab(which) {
-  if (guestMode && which !== 'games' && which !== 'ext' && which !== 'mp') { guestMode = false; onGvChange(); return; }   // those need an account: show the sign-in screen again
+  if (guestMode && which !== 'games' && which !== 'ext' && which !== 'mp' && which !== 'cal') { guestMode = false; onGvChange(); return; }   // those need an account: show the sign-in screen again
   if (!HG_REQUIRE_GRAPEVINE && which === 'chat' && !(window.HGGrapevine && window.HGGrapevine.me())) which = 'acct';
   var chat = which === 'chat';
   document.getElementById('view-games').hidden = which !== 'games';

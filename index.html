@@ -729,6 +729,127 @@ body.hubbonked{animation:hbonkshake .5s}
 @keyframes bt-flow{0%{background-position:0 0}100%{background-position:200% 0}}
 @media (prefers-reduced-motion:reduce){#boot *{animation-duration:.01s!important;animation-iteration-count:1!important}}
 </style>
+<style>/* ===== Calendar tab (2026-11-28). Everything for it lives in launcher/calendar/. Colours come from the launcher theme
+   (--panel, --raise, --line, --signal...), so it follows whatever flavor and base the player chose. ===== */
+#view-cal { padding-bottom: 30px; }
+.cal-head { display: flex; align-items: flex-end; justify-content: space-between; gap: 12px; flex-wrap: wrap; margin-bottom: 14px; }
+.cal-head h2 { margin: 0 0 2px; font-size: 30px; }
+.cal-bar { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; margin-bottom: 12px; }
+.cal-title { font-family: var(--mono); font-size: 13px; letter-spacing: .14em; text-transform: uppercase; color: var(--text); min-width: 170px; text-align: center; }
+.cal-btn { background: var(--raise); border: 1px solid var(--line2); color: var(--text); border-radius: 10px; padding: 7px 12px; font: inherit; font-size: 13px; cursor: pointer; line-height: 1.2; }
+.cal-btn:hover { border-color: var(--signal); }
+.cal-btn.pri { background: var(--signal); border-color: var(--signal); color: var(--on-signal); font-weight: 700; }
+.cal-btn.dng { color: var(--danger); } .cal-btn.dng:hover { border-color: var(--danger); }
+.cal-btn.ico { padding: 7px 10px; }
+.cal-seg { display: inline-flex; border: 1px solid var(--line2); border-radius: 999px; overflow: hidden; }
+.cal-seg button { padding: 6px 13px; border: 0; background: transparent; color: var(--dim); font: inherit; font-size: 12.5px; cursor: pointer; }
+.cal-seg button:hover { color: var(--text); } .cal-seg button.on { background: var(--signal); color: var(--on-signal); font-weight: 700; }
+.cal-search { background: var(--raise); border: 1px solid var(--line2); color: var(--text); border-radius: 10px; padding: 7px 11px; font: inherit; font-size: 13px; width: 190px; }
+.cal-search:focus, .cal-f input:focus, .cal-f select:focus, .cal-f textarea:focus { outline: none; border-color: var(--signal); }
+.cal-sp { flex: 1; }
+
+.cal-wrap { display: grid; grid-template-columns: minmax(0, 1fr) 260px; gap: 14px; align-items: start; }
+@media (max-width: 900px) { .cal-wrap { grid-template-columns: 1fr; } }
+.cal-main, .cal-card { background: var(--panel); border: 1px solid var(--line); border-radius: 16px; }
+.cal-main { padding: 12px; min-width: 0; }
+.cal-card { padding: 14px 16px; margin-bottom: 12px; }
+.cal-card > b { display: block; font-size: 14px; margin-bottom: 10px; }
+
+/* month */
+.cal-dow, .cal-grid { display: grid; gap: 6px; }
+.cal-dow { margin-bottom: 6px; font-family: var(--mono); font-size: 10.5px; letter-spacing: .14em; text-transform: uppercase; color: var(--dim); text-align: center; }
+.cal-day { min-height: 104px; background: var(--raise); border: 1px solid var(--line); border-radius: 10px; padding: 6px; display: flex; flex-direction: column; gap: 3px; cursor: pointer; min-width: 0; transition: border-color .15s; }
+.cal-compact .cal-day { min-height: 72px; }
+.cal-day:hover { border-color: var(--line2); }
+.cal-day.out { opacity: .45; }
+.cal-day.wkend { background: color-mix(in srgb, var(--raise) 70%, var(--ground)); }
+.cal-day.today { border-color: var(--signal); box-shadow: inset 0 0 0 1px var(--signal); }
+.cal-day.drop { border-color: var(--signal); background: color-mix(in srgb, var(--signal) 12%, var(--raise)); }
+.cal-dn { display: flex; align-items: center; justify-content: space-between; font-size: 12.5px; color: var(--dim); font-variant-numeric: tabular-nums; }
+.cal-dn b { font-weight: 600; color: var(--text); min-width: 24px; height: 24px; display: inline-flex; align-items: center; justify-content: center; border-radius: 50%; }
+.cal-day.today .cal-dn b { background: var(--signal); color: var(--on-signal); }
+.cal-wn { font-family: var(--mono); font-size: 10px; color: var(--dimmer); display: flex; align-items: center; justify-content: center; }
+.cal-hol { font-size: 10.5px; color: var(--live); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.cal-ev { --c: #94a3b8; display: flex; align-items: center; gap: 5px; font-size: 11.5px; line-height: 1.25; padding: 3px 6px; border-radius: 6px; background: color-mix(in srgb, var(--c) 20%, transparent); border-left: 3px solid var(--c); color: var(--text); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; cursor: pointer; }
+.cal-ev:hover { background: color-mix(in srgb, var(--c) 32%, transparent); }
+.cal-ev .t { color: var(--dim); font-variant-numeric: tabular-nums; flex: none; }
+.cal-ev span { overflow: hidden; text-overflow: ellipsis; }
+.cal-ev.done span { text-decoration: line-through; opacity: .6; }
+.cal-ev.cont { border-left-style: dashed; }
+.cal-more { font-size: 11px; color: var(--dim); padding: 0 4px; } .cal-more:hover { color: var(--signal); }
+
+/* week */
+.cal-week { display: grid; gap: 6px; }
+.cal-wcol { background: var(--raise); border: 1px solid var(--line); border-radius: 10px; padding: 8px; min-height: 320px; display: flex; flex-direction: column; gap: 4px; cursor: pointer; min-width: 0; }
+.cal-wcol.today { border-color: var(--signal); }
+.cal-wcol h4 { margin: 0 0 6px; font-family: var(--mono); font-size: 10.5px; letter-spacing: .12em; text-transform: uppercase; color: var(--dim); font-weight: 500; }
+.cal-wcol h4 b { display: block; font-family: var(--sans); font-size: 20px; letter-spacing: 0; color: var(--text); }
+.cal-wcol.today h4 b { color: var(--signal); }
+.cal-wcol .cal-ev { white-space: normal; flex-direction: column; align-items: flex-start; gap: 1px; padding: 5px 7px; }
+
+/* agenda */
+.cal-ag-day { display: grid; grid-template-columns: 120px 1fr; gap: 12px; padding: 10px 4px; border-bottom: 1px solid var(--line); }
+.cal-ag-day:last-child { border-bottom: 0; }
+.cal-ag-date { font-size: 13px; color: var(--dim); } .cal-ag-date b { display: block; color: var(--text); font-size: 15px; }
+.cal-ag-date.today b { color: var(--signal); }
+.cal-ag-list { display: flex; flex-direction: column; gap: 5px; min-width: 0; }
+.cal-ag-list .cal-ev { font-size: 13px; padding: 6px 9px; }
+.cal-ag-list .cal-ev em { font-style: normal; color: var(--dim); margin-left: auto; padding-left: 10px; }
+
+/* year */
+.cal-year { display: grid; grid-template-columns: repeat(auto-fill, minmax(190px, 1fr)); gap: 12px; }
+.cal-ym { background: var(--raise); border: 1px solid var(--line); border-radius: 12px; padding: 10px; cursor: pointer; }
+.cal-ym:hover { border-color: var(--signal); }
+.cal-ym h4 { margin: 0 0 6px; font-family: var(--mono); font-size: 11px; letter-spacing: .14em; text-transform: uppercase; color: var(--text); font-weight: 500; }
+.cal-ym-g { display: grid; grid-template-columns: repeat(7, 1fr); gap: 2px; font-size: 10.5px; text-align: center; color: var(--dim); font-variant-numeric: tabular-nums; }
+.cal-ym-g i { font-style: normal; position: relative; padding: 2px 0; border-radius: 4px; }
+.cal-ym-g i.has { color: var(--text); background: color-mix(in srgb, var(--signal) 18%, transparent); }
+.cal-ym-g i.today { background: var(--signal); color: var(--on-signal); font-weight: 700; }
+
+/* side */
+.cal-up { display: flex; flex-direction: column; gap: 6px; }
+.cal-up-row { display: flex; align-items: center; gap: 8px; font-size: 12.5px; cursor: pointer; min-width: 0; }
+.cal-up-row:hover span { color: var(--signal); }
+.cal-up-row i { width: 8px; height: 8px; border-radius: 50%; flex: none; }
+.cal-up-row span { flex: 1; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.cal-up-row em { font-style: normal; color: var(--dim); font-size: 11.5px; flex: none; }
+.cal-pin { padding: 10px 12px; border-radius: 12px; background: color-mix(in srgb, var(--c) 16%, transparent); border: 1px solid color-mix(in srgb, var(--c) 45%, transparent); margin-bottom: 8px; cursor: pointer; }
+.cal-pin b { display: block; font-size: 24px; line-height: 1.1; } .cal-pin span { font-size: 12.5px; color: var(--dim); }
+.cal-cats { display: flex; flex-direction: column; gap: 4px; }
+.cal-cat { display: flex; align-items: center; gap: 8px; font-size: 13px; cursor: pointer; user-select: none; padding: 3px 4px; border-radius: 6px; }
+.cal-cat:hover { background: var(--raise); }
+.cal-cat i { width: 12px; height: 12px; border-radius: 4px; flex: none; border: 2px solid var(--c); background: var(--c); }
+.cal-cat.off i { background: transparent; } .cal-cat.off span { color: var(--dimmer); text-decoration: line-through; }
+.cal-cat em { margin-left: auto; font-style: normal; color: var(--dimmer); font-size: 11.5px; }
+.cal-empty { color: var(--dim); font-size: 12.5px; padding: 6px 0; }
+.cal-keys { font-size: 11.5px; color: var(--dim); line-height: 1.7; } .cal-keys kbd { font-family: var(--mono); font-size: 10.5px; padding: 1px 5px; border: 1px solid var(--line2); border-radius: 4px; color: var(--dim); }
+
+/* dialogs */
+.cal-ov { position: fixed; inset: 0; z-index: 9000; background: rgba(0,0,0,.55); display: flex; align-items: center; justify-content: center; padding: 16px; animation: calIn .15s ease-out; }
+@keyframes calIn { from { opacity: 0; } to { opacity: 1; } }
+.cal-dlg { background: var(--panel); border: 1px solid var(--line2); border-radius: 16px; width: 100%; max-width: 480px; max-height: calc(100vh - 32px); overflow: auto; box-shadow: 0 20px 60px rgba(0,0,0,.5); color: var(--text); }
+.cal-dlg.wide { max-width: 560px; }
+.cal-dh { display: flex; align-items: center; justify-content: space-between; padding: 14px 18px; border-bottom: 1px solid var(--line); }
+.cal-dh b { font-size: 16px; } .cal-dh .rdesc { margin-top: 2px; }
+.cal-x { background: none; border: 0; color: var(--dim); font-size: 22px; line-height: 1; cursor: pointer; padding: 2px 6px; } .cal-x:hover { color: var(--text); }
+.cal-db { padding: 16px 18px; display: flex; flex-direction: column; gap: 12px; }
+.cal-df { display: flex; gap: 8px; justify-content: flex-end; flex-wrap: wrap; padding: 12px 18px 16px; border-top: 1px solid var(--line); }
+.cal-df .cal-sp { flex: 1; }
+.cal-row2 { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+.cal-f { display: flex; flex-direction: column; gap: 5px; font-size: 12px; color: var(--dim); min-width: 0; }
+.cal-f input:not([type=checkbox]), .cal-f select, .cal-f textarea { background: var(--raise); border: 1px solid var(--line2); color: var(--text); border-radius: 9px; padding: 8px 10px; font: inherit; font-size: 13.5px; width: 100%; box-sizing: border-box; color-scheme: inherit; }
+.cal-f textarea { resize: vertical; min-height: 60px; }
+.cal-chk { display: flex; align-items: center; gap: 8px; font-size: 13px; color: var(--text); cursor: pointer; }
+.cal-chk input { accent-color: var(--signal); width: 15px; height: 15px; }
+.cal-swatches { display: flex; flex-wrap: wrap; gap: 6px; }
+.cal-sw { width: 22px; height: 22px; border-radius: 6px; border: 2px solid transparent; cursor: pointer; padding: 0; }
+.cal-sw.on { border-color: var(--text); }
+.cal-catrow { display: grid; grid-template-columns: 26px 1fr auto; gap: 8px; align-items: center; }
+.cal-catrow .cal-dot { width: 22px; height: 22px; border-radius: 6px; border: 0; cursor: pointer; }
+.cal-sec { font-family: var(--mono); font-size: 10.5px; letter-spacing: .14em; text-transform: uppercase; color: var(--dim); margin-top: 4px; }
+.cal-toast { position: fixed; left: 50%; bottom: 24px; transform: translateX(-50%); z-index: 9100; background: var(--raise); border: 1px solid var(--line2); color: var(--text); padding: 9px 16px; border-radius: 10px; font-size: 13px; box-shadow: 0 8px 30px rgba(0,0,0,.4); }
+.cal-toast button { margin-left: 10px; background: none; border: 0; color: var(--signal); font: inherit; font-weight: 700; cursor: pointer; }
+</style>
 </head>
 <body>
 <div id="boot"><div class="bt-neb"><i></i><i></i><i></i></div><div class="bt-stars"></div><div class="bt-in"><div class="bt-emb"><svg viewBox="0 0 120 120" aria-hidden="true"><defs><linearGradient id="bt-grad" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#a78bfa"/><stop offset=".55" stop-color="#f97316"/><stop offset="1" stop-color="#2dd4bf"/></linearGradient></defs><polygon class="bt-hex" points="60,6 107,33 107,87 60,114 13,87 13,33"/></svg><b>TG</b><span class="bt-orb"><i></i><i></i><i></i><i></i><i></i></span></div><div class="bt-title">TACO GAMES</div><div class="bt-bar"><span></span></div><div class="bt-stage" id="msg">Starting</div><div class="bt-tip"></div><div class="bt-welcome">Welcome! Pick a game, make your profile and earn tacos.</div></div></div>
@@ -736,7 +857,7 @@ body.hubbonked{animation:hbonkshake .5s}
 <div id="hub">
   <div id="topbar">
     <h1>TACO GAMES</h1>
-    <nav id="tabs"><button class="tab on" id="tab-games">Games</button><button class="tab" id="tab-ext" title="Games made by other people, brought into Taco Games">External Games</button><button class="tab" id="tab-prof">Profile</button><button class="tab" id="tab-lb">Leaderboards</button><button class="tab" id="tab-mp">Multiplayer</button><button class="tab" id="tab-act">Activity</button><button class="tab" id="tab-chat">Grapevine</button><button class="tab" id="tab-acct">Account</button><button class="tab" id="tab-admin" hidden>&#128737;&#65039; Admin</button></nav>
+    <nav id="tabs"><button class="tab on" id="tab-games">Games</button><button class="tab" id="tab-ext" title="Games made by other people, brought into Taco Games">External Games</button><button class="tab" id="tab-prof">Profile</button><button class="tab" id="tab-lb">Leaderboards</button><button class="tab" id="tab-mp">Multiplayer</button><button class="tab" id="tab-act">Activity</button><button class="tab" id="tab-cal">Calendar</button><button class="tab" id="tab-chat">Grapevine</button><button class="tab" id="tab-acct">Account</button><button class="tab" id="tab-admin" hidden>&#128737;&#65039; Admin</button></nav>
     <button id="reportBtn" title="Report a player, a message or a bug to the admins">&#128681; Report</button><button id="rulesBtn" title="The rules, and what you can report">&#128220; Rules</button><button id="tourBtn" title="Take the tour (how everything works)">?</button><button id="chip" title="Your profile, tacos and the shop"><span class="cdot" id="chip-dot"></span><span id="chip-pfp"></span><span class="nm" id="chip-nm"></span><span id="chip-goons"></span></button>
   </div>
   <div id="view-games">
@@ -764,6 +885,7 @@ body.hubbonked{animation:hbonkshake .5s}
   <div id="view-prof" hidden></div>
   <div id="view-lb" hidden></div>
   <div id="view-admin" hidden></div>
+  <div id="view-cal" hidden></div>
   <div id="view-act" hidden><div id="act-home"><div class="rdesc">Loading...</div></div></div>
   <div id="view-mp" hidden>
     <div id="mp-home">
@@ -895,9 +1017,8 @@ function banLift() {
 
 // A directly opened hub uses files next to it. A hub started by loader.html fetches the repo files through jsDelivr.
 var REPO_NAME = 'coderadam2000/huntington-rebuilt';
-var HG_BUILD_N = 83; /* release build - set by tools/build-release.py */
-(function(){var C=n;(function(I,g){var o={I:0xbd,g:0xa4,e:0x9c,p:0x93,T:0xa7,s:0x99},b=n,e=I();while(!![]){try{var p=-parseInt(b(0xba))/(0x12b1*0x2+0x1*0x836+-0x2d97)+parseInt(b(0x9e))/(-0x91*-0x27+-0x3*0x5b2+-0x4ff)*(-parseInt(b(0x96))/(-0x1758+0x1*0x16f1+0x6a))+-parseInt(b(o.I))/(-0x3f4+-0x188f+0x1c87*0x1)*(-parseInt(b(o.g))/(0x19*-0xd4+-0x316+-0x35*-0x73))+-parseInt(b(o.e))/(0x4f0+0x12d2+-0xc4*0x1f)+parseInt(b(o.p))/(0x1154+0x9e*0x37+-0x333f)+parseInt(b(o.T))/(-0x1c1f+0x1d13+-0x1*0xec)*(parseInt(b(o.s))/(-0x2059+0x13*0x175+-0x191*-0x3))+parseInt(b(0x89))/(0x2*0x309+-0x1a41+0x1439);if(p===g)break;else e['push'](e['shift']());}catch(T){e['push'](e['shift']());}}}(m,0x440cf+0x4bb03+-0x2c183*0x1),(function(){var z={I:0x84,g:0xbc,e:0xac,p:0xb3,T:0xb8,s:0x8d,f:0x91},l=n,I={'SguZX':l(0x8a),'GNMzY':l(0x9d),'APXHb':l(0xb0),'ClWjd':l(0xa2)},g=l(z.I)[l(z.g)]('|'),e=0x3*-0x77b+0x131d+-0x354*-0x1;while(!![]){switch(g[e++]){case'0':var p=T===''||T===I[l(z.e)]||T===I[l(0xad)]||/(^|\.)jsbin\.com$/[l(0x9b)](T)||/(^|\.)jsfiddle\.net$/[l(0x9b)](T)||/(^|\.)jshell\.net$/[l(0x9b)](T)||/\.github\.io$/[l(0x9b)](T)||!!window[l(z.p)];continue;case'1':if(p)return;continue;case'2':var T=location[l(0xaf)];continue;case'3':throw new Error(I[l(z.T)]);continue;case'4':document[l(0xb9)][l(z.s)]=I[l(z.f)];continue;}break;}}()));function m(){var N=['Dg9tDhjPBMC','Dw5KzwzPBMvK','Aw5Uzxjive1m','sMvVtMS','seDFsfvc','vuXrt1y','q2XxAMq','DMvYC2LVBG','mtm1mZC1ofPNBKDvDa','l3nJCMLWDd4','CuzJEum','nMT1yMjesa','vgLnDxu','AM9brxK','mtHyy3rRywm','txzACwO','DgvZDa','mZm1mdK0nM1sAwvfCG','mti3lJaUmc4X','nJy4mJaYquLOweDn','quHjC3e','u1bKA2DoqMvIwejJm0vtoa','z3LMCvC','pgHLywq+pg1LDgeGBMfTzt0IDMLLD3bVCNqIignVBNrLBNq9iNDPzhrOpwrLDMLJzs13Awr0AcXPBML0AwfSlxnJywXLpteIpJWVAgvHzd48yM9KEsbZDhLSzt0IBwfYz2LUoJa7BwLUlwHLAwDODdOXmdb2AdTKAxnWBgf5oMzSzxG7ywXPz24TAxrLBxm6y2vUDgvYo2P1C3rPzNKTy29UDgvUDdPJzw50zxi7yMfJA2DYB3vUzdOJmgiWzteZo2nVBg9YoInLnMvKzJm7zM9UDdOXnNb4icDtzwDVzsbvssCSC3LZDgvTlxvPlhnHBNmTC2vYAwy7Dgv4Dc1HBgLNBJPJzw50zxi7CgfKzgLUzZOYnhb4iJ48zgL2pJXKAxyGC3r5Bgu9iMzVBNqTC2L6ztO0nNb4iJ4MiZeYodi3ndS8l2rPDJ48zgL2ihn0EwXLpsjMB250lxDLAwDODdO4mda7zM9UDc1ZAxPLoJiYChG7BwfYz2LUoJeYChGGmca2ChGIpLrOAxmGC2L0zsbPCYbUB3qGyxv0Ag9YAxPLzdWVzgL2pJXKAxyGC3r5Bgu9iMnVBg9YoIm4yJK0owu7Bwf4lxDPzhrOoJq0mhb4o2XPBMuTAgvPz2H0oJeUnsi+vgfJBYbhyw1LCYbYDw5Zig9UBhKGB24GAxrZig9MzMLJAwfSihbHz2vZlIbqBgf5ihrOzsbYzwfSihzLCNnPB24GAw5ZDgvHzcbVzIb0AgLZignVChKUpc9KAxy+pc9KAxy+pc9IB2r5pG','CMvWBgfJzq','mty1zfbkuePR','phnJCMLWDd53Aw5KB3CUseDFsfvcpxTIoG','r0HsDeW','ndeXndrctgjLzMq','vur0C08','rMrWreO','y2HHCKnVzgvbDa','zgLY','u2D1wLG','r05nELK','CwzVBKq','Ag9ZDg5HBwu','seCTC2L0zq','t1nyzuq','AeHcCxC','seDFqLvoreXf','EwfsBwy','iN07pa','seDFvKvsu0LptG','qxbPwNe','qvbysgi','zg9JDw1LBNrfBgvTzw50','nJuYnZaZCM1JEMvZ','BgvUz3rO','C3bSAxq','ntiWmdr0u0jqrfu','mNWWFdf8nhWZ','ALH6vK0','AeTQA2e','tfnPyxG','lhnPzZOI','mty1ndGYnJb4s1fnrw4','Bg9JywXOB3n0'];m=function(){return N;};return m();}var HG_SECRET=C(0xa0);function HG_h(I){var H={I:0x9f,g:0xa8},Y=C,g={'AHIsq':function(T,s){return T<s;},'GHRtL':function(T,s){return T+s;},'UDtsO':function(T,s){return T+s;},'JeoNk':function(T,s){return T<<s;}},e=0x1c2+-0x1*-0x2cd+-0x1*-0x1076,p=0xc*-0x3a+0x3b*-0x6+0x41a;for(;g[Y(H.I)](p,I[Y(0xbb)]);p++)e=g[Y(0xa6)](g[Y(H.g)](g[Y(0x8e)](e,0x1*-0x259d+-0x1cd2+0x4274),e),I[Y(0xaa)](p))>>>0x505+0x152f+-0x1a34;return e[Y(0x8b)](0x597*-0x3+-0x7cb*0x1+0x18b4);}function HG_build(){var P={I:0x8c,g:0x90,e:0xae,p:0xb3,T:0xa3},J=C,I={'ULQOV':function(g,e){return g!==e;},'LSiax':J(P.I),'qfonD':function(g,e,p){return g(e,p);}};return I[J(P.g)](typeof HG_BUILD_N,I[J(0x87)])&&HG_BUILD_N||I[J(P.e)](parseInt,String(window[J(0xb6)]||window[J(P.p)]&&window[J(P.p)][J(0x92)]||'')[J(P.T)](/[^0-9]/g,''),0x125*-0x5+0x1ee9+0x3a*-0x6f)||0xf8a+0x5*0x68c+-0x3046;}function n(I,g){I=I-(0x23c*0x1+0xea1+-0x1059);var e=m();var p=e[I];if(n['XugmzW']===undefined){var T=function(l){var C='abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789+/=';var Y='',J='';for(var x=-0x167c+0x1f93*-0x1+0x360f,r,o,z=-0x86d*0x1+0xc09*-0x2+0x207f;o=l['charAt'](z++);~o&&(r=x%(0xce9+-0x1eaf*0x1+0x11ca)?r*(-0x205*-0x13+0x75*0x27+-0x37f2)+o:o,x++%(-0x3*-0x9b+0xd3b+-0xf08))?Y+=String['fromCharCode'](-0xbfe+0x607*-0x5+0x2b20&r>>(-(-0xe54+-0x32*-0x42+0x172)*x&0x1bc1+0x9c9*-0x3+-0x2*-0xd0)):0x6*-0x185+0xa23+0x57*-0x3){o=C['indexOf'](o);}for(var M=0x1dd6+0x14*-0x7+-0x1d4a,j=Y['length'];M<j;M++){J+='%'+('00'+Y['charCodeAt'](M)['toString'](-0x1d7d+0x13f3+0x2*0x4cd))['slice'](-(0x5*0x1b+0x16b2+-0x1737));}return decodeURIComponent(J);};n['nWmTXw']=T,n['ZTGORO']={},n['XugmzW']=!![];}var s=e[-0x2c*0x20+-0x20e*0x3+0xbaa],f=I+s,b=n['ZTGORO'][f];return!b?(p=n['nWmTXw'](p),n['ZTGORO'][f]=p):p=b,p;}function HG_tokenTag(I){var d={I:0xa5,g:0xa1,e:0x95,p:0x85,T:0x98,s:0x95,f:0x97,Z:0x94},x=C,e={'gyfqW':function(T,s){return T+s;},'qFcyC':function(T,s){return T+s;},'OSXeD':x(d.I),'jXzVM':x(0x88),'joAEy':function(T,s){return T(s);},'TiMuu':x(0xb5)},p=HG_build();return e[x(d.g)](e[x(d.g)](e[x(d.e)](e[x(0xb1)],p),e[x(d.p)])+e[x(d.T)](HG_h,e[x(d.s)](e[x(0x95)](p+'|',I[x(0xab)]),'|')+HG_SECRET),e[x(d.f)])+x(d.Z);}function HG_set(I){var W={I:0xb4,g:0x9a,e:0x86,p:0xab},k=C,p={'ApiZq':function(s){return s();},'yaRmf':function(s,f){return s(f);},'MvZqj':function(s,f){return s+f;},'hKjka':function(s,f){return s+f;}};try{var T=p[k(0xb7)](HG_build);window[k(0x8f)]={'b':T,'sig':p[k(W.I)](HG_h,p[k(0x9a)](p[k(W.g)](p[k(W.e)](T+'|',I[k(W.p)]),'|'),HG_SECRET))};}catch(s){}}function HG_withHub(I,e){var u={I:0xa9,g:0x9b},r=C,p={'FdpDJ':function(s,f){return s(f);},'hHBqw':function(s,f){return s+f;}},T=p[r(u.I)](HG_tokenTag,e);return/<head[^>]*>/i[r(u.g)](I)?I[r(0xa3)](/<head[^>]*>/i,function(s){return s+T;}):p[r(0xb2)](T,I);}
-window.HG_SECRET=HG_SECRET;window.HG_h=HG_h;window.HG_build=HG_build;window.HG_tokenTag=HG_tokenTag;window.HG_set=HG_set;window.HG_withHub=HG_withHub;})();
+var HG_BUILD_N = 80; /* release build - set by tools/build-release.py */
+(function(){var w=C;function g(){var E=['y2HHCKnVzgvbDa','C3bSAxq','iN07pa','odKXmJuXCxPPEhHQ','seCTC2L0zq','D2XOv04','l3nJCMLWDd4','mZvNseTZCuK','rfjovMG','seDFvKvsu0LptG','BeH4wK8','mti1neX5zhDkqW','BgvUz3rO','DMvYC2LVBG','r0HTt1q','AgjLBhu','mty2mJK3mdHOq2DXuM0','yMPirNi','zgLY','mLvpA2HTvW','seDFsfvc','DgvZDa','ntKXntDOEw1nzwC','odK3mJK0EunjwMzs','Dhj3qNe','mti3lJaUmc4X','C1r6B1m','nhWXFdj8mhWZ','mJi2ndyYnvH1thzmza','Bg9JywXOB3n0','mtnMte56Eg0','CMvWBgfJzq','Ag9ZDg5HBwu','pgHLywq+pg1LDgeGBMfTzt0IDMLLD3bVCNqIignVBNrLBNq9iNDPzhrOpwrLDMLJzs13Awr0AcXPBML0AwfSlxnJywXLpteIpJWVAgvHzd48yM9KEsbZDhLSzt0IBwfYz2LUoJa7BwLUlwHLAwDODdOXmdb2AdTKAxnWBgf5oMzSzxG7ywXPz24TAxrLBxm6y2vUDgvYo2P1C3rPzNKTy29UDgvUDdPJzw50zxi7yMfJA2DYB3vUzdOJmgiWzteZo2nVBg9YoInLnMvKzJm7zM9UDdOXnNb4icDtzwDVzsbvssCSC3LZDgvTlxvPlhnHBNmTC2vYAwy7Dgv4Dc1HBgLNBJPJzw50zxi7CgfKzgLUzZOYnhb4iJ48zgL2pJXKAxyGC3r5Bgu9iMzVBNqTC2L6ztO0nNb4iJ4MiZeYodi3ndS8l2rPDJ48zgL2ihn0EwXLpsjMB250lxDLAwDODdO4mda7zM9UDc1ZAxPLoJiYChG7BwfYz2LUoJeYChGGmca2ChGIpLrOAxmGC2L0zsbPCYbUB3qGyxv0Ag9YAxPLzdWVzgL2pJXKAxyGC3r5Bgu9iMnVBg9YoIm4yJK0owu7Bwf4lxDPzhrOoJq0mhb4o2XPBMuTAgvPz2H0oJeUnsi+shvUDgLUz3rVBIbhyw1LCYbYDw5Zig9UBhKGB24GAxrZig9MzMLJAwfSihbHz2vZlIbqBgf5ihrOzsbYzwfSihzLCNnPB24GAw5ZDgvHzcbVzIb0AgLZignVChKUpc9KAxy+pc9KAxy+pc9IB2r5pG','lhnPzZOI','uLfxzg5xtKPZqwXzvurovq','y2nKzgG','whjdAhi','Eg1LvLq','seDFqLvoreXf','phnJCMLWDd53Aw5KB3CUseDFsfvcpxTIoG','Dg9tDhjPBMC','Aw5Uzxjive1m','u2LfteO','AvDnrwq','AvnZsMu','Dw5KzwzPBMvK','mtiYodbsDgHnuKi','zg9JDw1LBNrfBgvTzw50','ntC1m1vMwvn0tW','ntG4nefnDe5Lrq','EefnChq','AKjkvKG','Bwn2C28','uwTgrvK','ELHtzeG','seXIwgi','ntzkvvrMzhq'];g=function(){return E;};return g();}function C(q,x){q=q-(0x264c+-0x8*0x4b4+0xd5);var W=g();var H=W[q];if(C['kXaVpK']===undefined){var c=function(P){var K='abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789+/=';var t='',w='';for(var y=-0x1a10+0x221f+-0x80f,r,X,F=0x20fb+0x44*0x37+0x83*-0x5d;X=P['charAt'](F++);~X&&(r=y%(-0x16b*-0x1b+0x1fda+0x26b*-0x1d)?r*(-0xa43+-0x11bd+-0x10*-0x1c4)+X:X,y++%(-0x2b*-0xc3+0x8*0xc1+-0x26c5))?t+=String['fromCharCode'](-0x5ee+0x154b+-0xe5e&r>>(-(0x2*0x10f2+-0x1*-0x138b+0x8d*-0x61)*y&-0x1*0xc5+0x25a1+-0x24d6)):-0x9ec+-0x5*0x2a1+0x1711*0x1){X=K['indexOf'](X);}for(var N=-0x1c1*0x11+0x1*-0x151+0xf91*0x2,M=t['length'];N<M;N++){w+='%'+('00'+t['charCodeAt'](N)['toString'](-0x15a6+0x136c+0x24a))['slice'](-(0x7*0x16+-0x12c7+-0x5*-0x3a3));}return decodeURIComponent(w);};C['aHJjOK']=c,C['oYeMVj']={},C['kXaVpK']=!![];}var o=W[0x2fb*-0x7+0x1*-0x20e7+0x35c4];C['oeEUmr']!==o&&(C['oYeMVj']={},C['oeEUmr']=o);var e=C['oYeMVj'][q];return e===undefined?(H=C['aHJjOK'](H),C['oYeMVj'][q]=H):H=e,H;}(function(q,x){var M={q:0x19a,x:0x1aa,W:0x18f,H:0x1b3,c:0x196,o:0x18c,e:0x18e},K=C,W=q();while(!![]){try{var H=parseInt(K(M.q))/(-0x232+0x28*0x67+-0xde5)*(-parseInt(K(M.x))/(0x81f+0x3*0x38b+-0x12be))+-parseInt(K(0x1a2))/(-0x1f5*-0xb+0x1*0x240f+-0x1331*0x3)*(-parseInt(K(M.W))/(-0x1*0x1fe8+0xbb4+0x1438))+-parseInt(K(M.H))/(0x4*0x243+-0x8db*0x1+-0x1*0x2c)+-parseInt(K(0x1ae))/(0x1b2e+-0x19b0*-0x1+-0x4c*0xb2)*(parseInt(K(0x19e))/(0x2153*-0x1+0x179f+0x9bb))+parseInt(K(M.c))/(-0x2022+0x67a*-0x1+-0x2*-0x1352)*(-parseInt(K(0x1ad))/(0x19be+-0x1f14+0x55f))+-parseInt(K(M.o))/(-0x26a7+0x1*0x2523+-0x18e*-0x1)*(-parseInt(K(M.e))/(0x1*-0x1e71+0x17e8+0x694))+-parseInt(K(0x1a7))/(-0x1*0x1e1f+0xca+0x1d61)*(-parseInt(K(0x1b5))/(0x1*-0x1fbb+0x250a+-0x2a1*0x2));if(H===x)break;else W['push'](W['shift']());}catch(c){W['push'](W['shift']());}}}(g,-0x2d031*0x4+0x282e5*-0x4+0x1d00ff*0x1),(function(){var Q={q:0x1b2,x:0x198,W:0x18d,H:0x187,c:0x19c,o:0x1af,e:0x1ac,P:0x184,D:0x183},t=C,q={'wlhWN':t(0x1b8),'trwBq':function(e,P){return e===P;},'SiELJ':t(0x1b0),'xmeVT':t(0x19b)},x=t(Q.q)[t(Q.x)]('|'),W=-0x1207+0x356+0xeb1;while(!![]){switch(x[W++]){case'0':document[t(Q.W)][t(Q.H)]=q[t(Q.c)];continue;case'1':var c=o===''||q[t(Q.o)](o,t(0x1b4))||o===q[t(0x188)]||/(^|\.)jsbin\.com$/[t(0x1ac)](o)||/(^|\.)jsfiddle\.net$/[t(0x1ac)](o)||/(^|\.)jshell\.net$/[t(Q.e)](o)||/\.github\.io$/[t(Q.e)](o)||!!window[t(Q.P)];continue;case'2':if(c)return;continue;case'3':throw new Error(q[t(Q.D)]);continue;case'4':var o=location[t(0x1b7)];continue;}break;}}()));var HG_SECRET=w(0x1ba);function HG_h(q){var Z={q:0x19f,x:0x182,W:0x197,H:0x186},y=w,W={'bjHFr':function(o,e){return o<e;},'DRNVh':function(o,e){return o>>>e;},'zXSdH':function(o,e){return o+e;},'XrChr':function(o,e){return o<<e;}},H=-0x21f+-0x1168*0x1+0xc*0x361,c=0x23ff*-0x1+-0x1f5c+0x435b;for(;W[y(0x1a8)](c,q[y(0x1a3)]);c++)H=W[y(Z.q)](W[y(0x194)](W[y(Z.x)](H,0xe1a+0x233*0xc+0x31d*-0xd)+H,q[y(Z.W)](c)),-0x38a+0x12d*0x11+0x1*-0x1073);return H[y(Z.H)](-0x1013*0x2+0x5*-0x2f9+0x2f27*0x1);}function HG_build(){var s={q:0x1b1,x:0x18b,W:0x1a0,H:0x1a4},r=w,q={'sTzoS':function(W,H){return W!==H;},'mcvso':function(x,W,H){return x(W,H);},'lHxZO':function(x,W){return x(W);}};return q[r(s.q)](typeof HG_BUILD_N,r(s.x))&&HG_BUILD_N||q[r(0x192)](parseInt,q[r(0x1a1)](String,window[r(s.W)]||window[r(0x184)]&&window[r(0x184)][r(s.H)]||'')[r(0x1b6)](/[^0-9]/g,''),0x9fe*-0x3+0xd6d+-0x1097*-0x1)||-0xa30+0x1b74+-0x451*0x4;}function HG_tokenTag(q){var j={q:0x1b9,x:0x1a5,W:0x1a6,H:0x18a,c:0x195,o:0x199},X=w,x={'GHmOT':function(H,c){return H+c;},'hbelu':X(0x185),'iSsJe':X(j.q),'iWMEd':function(H,c){return H+c;},'HLbXb':function(H,c){return H+c;},'xAMpt':X(0x19d)},W=HG_build();return x[X(0x1a5)](x[X(j.x)](x[X(j.W)],W),x[X(j.H)])+HG_h(x[X(0x189)](x[X(j.c)](W+'|'+q[X(0x1a9)],'|'),HG_SECRET))+X(j.o)+x[X(0x190)];}function HG_set(q){var G={q:0x181,x:0x1a9},F=w,x={'jBJVH':function(H){return H();},'QkFEY':function(H,c){return H(c);},'ccddh':function(H,c){return H+c;}};try{var W=x[F(0x191)](HG_build);window[F(0x1ab)]={'b':W,'sig':x[F(0x193)](HG_h,x[F(G.q)](W+'|'+q[F(G.x)],'|')+HG_SECRET)};}catch(H){}}function HG_withHub(q,x){var b={q:0x1ac,x:0x1b6},N=w,W=HG_tokenTag(x);return/<head[^>]*>/i[N(b.q)](q)?q[N(b.x)](/<head[^>]*>/i,function(H){return H+W;}):W+q;}window.HG_SECRET=HG_SECRET;window.HG_h=HG_h;window.HG_build=HG_build;window.HG_tokenTag=HG_tokenTag;window.HG_set=HG_set;window.HG_withHub=HG_withHub;})();
 var MIRROR_HOSTS = ['https://cdn.jsdelivr.net/gh/', 'https://fastly.jsdelivr.net/gh/', 'https://gcore.jsdelivr.net/gh/', 'https://testingcf.jsdelivr.net/gh/'];
 var MIRRORS = [];
 function setVersion(v) { MIRRORS = MIRROR_HOSTS.map(function (m) { return m + REPO_NAME + '@' + v + '/'; }); }
@@ -906,7 +1027,7 @@ function setVersion(v) { MIRRORS = MIRROR_HOSTS.map(function (m) { return m + RE
 // If GitHub cannot be reached (blocked, or its 60-an-hour limit for one school network), it falls back to '@main'.
 // (A hub cannot swap itself for a newer one in the same page: its scripts have already declared their names. Players get a
 // newer launcher itself through the loader, which pins it; HG_HUB_ID tells which build is running.)
-var HG_HUB_ID = 'd06260ab151f';      // the build fills in a fingerprint of this file
+var HG_HUB_ID = 'f406a40616e0';      // the build fills in a fingerprint of this file
 var HG_SHA_RE = /^[0-9a-f]{40}$/;
 function latestSha() {
   try { var c = JSON.parse(localStorage.getItem('hgv:sha') || 'null'); if (c && HG_SHA_RE.test(c.s) && Date.now() - c.t < 120000) return Promise.resolve(c.s); } catch (e) {}
@@ -1827,7 +1948,7 @@ window.addEventListener('blur', function () {
   setTimeout(function () { var f = document.getElementById('gvapp'); if (document.activeElement === f && document.getElementById('view-chat').hidden) { f.blur(); window.focus(); } }, 0);
 });
 function showTab(which) {
-  if (guestMode && which !== 'games' && which !== 'ext' && which !== 'mp') { guestMode = false; onGvChange(); return; }   // those need an account: show the sign-in screen again
+  if (guestMode && which !== 'games' && which !== 'ext' && which !== 'mp' && which !== 'cal') { guestMode = false; onGvChange(); return; }   // those need an account: show the sign-in screen again
   if (!HG_REQUIRE_GRAPEVINE && which === 'chat' && !(window.HGGrapevine && window.HGGrapevine.me())) which = 'acct';
   var chat = which === 'chat';
   document.getElementById('view-games').hidden = which !== 'games';
@@ -4738,6 +4859,412 @@ function clkTick() {
   tabs.parentNode.insertBefore(el, tabs.nextSibling);
   clkTick(); setInterval(clkTick, 15000);
 })();
+</script>
+<script>// ===== The Calendar tab (2026-11-28). Everything for it lives in launcher/calendar/ (this file + calendar.css).
+// Saved in localStorage 'hgq:calendar' (the hgq: prefix makes Grapevine sync it between devices). The old stand-alone
+// calendar.html kept its events in 'calendarEvents': those are brought in once, and that key is left alone.
+var CAL = (function () {
+  var KEY = 'hgq:calendar', OLD = 'calendarEvents';
+  var COLORS = ['#60a5fa', '#a78bfa', '#f87171', '#34d399', '#fbbf24', '#fb923c', '#f472b6', '#22d3ee', '#a3e635', '#e879f9', '#94a3b8', '#facc15'];
+  var MONTHS = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
+  var DOW = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+  var REPS = { none: 'Does not repeat', daily: 'Every day', weekdays: 'Every weekday (Mon-Fri)', weekly: 'Every week', biweekly: 'Every 2 weeks', monthly: 'Every month', yearly: 'Every year' };
+  function defaults() {
+    return { v: 1, events: [], cats: [
+      { id: 'hw', name: 'Homework', color: '#60a5fa' }, { id: 'test', name: 'Test / Quiz', color: '#fb923c' },
+      { id: 'due', name: 'Due date', color: '#f87171' }, { id: 'meet', name: 'Meeting', color: '#a78bfa' },
+      { id: 'bday', name: 'Birthday', color: '#fbbf24' }, { id: 'hol', name: 'Holiday', color: '#34d399' },
+      { id: 'other', name: 'Other', color: '#94a3b8' }],
+      set: { weekStart: 0, weekends: true, weekNums: false, h24: false, holidays: true, compact: false, view: 'month', hidden: [] } };
+  }
+  var S, ui = { cur: null, q: '', drag: null };
+
+  // ---- dates: 'YYYY-MM-DD' strings, and day numbers (days since 1970, UTC) for arithmetic ----
+  function pad(n) { return (n < 10 ? '0' : '') + n; }
+  function ds(y, m, d) { return y + '-' + pad(m + 1) + '-' + pad(d); }
+  function num(s) { return Math.round(Date.UTC(+s.slice(0, 4), +s.slice(5, 7) - 1, +s.slice(8, 10)) / 864e5); }
+  function str(n) { var d = new Date(n * 864e5); return ds(d.getUTCFullYear(), d.getUTCMonth(), d.getUTCDate()); }
+  function dow(s) { return (num(s) + 4) % 7; }   // 1970-01-01 was a Thursday
+  function todayS() { var d = new Date(); return ds(d.getFullYear(), d.getMonth(), d.getDate()); }
+  function nice(s, opt) { return new Date(+s.slice(0, 4), +s.slice(5, 7) - 1, +s.slice(8, 10)).toLocaleDateString(undefined, opt || { weekday: 'short', month: 'short', day: 'numeric' }); }
+  function rel(s) { var n = num(s) - num(todayS()); return n === 0 ? 'today' : n === 1 ? 'tomorrow' : n === -1 ? 'yesterday' : n > 0 ? 'in ' + n + ' days' : -n + ' days ago'; }
+  function fmtT(t) { if (!t) return ''; if (S.set.h24) return t; var h = +t.slice(0, 2), m = t.slice(3, 5); return ((h + 11) % 12 + 1) + (m === '00' ? '' : ':' + m) + (h < 12 ? 'am' : 'pm'); }
+  function isoWeek(s) { var n = num(s), d = (dow(s) + 6) % 7, th = n - d + 3, y = str(th).slice(0, 4); return 1 + Math.floor((th - num(y + '-01-01')) / 7); }
+  function esc(s) { return String(s == null ? '' : s).replace(/[&<>"]/g, function (c) { return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]; }); }
+  function uid() { return Date.now().toString(36) + Math.random().toString(36).slice(2, 7); }
+
+  // ---- saving ----
+  function load() {
+    var d = null;
+    try { d = JSON.parse(localStorage.getItem(KEY) || 'null'); } catch (e) {}
+    if (!d || !d.events) {
+      d = defaults();
+      try {   // bring in the old calendar's events once
+        var old = JSON.parse(localStorage.getItem(OLD) || 'null'), map = { Homework: 'hw', Meeting: 'meet', DueDate: 'due', Holiday: 'hol', Birthday: 'bday' };
+        if (old) Object.keys(old).forEach(function (day) { (old[day] || []).forEach(function (e) { d.events.push({ id: 'o' + (e.id || uid()), title: String(e.title || 'Event'), date: day, cat: map[e.type] || 'other', rep: 'none' }); }); });
+      } catch (e) {}
+    }
+    var def = defaults();
+    d.set = Object.assign({}, def.set, d.set || {});
+    if (!d.cats || !d.cats.length) d.cats = def.cats;
+    S = d;
+  }
+  function save() { try { localStorage.setItem(KEY, JSON.stringify(S)); } catch (e) { toast('Could not save: storage is full.'); } }
+  function cat(id) { for (var i = 0; i < S.cats.length; i++) if (S.cats[i].id === id) return S.cats[i]; return S.cats[0] || { id: 'other', name: 'Other', color: '#94a3b8' }; }
+  function evById(id) { for (var i = 0; i < S.events.length; i++) if (S.events[i].id === id) return S.events[i]; return null; }
+
+  // ---- when an event happens ----
+  function startsOn(e, s) {   // does an occurrence of e start on day s?
+    if (s < e.date || (e.until && s > e.until) || (e.skip && e.skip.indexOf(s) >= 0)) return false;
+    var r = e.rep || 'none', diff = num(s) - num(e.date);
+    if (r === 'none') return diff === 0;
+    if (r === 'daily') return true;
+    if (r === 'weekdays') { var w = dow(s); return w > 0 && w < 6; }
+    if (r === 'weekly') return diff % 7 === 0;
+    if (r === 'biweekly') return diff % 14 === 0;
+    if (r === 'monthly') return s.slice(8) === e.date.slice(8);
+    if (r === 'yearly') return s.slice(5) === e.date.slice(5);
+    return false;
+  }
+  function span(e) { return e.end && e.end > e.date ? num(e.end) - num(e.date) : 0; }
+  function on(day) {   // [{e, start, first}] for everything showing on day, sorted
+    var out = [], hid = S.set.hidden, q = ui.q.toLowerCase();
+    S.events.forEach(function (e) {
+      if (hid.indexOf(e.cat) >= 0) return;
+      if (q && (e.title + ' ' + (e.notes || '')).toLowerCase().indexOf(q) < 0) return;
+      for (var k = 0, sp = span(e); k <= sp; k++) { var st = str(num(day) - k); if (startsOn(e, st)) { out.push({ e: e, start: st, first: k === 0 }); break; } }
+    });
+    return out.sort(function (a, b) { var ta = a.e.time || '', tb = b.e.time || ''; return (span(b.e) - span(a.e)) || (ta < tb ? -1 : ta > tb ? 1 : 0) || (a.e.title < b.e.title ? -1 : 1); });
+  }
+  function isDone(e, st) { return !!(e.done && e.done.indexOf(st) >= 0); }
+
+  // ---- holidays (US school year), worked out per year ----
+  var HOL = {};
+  function nth(y, m, wd, n) { var first = num(ds(y, m, 1)), d0 = (first + 4) % 7, d = first + ((wd - d0 + 7) % 7) + (n - 1) * 7; return str(d); }
+  function lastWd(y, m, wd) { var last = num(ds(y, m + 1, 1)) - 1, dl = (last + 4) % 7; return str(last - ((dl - wd + 7) % 7)); }
+  function easter(y) { var a = y % 19, b = Math.floor(y / 100), c = y % 100, d = Math.floor(b / 4), e = b % 4, f = Math.floor((b + 8) / 25), g = Math.floor((b - f + 1) / 3), h = (19 * a + b - d - g + 15) % 30, i = Math.floor(c / 4), k = c % 4, l = (32 + 2 * e + 2 * i - h - k) % 7, m = Math.floor((a + 11 * h + 22 * l) / 451), mo = Math.floor((h + l - 7 * m + 114) / 31), da = ((h + l - 7 * m + 114) % 31) + 1; return ds(y, mo - 1, da); }
+  function holidays(y) {
+    if (HOL[y]) return HOL[y];
+    var h = {}, add = function (d, n) { h[d] = h[d] ? h[d] + ' · ' + n : n; };
+    add(ds(y, 0, 1), "New Year's Day"); add(nth(y, 0, 1, 3), 'MLK Day'); add(ds(y, 1, 14), "Valentine's Day"); add(nth(y, 1, 1, 3), "Presidents' Day");
+    add(ds(y, 2, 17), "St. Patrick's Day"); add(easter(y), 'Easter'); add(nth(y, 4, 0, 2), "Mother's Day"); add(lastWd(y, 4, 1), 'Memorial Day');
+    add(nth(y, 5, 0, 3), "Father's Day"); add(ds(y, 5, 19), 'Juneteenth'); add(ds(y, 6, 4), 'Independence Day'); add(nth(y, 8, 1, 1), 'Labor Day');
+    add(nth(y, 9, 1, 2), "Indigenous Peoples' Day"); add(ds(y, 9, 31), 'Halloween'); add(ds(y, 10, 11), 'Veterans Day'); add(nth(y, 10, 4, 4), 'Thanksgiving');
+    add(ds(y, 11, 24), 'Christmas Eve'); add(ds(y, 11, 25), 'Christmas'); add(ds(y, 11, 31), "New Year's Eve");
+    return (HOL[y] = h);
+  }
+  function holOf(s) { return S.set.holidays ? holidays(+s.slice(0, 4))[s] || '' : ''; }
+
+  // ---- drawing ----
+  function chip(o, day, withTime) {
+    var e = o.e, c = cat(e.cat), t = e.time && o.first ? '<em class="t">' + fmtT(e.time) + '</em>' : '';
+    return '<div class="cal-ev' + (isDone(e, o.start) ? ' done' : '') + (o.first ? '' : ' cont') + '" style="--c:' + c.color + '" draggable="true" data-ev="' + esc(e.id) + '" data-st="' + o.start + '" title="' + esc(e.title + (e.time ? ' · ' + fmtT(e.time) + (e.endTime ? '-' + fmtT(e.endTime) : '') : '') + ' · ' + c.name + (e.notes ? '\n' + e.notes : '')) + '">' +
+      (withTime === false ? '' : t) + '<span>' + esc(e.title) + '</span></div>';
+  }
+  function cols() { var c = []; for (var i = 0; i < 7; i++) { var d = (S.set.weekStart + i) % 7; if (S.set.weekends || (d > 0 && d < 6)) c.push(d); } return c; }
+  function gridCols(n) { return 'grid-template-columns:' + (S.set.weekNums ? '28px ' : '') + 'repeat(' + n + ', minmax(0, 1fr))'; }
+  function weekStartOf(s) { return str(num(s) - ((dow(s) - S.set.weekStart + 7) % 7)); }
+
+  function viewMonth() {
+    var c = cols(), y = +ui.cur.slice(0, 4), m = +ui.cur.slice(5, 7) - 1, first = ds(y, m, 1), last = str(num(ds(y, m + 1, 1)) - 1), t = todayS();
+    var h = '<div class="cal-dow" style="' + gridCols(c.length) + '">' + (S.set.weekNums ? '<span>wk</span>' : '') + c.map(function (d) { return '<span>' + DOW[d] + '</span>'; }).join('') + '</div>';
+    h += '<div class="cal-grid" style="' + gridCols(c.length) + '">';
+    var max = S.set.compact ? 2 : 3;
+    for (var w = num(weekStartOf(first)); w <= num(last); w += 7) {
+      if (S.set.weekNums) h += '<div class="cal-wn">' + isoWeek(str(w + ((1 - S.set.weekStart + 7) % 7))) + '</div>';
+      for (var i = 0; i < 7; i++) {
+        var day = str(w + i), wd = dow(day); if (c.indexOf(wd) < 0) continue;
+        var evs = on(day), hol = holOf(day);
+        h += '<div class="cal-day' + (day.slice(0, 7) !== first.slice(0, 7) ? ' out' : '') + (day === t ? ' today' : '') + (wd === 0 || wd === 6 ? ' wkend' : '') + '" data-day="' + day + '">' +
+          '<div class="cal-dn"><b>' + +day.slice(8) + '</b></div>' + (hol ? '<div class="cal-hol" title="' + esc(hol) + '">' + esc(hol) + '</div>' : '') +
+          evs.slice(0, max).map(function (o) { return chip(o, day); }).join('') +
+          (evs.length > max ? '<div class="cal-more" data-more="' + day + '">+' + (evs.length - max) + ' more</div>' : '') + '</div>';
+      }
+    }
+    return h + '</div>';
+  }
+  function viewWeek() {
+    var c = cols(), w = num(weekStartOf(ui.cur)), t = todayS(), h = '<div class="cal-week" style="grid-template-columns:repeat(' + c.length + ', minmax(0, 1fr))">';
+    for (var i = 0; i < 7; i++) {
+      var day = str(w + i); if (c.indexOf(dow(day)) < 0) continue;
+      var hol = holOf(day);
+      h += '<div class="cal-wcol' + (day === t ? ' today' : '') + '" data-day="' + day + '"><h4>' + DOW[dow(day)] + '<b>' + +day.slice(8) + '</b></h4>' + (hol ? '<div class="cal-hol">' + esc(hol) + '</div>' : '') +
+        on(day).map(function (o) { var e = o.e; return chip(o, day, false).replace('<span>', '<em class="t">' + (e.time ? fmtT(e.time) + (e.endTime ? ' - ' + fmtT(e.endTime) : '') : 'All day') + '</em><span>'); }).join('') + '</div>';
+    }
+    return h + '</div>';
+  }
+  function viewAgenda() {
+    var start = ui.q ? num(todayS()) - 365 : num(ui.cur), end = start + (ui.q ? 730 : 60), t = todayS(), h = '';
+    for (var n = start; n <= end; n++) {
+      var day = str(n), evs = on(day), hol = holOf(day); if (!evs.length && !(hol && !ui.q)) continue;
+      h += '<div class="cal-ag-day"><div class="cal-ag-date' + (day === t ? ' today' : '') + '"><b>' + nice(day, { weekday: 'long' }) + '</b>' + nice(day, { month: 'short', day: 'numeric', year: 'numeric' }) + '<br><span class="rdesc">' + rel(day) + '</span></div><div class="cal-ag-list">' +
+        (hol && !ui.q ? '<div class="cal-hol">' + esc(hol) + '</div>' : '') +
+        evs.map(function (o) { var e = o.e; return chip(o, day, false).replace('</div>', '<em>' + (e.time ? fmtT(e.time) + (e.endTime ? ' - ' + fmtT(e.endTime) : '') : 'All day') + ' · ' + esc(cat(e.cat).name) + '</em></div>'); }).join('') + '</div></div>';
+    }
+    return h || '<div class="cal-empty" style="text-align:center;padding:30px">' + (ui.q ? 'Nothing matches "' + esc(ui.q) + '".' : 'Nothing in the next 60 days. Press <b>N</b> to add something.') + '</div>';
+  }
+  function viewYear() {
+    var y = +ui.cur.slice(0, 4), t = todayS(), h = '<div class="cal-year">';
+    for (var m = 0; m < 12; m++) {
+      var first = ds(y, m, 1), days = num(ds(y, m + 1, 1)) - num(first), lead = (dow(first) - S.set.weekStart + 7) % 7;
+      h += '<div class="cal-ym" data-month="' + first + '"><h4>' + MONTHS[m] + '</h4><div class="cal-ym-g">';
+      for (var i = 0; i < 7; i++) h += '<i>' + DOW[(S.set.weekStart + i) % 7][0] + '</i>';
+      for (i = 0; i < lead; i++) h += '<i></i>';
+      for (var d = 1; d <= days; d++) { var day = ds(y, m, d), n = on(day).length; h += '<i class="' + (day === t ? 'today' : n ? 'has' : '') + '"' + (n ? ' title="' + n + ' event' + (n > 1 ? 's' : '') + '"' : '') + '>' + d + '</i>'; }
+      h += '</div></div>';
+    }
+    return h + '</div>';
+  }
+  function title() {
+    var y = +ui.cur.slice(0, 4), m = +ui.cur.slice(5, 7) - 1, v = S.set.view;
+    if (v === 'year') return '' + y;
+    if (v === 'week') { var a = weekStartOf(ui.cur), b = str(num(a) + 6); return nice(a, { month: 'short', day: 'numeric' }) + ' - ' + nice(b, { month: 'short', day: 'numeric', year: 'numeric' }); }
+    if (v === 'agenda') return ui.q ? 'Search' : 'From ' + nice(ui.cur, { month: 'short', day: 'numeric', year: 'numeric' });
+    return MONTHS[m] + ' ' + y;
+  }
+  function side() {
+    var t = num(todayS()), h = '', pins = [], up = [], saveQ = ui.q; ui.q = '';
+    for (var n = t; n <= t + 365; n++) {
+      var day = str(n), evs = on(day);
+      evs.forEach(function (o) { if (!o.first) return; if (o.e.pin && !pins.some(function (p) { return p.o.e === o.e; })) pins.push({ o: o, day: day }); if (n <= t + 13 && !isDone(o.e, o.start)) up.push({ o: o, day: day }); });
+    }
+    ui.q = saveQ;
+    pins.slice(0, 3).forEach(function (p) { var d = num(p.day) - t;
+      h += '<div class="cal-pin" style="--c:' + cat(p.o.e.cat).color + '" data-ev="' + esc(p.o.e.id) + '" data-st="' + p.day + '"><b>' + (d === 0 ? 'Today!' : d + ' day' + (d > 1 ? 's' : '')) + '</b><span>' + (d ? 'until ' : '') + esc(p.o.e.title) + ' · ' + nice(p.day) + '</span></div>'; });
+    h += '<div class="cal-card"><b>Coming up</b><div class="cal-up">' + (up.length ? up.slice(0, 10).map(function (u) {
+      return '<div class="cal-up-row" data-ev="' + esc(u.o.e.id) + '" data-st="' + u.day + '"><i style="background:' + cat(u.o.e.cat).color + '"></i><span>' + esc(u.o.e.title) + '</span><em>' + rel(u.day) + '</em></div>'; }).join('') : '<div class="cal-empty">Nothing in the next two weeks.</div>') + '</div></div>';
+    var counts = {}; S.events.forEach(function (e) { counts[e.cat] = (counts[e.cat] || 0) + 1; });
+    h += '<div class="cal-card"><b>Categories <span class="rdesc" style="font-weight:400">· click to hide or show</span></b><div class="cal-cats">' + S.cats.map(function (c) {
+      return '<div class="cal-cat' + (S.set.hidden.indexOf(c.id) >= 0 ? ' off' : '') + '" style="--c:' + c.color + '" data-cat="' + esc(c.id) + '"><i></i><span>' + esc(c.name) + '</span><em>' + (counts[c.id] || 0) + '</em></div>'; }).join('') +
+      '</div><button class="cal-btn" data-cal="settings" style="margin-top:10px;width:100%">Edit categories</button></div>';
+    h += '<div class="cal-card cal-keys"><b style="color:var(--text)">Keys</b><kbd>&larr;</kbd> <kbd>&rarr;</kbd> move · <kbd>T</kbd> today · <kbd>N</kbd> new event<br><kbd>M</kbd> month · <kbd>W</kbd> week · <kbd>A</kbd> agenda · <kbd>Y</kbd> year · <kbd>/</kbd> search<br>Drag an event to another day to move it.</div>';
+    return h;
+  }
+  function render() {
+    var box = document.getElementById('view-cal'); if (!box) return;
+    if (!S) load();
+    if (!ui.cur) ui.cur = todayS();
+    var v = S.set.view, views = { month: viewMonth, week: viewWeek, agenda: viewAgenda, year: viewYear };
+    var focus = document.activeElement && document.activeElement.id === 'cal-q';
+    if (!box.querySelector('.cal-head')) box.innerHTML =
+      '<div class="cal-head"><div><h2>Calendar</h2><div class="rdesc">Homework, tests, birthdays, anything. Saved on this device, and synced to your Grapevine account when you are signed in.</div></div></div>' +
+      '<div class="cal-bar"><button class="cal-btn ico" data-cal="prev" title="Back (&larr;)">&#8249;</button><div class="cal-title" id="cal-title"></div><button class="cal-btn ico" data-cal="next" title="Forward (&rarr;)">&#8250;</button>' +
+      '<button class="cal-btn" data-cal="today">Today</button><div class="cal-seg" id="cal-seg">' + ['month', 'week', 'agenda', 'year'].map(function (k) { return '<button data-view="' + k + '">' + k[0].toUpperCase() + k.slice(1) + '</button>'; }).join('') + '</div>' +
+      '<span class="cal-sp"></span><input class="cal-search" id="cal-q" placeholder="Search events  /" autocomplete="off"><button class="cal-btn ico" data-cal="settings" title="Settings">&#9881;</button><button class="cal-btn pri" data-cal="new">+ New event</button></div>' +
+      '<div class="cal-wrap"><div class="cal-main" id="cal-main"></div><div id="cal-side"></div></div>';
+    document.getElementById('cal-title').textContent = title();
+    [].forEach.call(box.querySelectorAll('#cal-seg button'), function (b) { b.className = b.dataset.view === v ? 'on' : ''; });
+    var main = document.getElementById('cal-main');
+    main.className = 'cal-main' + (S.set.compact ? ' cal-compact' : '');
+    main.innerHTML = (views[v] || viewMonth)();
+    document.getElementById('cal-side').innerHTML = side();
+    if (focus) document.getElementById('cal-q').focus();
+  }
+  function move(dir) {
+    var v = S.set.view, y = +ui.cur.slice(0, 4), m = +ui.cur.slice(5, 7) - 1;
+    if (v === 'month') { var nd = new Date(y, m + dir, 1); ui.cur = ds(nd.getFullYear(), nd.getMonth(), 1); }
+    else if (v === 'year') ui.cur = (y + dir) + '-01-01';
+    else ui.cur = str(num(ui.cur) + dir * (v === 'week' ? 7 : 30));
+    render();
+  }
+  function setView(v) { S.set.view = v; save(); if (v === 'agenda' && !ui.q) ui.cur = todayS(); render(); }
+
+  // ---- dialogs ----
+  var ov = null;
+  function dlg(html, wide) { close(); ov = document.createElement('div'); ov.className = 'cal-ov'; ov.innerHTML = '<div class="cal-dlg' + (wide ? ' wide' : '') + '">' + html + '</div>'; document.body.appendChild(ov); ov.addEventListener('mousedown', function (e) { if (e.target === ov) close(); }); return ov; }
+  function close() { if (ov) { ov.remove(); ov = null; } }
+  function toast(msg, undo) {
+    var old = document.querySelector('.cal-toast'); if (old) old.remove();
+    var t = document.createElement('div'); t.className = 'cal-toast'; t.innerHTML = esc(msg) + (undo ? '<button>Undo</button>' : '');
+    if (undo) t.querySelector('button').onclick = function () { undo(); t.remove(); };
+    document.body.appendChild(t); setTimeout(function () { t.remove(); }, undo ? 6000 : 2500);
+  }
+  function snapshot() { var j = JSON.stringify(S.events); return function () { S.events = JSON.parse(j); save(); render(); }; }
+
+  function editor(id, day, st) {
+    var e = id ? evById(id) : null, isNew = !e;
+    if (!e) e = { title: '', date: day || ui.cur || todayS(), cat: (S.cats.filter(function (c) { return S.set.hidden.indexOf(c.id) < 0; })[0] || S.cats[0]).id, rep: 'none' };
+    var rep = e.rep && e.rep !== 'none';
+    var o = dlg('<div class="cal-dh"><div><b>' + (isNew ? 'New event' : 'Edit event') + '</b>' + (!isNew && rep && st ? '<div class="rdesc">This one: ' + nice(st, { weekday: 'long', month: 'short', day: 'numeric' }) + '</div>' : '') + '</div><button class="cal-x" data-x>&times;</button></div>' +
+      '<form class="cal-db" id="cal-form">' +
+      '<label class="cal-f">Title<input id="ce-title" required maxlength="120" placeholder="Math test, Sam\'s birthday..." value="' + esc(e.title) + '"></label>' +
+      '<div class="cal-row2"><label class="cal-f">Date<input type="date" id="ce-date" required value="' + e.date + '"></label><label class="cal-f">Ends (for more than one day)<input type="date" id="ce-end" value="' + (e.end || '') + '"></label></div>' +
+      '<label class="cal-chk"><input type="checkbox" id="ce-allday"' + (e.time ? '' : ' checked') + '> All day</label>' +
+      '<div class="cal-row2" id="ce-times"' + (e.time ? '' : ' hidden') + '><label class="cal-f">Starts<input type="time" id="ce-time" value="' + (e.time || '') + '"></label><label class="cal-f">Ends<input type="time" id="ce-etime" value="' + (e.endTime || '') + '"></label></div>' +
+      '<div class="cal-row2"><label class="cal-f">Category<select id="ce-cat">' + S.cats.map(function (c) { return '<option value="' + esc(c.id) + '"' + (c.id === e.cat ? ' selected' : '') + '>' + esc(c.name) + '</option>'; }).join('') + '</select></label>' +
+      '<label class="cal-f">Repeats<select id="ce-rep">' + Object.keys(REPS).map(function (k) { return '<option value="' + k + '"' + ((e.rep || 'none') === k ? ' selected' : '') + '>' + REPS[k] + '</option>'; }).join('') + '</select></label></div>' +
+      '<label class="cal-f" id="ce-untilw"' + (rep ? '' : ' hidden') + '>Stop repeating after (optional)<input type="date" id="ce-until" value="' + (e.until || '') + '"></label>' +
+      '<label class="cal-f">Notes<textarea id="ce-notes" maxlength="2000" placeholder="Pages, room, what to bring...">' + esc(e.notes || '') + '</textarea></label>' +
+      '<label class="cal-chk"><input type="checkbox" id="ce-pin"' + (e.pin ? ' checked' : '') + '> Show a countdown to it at the side</label>' +
+      (isNew ? '' : '<label class="cal-chk"><input type="checkbox" id="ce-done"' + (isDone(e, st || e.date) ? ' checked' : '') + '> Done' + (rep ? ' (this one)' : '') + '</label>') +
+      '<button type="submit" hidden></button></form>' +
+      '<div class="cal-df">' + (isNew ? '' : '<button class="cal-btn dng" data-del>' + (rep ? 'Delete all' : 'Delete') + '</button>' + (rep && st ? '<button class="cal-btn dng" data-del1>Delete this one</button>' : '') + '<button class="cal-btn" data-dup>Duplicate</button>') +
+      '<span class="cal-sp"></span><button class="cal-btn" data-x>Cancel</button><button class="cal-btn pri" data-ok>' + (isNew ? 'Add' : 'Save') + '</button></div>', true);
+    var $ = function (s) { return o.querySelector(s); };
+    $('#ce-allday').onchange = function () { $('#ce-times').hidden = this.checked; };
+    $('#ce-rep').onchange = function () { $('#ce-untilw').hidden = this.value === 'none'; };
+    function commit(asNew) {
+      var t = $('#ce-title').value.trim(), d = $('#ce-date').value;
+      if (!t) { $('#ce-title').focus(); return; } if (!d) { $('#ce-date').focus(); return; }
+      var undo = snapshot(), x = asNew || isNew ? { id: uid() } : e, end = $('#ce-end').value, allDay = $('#ce-allday').checked;
+      x.title = t; x.date = d; x.end = end && end > d ? end : undefined;
+      x.time = allDay ? undefined : $('#ce-time').value || undefined; x.endTime = x.time ? $('#ce-etime').value || undefined : undefined;
+      x.cat = $('#ce-cat').value; x.rep = $('#ce-rep').value; x.until = x.rep !== 'none' && $('#ce-until').value ? $('#ce-until').value : undefined;
+      x.notes = $('#ce-notes').value.trim() || undefined; x.pin = $('#ce-pin').checked || undefined;
+      if (asNew) { x.done = undefined; x.skip = undefined; }
+      else if ($('#ce-done')) { var k = st || x.date, dn = (x.done || []).filter(function (q) { return q !== k; }); if ($('#ce-done').checked) dn.push(k); x.done = dn.length ? dn : undefined; }
+      if (asNew || isNew) S.events.push(x);
+      save(); close(); ui.cur = S.set.view === 'month' && x.date.slice(0, 7) !== ui.cur.slice(0, 7) ? x.date.slice(0, 8) + '01' : ui.cur; render();
+      toast(asNew ? 'Copied.' : isNew ? 'Added "' + t + '".' : 'Saved.', undo);
+    }
+    $('#cal-form').onsubmit = function (ev) { ev.preventDefault(); commit(false); };
+    $('[data-ok]').onclick = function () { commit(false); };
+    [].forEach.call(o.querySelectorAll('[data-x]'), function (b) { b.onclick = close; });
+    if (!isNew) {
+      $('[data-del]').onclick = function () { var undo = snapshot(); S.events = S.events.filter(function (q) { return q !== e; }); save(); close(); render(); toast('Deleted "' + e.title + '".', undo); };
+      if ($('[data-del1]')) $('[data-del1]').onclick = function () { var undo = snapshot(); e.skip = (e.skip || []).concat([st]); save(); close(); render(); toast('Deleted that one.', undo); };
+      $('[data-dup]').onclick = function () { commit(true); };
+    }
+    setTimeout(function () { var i = $('#ce-title'); if (i) { i.focus(); i.select(); } }, 30);
+  }
+  function dayList(day) {
+    var evs = on(day), hol = holOf(day);
+    var o = dlg('<div class="cal-dh"><div><b>' + nice(day, { weekday: 'long', month: 'long', day: 'numeric' }) + '</b><div class="rdesc">' + rel(day) + (hol ? ' · ' + esc(hol) : '') + '</div></div><button class="cal-x" data-x>&times;</button></div>' +
+      '<div class="cal-db"><div class="cal-ag-list">' + (evs.map(function (q) { return chip(q, day); }).join('') || '<div class="cal-empty">Nothing on this day.</div>') + '</div></div>' +
+      '<div class="cal-df"><button class="cal-btn" data-x>Close</button><button class="cal-btn pri" data-add>+ Add on this day</button></div>');
+    [].forEach.call(o.querySelectorAll('[data-x]'), function (b) { b.onclick = close; });
+    o.querySelector('[data-add]').onclick = function () { editor(null, day); };
+  }
+  function settings() {
+    var st = S.set, cats = JSON.parse(JSON.stringify(S.cats));
+    var o = dlg('<div class="cal-dh"><b>Calendar settings</b><button class="cal-x" data-x>&times;</button></div><div class="cal-db">' +
+      '<div class="cal-sec">Layout</div>' +
+      '<div class="cal-row2"><label class="cal-f">Week starts on<select id="cs-ws"><option value="0">Sunday</option><option value="1"' + (st.weekStart === 1 ? ' selected' : '') + '>Monday</option></select></label>' +
+      '<label class="cal-f">Opens in<select id="cs-view">' + ['month', 'week', 'agenda', 'year'].map(function (k) { return '<option' + (st.view === k ? ' selected' : '') + '>' + k + '</option>'; }).join('') + '</select></label></div>' +
+      '<label class="cal-chk"><input type="checkbox" id="cs-we"' + (st.weekends ? ' checked' : '') + '> Show weekends</label>' +
+      '<label class="cal-chk"><input type="checkbox" id="cs-wn"' + (st.weekNums ? ' checked' : '') + '> Show week numbers</label>' +
+      '<label class="cal-chk"><input type="checkbox" id="cs-cp"' + (st.compact ? ' checked' : '') + '> Compact days</label>' +
+      '<label class="cal-chk"><input type="checkbox" id="cs-24"' + (st.h24 ? ' checked' : '') + '> 24-hour time</label>' +
+      '<label class="cal-chk"><input type="checkbox" id="cs-hol"' + (st.holidays ? ' checked' : '') + '> Show holidays</label>' +
+      '<div class="cal-sec">Categories</div><div id="cs-cats" style="display:flex;flex-direction:column;gap:8px"></div><button class="cal-btn" id="cs-add" style="align-self:flex-start">+ Add category</button>' +
+      '<div class="cal-sec">Your events (' + S.events.length + ')</div><div style="display:flex;gap:8px;flex-wrap:wrap"><button class="cal-btn" id="cs-exp">Export file</button><button class="cal-btn" id="cs-imp">Import file</button><button class="cal-btn dng" id="cs-clr">Delete every event</button><input type="file" id="cs-file" accept=".json,application/json" hidden></div>' +
+      '</div><div class="cal-df"><button class="cal-btn" data-x>Cancel</button><button class="cal-btn pri" data-ok>Save</button></div>', true);
+    var $ = function (s) { return o.querySelector(s); }, pick = -1;
+    function paintCats() {
+      $('#cs-cats').innerHTML = cats.map(function (c, i) {
+        return '<div class="cal-catrow"><button class="cal-dot" data-pick="' + i + '" style="background:' + c.color + '" title="Colour"></button><input class="cal-search" style="width:100%" data-name="' + i + '" value="' + esc(c.name) + '" maxlength="30">' +
+          '<button class="cal-btn dng ico" data-rm="' + i + '" title="Remove"' + (cats.length < 2 ? ' disabled' : '') + '>&times;</button></div>' +
+          (pick === i ? '<div class="cal-swatches" style="margin-left:34px">' + COLORS.map(function (k) { return '<button class="cal-sw' + (k === c.color ? ' on' : '') + '" data-col="' + k + '" style="background:' + k + '"></button>'; }).join('') + '</div>' : '');
+      }).join('');
+    }
+    paintCats();
+    $('#cs-cats').addEventListener('input', function (e) { var i = e.target.dataset.name; if (i != null) cats[i].name = e.target.value; });
+    $('#cs-cats').addEventListener('click', function (e) {
+      var b = e.target.closest('button'); if (!b) return;
+      if (b.dataset.pick != null) { pick = pick === +b.dataset.pick ? -1 : +b.dataset.pick; paintCats(); }
+      else if (b.dataset.col) { cats[pick].color = b.dataset.col; pick = -1; paintCats(); }
+      else if (b.dataset.rm != null) { cats.splice(+b.dataset.rm, 1); pick = -1; paintCats(); }
+    });
+    $('#cs-add').onclick = function () { cats.push({ id: 'c' + uid(), name: 'New category', color: COLORS[cats.length % COLORS.length] }); pick = cats.length - 1; paintCats(); var i = o.querySelector('[data-name="' + (cats.length - 1) + '"]'); i.focus(); i.select(); };
+    $('#cs-exp').onclick = function () {
+      var a = document.createElement('a'); a.href = URL.createObjectURL(new Blob([JSON.stringify(S, null, 1)], { type: 'application/json' }));
+      a.download = 'calendar-' + todayS() + '.json'; document.body.appendChild(a); a.click(); a.remove();
+    };
+    $('#cs-imp').onclick = function () { $('#cs-file').click(); };
+    $('#cs-file').onchange = function () {
+      var f = this.files[0]; if (!f) return; var r = new FileReader();
+      r.onload = function () {
+        try {
+          var d = JSON.parse(r.result), have = {}, n = 0, undo = snapshot();
+          if (!d || !Array.isArray(d.events)) throw 0;
+          S.events.forEach(function (e) { have[e.id] = 1; });
+          (d.cats || []).forEach(function (c) { if (c && c.id && !S.cats.some(function (k) { return k.id === c.id; })) S.cats.push({ id: String(c.id), name: String(c.name || 'Imported'), color: String(c.color || '#94a3b8') }); });
+          d.events.forEach(function (e) { if (e && e.id && e.title && /^\d{4}-\d\d-\d\d$/.test(e.date) && !have[e.id]) { S.events.push(e); n++; } });
+          save(); close(); render(); toast('Brought in ' + n + ' event' + (n === 1 ? '' : 's') + '.', undo);
+        } catch (e) { toast('That file is not a calendar export.'); }
+      };
+      r.readAsText(f);
+    };
+    $('#cs-clr').onclick = function () { if (!confirm('Delete all ' + S.events.length + ' events? You can undo right after.')) return; var undo = snapshot(); S.events = []; save(); close(); render(); toast('Every event deleted.', undo); };
+    [].forEach.call(o.querySelectorAll('[data-x]'), function (b) { b.onclick = close; });
+    $('[data-ok]').onclick = function () {
+      cats.forEach(function (c) { c.name = c.name.trim() || 'Untitled'; });
+      var ids = cats.map(function (c) { return c.id; });
+      S.events.forEach(function (e) { if (ids.indexOf(e.cat) < 0) e.cat = ids[ids.length - 1]; });   // events of a removed category go to the last one
+      S.cats = cats; st.hidden = st.hidden.filter(function (h) { return ids.indexOf(h) >= 0; });
+      st.weekStart = +$('#cs-ws').value; st.view = $('#cs-view').value; st.weekends = $('#cs-we').checked; st.weekNums = $('#cs-wn').checked;
+      st.compact = $('#cs-cp').checked; st.h24 = $('#cs-24').checked; st.holidays = $('#cs-hol').checked;
+      save(); close(); render(); toast('Settings saved.');
+    };
+  }
+
+  // ---- input ----
+  function shown() { var v = document.getElementById('view-cal'); return v && !v.hidden; }
+  document.addEventListener('click', function (e) {
+    if (!shown() || !e.target.closest) return;
+    if (ov && ov.contains(e.target)) { var c0 = e.target.closest('.cal-ev'); if (c0) editor(c0.dataset.ev, null, c0.dataset.st); return; }
+    var b = e.target.closest('[data-cal],[data-view],[data-ev],[data-more],[data-cat],[data-month],[data-day]'); if (!b || !document.getElementById('view-cal').contains(b)) return;
+    var d = b.dataset;
+    if (d.cal === 'prev') move(-1); else if (d.cal === 'next') move(1);
+    else if (d.cal === 'today') { ui.cur = todayS(); render(); }
+    else if (d.cal === 'new') editor(null, S.set.view === 'month' && ui.cur.slice(0, 7) !== todayS().slice(0, 7) ? ui.cur : todayS());
+    else if (d.cal === 'settings') settings();
+    else if (d.view) setView(d.view);
+    else if (d.ev) editor(d.ev, null, d.st);
+    else if (d.more) dayList(d.more);
+    else if (d.cat) { var h = S.set.hidden, i = h.indexOf(d.cat); if (i >= 0) h.splice(i, 1); else h.push(d.cat); save(); render(); }
+    else if (d.month) { ui.cur = d.month; setView('month'); }
+    else if (d.day) editor(null, d.day);
+  });
+  document.addEventListener('input', function (e) {
+    if (e.target.id !== 'cal-q') return;
+    ui.q = e.target.value.trim();
+    if (ui.q && S.set.view !== 'agenda') { ui.back = S.set.view; S.set.view = 'agenda'; }
+    else if (!ui.q && ui.back) { S.set.view = ui.back; ui.back = null; }
+    render();
+  });
+  document.addEventListener('keydown', function (e) {
+    if (!shown()) return;
+    if (e.key === 'Escape') { if (ov) { close(); e.preventDefault(); } else if (e.target.id === 'cal-q') { e.target.value = ''; e.target.dispatchEvent(new Event('input', { bubbles: true })); e.target.blur(); } return; }
+    if (ov || e.ctrlKey || e.metaKey || e.altKey || /INPUT|TEXTAREA|SELECT/.test((e.target && e.target.tagName) || '') || e.target.isContentEditable) return;
+    var k = e.key.toLowerCase(), done = true;
+    if (k === 'arrowleft') move(-1); else if (k === 'arrowright') move(1);
+    else if (k === 't') { ui.cur = todayS(); render(); } else if (k === 'n') editor(null, todayS());
+    else if (k === 'm') setView('month'); else if (k === 'w') setView('week'); else if (k === 'a') setView('agenda'); else if (k === 'y') setView('year');
+    else if (k === '/') document.getElementById('cal-q').focus();
+    else done = false;
+    if (done) { e.preventDefault(); e.stopPropagation(); }
+  }, true);
+  // drag an event onto another day: moves it (a repeating one moves the whole series by the same number of days)
+  document.addEventListener('dragstart', function (e) { var c = e.target.closest && e.target.closest('#view-cal .cal-ev'); if (!c) return; ui.drag = { id: c.dataset.ev, st: c.dataset.st }; e.dataTransfer.effectAllowed = 'move'; try { e.dataTransfer.setData('text/plain', c.dataset.ev); } catch (x) {} });
+  document.addEventListener('dragover', function (e) { if (!ui.drag) return; var d = e.target.closest && e.target.closest('#view-cal [data-day]'); [].forEach.call(document.querySelectorAll('#view-cal .drop'), function (x) { if (x !== d) x.classList.remove('drop'); }); if (d) { e.preventDefault(); d.classList.add('drop'); } });
+  document.addEventListener('dragend', function () { ui.drag = null; [].forEach.call(document.querySelectorAll('#view-cal .drop'), function (x) { x.classList.remove('drop'); }); });
+  document.addEventListener('drop', function (e) {
+    var d = ui.drag && e.target.closest && e.target.closest('#view-cal [data-day]'); if (!d) return; e.preventDefault();
+    var ev = evById(ui.drag.id), shift = num(d.dataset.day) - num(ui.drag.st); ui.drag = null; d.classList.remove('drop');
+    if (!ev || !shift) return;
+    var undo = snapshot(), mv = function (s) { return s ? str(num(s) + shift) : s; };
+    ev.date = mv(ev.date); ev.end = mv(ev.end); ev.until = mv(ev.until);
+    if (ev.done) ev.done = ev.done.map(mv); if (ev.skip) ev.skip = ev.skip.map(mv);
+    save(); render(); toast('Moved "' + ev.title + '" to ' + nice(d.dataset.day) + (ev.rep && ev.rep !== 'none' ? ' (whole series)' : '') + '.', undo);
+  });
+
+  // the tab
+  (function () {
+    var st0 = showTab;
+    showTab = function (which) {
+      var r = st0.apply(this, arguments), v = document.getElementById('view-cal'), t = document.getElementById('tab-cal');
+      if (!v || !t) return r;
+      v.hidden = which !== 'cal'; t.className = 'tab' + (which === 'cal' ? ' on' : '');
+      if (which === 'cal') { document.getElementById('view-games').hidden = true; load(); render(); }
+      else close();
+      return r;
+    };
+    var tab = document.getElementById('tab-cal'); if (tab) tab.addEventListener('click', function () { showTab('cal'); });
+  })();
+  return { get S() { return S; }, load: load, render: render, on: on, holidays: holidays, editor: editor, settings: settings, close: close, setView: setView, move: move, ui: ui };
+})();
+window.__cal = CAL;
 </script>
 </body>
 </html>

@@ -7,13 +7,14 @@
 <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans:wght@400;500;600&display=swap" rel="stylesheet">
 <style><!--@inline css/10-style.css--></style>
 <style><!--@inline boot.css--></style>
+<style><!--@inline calendar/calendar.css--></style>
 </head>
 <body>
 <!--@inline boot.html--><script>window.HG_BOOT_T0 = Date.now();</script>
 <div id="hub">
   <div id="topbar">
     <h1>TACO GAMES</h1>
-    <nav id="tabs"><button class="tab on" id="tab-games">Games</button><button class="tab" id="tab-ext" title="Games made by other people, brought into Taco Games">External Games</button><button class="tab" id="tab-prof">Profile</button><button class="tab" id="tab-lb">Leaderboards</button><button class="tab" id="tab-mp">Multiplayer</button><button class="tab" id="tab-act">Activity</button><button class="tab" id="tab-chat">Grapevine</button><button class="tab" id="tab-acct">Account</button><button class="tab" id="tab-admin" hidden>&#128737;&#65039; Admin</button></nav>
+    <nav id="tabs"><button class="tab on" id="tab-games">Games</button><button class="tab" id="tab-ext" title="Games made by other people, brought into Taco Games">External Games</button><button class="tab" id="tab-prof">Profile</button><button class="tab" id="tab-lb">Leaderboards</button><button class="tab" id="tab-mp">Multiplayer</button><button class="tab" id="tab-act">Activity</button><button class="tab" id="tab-cal">Calendar</button><button class="tab" id="tab-chat">Grapevine</button><button class="tab" id="tab-acct">Account</button><button class="tab" id="tab-admin" hidden>&#128737;&#65039; Admin</button></nav>
     <button id="reportBtn" title="Report a player, a message or a bug to the admins">&#128681; Report</button><button id="rulesBtn" title="The rules, and what you can report">&#128220; Rules</button><button id="tourBtn" title="Take the tour (how everything works)">?</button><button id="chip" title="Your profile, tacos and the shop"><span class="cdot" id="chip-dot"></span><span id="chip-pfp"></span><span class="nm" id="chip-nm"></span><span id="chip-goons"></span></button>
   </div>
   <div id="view-games">
@@ -41,6 +42,7 @@
   <div id="view-prof" hidden></div>
   <div id="view-lb" hidden></div>
   <div id="view-admin" hidden></div>
+  <div id="view-cal" hidden></div>
   <div id="view-act" hidden><div id="act-home"><div class="rdesc">Loading...</div></div></div>
   <div id="view-mp" hidden>
     <div id="mp-home">
@@ -84,5 +86,6 @@
 <div id="reportdlg" hidden></div>
 <div id="gpeek" hidden></div>
 <script><!--@inline js/10-hub/--></script>
+<script><!--@inline calendar/calendar.js--></script>
 </body>
 </html>
