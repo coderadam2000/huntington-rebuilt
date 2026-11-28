@@ -118,6 +118,8 @@ fetches them for the launcher.
     reads or writes (egress). Rate-limit as a `soft` class (a few per minute per account).
   - Add `calIcs` to `LITE_OK` (040-hello) or launcher sessions never get the reply.
   - Then add a rig suite (`tools/tests/gv-calendar.mjs`) that links a calendar through the real server.
+- Release order: either side can ship first. A launcher without the server part says "waiting for the Grapevine update";
+  a server with it simply gets no calIcs requests until the launcher is out.
 - One way only (Google/Apple to Taco). Two-way sync was ruled out: Google needs a verified OAuth app (school admins
   usually block it) and Apple has no web API.
 - School Google accounts often have the secret iCal link turned off; personal Gmail and iCloud work.
